@@ -1,20 +1,18 @@
-import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
-// import heroImg from './assets/hero.png'
-import './App.css'
-import { Icon } from '@iconify/react';
+import { Route, Routes, BrowserRouter } from "react-router-dom";
+import { MainLayout } from "../layouts/MainLayout/MainLayout";
+import { Errors } from "../components/Errors";
 
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
-    <>
-      <h1 className="font-medium">Đây là tiêu đề font Inter Bold</h1>
-      <p className="font-light">Đây là đoạn văn font Inter Light (Weight 300)</p>
-      <span className="font-inter">Cực mỏng (Weight 100)</span>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<div>Home</div>} />
+        </Route>
+        <Route path="*" element={<Errors />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
