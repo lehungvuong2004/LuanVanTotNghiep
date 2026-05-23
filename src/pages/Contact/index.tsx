@@ -1,47 +1,16 @@
-import { useTranslation } from "react-i18next";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Icon } from "@iconify/react";
+import useContact from "./useHook";
 
 export const Contact = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const { t } = useTranslation();
 
-  const formik = useFormik({
-    initialValues: {
-      fullName: "",
-      phone: "",
-      email: "",
-      content: "",
-      agree: false,
-    },
-    validationSchema: Yup.object({
-      fullName: Yup.string().required(t("Vui lòng nhập họ và tên")),
-      phone: Yup.string()
-        .matches(/^[0-9]+$/, t("Số điện thoại chỉ bao gồm số"))
-        .min(10, t("Số điện thoại không hợp lệ"))
-        .max(10, t("Số điện thoại dài hơn bình thường"))
-        .required(t("Vui lòng nhập số điện thoại")),
-      email: Yup.string().email(t("Email không hợp lệ")).required(t("Vui lòng nhập email")),
-      content: Yup.string().required(t("Vui lòng nhập nội dung")),
-      agree: Yup.boolean().oneOf([true], t("Bạn cần đồng ý với điều khoản")),
-    }),
-    onSubmit: (values) => {
-      console.log(values);
-      alert(t("Gửi yêu cầu thành công!"));
-      formik.resetForm();
-    },
-  });
+  const {questions, formik} = useContact();
 
-  const faqs = [
-    { question: "Tôi đặt lịch như thế nào?", answer: "Bạn có thể đặt lịch thông qua ứng dụng hoặc gọi điện trực tiếp vào hotline của chúng tôi." },
-    { question: "Tôi có thể hủy lịch không?", answer: "Có, bạn có thể hủy lịch trước 24h để không bị tính phí." },
-    { question: "Bao lâu nhận phản hồi?", answer: "Thông thường chúng tôi sẽ phản hồi trong vòng 24 giờ làm việc." },
-    { question: "Tôi có thể khiếu nại dịch vụ?", answer: "Nếu bạn không hài lòng, vui lòng liên hệ qua email support@homehelper.vn hoặc hotline để được giải quyết." },
-  ];
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -53,11 +22,11 @@ export const Contact = () => {
         {/* Breadcrumb */}
         <div className="text-sm md:text-base text-gray-500 mb-6 font-medium flex items-center gap-2 flex-wrap">
           <Link to="/" className="hover:text-teal-700 transition-colors ">
-            {t("Trang chủ")}
+            {t("Trang Chủ")}
           </Link>
           <span>/</span>
           <Link to="/support" className="hover:text-teal-700 transition-colors">
-            {t("Hỗ trợ")}
+            {t("Hỗ Trợ")}
           </Link>
           <span>/</span>
           <span className="text-teal-800 font-bold">{t("Liên hệ")}</span>
@@ -203,7 +172,7 @@ export const Contact = () => {
     <div className="max-w-5xl mx-auto mb-10">
       <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">{t("Câu hỏi thường gặp")}</h2>
       <div className="space-y-2.5">
-        {faqs.map((faq, index) => (
+        {questions.map((faq, index) => (
           <div
             key={index}
             className={`border rounded-xl overflow-hidden transition-all duration-300 ${openFaqIndex === index ? "border-gray-300 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]" : "border-gray-200 hover:border-gray-300"}`}
