@@ -35,7 +35,7 @@ export const Header = () => {
           <div className="flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2 shadow-sm">
             <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
           </div>
-          <Link to="/about" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
+          <Link to="/" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
             {t("Trang Chủ")}
           </Link>
           <Link to="/about" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
@@ -49,20 +49,17 @@ export const Header = () => {
           </Link>
         </nav>
 
-        {/* Logo (Center) */}
         <div className="flex items-center justify-center shrink-0">
           <Link to="/" className="text-white font-bold text-2xl md:text-3xl">
             Home Layout
           </Link>
         </div>
 
-        {/* Mobile Right Icons */}
         <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
           <Icon icon="lucide:bell" className="text-4xl md:text-2xl cursor-pointer" />
           <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
         </div>
 
-        {/* Desktop Right Nav */}
         <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
           <div className="relative group flex items-center h-full">
             <div className="flex items-center gap-2 cursor-pointer font-medium text-base text-white transition-colors">

@@ -19,18 +19,18 @@ export const MainLayout = () => (
     </div>
 
     {/* Main */}
-    <main className="w-full">
+    {/* <main className="w-full"> */}
       <div className="container-layout">
         <Outlet />
       </div>
-    </main>
+    {/* </main> */}
 
     {/* Footer */}
-    <div className="w-full bg-gray-200">
+    {/* <div className="w-full bg-gray-200"> */}
       <div className="container-layout">
         <Footer />
       </div>
     </div>
-  </div>
+  {/* </div> */}
 </>
 );
