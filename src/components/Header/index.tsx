@@ -32,19 +32,19 @@ export const Header = () => {
 
         {/* nav left destop */}
         <nav className="hidden lg:flex flex-1 items-center gap-6 text-white font-medium text-base">
-          <div className="flex items-center gap-1 cursor-pointer hover:text-[#026E5F] transition-colors bg-black rounded-full px-4 py-2">
+          <div className="flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2 shadow-sm">
             <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
           </div>
-          <Link to="/about" className="cursor-pointer hover:text-[#026E5F] transition-colors">
+          <Link to="/about" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
             {t("Trang Chủ")}
           </Link>
-          <Link to="/about" className="cursor-pointer hover:text-[#026E5F] transition-colors">
+          <Link to="/about" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
             {t("Về chúng tôi")}
           </Link>
-          <Link to="/jobs" className="cursor-pointer hover:text-[#026E5F] transition-colors">
+          <Link to="/jobs" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
             {t("Thông tin tuyển dụng")}
           </Link>
-          <Link to="/lien-he" className="cursor-pointer hover:text-[#026E5F] transition-colors">
+          <Link to="/lien-he" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
             {t("Liên hệ")}
           </Link>
         </nav>
@@ -73,13 +73,13 @@ export const Header = () => {
 
             <div className="absolute top-full right-0 pt-4 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="rounded-lg shadow-lg border border-gray-100 flex flex-col bg-white ">
-                <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-black rounded-tl-lg rounded-tr-lg">
-                  <Icon icon="twemoji:flag-vietnam" className="text-2xl" />
-                  <span className="text-base text-black transition-colors hover:text-white">{t("Việt Nam")}</span>
+                <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-teal-50 rounded-t-lg transition-colors group/item">
+                  <Icon icon="twemoji:flag-vietnam" className="text-2xl group-hover/item:scale-110 transition-transform" />
+                  <span className="text-base text-gray-700 group-hover/item:text-teal-700 font-medium transition-colors">{t("Việt Nam")}</span>
                 </div>
-                <div onClick={() => changeLanguage("en")} className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-black rounded-bl-lg rounded-br-lg">
-                  <Icon icon="twemoji:flag-us-outlying-islands" className="text-2xl" />
-                  <span className="text-base text-black transition-colors hover:text-white ">{t("English")}</span>
+                <div onClick={() => changeLanguage("en")} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-teal-50 rounded-b-lg transition-colors group/item">
+                  <Icon icon="twemoji:flag-us-outlying-islands" className="text-2xl group-hover/item:scale-110 transition-transform" />
+                  <span className="text-base text-gray-700 group-hover/item:text-teal-700 font-medium transition-colors">{t("English")}</span>
                 </div>
               </div>
             </div>
@@ -87,12 +87,12 @@ export const Header = () => {
 
           {/* Icons */}
           <div className="flex items-center gap-5 text-white">
-            <Icon icon="lucide:map-pin" className="text-2xl cursor-pointer hover:text-[#026E5F] transition-colors" />
-            <Icon icon="lucide:bell" className="text-2xl cursor-pointer hover:text-[#026E5F] transition-colors" />
-            <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-[#026E5F] transition-colors" />
+            <Icon icon="lucide:map-pin" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            <Icon icon="lucide:bell" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            <Link to="/dang-nhap"><Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" /></Link>
           </div>
 
-          <button className="bg-[#026E5F] hover:bg-[#02564a] text-white font-medium px-6 py-2.5 rounded-lg transition-colors cursor-pointer text-base">
+          <button className="bg-white text-teal-700 hover:bg-teal-50 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base">
             {t("Đăng bài tuyển")}
           </button>
         </div>
@@ -119,28 +119,26 @@ export const Header = () => {
             </div>
 
             <div className="flex flex-col p-5 gap-4 overflow-y-auto flex-1">
-              {/* Danh muc mobile */}
               <div className="flex items-center gap-3 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-xl px-4 py-3 font-medium text-gray-800 transition-colors">
                 <Icon icon="bitcoin-icons:menu-outline" className="text-2xl text-[#026E5F]" /> 
                 {t("Danh Mục")}
               </div>
               
               <div className="flex flex-col gap-2 mt-2">
-                <Link to="/about" className="text-gray-700 hover:text-[#026E5F] hover:bg-gray-50 rounded-lg font-medium text-base px-3 py-3 transition-colors" onClick={toggleMobileMenu}>
+                <Link to="/about" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
                   {t("Trang Chủ")}
                 </Link>
-                <Link to="/about" className="text-gray-700 hover:text-[#026E5F] hover:bg-gray-50 rounded-lg font-medium text-base px-3 py-3 transition-colors" onClick={toggleMobileMenu}>
+                <Link to="/about" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
                   {t("Về chúng tôi")}
                 </Link>
-                <Link to="/jobs" className="text-gray-700 hover:text-[#026E5F] hover:bg-gray-50 rounded-lg font-medium text-base px-3 py-3 transition-colors" onClick={toggleMobileMenu}>
+                <Link to="/jobs" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
                   {t("Thông tin tuyển dụng")}
                 </Link>
-                <Link to="/lien-he" className="text-gray-700 hover:text-[#026E5F] hover:bg-gray-50 rounded-lg font-medium text-base px-3 py-3 transition-colors" onClick={toggleMobileMenu}>
+                <Link to="/lien-he" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
                   {t("Liên hệ")}
                 </Link>
               </div>
 
-              {/* Mobile Language Selection */}
               <div className="mt-4 border-t border-gray-100 pt-6">
                 <p className="text-sm text-gray-500 mb-3 font-medium px-1">{t("Ngôn ngữ")}</p>
                 <div className="flex gap-3">
@@ -161,9 +159,8 @@ export const Header = () => {
                 </div>
               </div>
 
-              {/* Action Button */}
               <div className="mt-auto pt-6 pb-4">
-                 <button className="w-full bg-[#026E5F] hover:bg-[#02564a] text-white font-medium px-6 py-3.5 rounded-xl text-center transition-colors shadow-sm" onClick={toggleMobileMenu}>
+                 <button className="w-full bg-[#026E5F] hover:bg-[#025E50] text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5" onClick={toggleMobileMenu}>
                   {t("Đăng bài tuyển")}
                 </button>
               </div>

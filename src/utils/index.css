@@ -32,8 +32,18 @@ html {
 }
 
 .container-layout {
-  width: calc(100% - calc(200rem / 14));
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .container-layout {
+    width: calc(100% - calc(200rem / 14));
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 /* static fonts */
 @font-face {

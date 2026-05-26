@@ -9,8 +9,7 @@ export const Contact = () => {
 
   const { t } = useTranslation();
 
-  const {questions, formik} = useContact();
-
+  const { questions, formik } = useContact();
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -19,7 +18,6 @@ export const Contact = () => {
   const formContact = () => (
     <div className="py-6 md:py-10 w-full max-w-full overflow-hidden">
       <div className="flex flex-col w-full">
-        {/* Breadcrumb */}
         <div className="text-sm md:text-base text-gray-500 mb-6 font-medium flex items-center gap-2 flex-wrap">
           <Link to="/" className="hover:text-teal-700 transition-colors ">
             {t("Trang Chủ")}
@@ -39,7 +37,7 @@ export const Contact = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 md:gap-8 w-full">
-          <div className="flex-1 w-full bg-white p-5 md:p-8 rounded-lg border border-gray-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+          <div className="flex-1 w-full bg-white p-5 md:p-8 rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300">
             <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-6">{t("Gửi yêu cầu hỗ trợ")}</h2>
             <form onSubmit={formik.handleSubmit} className="space-y-5 md:space-y-6">
               <div className="flex flex-col xl:flex-row gap-5">
@@ -49,7 +47,7 @@ export const Contact = () => {
                     type="text"
                     name="fullName"
                     placeholder="Nguyễn Văn Hùng"
-                    className={`w-full px-4 py-2.5 rounded-lg border ${formik.touched.fullName && formik.errors.fullName ? "border-red-600" : "border-gray-200"} focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-gray-50/30 text-base  placeholder-gray-400`}
+                    className={`w-full px-4 py-3 rounded-xl border ${formik.touched.fullName && formik.errors.fullName ? "border-red-600" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-base placeholder-gray-400 transition-all duration-300`}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.fullName}
@@ -62,7 +60,7 @@ export const Contact = () => {
                     type="text"
                     name="phone"
                     placeholder="0901 234 567"
-                    className={`w-full px-4 py-2.5 rounded-lg border ${formik.touched.phone && formik.errors.phone ? "border-red-600" : "border-gray-200"} focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-gray-50/30 text-base placeholder-gray-400`}
+                    className={`w-full px-4 py-3 rounded-xl border ${formik.touched.phone && formik.errors.phone ? "border-red-600" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-base placeholder-gray-400 transition-all duration-300`}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.phone}
@@ -77,7 +75,7 @@ export const Contact = () => {
                   type="email"
                   name="email"
                   placeholder="example@email.com"
-                  className={`w-full px-4 py-2.5 rounded-lg border ${formik.touched.email && formik.errors.email ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-gray-50/30 text-[14px] md:text-[15px] placeholder-gray-400`}
+                  className={`w-full px-4 py-3 rounded-xl border ${formik.touched.email && formik.errors.email ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-[14px] md:text-[15px] placeholder-gray-400 transition-all duration-300`}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.email}
@@ -91,7 +89,7 @@ export const Contact = () => {
                   name="content"
                   rows={4}
                   placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..."
-                  className={`w-full px-4 py-2.5 rounded-lg border ${formik.touched.content && formik.errors.content ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-gray-50/30 text-[14px] md:text-[15px] placeholder-gray-400 resize-none`}
+                  className={`w-full px-4 py-3 rounded-xl border ${formik.touched.content && formik.errors.content ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-[14px] md:text-[15px] placeholder-gray-400 resize-none transition-all duration-300`}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.content}
@@ -105,14 +103,14 @@ export const Contact = () => {
                     id="agree"
                     name="agree"
                     type="checkbox"
-                    className="w-5 h-5 text-teal-700border-gray-300 rounded focus:ring-teal-500 accent-teal-700 cursor-pointer"
+                    className="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500 accent-teal-600 cursor-pointer transition-all duration-300"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     checked={formik.values.agree}
                   />
                 </div>
                 <div className="ml-3 text-base">
-                  <label htmlFor="agree" className="text-gray-500 cursor-pointer select-none">
+                  <label htmlFor="agree" className="text-gray-500 cursor-pointer select-none hover:text-gray-700 transition-colors">
                     {t("Tôi đồng ý cho hệ thống liên hệ lại")}
                   </label>
                   {formik.touched.agree && formik.errors.agree && <div className="text-red-500 text-base mt-1">{formik.errors.agree as string}</div>}
@@ -120,7 +118,10 @@ export const Contact = () => {
               </div>
 
               <div className="pt-2">
-                <button type="submit" className="w-full md:w-auto bg-[#0b5c53] hover:bg-[#084942] text-white font-medium py-2.5 px-8 rounded-lg transition-colors duration-200">
+                <button
+                  type="submit"
+                  className="w-full md:w-auto bg-[#026E5F] hover:bg-[#025E50] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5"
+                >
                   {t("Gửi yêu cầu")}
                 </button>
                 <p className="text-base text-gray-500 mt-4">{t("Thông thường chúng tôi phản hồi trong vòng 24 giờ.")}</p>
@@ -129,34 +130,41 @@ export const Contact = () => {
           </div>
           {/* Right Info */}
           <div className="w-full lg:w-1/3">
-            <div className="bg-[#f3f7f9] p-5 md:p-8 rounded-lg border border-[#e1eaf1] h-full shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)]">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">{t("Hỗ trợ khách hàng")}</h2>
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="text-[#0b5c53] mt-1 mr-4">
+            <div className="bg-linear-to-br from-teal-50 to-cyan-50/30 p-6 md:p-8 rounded-2xl border border-teal-100/50 h-full shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-shadow duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl"></div>
+
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 relative z-10">{t("Hỗ trợ khách hàng")}</h2>
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-start group">
+                  <div className="text-teal-600 mt-1 mr-4 bg-white p-2.5 rounded-xl shadow-sm border border-teal-100 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300">
                     <Icon icon="ph:phone-call-light" className="w-6 h-6" />
                   </div>
-                  <div>
+                  <div className="pt-1.5">
                     <p className="text-base text-gray-500 mb-0.5">{t("Hotline")}</p>
-                    <Link to="tel:0973244354" className="text-base font-bold text-gray-900">+84 973 244 354</Link>
+                    <Link to="tel:0973244354" className="text-base font-bold text-gray-900 hover:text-teal-600 transition-colors">
+                      +84 973 244 354
+                    </Link>
                   </div>
                 </div>
 
-                <div className="flex items-start">
-                  <div className="text-[#0b5c53] mt-1 mr-4">
+                <div className="flex items-start group">
+                  <div className="text-teal-600 mt-1 mr-4 bg-white p-2.5 rounded-xl shadow-sm border border-teal-100 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300">
                     <Icon icon="ph:envelope-simple-light" className="w-6 h-6" />
                   </div>
-                  <div>
+                  <div className="pt-1.5">
                     <p className="text-sm md:text-base text-gray-500 mb-0.5">{t("Email")}</p>
-                    <Link to="mailto:hungvuong04.dev@gmail.com" className="text-base font-bold text-gray-900 break-all">hungvuong04.dev@gmail.com</Link>
+                    <Link to="mailto:hungvuong04.dev@gmail.com" className="text-base font-bold text-gray-900 break-all hover:text-teal-600 transition-colors">
+                      hungvuong04.dev@gmail.com
+                    </Link>
                   </div>
                 </div>
 
-                <div className="flex items-start">
-                  <div className="text-[#0b5c53] mt-1 mr-4">
+                <div className="flex items-start group">
+                  <div className="text-teal-600 mt-1 mr-4 bg-white p-2.5 rounded-xl shadow-sm border border-teal-100 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300">
                     <Icon icon="ph:clock-light" className="w-6 h-6" />
                   </div>
-                  <div>
+                  <div className="pt-1.5">
                     <p className="text-sm md:text-base text-gray-500 mb-0.5">{t("Giờ làm việc")}</p>
                     <p className="text-base font-bold text-gray-900">08:00 - 20:00</p>
                   </div>
@@ -175,14 +183,18 @@ export const Contact = () => {
         {questions.map((faq, index) => (
           <div
             key={index}
-            className={`border rounded-xl overflow-hidden transition-all duration-300 ${openFaqIndex === index ? "border-gray-300 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]" : "border-gray-200 hover:border-gray-300"}`}
+            className={`border rounded-xl overflow-hidden transition-all duration-300 bg-white ${openFaqIndex === index ? "border-teal-400 ring-1 ring-teal-400/50 shadow-md" : "border-gray-200 hover:border-teal-300 hover:shadow-sm"}`}
           >
-            <button className="w-full text-left px-6 py-4 flex items-center justify-between bg-white focus:outline-none" onClick={() => toggleFaq(index)}>
-              <span className="font-semibold text-gray-800 text-lg">{t(faq.question)}</span>
-              <Icon icon="ph:caret-down-bold" className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${openFaqIndex === index ? "rotate-180 text-gray-800" : ""}`} />
+            <button className="w-full text-left px-6 py-4 flex items-center justify-between focus:outline-none group" onClick={() => toggleFaq(index)}>
+              <span className={`font-semibold text-lg transition-colors duration-300 ${openFaqIndex === index ? "text-teal-800" : "text-gray-800 group-hover:text-teal-700"}`}>{t(faq.question)}</span>
+              <div
+                className={`p-1.5 rounded-full transition-colors duration-300 ${openFaqIndex === index ? "bg-teal-50 text-teal-600" : "text-gray-400 group-hover:bg-gray-50 group-hover:text-teal-500"}`}
+              >
+                <Icon icon="ph:caret-down-bold" className={`w-4 h-4 transition-transform duration-300 ${openFaqIndex === index ? "rotate-180" : ""}`} />
+              </div>
             </button>
-            <div className={`px-6 overflow-hidden transition-all duration-300 ease-in-out bg-white ${openFaqIndex === index ? "max-h-40 pb-5 opacity-100" : "max-h-0 py-0 opacity-0"}`}>
-              <p className="text-gray-600 md:text-base leading-relaxed">{t(faq.answer)}</p>
+            <div className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? "max-h-40 pb-5 opacity-100" : "max-h-0 py-0 opacity-0"}`}>
+              <p className="text-gray-600 md:text-base leading-relaxed pt-2 border-t border-gray-100">{t(faq.answer)}</p>
             </div>
           </div>
         ))}
