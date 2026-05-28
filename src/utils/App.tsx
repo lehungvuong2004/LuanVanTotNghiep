@@ -5,6 +5,8 @@ import { Contact } from "../pages/Contact";
 import { LoginLayout } from "../layouts/LoginLayout";
 import { Login } from "../pages/Login/Login";
 import { Register } from "../pages/Register/Register";
+import ForgetPassword from "../pages/ForgetPassword";
+
 function App() {
   return (
     <BrowserRouter>
@@ -16,6 +18,7 @@ function App() {
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />
           <Route path="/dang-ky" element={<Register />} />
+          <Route path="/quen-mat-khau" element={<ForgetPassword />} />
         </Route>
         <Route path="*" element={<Errors />} />
       </Routes>
