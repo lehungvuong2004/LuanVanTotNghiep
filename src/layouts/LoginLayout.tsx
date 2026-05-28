@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
+import { Header } from "../pages/Header";
+import { Footer } from "../pages/Footer";
 
 export const LoginLayout = () => {
   return (

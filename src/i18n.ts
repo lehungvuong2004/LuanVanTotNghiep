@@ -1,5 +1,5 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 
 const resources = {
   vn: {
@@ -13,7 +13,7 @@ const resources = {
       // "Việt Nam": "Việt Nam",
       // "English": "English",
       // "Thông báo: Tìm kiếm việc làm tại Việt Nam":"Thông báo: Tìm kiếm việc làm tại Việt Nam"
-    }
+    },
   },
   en: {
     translation: {
@@ -24,15 +24,15 @@ const resources = {
       "Liên hệ": "Contact",
       "Đăng bài tuyển": "Post a Job",
       "Việt Nam": "Vietnamese",
-      "English": "English",
+      English: "English",
       "Hỗ Trợ": "Support",
-      "Thông báo: Tìm kiếm việc làm tại Việt Nam":"Notification: Job search in Vietnam",
+      "Thông báo: Tìm kiếm việc làm tại Việt Nam": "Notification: Job search in Vietnam",
       "Gửi phản hồi hoặc yêu cầu hỗ trợ, chúng tôi sẽ phản hồi trong thời gian sớm nhất": "Send feedback or support requests, we will respond as soon as possible.",
       "Liên hệ hỗ trợ": "Support Contact",
       "Gửi yêu cầu hỗ trợ": "Send a support request",
       "Họ và tên": "Full name",
       "Số điện thoại": "Phone",
-      "Email": "Email",
+      Email: "Email",
       "Nội dung liên hệ / góp ý": "Contact / feedback content",
       "Tôi đồng ý với các điều khoản và điều kiện": "I agree to the terms and conditions",
       "Gửi yêu cầu": "Send request",
@@ -46,31 +46,81 @@ const resources = {
       "Tôi có thể hủy lịch không?": "Can I cancel my appointment?",
       "Bạn có thể đặt lịch thông qua ứng dụng hoặc gọi điện trực tiếp vào hotline của chúng tôi.": "You can schedule an appointment through the app or by calling our hotline.",
       "Có, bạn có thể hủy lịch trước 24h để không bị tính phí.": "Yes, you can cancel your appointment 24 hours in advance to avoid being charged.",
-      "Bao lâu nhận phản hồi?":"How long will it take to receive a response?",
+      "Bao lâu nhận phản hồi?": "How long will it take to receive a response?",
       "Thông thường chúng tôi sẽ phản hồi trong vòng 24 giờ làm việc.": "We will respond within 24 working hours.",
-      "Tôi có thể khiếu nại dịch vụ?":"I can complain about the service?",
-      "Tôi đồng ý cho hệ thống liên hệ lại":"I agree to let the system contact me",
-      "Vui lòng nhập họ và tên":"Please enter your full name",
-      "Vui lòng nhập số điện thoại":"Please enter your phone number",
-      "Vui lòng nhập email":"Please enter your email",
-      "Vui lòng nhập nội dung":"Please enter your content",
-      "Bạn cần đồng ý với điều khoản":"You need to agree to the terms",
-      "Vui lòng đồng ý với điều khoản và điều kiện":"Please agree to the terms and conditions",
-      "Thông thường chúng tôi phản hồi trong vòng 24 giờ.":"We will respond within 24 hours.",
-      "Nếu bạn không hài lòng, vui lòng liên hệ qua email support@homehelper.vn hoặc hotline để được giải quyết.":"If you are not satisfied, please contact via email support@homehelper.vn or hotline to resolve.",
-    }
-  }
+      "Tôi có thể khiếu nại dịch vụ?": "I can complain about the service?",
+      "Tôi đồng ý cho hệ thống liên hệ lại": "I agree to let the system contact me",
+      "Vui lòng nhập họ và tên": "Please enter your full name",
+      "Vui lòng nhập số điện thoại": "Please enter your phone number",
+      "Vui lòng nhập email": "Please enter your email",
+      "Vui lòng nhập nội dung": "Please enter your content",
+      "Bạn cần đồng ý với điều khoản": "You need to agree to the terms",
+      "Vui lòng đồng ý với điều khoản và điều kiện": "Please agree to the terms and conditions",
+      "Thông thường chúng tôi phản hồi trong vòng 24 giờ.": "We will respond within 24 hours.",
+      "Nếu bạn không hài lòng, vui lòng liên hệ qua email support@homehelper.vn hoặc hotline để được giải quyết.":
+        "If you are not satisfied, please contact via email support@homehelper.vn or hotline to resolve.",
+      "Kiến tạo không gian": "Create a space",
+      "Sống hạnh phúc": "Live happily",
+      "Đội ngũ cộng tác viên tận tâm, quy trình chuyên nghiệp giúp bạn dành trọn thời gian quý báu cho gia đình và bản thân.":
+        "Dedicated collaborators and professional processes help you dedicate your precious time to your family and yourself.",
+      "KHÁCH HÀNG TIN DÙNG": "TRUSTED CUSTOMERS",
+      "ĐÁNH GIÁ TRUNG BÌNH": "AVERAGE RATING",
+      "Tạo tài khoản": "Create account",
+      "Đăng ký để đặt lịch dịch vụ, đăng tin tuyển dụng và quản lý công việc dễ dàng hơn.": "Register to schedule services, post jobs, and manage tasks more easily.",
+      "Mật khẩu": "Password",
+      "Xác nhận mật khẩu": "Confirm password",
+      "Tôi đồng ý với": "I agree to",
+      "điều khoản sử dụng": "terms of use",
+      và: "and",
+      "chính sách bảo mật": "privacy policy",
+      HOẶC: "OR",
+      "Đăng ký với Google": "Sign up with Google",
+      "Đã có tài khoản?": "Already have an account?",
+      "Đăng nhập": "Login",
+      "Bạn có thể đăng ký trở thành người giúp việc sau khi tạo tài khoản.": "You can register to become a helper after creating an account.",
+      "Chào mừng trở lại!": "Welcome back!",
+      "Kết nối dịch vụ gia đình tận tâm.": "Connecting dedicated family services.",
+      "Gia đình Việt": "Vietnamese Family",
+      "Đăng nhập tài khoản": "Login to account",
+      "Truy cập tài khoản để tiếp tục sử dụng dịch vụ": "Access your account to continue using the service",
+      "Email hoặc số điện thoại": "Email or phone number",
+      "Ghi nhớ đăng nhập": "Remember me",
+      "Quên mật khẩu?": "Forgot password?",
+      Hoặc: "Or",
+      "Tiếp tục với Google": "Continue with Google",
+      "Chưa có tài khoản?": "Don't have an account?",
+      "Đăng ký ngay": "Register now",
+      "Hệ thống sẽ tự động chuyển đến trang phù hợp theo vai trò tài khoản của bạn": "The system will automatically redirect to the appropriate page based on your account role",
+      "Họ và tên phải có ít nhất 2 ký tự": "Full name must be at least 2 characters",
+      "Họ và tên không được vượt quá 50 ký tự": "Full name cannot exceed 50 characters",
+      "Vui lòng nhập đúng định dạng email": "Please enter a valid email format",
+      "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)": "Invalid phone number (10 digits, starting with 03, 05, 07, 08, 09)",
+      "Mật khẩu phải có ít nhất 6 ký tự": "Password must be at least 6 characters",
+      "Mật khẩu không được vượt quá 32 ký tự": "Password cannot exceed 32 characters",
+      "Mật khẩu không được chứa khoảng trắng": "Password cannot contain spaces",
+      "Mật khẩu phải chứa ít nhất 1 ký tự in hoa": "Password must contain at least 1 uppercase letter",
+      "Mật khẩu phải chứa ít nhất 1 ký tự in thường": "Password must contain at least 1 lowercase letter",
+      "Mật khẩu phải chứa ít nhất 1 ký tự số": "Password must contain at least 1 number",
+      "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@, $, !, %, *, ?, &)": "Password must contain at least 1 special character (@, $, !, %, *, ?, &)",
+      "Vui lòng xác nhận mật khẩu": "Please confirm your password",
+      "Mật khẩu xác nhận không khớp": "Passwords do not match",
+      "Bạn phải đồng ý với điều khoản sử dụng và chính sách bảo mật": "You must agree to the terms of use and privacy policy",
+      "Vui lòng nhập email hoặc số điện thoại": "Please enter email or phone number",
+      "Tài khoản phải có ít nhất 5 ký tự": "Account must be at least 5 characters",
+      "Tài khoản không được vượt quá 30 ký tự": "Account cannot exceed 30 characters",
+      "Vui lòng nhập đúng định dạng Email (vd: example@gmail.com) hoặc Số điện thoại (10 số)": "Please enter a valid Email format (e.g., example@gmail.com) or Phone number (10 digits)",
+      "Vui lòng nhập mật khẩu": "Please enter your password",
+    },
+  },
 };
-
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: "vn",
-    fallbackLng: "vn",
-    interpolation: {
-      escapeValue: false
-    }
-  });
+const savedLanguage = localStorage.getItem("language") || "vn";
+i18n.use(initReactI18next).init({
+  resources,
+  lng: savedLanguage,
+  fallbackLng: "vn",
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 export default i18n;

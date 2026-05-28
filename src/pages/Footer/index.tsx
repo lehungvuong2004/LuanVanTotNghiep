@@ -7,7 +7,6 @@ export const Footer = () => {
   return (
     <footer className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 py-14">
-          {/* Cột 1: Thông tin thương hiệu */}
           <div className="flex flex-col gap-4 pr-4">
             <Link to="/" className="text-teal-800 font-bold text-3xl mb-2 hover:text-teal-600 transition-colors">
               SạchSẽ
@@ -61,9 +60,9 @@ export const Footer = () => {
               <a href="#" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-[#0068FF] transition-all duration-300 bg-white shadow-sm hover:shadow-md hover:-translate-y-1" target="_blank" rel="noopener noreferrer">
                 <Icon icon="simple-icons:zalo" className="text-xl" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-[#229ED9] transition-all duration-300 bg-white shadow-sm hover:shadow-md hover:-translate-y-1" target="_blank" rel="noopener noreferrer">
+              {/* <a href="#" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-[#229ED9] transition-all duration-300 bg-white shadow-sm hover:shadow-md hover:-translate-y-1" target="_blank" rel="noopener noreferrer">
                 <Icon icon="ic:sharp-telegram" className="text-xl" />
-              </a>
+              </a> */}
               <a href="mailto:[EMAIL_ADDRESS]" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-red-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md hover:-translate-y-1" target="_blank" rel="noopener noreferrer">
                 <Icon icon="skill-icons:gmail-light" className="text-xl" />
               </a>

@@ -10,6 +10,7 @@ export const Header = () => {
   const changeLanguage = (lng: string) => {
     // bằng changeLanguage("en")
     i18n.changeLanguage(lng);
+    localStorage.setItem("language", lng);  // lưu lại ngôn ngữ
   };
 
   const isEn = i18n.language === "en"; // vào ra false bởi vì tiếng việt

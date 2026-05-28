@@ -3,8 +3,8 @@ import { MainLayout } from "../layouts/MainLayout";
 import { Errors } from "../components/Errors";
 import { Contact } from "../pages/Contact";
 import { LoginLayout } from "../layouts/LoginLayout";
-import { Login } from "../components/Login/Login";
-import { Register } from "../components/Register/Register";
+import { Login } from "../pages/Login/Login";
+import { Register } from "../pages/Register/Register";
 function App() {
   return (
     <BrowserRouter>
