@@ -2,6 +2,7 @@ import { Route, Routes, BrowserRouter } from "react-router-dom";
 import { MainLayout } from "../layouts/MainLayout";
 import { Errors } from "../components/Errors";
 import { Contact } from "../pages/Contact";
+import { AboutPage } from "../pages/About";
 import { LoginLayout } from "../layouts/LoginLayout";
 import { Login } from "../pages/Login/Login";
 import { Register } from "../pages/Register/Register";
@@ -13,8 +14,8 @@ function App() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/lien-he" element={<Contact />} />
+          <Route path="/ve-chung-toi" element={<AboutPage />} />
         </Route>
-
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />
           <Route path="/dang-ky" element={<Register />} />

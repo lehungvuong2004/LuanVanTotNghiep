@@ -110,6 +110,14 @@ const resources = {
       "Tài khoản không được vượt quá 30 ký tự": "Account cannot exceed 30 characters",
       "Vui lòng nhập đúng định dạng Email (vd: example@gmail.com) hoặc Số điện thoại (10 số)": "Please enter a valid Email format (e.g., example@gmail.com) or Phone number (10 digits)",
       "Vui lòng nhập mật khẩu": "Please enter your password",
+      "HỖ TRỢ": "Support",
+      "CHẤT LƯỢNG": "QUALITY",
+      "DỊCH VỤ": "SERVICE",
+      "PHẠM VI": "SCOPE",
+      "Hỗ trợ 24/24 các vấn đề của bạn": "24/7 support for your issues",
+      "Đội ngũ chuyên viên tư vấn giàu kinh nghiệm": "Experienced consulting team",
+      "Tư vấn trực tuyến": "Online consulting",
+      "Hỗ trợ trên toàn quốc": "Nationwide support"
     },
   },
 };

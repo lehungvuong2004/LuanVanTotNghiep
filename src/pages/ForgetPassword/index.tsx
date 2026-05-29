@@ -32,7 +32,7 @@ const ForgetPassword = () => {
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-            <Icon icon="mdi:gmail" className="text-xl" />
+            <Icon icon="mdi:gmail" className="text-2xl" />
           </div>
           <input
             type="text"
@@ -45,24 +45,24 @@ const ForgetPassword = () => {
           />
         </div>
         {formikStep1.touched.emailOrPhone && formikStep1.errors.emailOrPhone && (
-          <div className="text-red-500 text-xs mt-1">{formikStep1.errors.emailOrPhone}</div>
+          <div className="text-red-500 text-sm mt-1">{formikStep1.errors.emailOrPhone}</div>
         )}
       </div>
 
       <button
         type="submit"
-        className="w-full bg-[#005C61] hover:bg-teal-800 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base"
+        className="w-full bg-[#005C61] hover:bg-teal-800 cursor-pointer text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base"
       >
         Gửi mã xác thực
-        <Icon icon="solar:arrow-right-outline" className="text-lg" />
+        <Icon icon="solar:arrow-right-outline" className="text-xl" />
       </button>
 
       <div className="text-center">
-        <Link to="/dang-nhap" className="text-sm text-[rgb(0,92,97)] font-medium hover:underline inline-flex items-center gap-1 mb-4">
-          <Icon icon="solar:arrow-left-outline" className="text-lg" />
+        <Link to="/dang-nhap" className="text-base text-[rgb(0,92,97)] font-medium hover:underline inline-flex items-center gap-1 mb-4">
+          <Icon icon="solar:arrow-left-outline" className="text-xl" />
           Quay lại đăng nhập
         </Link>
-        <p className="text-sm text-gray-500">
+        <p className="text-base text-gray-500">
           Chưa có tài khoản? <Link to="/dang-ky" className="text-orange-600 font-semibold hover:underline">Đăng ký ngay</Link>
         </p>
       </div>
@@ -188,7 +188,7 @@ const ForgetPassword = () => {
             </button>
           </div>
           {formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword && (
-            <div className="text-red-500 text-xs mt-1">{formikStep3.errors.confirmPassword}</div>
+            <div className="text-red-500 text-sm mt-1">{formikStep3.errors.confirmPassword}</div>
           )}
         </div>
       </div>
@@ -210,11 +210,11 @@ const ForgetPassword = () => {
         className="w-full bg-[#005C61] hover:bg-teal-800 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base"
       >
         Cập nhật mật khẩu
-        <Icon icon="solar:arrow-right-outline" className="text-lg" />
+        <Icon icon="solar:arrow-right-outline" className="text-xl" />
       </button>
 
       <div className="text-center">
-        <Link to="/dang-nhap" className="text-sm text-[#005C61] font-medium hover:underline">
+        <Link to="/dang-nhap" className="text-base text-[#005C61] font-medium hover:underline">
           Quay lại trang Đăng nhập
         </Link>
       </div>

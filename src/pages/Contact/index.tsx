@@ -16,7 +16,7 @@ export const Contact = () => {
   };
 
   const formContact = () => (
-    <div className="py-6 md:py-10 w-full max-w-full overflow-hidden">
+    <div className="py-6 md:py-5 w-full max-w-full overflow-hidden">
       <div className="flex flex-col w-full">
         <div className="text-sm md:text-base text-gray-500 mb-6 font-medium flex items-center gap-2 flex-wrap">
           <Link to="/" className="hover:text-teal-700 transition-colors ">
@@ -32,15 +32,15 @@ export const Contact = () => {
 
         {/* Header */}
         <div className="mb-8 md:mb-10">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t("Liên hệ hỗ trợ")}</h1>
-          <p className="text-sm md:text-base text-gray-600">{t("Gửi phản hồi hoặc yêu cầu hỗ trợ, chúng tôi sẽ phản hồi trong thời gian sớm nhất.")}</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("Liên hệ hỗ trợ")}</h1>
+          <p className="text-sm text-gray-600">{t("Gửi phản hồi hoặc yêu cầu hỗ trợ, chúng tôi sẽ phản hồi trong thời gian sớm nhất.")}</p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 md:gap-8 w-full">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full">
           <div className="flex-1 w-full bg-white p-5 md:p-8 rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300">
             <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-6">{t("Gửi yêu cầu hỗ trợ")}</h2>
-            <form onSubmit={formik.handleSubmit} className="space-y-5 md:space-y-6">
-              <div className="flex flex-col xl:flex-row gap-5">
+            <form onSubmit={formik.handleSubmit} className="md:space-y-5">
+              <div className="flex flex-col md:flex-row gap-5">
                 <div className="flex-1">
                   <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">{t("Họ và tên")}</label>
                   <input
@@ -75,7 +75,7 @@ export const Contact = () => {
                   type="email"
                   name="email"
                   placeholder="example@email.com"
-                  className={`w-full px-4 py-3 rounded-xl border ${formik.touched.email && formik.errors.email ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-[14px] md:text-[15px] placeholder-gray-400 transition-all duration-300`}
+                  className={`w-full px-4 py-3 rounded-xl border ${formik.touched.email && formik.errors.email ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-base placeholder-gray-400 transition-all duration-300`}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.email}
@@ -89,7 +89,7 @@ export const Contact = () => {
                   name="content"
                   rows={4}
                   placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..."
-                  className={`w-full px-4 py-3 rounded-xl border ${formik.touched.content && formik.errors.content ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-[14px] md:text-[15px] placeholder-gray-400 resize-none transition-all duration-300`}
+                  className={`w-full px-4 py-3 rounded-xl border ${formik.touched.content && formik.errors.content ? "border-red-500" : "border-gray-200"} focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-gray-50/50 hover:bg-gray-50 text-base placeholder-gray-400 resize-none transition-all duration-300`}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.content}
@@ -97,13 +97,13 @@ export const Contact = () => {
                 {formik.touched.content && formik.errors.content && <div className="text-red-500 text-base mt-1.5">{formik.errors.content}</div>}
               </div>
 
-              <div className="flex items-start pt-1">
+              <div className="flex pt-1">
                 <div className="flex items-center h-5 mt-0.5">
                   <input
                     id="agree"
                     name="agree"
                     type="checkbox"
-                    className="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500 accent-teal-600 cursor-pointer transition-all duration-300"
+                    className="w-5 h-5 text-cyan-950 border-gray-300 rounded focus:ring-cyan-950 accent-cyan-900 cursor-pointer transition-all duration-300"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     checked={formik.values.agree}
@@ -113,7 +113,7 @@ export const Contact = () => {
                   <label htmlFor="agree" className="text-gray-500 cursor-pointer select-none hover:text-gray-700 transition-colors">
                     {t("Tôi đồng ý cho hệ thống liên hệ lại")}
                   </label>
-                  {formik.touched.agree && formik.errors.agree && <div className="text-red-500 text-base mt-1">{formik.errors.agree as string}</div>}
+                  {formik.touched.agree && formik.errors.agree && <div className="text-red-500 text-base mt-1">{formik.errors.agree}</div>}
                 </div>
               </div>
 
@@ -129,11 +129,10 @@ export const Contact = () => {
             </form>
           </div>
           {/* Right Info */}
-          <div className="w-full lg:w-1/3">
+          <div className="w-full md:w-1/3">
             <div className="bg-linear-to-br from-teal-50 to-cyan-50/30 p-6 md:p-8 rounded-2xl border border-teal-100/50 h-full shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-shadow duration-300 relative overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl"></div>
-
+              {/* <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl"></div> */}
               <h2 className="text-2xl font-bold text-gray-900 mb-8 relative z-10">{t("Hỗ trợ khách hàng")}</h2>
               <div className="space-y-6 relative z-10">
                 <div className="flex items-start group">
@@ -177,8 +176,8 @@ export const Contact = () => {
     </div>
   );
   const questionContact = () => (
-    <div className="max-w-5xl mx-auto mb-10">
-      <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">{t("Câu hỏi thường gặp")}</h2>
+    <div className="max-w-5xl mx-auto mb-10 mt-2">
+      <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">{t("Câu hỏi thường gặp")}</h2>
       <div className="space-y-2.5">
         {questions.map((faq, index) => (
           <div
@@ -201,12 +200,50 @@ export const Contact = () => {
       </div>
     </div>
   );
-  return (
-    <div className="w-full px-0 md:container md:mx-auto md:px-4 lg:px-8 md:max-w-7xl">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <div className="md:col-span-12">{formContact()}</div>
-        <div className="md:col-span-12">{questionContact()}</div>
+
+  const featuresContact = () => (
+    <div className="w-full max-w-5xl mx-auto  px-4 pt-10 border-t border-blue-200">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="flex flex-col items-center text-center group">
+          <div className="w-24 h-24 rounded-full border-2 border-[#005C61] flex items-center justify-center mb-4 text-[#005C61] group-hover:bg-[#005C61] group-hover:text-white transition-all duration-300 shadow-md">
+            <Icon icon="mdi:headset" className="text-5xl" />
+          </div>
+          <h3 className="text-xl font-bold text-[#005C61] mb-2 uppercase">{t("HỖ TRỢ")}</h3>
+          <p className="text-sm text-[#0099D6]">{t("Hỗ trợ 24/24 các vấn đề của bạn")}</p>
+        </div>
+        <div className="flex flex-col items-center text-center group">
+          <div className="w-24 h-24 rounded-full border-2 border-[#005C61] flex items-center justify-center mb-4 text-[#005C61] group-hover:bg-[#005C61] group-hover:text-white transition-all duration-300 shadow-md">
+            <Icon icon="mdi:ribbon" className="text-5xl" />
+          </div>
+          <h3 className="text-xl font-bold text-[#005C61] mb-2 uppercase">{t("CHẤT LƯỢNG")}</h3>
+          <p className="text-sm text-[#0099D6]">{t("Đội ngũ chuyên viên tư vấn giàu kinh nghiệm")}</p>
+        </div>
+        <div className="flex flex-col items-center text-center group">
+          <div className="w-24 h-24 rounded-full border-2 border-[#005C61] flex items-center justify-center mb-4 text-[#005C61] group-hover:bg-[#005C61] group-hover:text-white transition-all duration-300 shadow-md">
+            <Icon icon="mdi:handshake" className="text-5xl" />
+          </div>
+          <h3 className="text-xl font-bold text-[#005C61] mb-2 uppercase">{t("DỊCH VỤ")}</h3>
+          <p className="text-sm text-[#0099D6]">{t("Tư vấn trực tuyến")}</p>
+        </div>
+        <div className="flex flex-col items-center text-center group">
+          <div className="w-24 h-24 rounded-full border-2 border-[#005C61] flex items-center justify-center mb-4 text-[#005C61] group-hover:bg-[#005C61] group-hover:text-white transition-all duration-300 shadow-md">
+            <Icon icon="mdi:target" className="text-5xl" />
+          </div>
+          <h3 className="text-xl font-bold text-[#005C61] mb-2 uppercase">{t("PHẠM VI")}</h3>
+          <p className="text-sm text-[#0099D6]">{t("Hỗ trợ trên toàn quốc")}</p>
+        </div>
       </div>
+      <div className="flex justify-center mt-12">
+        <Icon icon="mdi:chevron-down" className="text-5xl text-[#0099D6] animate-bounce" />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="md:max-w-7xl mx-auto">
+      {formContact()}
+      {questionContact()}
+      {featuresContact()}
     </div>
   );
 };
