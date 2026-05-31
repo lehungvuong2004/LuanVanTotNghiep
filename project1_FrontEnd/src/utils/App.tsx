@@ -7,6 +7,7 @@ import { LoginLayout } from "../layouts/LoginLayout";
 import { Login } from "../pages/Login/Login";
 import { Register } from "../pages/Register/Register";
 import ForgetPassword from "../pages/ForgetPassword";
+import PostAJob from "../pages/PostAJob";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route path="/lien-he" element={<Contact />} />
           <Route path="/ve-chung-toi" element={<AboutPage />} />
+          <Route path="/dang-bai-tuyen" element={<PostAJob />} />
         </Route>
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />

@@ -222,32 +222,33 @@ const ForgetPassword = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="hidden md:flex flex-col items-center justify-center space-y-6">
-          <div className="relative">
-            <img 
-              src={forgetPasswordImg} 
-              alt="Security Illustration" 
-              className="w-full max-w-md object-contain rounded-2xl"
-            />
-          </div>
-          {step === 3 && (
-            <div className="text-center max-w-sm mt-8">
-              <h3 className="text-[#005C61] text-xl font-bold mb-3">Bảo mật là ưu tiên hàng đầu</h3>
-              <p className="text-sm text-gray-600">
-                Chúng tôi sử dụng mã hóa đa lớp để đảm bảo thông tin và các yêu cầu dịch vụ của bạn luôn được bảo vệ tuyệt đối.
-              </p>
+    <div className="flex-1 bg-[#F8FAFC] flex items-center justify-center py-8">
+      <div className="container-layout flex justify-center">
+        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="hidden md:flex flex-col items-center justify-center space-y-6">
+            <div className="relative">
+              <img 
+                src={forgetPasswordImg} 
+                alt="Security Illustration" 
+                className="w-full max-w-md object-contain rounded-2xl"
+              />
             </div>
-          )}
-        </div>
+            {step === 3 && (
+              <div className="text-center max-w-sm mt-8">
+                <h3 className="text-[#005C61] text-xl font-bold mb-3">Bảo mật là ưu tiên hàng đầu</h3>
+                <p className="text-sm text-gray-600">
+                  Chúng tôi sử dụng mã hóa đa lớp để đảm bảo thông tin và các yêu cầu dịch vụ của bạn luôn được bảo vệ tuyệt đối.
+                </p>
+              </div>
+            )}
+          </div>
 
-        <div className="w-full flex justify-center">
-          {step === 1 && renderStep1()}
-          {step === 2 && renderStep2()}
-          {step === 3 && renderStep3()}
+          <div className="w-full flex justify-center">
+            {step === 1 && renderStep1()}
+            {step === 2 && renderStep2()}
+            {step === 3 && renderStep3()}
+          </div>
         </div>
-
       </div>
     </div>
   );

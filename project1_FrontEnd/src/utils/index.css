@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
   font-family: "Inter", system-ui, sans-serif;
   font-optical-sizing: auto;
@@ -40,7 +42,9 @@ html {
 
 @media (min-width: 768px) {
   .container-layout {
-    width: calc(100% - calc(200rem / 14));
+    width: auto;
+    margin-left: 7.143rem;
+    margin-right: 7.143rem;
     padding-left: 0;
     padding-right: 0;
   }

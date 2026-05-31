@@ -135,10 +135,12 @@ export const Login = () => {
   );
 
   return (
-    <div className="flex items-center justify-center w-full min-h-[calc(100vh-80px)] bg-[#f8f9fa] p-4 md:p-12 relative"> 
-      <div className="max-w-[1240px] w-full min-h-[600px] md:min-h-[680px] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
-        {imgLogin()}
-        {formLogin()}
+    <div className="flex-1 flex items-center justify-center w-full bg-[#f8f9fa] py-8 relative"> 
+      <div className="container-layout">
+        <div className="w-full md:min-h-[680px] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
+          {imgLogin()}
+          {formLogin()}
+        </div>
       </div>
     </div>
   );

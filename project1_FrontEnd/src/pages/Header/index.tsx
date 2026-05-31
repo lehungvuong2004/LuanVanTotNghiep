@@ -7,10 +7,25 @@ export const Header = () => {
   const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem("darkMode") === "true" || document.documentElement.classList.contains("dark");
+  });
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", String(newDarkMode));
+    if (newDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+
   const changeLanguage = (lng: string) => {
     // bằng changeLanguage("en")
     i18n.changeLanguage(lng);
-    localStorage.setItem("language", lng);  // lưu lại ngôn ngữ
+    localStorage.setItem("language", lng); // lưu lại ngôn ngữ
   };
 
   const isEn = i18n.language === "en"; // vào ra false bởi vì tiếng việt
@@ -22,13 +37,8 @@ export const Header = () => {
   return (
     <header className="relative w-full">
       <div className="flex items-center justify-between h-20 md:h-24 w-full">
-        
         <div className="flex-1 lg:hidden flex items-center">
-          <Icon 
-            icon="gg:menu-round" 
-            className="text-4xl text-white cursor-pointer" 
-            onClick={toggleMobileMenu}
-          />
+          <Icon icon="gg:menu-round" className="text-4xl text-white cursor-pointer" onClick={toggleMobileMenu} />
         </div>
 
         {/* nav left destop */}
@@ -36,16 +46,28 @@ export const Header = () => {
           <div className="flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2 shadow-sm">
             <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
           </div>
-          <Link to="/" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
+          <Link
+            to="/"
+            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+          >
             {t("Trang Chủ")}
           </Link>
-          <Link to="/ve-chung-toi" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
+          <Link
+            to="/ve-chung-toi"
+            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+          >
             {t("Về chúng tôi")}
           </Link>
-          <Link to="/viec-lam" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
+          <Link
+            to="/viec-lam"
+            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+          >
             {t("Thông tin tuyển dụng")}
           </Link>
-          <Link to="/lien-he" className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1">
+          <Link
+            to="/lien-he"
+            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+          >
             {t("Liên hệ")}
           </Link>
         </nav>
@@ -57,8 +79,11 @@ export const Header = () => {
         </div>
 
         <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
+          <Icon icon={isDarkMode ? "ix:light-dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
           <Icon icon="lucide:bell" className="text-4xl md:text-2xl cursor-pointer" />
-          <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+          <Link to="/dang-nhap" className="border-2 border-white/50 rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center">
+            <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+          </Link>
         </div>
 
         <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
@@ -84,15 +109,24 @@ export const Header = () => {
           </div>
 
           {/* Icons */}
-          <div className="flex items-center gap-5 text-white">
+          <div className="flex items-center gap-5 text-white ">
+            <Icon
+              icon={isDarkMode ? "ix:light-dark" : "entypo:light-up"}
+              className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm"
+              onClick={toggleDarkMode}
+            />
             <Icon icon="lucide:map-pin" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
             <Icon icon="lucide:bell" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
-            <Link to="/dang-nhap"><Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" /></Link>
+            <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center">
+              <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+            </Link>
           </div>
 
-          <button className="bg-white text-teal-700 hover:bg-teal-50 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base">
-            {t("Đăng bài tuyển")}
-          </button>
+          <Link to="/dang-bai-tuyen">
+            <button className="bg-white text-teal-700 hover:bg-teal-50 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base">
+              {t("Đăng bài tuyển")}
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -100,39 +134,48 @@ export const Header = () => {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden flex">
           {/* Backdrop overlay */}
-          <div 
-            className="fixed inset-0 bg-black/60 transition-opacity" 
-            onClick={toggleMobileMenu}
-          ></div>
-          
+          <div className="fixed inset-0 bg-black/60 transition-opacity" onClick={toggleMobileMenu}></div>
+
           {/* Sidebar Drawer */}
           <div className="relative w-[80%] max-w-7xl bg-white h-full shadow-2xl flex flex-col z-40">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <span className="font-bold text-xl text-[#026E5F]">Menu</span>
-              <Icon 
-                icon="material-symbols:close" 
-                className="text-3xl text-gray-500 hover:text-gray-800 cursor-pointer" 
-                onClick={toggleMobileMenu}
-              />
+              <Icon icon="material-symbols:close" className="text-3xl text-gray-500 hover:text-gray-800 cursor-pointer" onClick={toggleMobileMenu} />
             </div>
 
             <div className="flex flex-col p-5 gap-4 overflow-y-auto flex-1">
               <div className="flex items-center gap-3 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-xl px-4 py-3 font-medium text-gray-800 transition-colors">
-                <Icon icon="bitcoin-icons:menu-outline" className="text-2xl text-[#026E5F]" /> 
+                <Icon icon="bitcoin-icons:menu-outline" className="text-2xl text-[#026E5F]" />
                 {t("Danh Mục")}
               </div>
-              
+
               <div className="flex flex-col gap-2 mt-2">
-                <Link to="/about" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
+                <Link
+                  to="/about"
+                  className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  onClick={toggleMobileMenu}
+                >
                   {t("Trang Chủ")}
                 </Link>
-                <Link to="/about" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
+                <Link
+                  to="/about"
+                  className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  onClick={toggleMobileMenu}
+                >
                   {t("Về chúng tôi")}
                 </Link>
-                <Link to="/jobs" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
+                <Link
+                  to="/jobs"
+                  className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  onClick={toggleMobileMenu}
+                >
                   {t("Thông tin tuyển dụng")}
                 </Link>
-                <Link to="/lien-he" className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300" onClick={toggleMobileMenu}>
+                <Link
+                  to="/lien-he"
+                  className="text-gray-700 hover:text-teal-700 hover:bg-teal-50/80 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  onClick={toggleMobileMenu}
+                >
                   {t("Liên hệ")}
                 </Link>
               </div>
@@ -140,16 +183,22 @@ export const Header = () => {
               <div className="mt-4 border-t border-gray-100 pt-6">
                 <p className="text-sm text-gray-500 mb-3 font-medium px-1">{t("Ngôn ngữ")}</p>
                 <div className="flex gap-3">
-                  <div 
-                    onClick={() => { changeLanguage("vn"); toggleMobileMenu(); }} 
-                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${!isEn ? 'border-[#026E5F] bg-[#026E5F]/5 text-[#026E5F]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  <div
+                    onClick={() => {
+                      changeLanguage("vn");
+                      toggleMobileMenu();
+                    }}
+                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${!isEn ? "border-[#026E5F] bg-[#026E5F]/5 text-[#026E5F]" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
                   >
                     <Icon icon="twemoji:flag-vietnam" className="text-xl" />
                     <span className="font-medium text-sm">VN</span>
                   </div>
-                  <div 
-                    onClick={() => { changeLanguage("en"); toggleMobileMenu(); }} 
-                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${isEn ? 'border-[#026E5F] bg-[#026E5F]/5 text-[#026E5F]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  <div
+                    onClick={() => {
+                      changeLanguage("en");
+                      toggleMobileMenu();
+                    }}
+                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${isEn ? "border-[#026E5F] bg-[#026E5F]/5 text-[#026E5F]" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
                   >
                     <Icon icon="twemoji:flag-us-outlying-islands" className="text-xl" />
                     <span className="font-medium text-sm">EN</span>
@@ -158,7 +207,10 @@ export const Header = () => {
               </div>
 
               <div className="mt-auto pt-6 pb-4">
-                 <button className="w-full bg-[#026E5F] hover:bg-[#025E50] text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5" onClick={toggleMobileMenu}>
+                <button
+                  className="w-full bg-[#026E5F] hover:bg-[#025E50] text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5"
+                  onClick={toggleMobileMenu}
+                >
                   {t("Đăng bài tuyển")}
                 </button>
               </div>
