@@ -237,9 +237,9 @@ export const Register = () => {
   );
 
   return (
-    <div className="flex-1 flex items-center justify-center w-full bg-[#f8f9fa] py-8 relative">
+    <div className="flex-1 flex flex-col justify-center w-full bg-[#f8f9fa] py-8 relative">
       <div className="container-layout">
-        <div className="w-full min-h-[37.5rem] md:min-h-[42.5rem] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
+        <div className="w-full max-w-7xl mx-auto bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
           {imgRegister()}
           {formRegister()}
         </div>

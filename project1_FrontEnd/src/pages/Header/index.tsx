@@ -74,12 +74,12 @@ export const Header = () => {
 
         <div className="flex items-center justify-center shrink-0">
           <Link to="/" className="text-white font-bold text-2xl md:text-3xl">
-            Home Layout
+            Gia Đình Việt
           </Link>
         </div>
 
         <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
-          <Icon icon={isDarkMode ? "ix:light-dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
+          <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
           <Icon icon="lucide:bell" className="text-4xl md:text-2xl cursor-pointer" />
           <Link to="/dang-nhap" className="border-2 border-white/50 rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center">
             <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
@@ -111,12 +111,12 @@ export const Header = () => {
           {/* Icons */}
           <div className="flex items-center gap-5 text-white ">
             <Icon
-              icon={isDarkMode ? "ix:light-dark" : "entypo:light-up"}
+              icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"}
               className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm"
               onClick={toggleDarkMode}
             />
-            <Icon icon="lucide:map-pin" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
-            <Icon icon="lucide:bell" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            <Icon icon="line-md:map-marker" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            <Icon icon="line-md:bell" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
             <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center">
               <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
             </Link>
@@ -133,7 +133,6 @@ export const Header = () => {
       {/* Mobile Sidebar Menu */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden flex">
-          {/* Backdrop overlay */}
           <div className="fixed inset-0 bg-black/60 transition-opacity" onClick={toggleMobileMenu}></div>
 
           {/* Sidebar Drawer */}

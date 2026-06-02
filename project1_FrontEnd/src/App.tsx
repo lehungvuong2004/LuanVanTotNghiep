@@ -1,6 +1,6 @@
 import { Route, Routes, BrowserRouter } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
-import { Errors } from "./components/Errors";
+import { Errors404 } from "./components/Errors404";
 import { Contact } from "./pages/Contact";
 import { AboutPage } from "./pages/About";
 import { LoginLayout } from "./layouts/LoginLayout";
@@ -23,7 +23,7 @@ function App() {
           <Route path="/dang-ky" element={<Register />} />
           <Route path="/quen-mat-khau" element={<ForgetPassword />} />
         </Route>
-        <Route path="*" element={<Errors />} />
+        <Route path="*" element={<Errors404 />} />
       </Routes>
     </BrowserRouter>
   );
