@@ -12,6 +12,7 @@ export const Login = () => {
 
   const imgLogin = () => (
     <div className="relative hidden md:block h-full">
+      
       <img src={loginImage} alt="Login background" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-linear-to-t from-[#066d72]/80 via-transparent to-transparent flex flex-col justify-end p-10 text-white z-10">
         <h2 className="text-3xl font-bold mb-2 tracking-tight">{t("Chào mừng trở lại!")}</h2>
@@ -28,8 +29,8 @@ export const Login = () => {
     <div className="p-8 md:p-12 flex flex-col justify-center bg-white h-full">
       <div className="max-w-lg w-full mx-auto">
         <h2 className="text-3xl font-bold text-[#066d72] mb-2">{t("Đăng nhập tài khoản")}</h2>
-        <p className="text-sm text-gray-500 mb-8">{t("Truy cập tài khoản để tiếp tục sử dụng dịch vụ")}</p>
-
+        <p className=" text-gray-500 mb-8">{t("Truy cập tài khoản để tiếp tục sử dụng dịch vụ")}</p>
+<p className="text-sm">Text nhỏ</p>
         <form className="space-y-5" onSubmit={formik.handleSubmit}>
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 block">{t("Email hoặc số điện thoại")}</label>
@@ -78,7 +79,7 @@ export const Login = () => {
                 <Icon icon={showPassword ? "mdi:eye-outline" : "mdi:eye-off-outline"} className="w-5 h-5" />
               </button>
             </div>
-            {formik.touched.password && formik.errors.password ? <p className="text-base text-red-500">{formik.errors.password}</p> : null}
+            {formik.touched.password && formik.errors.password ? <p className="text-sm text-red-500">{formik.errors.password}</p> : null}
           </div>
 
           {/* Remember Me & Forgot Password */}
@@ -129,16 +130,16 @@ export const Login = () => {
           </Link>
         </div>
 
-        <p className="text-sm leading-tight text-center text-gray-400 max-w-[280px] mx-auto">{t("Hệ thống sẽ tự động chuyển đến trang phù hợp theo vai trò tài khoản của bạn")}</p>
+        <p className="text-sm  text-center text-gray-400 max-w-70 mx-auto">{t("Hệ thống sẽ tự động chuyển đến trang phù hợp theo vai trò tài khoản của bạn")}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="flex-1 flex items-center justify-center w-full bg-[#f8f9fa] py-8 relative"> 
+       <div className="flex-1 flex items-center justify-center w-full bg-[#f8f9fa] py-8 relative">
       <div className="container-layout">
-        <div className="w-full md:min-h-[680px] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
-          {imgLogin()}
+        <div className="w-full min-h-[37.5rem] md:min-h-[42.5rem] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
+           {imgLogin()}
           {formLogin()}
         </div>
       </div>

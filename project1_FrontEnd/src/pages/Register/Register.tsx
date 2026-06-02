@@ -40,7 +40,7 @@ export const Register = () => {
   );
 
   const formRegister = () => (
-    <div className="p-8 md:px-14 md:py-10 flex flex-col justify-center bg-white h-full">
+    <div className="p-8 md:p-12 flex flex-col justify-center bg-white h-full">
       <div className="max-w-lg w-full mx-auto">
         <h2 className="text-3xl font-bold text-[#066d72] mb-2">{t("Tạo tài khoản")}</h2>
         <p className="text-base text-gray-500 mb-8 leading-relaxed">{t("Đăng ký để đặt lịch dịch vụ, đăng tin tuyển dụng và quản lý công việc dễ dàng hơn.")}</p>
@@ -228,7 +228,7 @@ export const Register = () => {
         </div>
 
         {/* Info Message */}
-        <div className="rounded-lg p-3.5 flex items-start gap-3 border border-amber-300/30 mx-auto max-w-[340px] bg-amber-300/10">
+        <div className="rounded-lg p-3.5 flex items-start gap-3 border border-amber-300/30 mx-auto max-w-[21.25rem] bg-amber-300/10">
           <Icon icon="mdi:information-outline" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-sm font-medium text-amber-900 leading-relaxed text-center">{t("Bạn có thể đăng ký trở thành người giúp việc sau khi tạo tài khoản.")}</p>
         </div>
@@ -239,7 +239,7 @@ export const Register = () => {
   return (
     <div className="flex-1 flex items-center justify-center w-full bg-[#f8f9fa] py-8 relative">
       <div className="container-layout">
-        <div className="w-full min-h-[600px] md:min-h-[680px] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
+        <div className="w-full min-h-[37.5rem] md:min-h-[42.5rem] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden border border-gray-100 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
           {imgRegister()}
           {formRegister()}
         </div>

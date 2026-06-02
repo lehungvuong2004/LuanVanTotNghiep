@@ -1,13 +1,13 @@
 import { Route, Routes, BrowserRouter } from "react-router-dom";
-import { MainLayout } from "../layouts/MainLayout";
-import { Errors } from "../components/Errors";
-import { Contact } from "../pages/Contact";
-import { AboutPage } from "../pages/About";
-import { LoginLayout } from "../layouts/LoginLayout";
-import { Login } from "../pages/Login/Login";
-import { Register } from "../pages/Register/Register";
-import ForgetPassword from "../pages/ForgetPassword";
-import PostAJob from "../pages/PostAJob";
+import { MainLayout } from "./layouts/MainLayout";
+import { Errors } from "./components/Errors";
+import { Contact } from "./pages/Contact";
+import { AboutPage } from "./pages/About";
+import { LoginLayout } from "./layouts/LoginLayout";
+import { Login } from "./pages/Login/Login";
+import { Register } from "./pages/Register/Register";
+import ForgetPassword from "./pages/ForgetPassword";
+import PostAJob from "./pages/PostAJob";
 
 function App() {
   return (
