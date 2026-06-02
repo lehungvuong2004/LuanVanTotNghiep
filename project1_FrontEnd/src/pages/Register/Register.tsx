@@ -19,7 +19,7 @@ export const Register = () => {
         <h2 className="text-3xl lg:text-4xl font-bold mb-3 tracking-tight leading-[1.2] max-w-md">
           {t("Kiến tạo không gian")}
           <br />
-         {t("Sống hạnh phúc")}
+          {t("Sống hạnh phúc")}
         </h2>
         <p className="text-sm mb-10 font-medium opacity-90 max-w-md leading-relaxed">
           {t("Đội ngũ cộng tác viên tận tâm, quy trình chuyên nghiệp giúp bạn dành trọn thời gian quý báu cho gia đình và bản thân.")}

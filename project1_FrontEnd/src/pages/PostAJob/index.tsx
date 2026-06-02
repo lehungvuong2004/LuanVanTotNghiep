@@ -85,7 +85,9 @@ export default function PostAJob() {
                       type="button"
                       onClick={() => handleRequiredServiceToggle(service.value)}
                       className={`px-5 py-1.5 rounded-full border text-sm transition-all cursor-pointer ${
-                        isSelected ? "bg-[#0d5c63]/10 border-[#0d5c63] dark:bg-teal-500/20 dark:border-teal-400 dark:text-teal-400 text-[#0d5c63] font-medium" : "bg-white dark:bg-slate-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
+                        isSelected
+                          ? "bg-[#0d5c63]/10 border-[#0d5c63] dark:bg-teal-500/20 dark:border-teal-400 dark:text-teal-400 text-[#0d5c63] font-medium"
+                          : "bg-white dark:bg-slate-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                     >
                       {t(service.label)}

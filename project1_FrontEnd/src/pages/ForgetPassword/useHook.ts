@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
-import type { KeyboardEvent } from 'react';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { useTranslation } from 'react-i18next';
+import { useState, useRef } from "react";
+import type { KeyboardEvent } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useTranslation } from "react-i18next";
 
 export type StepType = 1 | 2 | 3;
 
@@ -18,7 +18,7 @@ export const useForgetPassword = () => {
   // --- Formik Step 1: Email/Phone ---
   const formikStep1 = useFormik({
     initialValues: {
-      emailOrPhone: '',
+      emailOrPhone: "",
     },
     validationSchema: Yup.object({
       emailOrPhone: Yup.string()
@@ -33,53 +33,57 @@ export const useForgetPassword = () => {
         }),
     }),
     onSubmit: (values) => {
-      console.log('Submit Step 1:', values);
+      console.log("Submit Step 1:", values);
       setStep(2);
-    }
+    },
   });
 
   // --- Formik Step 2: OTP ---
   const formikStep2 = useFormik({
     initialValues: {
-      otp: Array(6).fill(''),
+      otp: Array(6).fill(""),
     },
     validationSchema: Yup.object({
       otp: Yup.array()
-        .of(Yup.string().required().matches(/^[0-9]$/, "Chỉ cho phép số"))
+        .of(
+          Yup.string()
+            .required()
+            .matches(/^[0-9]$/, "Chỉ cho phép số"),
+        )
         .min(6)
         .max(6)
-        .test('is-6-digits', t("Vui lòng nhập đủ 6 số OTP"), (value) => {
-          return value ? value.every(v => v !== '') : false;
+        .test("is-6-digits", t("Vui lòng nhập đủ 6 số OTP"), (value) => {
+          return value ? value.every((v) => v !== "") : false;
         }),
     }),
     onSubmit: (values) => {
-      console.log('Submit Step 2:', values);
+      console.log("Submit Step 2:", values);
       setStep(3);
-    }
+    },
   });
 
   const handleOtpChange = (index: number, value: string) => {
     if (isNaN(Number(value))) return;
 
     const newOtp = [...formikStep2.values.otp];
-    newOtp[index] = value.substring(value.length - 1); 
-    formikStep2.setFieldValue('otp', newOtp);
+    newOtp[index] = value.substring(value.length - 1);
+    formikStep2.setFieldValue("otp", newOtp);
 
-    if (value !== '' && index < 5 && otpRefs.current[index + 1]) {
+    if (value !== "" && index < 5 && otpRefs.current[index + 1]) {
       otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !formikStep2.values.otp[index] && index > 0 && otpRefs.current[index - 1]) {
+    if (e.key === "Backspace" && !formikStep2.values.otp[index] && index > 0 && otpRefs.current[index - 1]) {
       otpRefs.current[index - 1]?.focus();
     }
   };
 
   const formikStep3 = useFormik({
     initialValues: {
-      password: '',
-      confirmPassword: '',
+      password: "",
+      confirmPassword: "",
     },
     validationSchema: Yup.object({
       password: Yup.string()
@@ -91,12 +95,12 @@ export const useForgetPassword = () => {
         .matches(/[@$!%*?&]/, t("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@, $, !, %, *, ?, &)")),
       confirmPassword: Yup.string()
         .required(t("Vui lòng xác nhận mật khẩu"))
-        .oneOf([Yup.ref('password')], t("Mật khẩu xác nhận không khớp")),
+        .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),
     }),
     onSubmit: (values) => {
-      console.log('Submit Step 3:', values);
-      console.log('Password reset successfully');
-    }
+      console.log("Submit Step 3:", values);
+      console.log("Password reset successfully");
+    },
   });
 
   return {

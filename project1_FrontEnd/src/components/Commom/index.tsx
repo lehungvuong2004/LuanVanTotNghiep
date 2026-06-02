@@ -6,10 +6,7 @@ interface LoadingProps {
   timeout?: number;
 }
 
-export const Loading = ({ 
-  fullScreen = false,
-  timeout
-}: LoadingProps) => {
+export const Loading = ({ fullScreen = false, timeout }: LoadingProps) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -22,9 +19,7 @@ export const Loading = ({
   }, [timeout]);
 
   if (!isVisible) return null;
-  const containerClass = fullScreen
-    ? "fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm"
-    : "";
+  const containerClass = fullScreen ? "fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm" : "";
   return (
     <div className={containerClass}>
       <Icon icon="line-md:loading-loop" className="text-6xl text-red-600 " />

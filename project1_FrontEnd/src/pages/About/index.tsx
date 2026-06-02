@@ -113,7 +113,9 @@ export const AboutPage = () => {
           <p className="text-[#a7cec6] md:text-lg mb-10 leading-relaxed">{t("Hãy để Gia Đình Việt cùng bạn chăm sóc tổ ấm mỗi ngày một cách trọn vẹn và nhẹ nhàng nhất.")}</p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button className="bg-white hover:bg-gray-100 text-[#094b43] font-bold py-3.5 px-8 rounded-full transition-colors duration-300 shadow-lg cursor-pointer">{t("Bắt đầu ngay")}</button>
-            <button className="bg-transparent hover:bg-white/10 border border-white/50 text-white font-bold py-3.5 px-8 rounded-full transition-colors duration-300 cursor-pointer">{t("Liên hệ tư vấn")}</button>
+            <button className="bg-transparent hover:bg-white/10 border border-white/50 text-white font-bold py-3.5 px-8 rounded-full transition-colors duration-300 cursor-pointer">
+              {t("Liên hệ tư vấn")}
+            </button>
           </div>
         </div>
       </div>

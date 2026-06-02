@@ -146,7 +146,7 @@ const resources = {
       "VD: TP. Hồ Chí Minh": "Ex: Ho Chi Minh City",
       "Mô tả công việc": "Job Description",
       "Mô tả công việc, yêu cầu, quyền lợi...": "Job description, requirements, benefits...",
-      "Hủy": "Cancel",
+      Hủy: "Cancel",
       "Đăng bài tuyển dụng": "Post a Job",
       "Bản xem trước": "Preview",
       "Chờ duyệt": "Pending",
@@ -165,7 +165,8 @@ const resources = {
       "Tạo bài tuyển dụng để tìm người giúp việc phù hợp cho gia đình bạn.": "Create a job post to find the right maid for your family.",
       "Kết nối dịch vụ gia đình uy tín,": "Connecting reputable family services,",
       "nhanh chóng và an toàn": "fast and safe",
-      "Gia Đình Việt là nền tảng tin cậy mang đến các giải pháp chăm sóc tổ ấm chuyên nghiệp, giúp bạn tận hưởng thời gian quý báu bên những người thân yêu.": "Vietnamese Family is a reliable platform providing professional home care solutions, helping you enjoy precious time with your loved ones.",
+      "Gia Đình Việt là nền tảng tin cậy mang đến các giải pháp chăm sóc tổ ấm chuyên nghiệp, giúp bạn tận hưởng thời gian quý báu bên những người thân yêu.":
+        "Vietnamese Family is a reliable platform providing professional home care solutions, helping you enjoy precious time with your loved ones.",
       "Bắt đầu ngay": "Start now",
       "Tìm hiểu thêm": "Learn more",
       "Khách hàng": "Customers",
@@ -183,7 +184,8 @@ const resources = {
       "Được đào tạo kỹ năng chuyên nghiệp miễn phí": "Free professional skills training",
       "Đăng ký làm đối tác": "Register as a partner",
       "Sẵn sàng để gắn kết yêu thương?": "Ready to connect with love?",
-      "Hãy để Gia Đình Việt cùng bạn chăm sóc tổ ấm mỗi ngày một cách trọn vẹn và nhẹ nhàng nhất.": "Let Vietnamese Family help you take care of your home every day in the most complete and gentle way.",
+      "Hãy để Gia Đình Việt cùng bạn chăm sóc tổ ấm mỗi ngày một cách trọn vẹn và nhẹ nhàng nhất.":
+        "Let Vietnamese Family help you take care of your home every day in the most complete and gentle way.",
       "Liên hệ tư vấn": "Contact for consultation",
       "Quy trình đặt dịch vụ đơn giản": "Simple service booking process",
       "Chỉ với vài thao tác, bạn đã có thể tận hưởng không gian sống lý tưởng.": "With just a few steps, you can enjoy an ideal living space.",
@@ -197,7 +199,8 @@ const resources = {
       "Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.": "Check the results, pay, and leave feedback for us.",
       "Vì sao khách hàng tin tưởng": "Why customers trust",
       "Gia Đình Việt?": "Vietnamese Family?",
-      "Chúng tôi mang đến những giải pháp làm sạch chuyên nghiệp và tận tâm nhất, giúp bạn có thêm thời gian quý báu tận hưởng cuộc sống.": "We bring the most professional and dedicated cleaning solutions, giving you more precious time to enjoy life.",
+      "Chúng tôi mang đến những giải pháp làm sạch chuyên nghiệp và tận tâm nhất, giúp bạn có thêm thời gian quý báu tận hưởng cuộc sống.":
+        "We bring the most professional and dedicated cleaning solutions, giving you more precious time to enjoy life.",
       "Đảm bảo an toàn": "Safety guaranteed",
       "Nhân viên được xác minh lý lịch rõ ràng, đáng tin cậy.": "Staff has clear and reliable background checks.",
       "Phục vụ tận tâm": "Dedicated service",
@@ -206,7 +209,8 @@ const resources = {
       "Bảng giá minh bạch, không phát sinh chi phí ẩn.": "Transparent price list, no hidden costs.",
       "Nhanh chóng": "Fast",
       "Có mặt đúng giờ và xử lý công việc nhanh gọn.": "Arrive on time and handle work quickly.",
-      "Chúng tôi cung cấp các giải pháp chăm sóc gia đình chuyên nghiệp, giúp bạn tận hưởng trọn vẹn từng khoảnh khắc quý giá bên người thân yêu.": "We provide professional home care solutions, helping you fully enjoy every precious moment with your loved ones.",
+      "Chúng tôi cung cấp các giải pháp chăm sóc gia đình chuyên nghiệp, giúp bạn tận hưởng trọn vẹn từng khoảnh khắc quý giá bên người thân yêu.":
+        "We provide professional home care solutions, helping you fully enjoy every precious moment with your loved ones.",
       "Vệ sinh nhà cửa": "Home cleaning",
       "Giải pháp làm sạch toàn diện cho tổ ấm luôn sáng bóng.": "Comprehensive cleaning solution for a shiny home.",
       "Sửa chữa điện nước": "Electricity and water repair",
@@ -214,7 +218,7 @@ const resources = {
       "Trông trẻ & Người già": "Babysitting & Elderly care",
       "Tận tâm, chu đáo như chính người thân trong gia đình.": "Dedicated and thoughtful like family members.",
       "Nấu ăn tại nhà": "Home cooking",
-      "Thực đơn phong phú, đảm bảo dinh dưỡng và vệ sinh.": "Rich menu, ensuring nutrition and hygiene."
+      "Thực đơn phong phú, đảm bảo dinh dưỡng và vệ sinh.": "Rich menu, ensuring nutrition and hygiene.",
     },
   },
 };

@@ -1,35 +1,19 @@
-import { useForgetPassword } from './useHook';
-import { Link } from 'react-router-dom';
-import forgetPasswordImg from "../../assets/images/forgetPassword.png"
-import { Icon } from '@iconify/react';
+import { useForgetPassword } from "./useHook";
+import { Link } from "react-router-dom";
+import forgetPasswordImg from "../../assets/images/forgetPassword.png";
+import { Icon } from "@iconify/react";
 
 const ForgetPassword = () => {
-  const {
-    step,
-    setStep,
-    formikStep1,
-    formikStep2,
-    formikStep3,
-    otpRefs,
-    handleOtpChange,
-    handleOtpKeyDown,
-    showPassword,
-    setShowPassword,
-    showConfirmPassword,
-    setShowConfirmPassword,
-  } = useForgetPassword();
+  const { step, setStep, formikStep1, formikStep2, formikStep3, otpRefs, handleOtpChange, handleOtpKeyDown, showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword } =
+    useForgetPassword();
 
   const renderStep1 = () => (
     <form onSubmit={formikStep1.handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md w-full mx-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Quên mật khẩu?</h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Nhập email hoặc số điện thoại đã đăng ký để nhận mã xác thực khôi phục mật khẩu.
-      </p>
+      <p className="text-sm text-gray-500 mb-6">Nhập email hoặc số điện thoại đã đăng ký để nhận mã xác thực khôi phục mật khẩu.</p>
 
       <div className="mb-6">
-        <label className="block text-base font-medium text-gray-700 mb-2">
-          Email hoặc số điện thoại
-        </label>
+        <label className="block text-base font-medium text-gray-700 mb-2">Email hoặc số điện thoại</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
             <Icon icon="mdi:gmail" className="text-2xl" />
@@ -37,16 +21,14 @@ const ForgetPassword = () => {
           <input
             type="text"
             name="emailOrPhone"
-            className={`pl-10 w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base ${formikStep1.touched.emailOrPhone && formikStep1.errors.emailOrPhone ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-teal-500 focus:border-teal-500'}`}
+            className={`pl-10 w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base ${formikStep1.touched.emailOrPhone && formikStep1.errors.emailOrPhone ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-teal-500 focus:border-teal-500"}`}
             placeholder="example@gmail.com"
             value={formikStep1.values.emailOrPhone}
             onChange={formikStep1.handleChange}
             onBlur={formikStep1.handleBlur}
           />
         </div>
-        {formikStep1.touched.emailOrPhone && formikStep1.errors.emailOrPhone && (
-          <div className="text-red-500 text-sm mt-1">{formikStep1.errors.emailOrPhone}</div>
-        )}
+        {formikStep1.touched.emailOrPhone && formikStep1.errors.emailOrPhone && <div className="text-red-500 text-sm mt-1">{formikStep1.errors.emailOrPhone}</div>}
       </div>
 
       <button
@@ -63,7 +45,10 @@ const ForgetPassword = () => {
           Quay lại đăng nhập
         </Link>
         <p className="text-base text-gray-500">
-          Chưa có tài khoản? <Link to="/dang-ky" className="text-orange-600 font-semibold hover:underline">Đăng ký ngay</Link>
+          Chưa có tài khoản?{" "}
+          <Link to="/dang-ky" className="text-orange-600 font-semibold hover:underline">
+            Đăng ký ngay
+          </Link>
         </p>
       </div>
     </form>
@@ -77,39 +62,37 @@ const ForgetPassword = () => {
       </div>
       <form onSubmit={formikStep2.handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Xác thực mã OTP</h2>
-        <p className="text-sm text-gray-500 mb-6">
-          Mã xác thực đã được gửi đến email/số điện thoại của bạn. Vui lòng nhập mã 6 chữ số bên dưới.
-        </p>
+        <p className="text-sm text-gray-500 mb-6">Mã xác thực đã được gửi đến email/số điện thoại của bạn. Vui lòng nhập mã 6 chữ số bên dưới.</p>
 
         <div className="flex justify-between gap-2 mb-2">
           {formikStep2.values.otp.map((digit, index) => (
             <input
               key={index}
-              ref={(el) => { otpRefs.current[index] = el; }}
+              ref={(el) => {
+                otpRefs.current[index] = el;
+              }}
               type="text"
               maxLength={1}
-              className={`w-12 h-12 text-center text-xl font-semibold border bg-gray-50 rounded-lg outline-none transition-all ${formikStep2.submitCount > 0 && formikStep2.errors.otp ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'}`}
+              className={`w-12 h-12 text-center text-xl font-semibold border bg-gray-50 rounded-lg outline-none transition-all ${formikStep2.submitCount > 0 && formikStep2.errors.otp ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-teal-500 focus:border-teal-500"}`}
               value={digit}
               onChange={(e) => handleOtpChange(index, e.target.value)}
               onKeyDown={(e) => handleOtpKeyDown(index, e)}
             />
           ))}
         </div>
-        {formikStep2.submitCount > 0 && formikStep2.errors.otp && typeof formikStep2.errors.otp === 'string' && (
-          <div className="text-red-500 text-xs text-center mb-6">{formikStep2.errors.otp}</div>
-        )}
+        {formikStep2.submitCount > 0 && formikStep2.errors.otp && typeof formikStep2.errors.otp === "string" && <div className="text-red-500 text-xs text-center mb-6">{formikStep2.errors.otp}</div>}
         <div className="mb-6"></div>
 
-        <button
-          type="submit"
-          className="w-full bg-[#B2451C] hover:bg-orange-800 text-white font-medium py-3 rounded-lg transition-colors mb-6 text-base"
-        >
+        <button type="submit" className="w-full bg-[#B2451C] hover:bg-orange-800 text-white font-medium py-3 rounded-lg transition-colors mb-6 text-base">
           Xác thực mã
         </button>
 
         <div className="text-center">
           <p className="text-sm text-gray-500 mb-6">
-            Không nhận được mã? <button type="button" className="text-gray-400 font-medium hover:text-gray-600">Gửi lại mã (sau 58s)</button>
+            Không nhận được mã?{" "}
+            <button type="button" className="text-gray-400 font-medium hover:text-gray-600">
+              Gửi lại mã (sau 58s)
+            </button>
           </p>
           <button type="button" onClick={() => setStep(1)} className="text-sm text-gray-500 font-medium hover:text-gray-800 inline-flex items-center gap-1">
             <Icon icon="solar:arrow-left-outline" className="text-lg" />
@@ -127,15 +110,11 @@ const ForgetPassword = () => {
         BƯỚC 3/3
       </div>
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Đặt lại mật khẩu</h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Vui lòng tạo mật khẩu mới an toàn để bảo vệ tài khoản của bạn.
-      </p>
+      <p className="text-sm text-gray-500 mb-6">Vui lòng tạo mật khẩu mới an toàn để bảo vệ tài khoản của bạn.</p>
 
       <div className="space-y-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Mật khẩu mới
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
               <Icon icon="heroicons-outline:lock-closed" className="text-xl" />
@@ -143,29 +122,21 @@ const ForgetPassword = () => {
             <input
               type={showPassword ? "text" : "password"}
               name="password"
-              className={`pl-10 pr-10 w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base ${formikStep3.touched.password && formikStep3.errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-teal-500 focus:border-teal-500'}`}
+              className={`pl-10 pr-10 w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base ${formikStep3.touched.password && formikStep3.errors.password ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-teal-500 focus:border-teal-500"}`}
               placeholder="••••••••"
               value={formikStep3.values.password}
               onChange={formikStep3.handleChange}
               onBlur={formikStep3.handleBlur}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-            >
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
               <Icon icon={showPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
           </div>
-          {formikStep3.touched.password && formikStep3.errors.password && (
-            <div className="text-red-500 text-xs mt-1">{formikStep3.errors.password}</div>
-          )}
+          {formikStep3.touched.password && formikStep3.errors.password && <div className="text-red-500 text-xs mt-1">{formikStep3.errors.password}</div>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Xác nhận mật khẩu
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
               <Icon icon="heroicons-outline:shield-check" className="text-xl" />
@@ -173,23 +144,17 @@ const ForgetPassword = () => {
             <input
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
-              className={`pl-10 pr-10 w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base ${formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-teal-500 focus:border-teal-500'}`}
+              className={`pl-10 pr-10 w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base ${formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-teal-500 focus:border-teal-500"}`}
               placeholder="••••••••"
               value={formikStep3.values.confirmPassword}
               onChange={formikStep3.handleChange}
               onBlur={formikStep3.handleBlur}
             />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-            >
+            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
               <Icon icon={showConfirmPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
           </div>
-          {formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword && (
-            <div className="text-red-500 text-sm mt-1">{formikStep3.errors.confirmPassword}</div>
-          )}
+          {formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword && <div className="text-red-500 text-sm mt-1">{formikStep3.errors.confirmPassword}</div>}
         </div>
       </div>
 
@@ -205,10 +170,7 @@ const ForgetPassword = () => {
         </ul>
       </div>
 
-      <button
-        type="submit"
-        className="w-full bg-[#005C61] hover:bg-teal-800 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base"
-      >
+      <button type="submit" className="w-full bg-[#005C61] hover:bg-teal-800 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base">
         Cập nhật mật khẩu
         <Icon icon="solar:arrow-right-outline" className="text-xl" />
       </button>
@@ -227,18 +189,12 @@ const ForgetPassword = () => {
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="hidden md:flex flex-col items-center justify-center space-y-6">
             <div className="relative">
-              <img 
-                src={forgetPasswordImg} 
-                alt="Security Illustration" 
-                className="w-full max-w-md object-contain rounded-2xl"
-              />
+              <img src={forgetPasswordImg} alt="Security Illustration" className="w-full max-w-md object-contain rounded-2xl" />
             </div>
             {step === 3 && (
               <div className="text-center max-w-sm mt-8">
                 <h3 className="text-[#005C61] text-xl font-bold mb-3">Bảo mật là ưu tiên hàng đầu</h3>
-                <p className="text-sm text-gray-600">
-                  Chúng tôi sử dụng mã hóa đa lớp để đảm bảo thông tin và các yêu cầu dịch vụ của bạn luôn được bảo vệ tuyệt đối.
-                </p>
+                <p className="text-sm text-gray-600">Chúng tôi sử dụng mã hóa đa lớp để đảm bảo thông tin và các yêu cầu dịch vụ của bạn luôn được bảo vệ tuyệt đối.</p>
               </div>
             )}
           </div>
