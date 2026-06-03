@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import donDepImg from "../../assets/images/dondep_us.png";
+import donDepImg from "../../assets/images/dondep_us.webp";
 import { useTranslation } from "react-i18next";
 
 export const AboutPage = () => {
@@ -8,7 +8,7 @@ export const AboutPage = () => {
     <div
       className="relative min-h-[50vh] md:min-h-[80vh] w-full flex items-center bg-cover bg-center overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(to right, rgba(2, 110, 95, 0.95) 0%, rgba(2, 110, 95, 0.8) 45%, rgba(2, 110, 95, 0) 100%), url('/src/assets/images/about_us.png')`,
+        backgroundImage: `linear-gradient(to right, rgba(2, 110, 95, 0.95) 0%, rgba(2, 110, 95, 0.8) 45%, rgba(2, 110, 95, 0) 100%), url('/src/assets/images/about_us.webp')`,
       }}
     >
       <div className="container-layout w-full">
@@ -55,26 +55,26 @@ export const AboutPage = () => {
   const renderIntroduce = () => (
     <div className="md:col-span-12 flex flex-col gap-12 mt-8 mb-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white border border-gray-200 rounded-4xl p-8 md:p-12 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-4xl p-8 md:p-12 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300">
           <div className="bg-[#094b43] w-14 h-14 rounded-2xl flex items-center justify-center mb-8">
             <Icon icon="mdi:account-group" className="text-3xl text-white" />
           </div>
-          <h3 className="text-xl md:text-3xl font-bold text-[#094b43] mb-6">{t("Dành cho Khách hàng")}</h3>
+          <h3 className="text-xl md:text-3xl font-bold text-[#094b43] dark:text-teal-400 mb-6">{t("Dành cho Khách hàng")}</h3>
           <ul className="flex-1 space-y-5 mb-10">
             <li className="flex items-start gap-3">
-              <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#008080] mt-0.5 shrink-0" />
-              <span className="text-gray-600 text-lg">{t("Tiết kiệm thời gian chăm sóc nhà cửa")}</span>
+              <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#008080] dark:text-teal-400 mt-0.5 shrink-0" />
+              <span className="text-gray-600 dark:text-gray-300 text-lg">{t("Tiết kiệm thời gian chăm sóc nhà cửa")}</span>
             </li>
             <li className="flex items-start gap-3">
-              <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#008080] mt-0.5 shrink-0" />
-              <span className="text-gray-600 text-lg">{t("Chất lượng dịch vụ được cam kết")}</span>
+              <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#008080] dark:text-teal-400 mt-0.5 shrink-0" />
+              <span className="text-gray-600 dark:text-gray-300 text-lg">{t("Chất lượng dịch vụ được cam kết")}</span>
             </li>
             <li className="flex items-start gap-3">
-              <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#008080] mt-0.5 shrink-0" />
-              <span className="text-gray-600 text-lg">{t("Giá cả minh bạch, không phát sinh")}</span>
+              <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#008080] dark:text-teal-400 mt-0.5 shrink-0" />
+              <span className="text-gray-600 dark:text-gray-300 text-lg">{t("Giá cả minh bạch, không phát sinh")}</span>
             </li>
           </ul>
-          <button className="w-full bg-[#094b43] hover:bg-[#06332d] cursor-pointer text-white font-semibold py-4 rounded-xl transition-colors duration-300">{t("Tìm người giúp việc ngay")}</button>
+          <button className="w-full bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 rounded-xl transition-colors duration-300">{t("Tìm người giúp việc ngay")}</button>
         </div>
 
         <div className="bg-[#094b43] rounded-4xl p-8 md:p-12 shadow-lg flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
@@ -175,7 +175,7 @@ export const AboutPage = () => {
     <div className="md:col-span-12 grid md:grid-cols-2 grid-cols-1 gap-12 items-center px-4 md:px-8 lg:px-12 rounded-2xl">
       <div className="relative group">
         <div className="rounded-3xl overflow-hidden shadow-2xl relative z-10">
-          <img src={donDepImg} alt="Dọn dẹp" className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700" />
+          <img src={donDepImg} alt="Dọn dẹp" className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700" loading="lazy" />
         </div>
         <div className="absolute -bottom-6 -left-6 w-full h-full rounded-3xl border-4 border-[#008080]/20 z-0"></div>
       </div>

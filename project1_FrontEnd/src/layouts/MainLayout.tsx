@@ -5,9 +5,9 @@ import InformationMarquee from "../constants/description";
 
 export const MainLayout = () => (
   <>
-  <div className="w-full min-h-screen">
+  <div className="w-full min-h-screen dark:bg-slate-900 transition-colors duration-300">
     {/* Header */}
-    <div className="w-full bg-[#066d72]">
+    <div className="w-full bg-[#066d72] dark:bg-slate-800">
       <div className="container-layout">
         <Header />
       </div>

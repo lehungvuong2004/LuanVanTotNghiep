@@ -19,10 +19,10 @@ export const Loading = ({ fullScreen = false, timeout }: LoadingProps) => {
   }, [timeout]);
 
   if (!isVisible) return null;
-  const containerClass = fullScreen ? "fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm" : "";
+  const containerClass = fullScreen ? "fixed inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-slate-900/80 backdrop-blur-sm" : "";
   return (
     <div className={containerClass}>
-      <Icon icon="line-md:loading-loop" className="text-6xl text-red-600 " />
+      <Icon icon="line-md:loading-loop" className="text-6xl text-red-600 dark:text-teal-400" />
     </div>
   );
 };
