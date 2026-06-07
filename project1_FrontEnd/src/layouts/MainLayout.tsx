@@ -8,7 +8,7 @@ export const MainLayout = () => (
   <div className="w-full min-h-screen dark:bg-slate-900 transition-colors duration-300">
     {/* Header */}
     <div className="w-full bg-[#066d72] dark:bg-slate-800">
-      <div className="container-layout">
+      <div className="w-full px-4 md:px-16 mx-auto">
         <Header />
       </div>
     </div>
@@ -25,7 +25,7 @@ export const MainLayout = () => (
 
     {/* Footer */}
     {/* <div className="w-full bg-gray-200"> */}
-      <div className="container-layout">
+      <div className="w-full px-4 md:px-16 mx-auto">
         <Footer />
       </div>
     </div>

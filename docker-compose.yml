@@ -1,31 +1,55 @@
 services:
- frontend: 
-   build: ./project1_FrontEnd
-   container_name: frontend_web
-   ports: 
-   - "5173:5173"
-   volumes:
-   - ./project1_FrontEnd:/app
-   - /app/node_modules
- backend:
+  # frontend
+  frontend:
+    build: ./project1_FrontEnd
+    container_name: frontend_web
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./project1_FrontEnd:/app
+      - /app/node_modules
+
+  # backend
+  backend:
     build: ./project1_BackEnd
     container_name: backend_server
     ports:
       - "8000:8000"
     volumes:
       - ./project1_BackEnd:/app
-    # mysql:
-    #   image: mysql:8.0
-    #   container_name: mysql_db
-    #   ports:
-    #     - "3307:3306"
-    #   environment:
-    #     MYSQL_DATABASE: luanvan_db
-    #     MYSQL_ROOT_PASSWORD: root
-    #     MYSQL_USER: laravel
-    #     MYSQL_PASSWORD: 
-    #   volumes:
-    #     - mysql_data:/var/lib/mysql
+    depends_on:
+      - mysql
+    networks:
+      - homeservice_network
+
+  # mysql
+  mysql:
+    image: mysql:8.0
+    container_name: homeservice_mysql
+    environment:
+      MYSQL_DATABASE: homeservice_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - homeservice_network
+
+  # admin service
+  admin_service:
+    build: ./homeservice_admin
+    container_name: homeservice_admin
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mysql
+    networks:
+      - homeservice_network
 
 volumes:
   mysql_data:
+
+# networks:
+#   homeservice_network:
+#     driver: bridge

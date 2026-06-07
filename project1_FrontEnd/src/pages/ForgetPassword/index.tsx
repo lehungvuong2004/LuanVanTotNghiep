@@ -185,7 +185,7 @@ const ForgetPassword = () => {
 
   return (
     <div className="flex-1 bg-[#F8FAFC] dark:bg-slate-900 flex items-center justify-center py-8 transition-colors duration-300">
-      <div className="container-layout flex justify-center">
+      <div className="w-full px-4 md:px-16 mx-auto flex justify-center">
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="hidden md:flex flex-col items-center justify-center space-y-6">
             <div className="relative">

@@ -135,7 +135,7 @@ export const Login = () => {
 
   return (
     <div className="flex-1 flex flex-col justify-center w-full bg-[#f8f9fa] dark:bg-slate-900 py-8 relative transition-colors duration-300">
-      <div className="container-layout">
+      <div className="w-full px-4 md:px-16 mx-auto">
         <div className="w-full max-w-7xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] overflow-hidden border border-gray-100 dark:border-gray-700 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
           {imgLogin()}
           {formLogin()}

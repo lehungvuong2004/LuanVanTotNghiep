@@ -8,12 +8,14 @@ import { Login } from "./pages/Login/Login";
 import { Register } from "./pages/Register/Register";
 import ForgetPassword from "./pages/ForgetPassword";
 import PostAJob from "./pages/PostAJob";
+import { Home } from "./pages/Home";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
           <Route path="/lien-he" element={<Contact />} />
           <Route path="/ve-chung-toi" element={<AboutPage />} />
           <Route path="/dang-bai-tuyen" element={<PostAJob />} />

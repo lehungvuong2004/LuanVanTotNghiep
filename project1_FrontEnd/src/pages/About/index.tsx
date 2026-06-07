@@ -11,7 +11,7 @@ export const AboutPage = () => {
         backgroundImage: `linear-gradient(to right, rgba(2, 110, 95, 0.95) 0%, rgba(2, 110, 95, 0.8) 45%, rgba(2, 110, 95, 0) 100%), url('/src/assets/images/about_us.webp')`,
       }}
     >
-      <div className="container-layout w-full">
+      <div className="w-full px-4 md:px-16 mx-auto">
         <div className="w-full md:w-2/3 lg:w-1/2 py-12 md:py-16 text-white flex flex-col justify-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight">
             {t("Kết nối dịch vụ gia đình uy tín,")}
@@ -281,7 +281,7 @@ export const AboutPage = () => {
   return (
     <div className="w-full">
       {renderBanner()}
-      <div className="container-layout">
+      <div className="w-full px-4 md:px-16 mx-auto">
         <div className="grid md:grid-cols-12 grid-cols-1 gap-10">
           {renderSatifaction()}
           {renderPipeline()}

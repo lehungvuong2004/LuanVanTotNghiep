@@ -281,7 +281,7 @@ export default function PostAJob() {
     </div>
   );
   return (
-    <div className="container-layout py-8">
+    <div className="w-full px-4 md:px-16 mx-auto py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#0d5c63] dark:text-teal-400">{t("Đăng bài tuyển dụng")}</h1>
         <p className="text-gray-700 dark:text-gray-300 mt-2">{t("Tạo bài tuyển dụng để tìm người giúp việc phù hợp cho gia đình bạn.")}</p>

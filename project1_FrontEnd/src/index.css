@@ -47,22 +47,6 @@ html.dark body {
   animation: marquee 10s linear infinite;
 }
 
-.container-layout {
-  width: 100%;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .container-layout {
-    width: auto;
-    margin-left: 7.143rem;
-    margin-right: 7.143rem;
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
 /* static fonts */
 @font-face {
   font-family: "InterCustom";

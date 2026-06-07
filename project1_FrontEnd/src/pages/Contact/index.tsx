@@ -242,7 +242,7 @@ export const Contact = () => {
   );
 
   return (
-    <div className="container-layout py-8">
+    <div className="w-full px-4 md:px-16 mx-auto py-8">
       {formContact()}
       {questionContact()}
       {featuresContact()}
