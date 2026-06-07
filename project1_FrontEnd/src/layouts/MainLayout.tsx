@@ -19,7 +19,7 @@ export const MainLayout = () => (
     </div>
 
     {/* Main */}
-      <div className="w-full">
+      <div className="w-full px-4 md:px-16 mx-auto">
         <Outlet />
       </div>
 

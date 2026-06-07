@@ -2,7 +2,6 @@ import { Route, Routes, BrowserRouter } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import { Errors404 } from "./components/Errors404";
 import { Contact } from "./pages/Contact";
-import { AboutPage } from "./pages/About";
 import { LoginLayout } from "./layouts/LoginLayout";
 import { Login } from "./pages/Login/Login";
 import { Register } from "./pages/Register/Register";
@@ -17,7 +16,6 @@ function App() {
         <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
           <Route path="/lien-he" element={<Contact />} />
-          <Route path="/ve-chung-toi" element={<AboutPage />} />
           <Route path="/dang-bai-tuyen" element={<PostAJob />} />
         </Route>
         <Route element={<LoginLayout />}>
