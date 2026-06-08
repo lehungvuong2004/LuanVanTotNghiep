@@ -54,40 +54,44 @@ export const Header = () => {
         isScrolled ? "shadow-md" : ""
       }`}>
       <div className="w-full px-4 md:px-16 mx-auto">
-        <div className="flex items-center justify-between w-full transition-all duration-300">
-        <div className={`flex-1 lg:hidden flex items-center transition-all duration-300 ${
+        <div className="flex items-stretch justify-between w-full transition-all duration-300">
+        <div className={`flex-1 lg:hidden flex items-center ${
           isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
         }`}>
           <Icon icon="gg:menu-round" className="text-4xl text-white cursor-pointer" onClick={toggleMobileMenu} />
         </div>
 
-        <nav className={`hidden lg:flex flex-1 items-center gap-6 text-white font-medium text-base transition-all duration-300 ${
-          isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-        }`}>
-          <div className="flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2 shadow-sm">
+        <nav className="hidden lg:flex flex-1 items-stretch text-white font-medium text-base">
+          <div className={`flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 my-auto shadow-sm mr-2`}>
             <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
           </div>
           <Link
             to="/"
-            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+            className={`h-full flex items-center px-3 cursor-pointer hover:text-teal-200 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left ${
+              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+            }`}
           >
             {t("Trang Chủ")}
           </Link>
           <Link
             to="/viec-lam"
-            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+            className={`h-full flex items-center px-3 cursor-pointer hover:text-teal-200 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left ${
+              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+            }`}
           >
             {t("Thông tin tuyển dụng")}
           </Link>
           <Link
             to="/lien-he"
-            className="cursor-pointer hover:text-teal-200 hover:-translate-y-0.5 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left pb-1"
+            className={`h-full flex items-center px-3 cursor-pointer hover:text-teal-200 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left ${
+              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+            }`}
           >
             {t("Liên hệ")}
           </Link>
         </nav>
 
-        <div className={`flex items-center justify-center shrink-0 transition-all duration-300 ${
+        <div className={`flex items-center justify-center shrink-0 ${
           isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
         }`}>
           <Link to="/" className="text-white font-bold text-2xl md:text-3xl">
@@ -101,9 +105,7 @@ export const Header = () => {
             <Icon icon="mdi:bell-outline" className="text-4xl md:text-2xl cursor-pointer" />
           </div>
           {isLoggedIn ? (
-            <div className={`relative group flex items-center cursor-pointer transition-all duration-300 ${
-              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-            }`}>
+            <div className="relative group  flex items-center cursor-pointer">
               <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
                 <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
               </div>
@@ -125,14 +127,14 @@ export const Header = () => {
                   <div className="flex flex-col gap-1 py-3">
                     <Link
                       to="/ho-so"
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                     >
                       <Icon icon="mdi:account-outline" className="text-lg text-gray-400" />
                       <span>{t("Hồ sơ cá nhân")}</span>
                     </Link>
                     <Link
                       to="/lich-su-dat-lich"
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                     >
                       <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
                       <span>{t("Lịch sử đặt lịch")}</span>
@@ -142,7 +144,7 @@ export const Header = () => {
                   <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
                     <button
                       onClick={() => setIsLoggedIn(false)}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
                     >
                       <Icon icon="material-symbols:logout" className="text-lg" />
                       <span>{t("Đăng xuất")}</span>
@@ -152,9 +154,7 @@ export const Header = () => {
               </div>
             </div>
           ) : (
-            <div className={`relative flex items-center cursor-pointer transition-all duration-300 ${
-              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-            }`}>
+            <div className="relative h-full flex items-center cursor-pointer">
               <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
                 <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
               </Link>
@@ -163,7 +163,8 @@ export const Header = () => {
         </div>
 
         <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
-          <div className={`relative group flex items-center cursor-pointer transition-all duration-300 ${
+          {/* Language picker — own py = full header height */}
+          <div className={`relative group h-full flex items-center cursor-pointer px-3 transition-all duration-300 ${
             isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
           }`}>
             <div className="flex items-center gap-2 cursor-pointer font-medium text-base text-white transition-colors">
@@ -172,13 +173,13 @@ export const Header = () => {
               <Icon icon="ri:arrow-drop-down-line" className="text-3xl -ml-1" />
             </div>
 
-            <div className="absolute top-full right-0 pt-4 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div className="absolute top-full right-0 w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col bg-white dark:bg-slate-800">
-                <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-teal-50 dark:hover:bg-slate-700 rounded-t-lg transition-colors group/item">
+                <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-3 cursor-pointer dark:hover:bg-slate-700 rounded-t-lg transition-colors group/item">
                   <Icon icon="twemoji:flag-vietnam" className="text-2xl group-hover/item:scale-110 transition-transform" />
                   <span className="text-base text-gray-700 dark:text-gray-200 group-hover/item:text-teal-700 dark:group-hover/item:text-teal-400 font-medium transition-colors">{t("Việt Nam")}</span>
                 </div>
-                <div onClick={() => changeLanguage("en")} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-teal-50 dark:hover:bg-slate-700 rounded-b-lg transition-colors group/item">
+                <div onClick={() => changeLanguage("en")} className="flex items-center gap-3 px-4 py-3 cursor-pointer dark:hover:bg-slate-700 rounded-b-lg transition-colors group/item">
                   <Icon icon="twemoji:flag-us-outlying-islands" className="text-2xl group-hover/item:scale-110 transition-transform" />
                   <span className="text-base text-gray-700 dark:text-gray-200 group-hover/item:text-teal-700 dark:group-hover/item:text-teal-400 font-medium transition-colors">{t("English")}</span>
                 </div>
@@ -187,23 +188,21 @@ export const Header = () => {
           </div>
 
           {/* Icons */}
-          <div className="flex items-center gap-5 text-white">
+          <div className="flex items-stretch gap-5 text-white self-stretch">
             <Icon
               icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"}
-              className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm"
+              className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center"
               onClick={toggleDarkMode}
             />
-            <Icon icon="boxicons:location" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
-            <Icon icon="mdi:bell-outline" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            <Icon icon="boxicons:location" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center" />
+            <Icon icon="mdi:bell-outline" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center" />
             {isLoggedIn ? (
-              <div className={`relative group flex items-center cursor-pointer transition-all duration-300 ${
-                isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-              }`}>
+              <div className="relative group h-full flex items-center cursor-pointer">
                 <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
                   <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
                 </div>
 
-                <div className="absolute top-full right-0 pt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="absolute top-full right-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
                     <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
                       <img
@@ -220,14 +219,14 @@ export const Header = () => {
                     <div className="flex flex-col gap-1 py-3">
                       <Link
                         to="/ho-so"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                       >
                         <Icon icon="mdi:account-outline" className="text-lg text-gray-400" />
                         <span>{t("Hồ sơ cá nhân")}</span>
                       </Link>
                       <Link
                         to="/lich-su-dat-lich"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                       >
                         <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
                         <span>{t("Lịch sử đặt lịch")}</span>
@@ -237,7 +236,7 @@ export const Header = () => {
                     <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
                       <button
                         onClick={() => setIsLoggedIn(false)}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
                       >
                         <Icon icon="material-symbols:logout" className="text-lg text-red-600 dark:text-red-400" />
                         <span>{t("Đăng xuất")}</span>
@@ -247,9 +246,7 @@ export const Header = () => {
                 </div>
               </div>
             ) : (
-              <div className={`relative flex items-center cursor-pointer transition-all duration-300 ${
-                isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-              }`}>
+              <div className="relative h-full flex items-center cursor-pointer">
                 <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
                   <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
                 </Link>
@@ -258,7 +255,7 @@ export const Header = () => {
           </div>
 
           <Link to="/dang-bai-tuyen">
-            <button className="bg-white dark:bg-teal-500 text-teal-700 dark:text-white hover:bg-teal-50 dark:hover:bg-teal-400 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base">
+            <button className="bg-white dark:bg-teal-500 text-teal-700 dark:text-white dark:hover:bg-teal-400 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base">
               {t("Đăng bài tuyển")}
             </button>
           </Link>
@@ -266,7 +263,6 @@ export const Header = () => {
       </div>
       </div>
 
-      {/* Mobile Sidebar Menu */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden flex">
           <div className="fixed inset-0 bg-black/60 transition-opacity" onClick={toggleMobileMenu}></div>
@@ -279,7 +275,7 @@ export const Header = () => {
             </div>
 
             <div className="flex flex-col p-5 gap-4 overflow-y-auto flex-1">
-              <div className="flex items-center gap-3 cursor-pointer bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-xl px-4 py-3 font-medium text-gray-800 dark:text-gray-200 transition-colors">
+              <div className="flex items-center gap-3 cursor-pointer bg-gray-50 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl px-4 py-3 font-medium text-gray-800 dark:text-gray-200 transition-colors">
                 <Icon icon="bitcoin-icons:menu-outline" className="text-2xl text-[#026E5F] dark:text-teal-400" />
                 {t("Danh Mục")}
               </div>
@@ -287,28 +283,28 @@ export const Header = () => {
               <div className="flex flex-col gap-2 mt-2">
                 <Link
                   to="/about"
-                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 hover:bg-teal-50/80 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
                   onClick={toggleMobileMenu}
                 >
                   {t("Trang Chủ")}
                 </Link>
                 <Link
                   to="/about"
-                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 hover:bg-teal-50/80 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
                   onClick={toggleMobileMenu}
                 >
                   {t("Về chúng tôi")}
                 </Link>
                 <Link
                   to="/jobs"
-                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 hover:bg-teal-50/80 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
                   onClick={toggleMobileMenu}
                 >
                   {t("Thông tin tuyển dụng")}
                 </Link>
                 <Link
                   to="/lien-he"
-                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 hover:bg-teal-50/80 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
                   onClick={toggleMobileMenu}
                 >
                   {t("Liên hệ")}
@@ -323,7 +319,7 @@ export const Header = () => {
                       changeLanguage("vn");
                       toggleMobileMenu();
                     }}
-                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${!isEn ? "border-[#026E5F] dark:border-teal-500 bg-[#026E5F]/5 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400" : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700"}`}
+                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${!isEn ? "border-[#026E5F] dark:border-teal-500 bg-[#026E5F]/5 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400" : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 dark:hover:bg-slate-700"}`}
                   >
                     <Icon icon="twemoji:flag-vietnam" className="text-xl" />
                     <span className="font-medium text-sm">VN</span>
@@ -333,7 +329,7 @@ export const Header = () => {
                       changeLanguage("en");
                       toggleMobileMenu();
                     }}
-                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${isEn ? "border-[#026E5F] dark:border-teal-500 bg-[#026E5F]/5 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400" : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700"}`}
+                    className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${isEn ? "border-[#026E5F] dark:border-teal-500 bg-[#026E5F]/5 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400" : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 dark:hover:bg-slate-700"}`}
                   >
                     <Icon icon="twemoji:flag-us-outlying-islands" className="text-xl" />
                     <span className="font-medium text-sm">EN</span>
@@ -343,7 +339,7 @@ export const Header = () => {
 
               <div className="mt-auto pt-6 pb-4">
                 <button
-                  className="w-full bg-[#026E5F] hover:bg-[#025E50] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5"
+                  className="w-full bg-[#026E5F] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5"
                   onClick={toggleMobileMenu}
                 >
                   {t("Đăng bài tuyển")}
@@ -354,8 +350,14 @@ export const Header = () => {
         </div>
       )}
       </header>
-      {/* Spacer to prevent page content layout jump under the fixed header */}
-      <div className="h-[72px] md:h-20 w-full"></div>
+      {/* Spacer — invisible clone of header row so height matches perfectly without hardcoded values */}
+      <div className="w-full px-4 md:px-16 mx-auto pointer-events-none select-none" aria-hidden="true">
+        <div className={`flex items-center justify-center transition-all duration-300 ${
+          isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+        }`}>
+          <span className="text-white font-bold text-2xl md:text-3xl invisible">Gia Đình Việt</span>
+        </div>
+      </div>
     </>
   );
 };

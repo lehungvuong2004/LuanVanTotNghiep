@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { Footer } from "../pages/Footer";
 import { Header } from "../pages/Header";
-import InformationMarquee from "../constants/description";
+import InformationMarquee from "../components/description";
 
 export const MainLayout = () => (
   <>
@@ -9,22 +9,18 @@ export const MainLayout = () => (
     {/* Header */}
     <Header />
 
-    {/* infomation */}
-    <div className="">
-      <InformationMarquee />
-    </div>
+    {/* Information ticker */}
+    <InformationMarquee />
 
     {/* Main */}
-      <div className="w-full px-4 md:px-16 mx-auto">
-        <Outlet />
-      </div>
+    <div className="w-full px-4 md:px-16 mx-auto">
+      <Outlet />
+    </div>
 
     {/* Footer */}
-    {/* <div className="w-full bg-gray-200"> */}
-      <div className="w-full px-4 md:px-16 mx-auto">
-        <Footer />
-      </div>
+    <div className="w-full px-4 md:px-16 mx-auto">
+      <Footer />
     </div>
-  {/* </div> */}
-</>
+  </div>
+  </>
 );
