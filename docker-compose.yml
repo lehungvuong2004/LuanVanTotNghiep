@@ -1,55 +1,145 @@
 services:
-  # frontend
+  api-gateway:
+    build: ./api-gateway
+    container_name: lv-gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - identity-service
+      - order-service
+      - payment-service
+      - provider-service
+
+  identity-service:
+    build: ./identity-service
+    container_name: lv-identity
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./identity-service/.env
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=lv-identity-db
+      - DB_PORT=3306
+      - DB_DATABASE=homeservice_identity_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=
+    depends_on:
+      - identity-db
+
+  identity-db:
+    image: mysql:8.0
+    container_name: lv-identity-db
+    environment:
+      MYSQL_DATABASE: homeservice_identity_db
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3307:3306"
+
+  order-service:
+    build: ./order-service
+    container_name: lv-order
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./order-service/.env
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=lv-order-db
+      - DB_PORT=3306
+      - DB_DATABASE=homeservice_order_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=
+    depends_on:
+      - order-db
+
+  order-db:
+    image: mysql:8.0
+    container_name: lv-order-db
+    environment:
+      MYSQL_DATABASE: homeservice_order_db
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3308:3306"
+
+  payment-service:
+    build: ./payment-service
+    container_name: lv-payment
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./payment-service/.env
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=lv-payment-db
+      - DB_PORT=3306
+      - DB_DATABASE=homeservice_payment_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=
+    depends_on:
+      - payment-db
+
+  payment-db:
+    image: mysql:8.0
+    container_name: lv-payment-db
+    environment:
+      MYSQL_DATABASE: homeservice_payment_db
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3309:3306"
+
+  provider-service:
+    build: ./provider-service
+    container_name: lv-provider
+    ports:
+      - "8004:8000"
+    env_file:
+      - ./provider-service/.env
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=lv-provider-db
+      - DB_PORT=3306
+      - DB_DATABASE=homeservice_provider_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=
+    depends_on:
+      - provider-db
+
+  provider-db:
+    image: mysql:8.0
+    container_name: lv-provider-db
+    environment:
+      MYSQL_DATABASE: homeservice_provider_db
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3310:3306"
+
   frontend:
     build: ./project1_FrontEnd
-    container_name: frontend_web
+    container_name: lv-frontend
     ports:
       - "5173:5173"
     volumes:
       - ./project1_FrontEnd:/app
       - /app/node_modules
-
-  # backend
-  backend:
-    build: ./project1_BackEnd
-    container_name: backend_server
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./project1_BackEnd:/app
     depends_on:
-      - mysql
-    networks:
-      - homeservice_network
+      - api-gateway
 
-  # mysql
-  mysql:
-    image: mysql:8.0
-    container_name: homeservice_mysql
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: lv-phpmyadmin
+    ports:
+      - "8080:80"
     environment:
-      MYSQL_DATABASE: homeservice_db
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - homeservice_network
-
-  # admin service
-  admin_service:
-    build: ./homeservice_admin
-    container_name: homeservice_admin
-    ports:
-      - "8001:8000"
+      PMA_HOSTS: lv-identity-db,lv-order-db,lv-payment-db,lv-provider-db
+      PMA_USER: root
+      PMA_PASSWORD: ""
     depends_on:
-      - mysql
-    networks:
-      - homeservice_network
-
-volumes:
-  mysql_data:
-
-# networks:
-#   homeservice_network:
-#     driver: bridge
+      - identity-db
+      - order-db
+      - payment-db
+      - provider-db
