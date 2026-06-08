@@ -5,11 +5,11 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Icon } from "@iconify/react";
-import bannerHome from "../../assets/images/banner_home.png";
-import neatlyClothe from "../../assets/images/home_service/neatlyClothe.png";
-import repairCondition from "../../assets/images/home_service/repairCondition.png";
-import repairLight from "../../assets/images/home_service/repairLight.png";
-import repairPlumber from "../../assets/images/home_service/repairPlumber.png";
+import bannerHome from "../../assets/images/banner_home.webp";
+import neatlyClothe from "../../assets/images/home_service/neatlyClothe.webp";
+import repairCondition from "../../assets/images/home_service/repairCondition.webp";
+import repairLight from "../../assets/images/home_service/repairLight.webp";
+import repairPlumber from "../../assets/images/home_service/repairPlumber.webp";
 import { useHome } from "./useHook";
 import { t } from "i18next";
 
@@ -75,44 +75,53 @@ export const Home = () => {
       </div>
 
       <div className="relative w-full px-4 md:px-12 max-w-7xl mx-auto">
-        <div className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-gray-200 dark:bg-gray-700 z-0"></div>
-
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-6 relative z-10">
           {/* Bước 1 */}
-          <div className="flex flex-col items-center text-center group cursor-pointer">
-            <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-[3px] border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-colors duration-300">
-              <Icon icon="mdi:view-list-outline" className="text-3xl text-[#008080] dark:text-teal-400" />
+          <div className="peer/step1 relative z-10 flex flex-col items-center text-center group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+            <div className="relative z-10 w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-all duration-300">
+              <Icon icon="mdi:view-list-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
-            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2">{t("1. Chọn dịch vụ")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2">{t("Lựa chọn từ 20+ dịch vụ đa dạng từ vệ sinh đến sửa chữa.")}</p>
+            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("1. Chọn dịch vụ")}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Lựa chọn từ 20+ dịch vụ đa dạng từ vệ sinh đến sửa chữa.")}</p>
           </div>
 
           {/* Bước 2 */}
-          <div className="flex flex-col items-center text-center group cursor-pointer">
-            <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-colors duration-300">
-              <Icon icon="mdi:calendar-month-outline" className="text-3xl text-[#008080] dark:text-teal-400" />
+          <div className="peer/step2 relative z-10 flex flex-col items-center text-center group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+            <div className="relative z-10 w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-all duration-300">
+              <Icon icon="mdi:calendar-month-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
-            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2">{t("2. Đặt lịch")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2">{t("Chọn thời gian và địa điểm phù hợp nhất với kế hoạch của bạn.")}</p>
+            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("2. Đặt lịch")}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Chọn thời gian và địa điểm phù hợp nhất với kế hoạch của bạn.")}</p>
           </div>
 
           {/* Bước 3 */}
-          <div className="flex flex-col items-center text-center group cursor-pointer">
-            <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-colors duration-300">
-              <Icon icon="mdi:handshake-outline" className="text-3xl text-[#008080] dark:text-teal-400" />
+          <div className="peer/step3 relative z-10 flex flex-col items-center text-center group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+            <div className="relative z-10 w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-all duration-300">
+              <Icon icon="mdi:handshake-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
-            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2">{t("3. Kết nối")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2">{t("Hệ thống tự động kết nối bạn với chuyên gia phù hợp nhất.")}</p>
+            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("3. Kết nối")}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Hệ thống tự động kết nối bạn với chuyên gia phù hợp nhất.")}</p>
           </div>
 
           {/* Bước 4 */}
-          <div className="flex flex-col items-center text-center group cursor-pointer">
-            <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-colors duration-300">
-              <Icon icon="mdi:star-outline" className="text-3xl text-[#008080] dark:text-teal-400" />
+          <div className="peer/step4 relative z-10 flex flex-col items-center text-center group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+            <div className="relative z-10 w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-all duration-300">
+              <Icon icon="mdi:star-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
-            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2">{t("4. Hoàn tất & Đánh giá")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2">{t("Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.")}</p>
+            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("4. Hoàn tất & Đánh giá")}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.")}</p>
           </div>
+
+          {/* Background Connecting Line (Static) */}
+          <div className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-gray-200 dark:bg-gray-700 z-0"></div>
+
+          {/* Active Running Line (CSS Animated, Non-rounded, Glowing) */}
+          <div className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-[#008080] dark:bg-teal-400 z-0 origin-left scale-x-0 transition-transform duration-500 ease-out shadow-[0_0_8px_rgba(0,128,128,0.6)] dark:shadow-[0_0_8px_rgba(45,212,191,0.6)]
+            peer-hover/step1:scale-x-0
+            peer-hover/step2:scale-x-[0.33]
+            peer-hover/step3:scale-x-[0.66]
+            peer-hover/step4:scale-x-100
+          "></div>
         </div>
       </div>
     </div>

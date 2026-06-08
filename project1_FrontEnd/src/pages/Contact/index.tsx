@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import useContact from "./useHook";
-import contactImg from "../../assets/images/contact/contact.png";
+import contactImg from "../../assets/images/contact/contact.webp";
 
 export const Contact = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);

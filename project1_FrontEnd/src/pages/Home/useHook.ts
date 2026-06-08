@@ -1,10 +1,10 @@
 import { useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
-import careImg from "../../assets/images/home_produce/care.png";
-import cleaningImg from "../../assets/images/home_produce/cleaning.png";
-import cookingImg from "../../assets/images/home_produce/cooking.png";
-import designerImg from "../../assets/images/home_produce/designer.png";
-import gradenImg from "../../assets/images/home_produce/graden.png";
+import careImg from "../../assets/images/home_produce/care.webp";
+import cleaningImg from "../../assets/images/home_produce/cleaning.webp";
+import cookingImg from "../../assets/images/home_produce/cooking.webp";
+import designerImg from "../../assets/images/home_produce/designer.webp";
+import gradenImg from "../../assets/images/home_produce/graden.webp";
 
 export const useHome = () => {
   const containerRef = useRef<HTMLDivElement>(null);

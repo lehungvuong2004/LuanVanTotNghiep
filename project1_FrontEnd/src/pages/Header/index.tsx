@@ -1,11 +1,25 @@
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const Header = () => {
   const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("darkMode") === "true" || document.documentElement.classList.contains("dark");
@@ -35,14 +49,21 @@ export const Header = () => {
   };
 
   return (
-    <header className="relative w-full">
-      <div className="flex items-center justify-between h-20 md:h-24 w-full">
-        <div className="flex-1 lg:hidden flex items-center">
+    <>
+      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-[#066d72] dark:bg-slate-800 ${
+        isScrolled ? "shadow-md" : ""
+      }`}>
+      <div className="w-full px-4 md:px-16 mx-auto">
+        <div className="flex items-center justify-between w-full transition-all duration-300">
+        <div className={`flex-1 lg:hidden flex items-center transition-all duration-300 ${
+          isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+        }`}>
           <Icon icon="gg:menu-round" className="text-4xl text-white cursor-pointer" onClick={toggleMobileMenu} />
         </div>
 
-        {/* nav left destop */}
-        <nav className="hidden lg:flex flex-1 items-center gap-6 text-white font-medium text-base">
+        <nav className={`hidden lg:flex flex-1 items-center gap-6 text-white font-medium text-base transition-all duration-300 ${
+          isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+        }`}>
           <div className="flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2 shadow-sm">
             <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
           </div>
@@ -66,22 +87,85 @@ export const Header = () => {
           </Link>
         </nav>
 
-        <div className="flex items-center justify-center shrink-0">
+        <div className={`flex items-center justify-center shrink-0 transition-all duration-300 ${
+          isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+        }`}>
           <Link to="/" className="text-white font-bold text-2xl md:text-3xl">
             Gia Đình Việt
           </Link>
         </div>
 
         <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
-          <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
-          <Icon icon="lucide:bell" className="text-4xl md:text-2xl cursor-pointer" />
-          <Link to="/dang-nhap" className="border-2 border-white/50 rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center">
-            <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
+            <Icon icon="mdi:bell-outline" className="text-4xl md:text-2xl cursor-pointer" />
+          </div>
+          {isLoggedIn ? (
+            <div className={`relative group flex items-center cursor-pointer transition-all duration-300 ${
+              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+            }`}>
+              <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+              </div>
+
+              <div className="absolute top-full right-0 pt-4 w-60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
+                  <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
+                      alt="User Avatar"
+                      className="w-10 h-10 rounded-full object-cover border border-[#026E5F] dark:border-teal-500"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">Nguyễn Văn A</span>
+                      <span className="text-xs text-gray-500 mt-0.5">{t("Khách hàng")}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 py-3">
+                    <Link
+                      to="/ho-so"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                    >
+                      <Icon icon="mdi:account-outline" className="text-lg text-gray-400" />
+                      <span>{t("Hồ sơ cá nhân")}</span>
+                    </Link>
+                    <Link
+                      to="/lich-su-dat-lich"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                    >
+                      <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
+                      <span>{t("Lịch sử đặt lịch")}</span>
+                    </Link>
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
+                    <button
+                      onClick={() => setIsLoggedIn(false)}
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
+                    >
+                      <Icon icon="material-symbols:logout" className="text-lg" />
+                      <span>{t("Đăng xuất")}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className={`relative flex items-center cursor-pointer transition-all duration-300 ${
+              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+            }`}>
+              <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
-          <div className="relative group flex items-center h-full">
+          <div className={`relative group flex items-center cursor-pointer transition-all duration-300 ${
+            isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+          }`}>
             <div className="flex items-center gap-2 cursor-pointer font-medium text-base text-white transition-colors">
               <Icon icon={isEn ? "twemoji:flag-us-outlying-islands" : "twemoji:flag-vietnam"} className="text-2xl" />
               <span>{isEn ? t("English") : t("Việt Nam")}</span>
@@ -103,17 +187,74 @@ export const Header = () => {
           </div>
 
           {/* Icons */}
-          <div className="flex items-center gap-5 text-white ">
+          <div className="flex items-center gap-5 text-white">
             <Icon
               icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"}
               className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm"
               onClick={toggleDarkMode}
             />
-            <Icon icon="line-md:map-marker" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
-            <Icon icon="line-md:bell" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
-            <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center">
-              <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
-            </Link>
+            <Icon icon="boxicons:location" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            <Icon icon="mdi:bell-outline" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm" />
+            {isLoggedIn ? (
+              <div className={`relative group flex items-center cursor-pointer transition-all duration-300 ${
+                isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+              }`}>
+                <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                  <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+                </div>
+
+                <div className="absolute top-full right-0 pt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
+                    <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
+                      <img
+                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
+                        alt="User Avatar"
+                        className="w-10 h-10 rounded-full object-cover border border-[#026E5F] dark:border-teal-500"
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">Nguyễn Văn A</span>
+                        <span className="text-xs text-gray-500 mt-0.5">{t("Khách hàng")}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1 py-3">
+                      <Link
+                        to="/ho-so"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                      >
+                        <Icon icon="mdi:account-outline" className="text-lg text-gray-400" />
+                        <span>{t("Hồ sơ cá nhân")}</span>
+                      </Link>
+                      <Link
+                        to="/lich-su-dat-lich"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                      >
+                        <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
+                        <span>{t("Lịch sử đặt lịch")}</span>
+                      </Link>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
+                      <button
+                        onClick={() => setIsLoggedIn(false)}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:logout" className="text-lg text-red-600 dark:text-red-400" />
+                        <span>{t("Đăng xuất")}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={`relative flex items-center cursor-pointer transition-all duration-300 ${
+                isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
+              }`}>
+                <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                  <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+                </Link>
+              </div>
+            )}
           </div>
 
           <Link to="/dang-bai-tuyen">
@@ -122,6 +263,7 @@ export const Header = () => {
             </button>
           </Link>
         </div>
+      </div>
       </div>
 
       {/* Mobile Sidebar Menu */}
@@ -211,6 +353,9 @@ export const Header = () => {
           </div>
         </div>
       )}
-    </header>
+      </header>
+      {/* Spacer to prevent page content layout jump under the fixed header */}
+      <div className="h-[72px] md:h-20 w-full"></div>
+    </>
   );
 };
