@@ -8,14 +8,18 @@ import { Register } from "./pages/Register/Register";
 import ForgetPassword from "./pages/ForgetPassword";
 import PostAJob from "./pages/PostAJob";
 import { Home } from "./pages/Home";
+import { Service } from "./pages/Service";
+import { Recruitment } from "./pages/Recruitment";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
-        <Route index element={<Home />} />
+          <Route index element={<Home />} />
           <Route path="/lien-he" element={<Contact />} />
+          <Route path="/dich-vu" element={<Service />} />
+          <Route path="/tuyen-dung" element={<Recruitment />} />
           <Route path="/dang-bai-tuyen" element={<PostAJob />} />
         </Route>
         <Route element={<LoginLayout />}>

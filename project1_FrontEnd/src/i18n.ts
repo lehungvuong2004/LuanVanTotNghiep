@@ -20,7 +20,7 @@ const resources = {
       "Danh Mục": "Categories",
       "Trang Chủ": "Home",
       "Về chúng tôi": "About Us",
-      "Thông tin tuyển dụng": "Careers",
+      // "Thông tin tuyển dụng": "Careers",
       "Liên hệ": "Contact",
       "Đăng bài tuyển": "Post a Job",
       "Việt Nam": "Vietnamese",

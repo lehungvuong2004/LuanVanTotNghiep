@@ -1,52 +1,31 @@
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useHeader } from "./useHook";
 
 export const Header = () => {
-  const { t, i18n } = useTranslation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem("darkMode") === "true" || document.documentElement.classList.contains("dark");
-  });
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", String(newDarkMode));
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
-
-  const changeLanguage = (lng: string) => {
-    // bằng changeLanguage("en")
-    i18n.changeLanguage(lng);
-    localStorage.setItem("language", lng); // lưu lại ngôn ngữ
-  };
-
-  const isEn = i18n.language === "en"; // vào ra false bởi vì tiếng việt
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const {
+    t,
+    isMobileMenuOpen,
+    isScrolled,
+    isLoggedIn,
+    setIsLoggedIn,
+    notifications,
+    unreadCount,
+    markAllAsRead,
+    toggleRead,
+    isDarkMode,
+    toggleDarkMode,
+    changeLanguage,
+    isEn,
+    toggleMobileMenu,
+    activeCategory,
+    setActiveCategory,
+    navLinks,
+    categories,
+    bottomLinks,
+    newsItems,
+    categoryDetails,
+  } = useHeader();
 
   return (
     <>
@@ -62,33 +41,161 @@ export const Header = () => {
         </div>
 
         <nav className="hidden lg:flex flex-1 items-stretch text-white font-medium text-base">
-          <div className={`flex items-center gap-1 cursor-pointer hover:text-white transition-all duration-300 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 my-auto shadow-sm mr-2`}>
-            <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
+          <div className="relative group/menu h-full flex items-center mr-2">
+            <div className="flex items-center gap-1 cursor-pointer hover:bg-white/20 transition-all duration-300 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 shadow-sm text-white font-medium text-base">
+              <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
+            </div>
+
+            {/* Submenu Dropdown */}
+            <div className="absolute top-full left-0 w-max max-w-screen-xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50">
+              <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5">
+                
+                {/* Left Sidebar */}
+                <div className="w-56 shrink-0 flex flex-col gap-3 pr-4">
+                  {/* Service Categories (Scrollable) */}
+                  <div className="max-h-[380px] overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                    {/* Top 4 Navigation Links */}
+                    {navLinks.map((navLink) => (
+                      <Link
+                        key={navLink.name}
+                        to={navLink.to}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                      >
+                        {t(navLink.name)}
+                        <Icon icon="material-symbols:chevron-right" className="text-base opacity-0 group-hover:opacity-100" />
+                      </Link>
+                    ))}
+
+                    <div className="h-px bg-slate-100 dark:bg-slate-700/50 my-1" />
+
+                    {categories.map((cat) => {
+                      const isActive = activeCategory === cat.name;
+                      return (
+                        <button
+                          key={cat.name}
+                          onMouseEnter={() => setActiveCategory(cat.name)}
+                          className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                            isActive
+                              ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400"
+                              : "hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-600 dark:text-slate-300"
+                          }`}
+                        >
+                          {t(cat.name)}
+                          <Icon icon="material-symbols:chevron-right" className={`text-base ${isActive ? "opacity-100" : "opacity-0"}`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Links Below */}
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex flex-col gap-1">
+                    {bottomLinks.map((link) => (
+                      <Link
+                        key={link.name}
+                        to={link.to}
+                        className="w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all"
+                      >
+                        {t(link.name)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Content Area */}
+                <div className="flex-1 flex flex-col gap-4">
+                  {/* Search bar inside submenu */}
+                  <div className="relative">
+                    <Icon icon="material-symbols:search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+                    <input
+                      type="text"
+                      placeholder={t("Tìm dịch vụ, người giúp việc...")}
+                      className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:border-teal-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Active Category detail */}
+                    {categoryDetails[activeCategory] && (
+                      <div className="col-span-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-bold text-xs text-slate-800 dark:text-slate-100">{t(activeCategory)}</span>
+                          <Link to="/dich-vu" className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold hover:underline flex items-center gap-0.5">
+                            {t("Xem tất cả")} <Icon icon="material-symbols:open-in-new" className="text-xs" />
+                          </Link>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {categoryDetails[activeCategory].services.map((service) => (
+                            <div key={service.name} className="p-3 border border-slate-100 dark:border-slate-700/50 rounded-xl hover:border-teal-500 dark:hover:border-teal-500 transition-colors">
+                              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/40 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-2">
+                                <Icon icon={service.icon} className="text-lg" />
+                              </div>
+                              <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200 mb-1">{t(service.name)}</h4>
+                              <p className="text-[11px] text-teal-600 dark:text-teal-400 font-bold mb-1">{service.price}</p>
+                              <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-normal line-clamp-2">{t(service.desc)}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Featured Helpers */}
+                    {categoryDetails[activeCategory] && (
+                      <div className="col-span-2">
+                        <h4 className="font-bold text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Người giúp việc nổi bật")}</h4>
+                        <div className="flex flex-col gap-2">
+                          {categoryDetails[activeCategory].helpers.map((helper) => (
+                            <div key={helper.name} className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <img src={helper.avatar} alt={helper.name} className="w-10 h-10 rounded-full object-cover" />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-center mb-0.5">
+                                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">{helper.name}</span>
+                                  <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500">
+                                    <Icon icon="material-symbols:star" className="text-sm" />
+                                    {helper.rating}
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mb-0.5">{helper.exp} • {helper.area}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic truncate">"{t(helper.desc)}"</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Rightmost column: Tin tức & khuyến mãi */}
+                <div className="w-60 shrink-0 pl-5 flex flex-col gap-4">
+                  {/* Promotion Banner */}
+                  <div className="relative rounded-xl overflow-hidden aspect-[4/3] bg-slate-900 flex items-end p-3 border border-slate-800">
+                    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=300&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-60" alt="Promo" />
+                    <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                    <div className="relative z-10 text-left">
+                      <span className="bg-teal-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider mb-1 inline-block">{t("Khuyến mãi")}</span>
+                      <h4 className="text-white font-bold text-xs leading-snug">{t("Giảm 20% cho khách hàng mới")}</h4>
+                    </div>
+                  </div>
+
+                  {/* News list */}
+                  <div className="text-left">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Tin tức & kinh nghiệm")}</h4>
+                    <div className="flex flex-col gap-2">
+                      {newsItems.map((item) => (
+                        <div key={item.title} className="flex flex-col gap-0.5 pb-2 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0">
+                          <Link to="/tin-tuc" className="font-bold text-xs text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 transition-colors leading-snug line-clamp-2">
+                            {t(item.title)}
+                          </Link>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">{t(item.time)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
-          <Link
-            to="/"
-            className={`h-full flex items-center px-3 cursor-pointer hover:text-teal-200 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left ${
-              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-            }`}
-          >
-            {t("Trang Chủ")}
-          </Link>
-          <Link
-            to="/viec-lam"
-            className={`h-full flex items-center px-3 cursor-pointer hover:text-teal-200 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left ${
-              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-            }`}
-          >
-            {t("Thông tin tuyển dụng")}
-          </Link>
-          <Link
-            to="/lien-he"
-            className={`h-full flex items-center px-3 cursor-pointer hover:text-teal-200 transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-teal-200 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left ${
-              isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
-            }`}
-          >
-            {t("Liên hệ")}
-          </Link>
         </nav>
 
         <div className={`flex items-center justify-center shrink-0 ${
@@ -102,7 +209,50 @@ export const Header = () => {
         <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
           <div className="flex items-center gap-4">
             <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
-            <Icon icon="mdi:bell-outline" className="text-4xl md:text-2xl cursor-pointer" />
+            <div className="relative group cursor-pointer flex items-center justify-center">
+              <Icon icon="mdi:bell-outline" className="text-4xl md:text-2xl cursor-pointer" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
+                  {unreadCount}
+                </span>
+              )}
+              <div className="absolute top-full right-0 pt-4 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-3 text-left text-gray-800 dark:text-white">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-700/50">
+                    <span className="font-semibold text-xs">{t("Thông báo")}</span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-[10px] text-teal-600 dark:text-teal-400 hover:underline font-medium cursor-pointer"
+                      >
+                        {t("Đọc tất cả")}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1.5 py-2 max-h-56 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => toggleRead(notif.id)}
+                          className={`flex items-start gap-2 p-1.5 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-all duration-200 ${!notif.read ? "bg-teal-50/50 dark:bg-teal-950/20 font-medium" : ""}`}
+                        >
+                          <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${!notif.read ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
+                          <div className="flex flex-col flex-1">
+                            <span className="text-gray-700 dark:text-gray-200 leading-tight">{notif.title}</span>
+                            <span className="text-[10px] text-gray-400 mt-0.5">{notif.time}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-gray-400 text-xs">
+                        {t("Không có thông báo nào")}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           {isLoggedIn ? (
             <div className="relative group  flex items-center cursor-pointer">
@@ -174,8 +324,8 @@ export const Header = () => {
             </div>
 
             <div className="absolute top-full right-0 w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col bg-white dark:bg-slate-800">
-                <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-3 cursor-pointer dark:hover:bg-slate-700 rounded-t-lg transition-colors group/item">
+              <div className="rounded-b-lg shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col bg-white dark:bg-slate-800">
+                <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-3 cursor-pointer dark:hover:bg-slate-700 transition-colors group/item">
                   <Icon icon="twemoji:flag-vietnam" className="text-2xl group-hover/item:scale-110 transition-transform" />
                   <span className="text-base text-gray-700 dark:text-gray-200 group-hover/item:text-teal-700 dark:group-hover/item:text-teal-400 font-medium transition-colors">{t("Việt Nam")}</span>
                 </div>
@@ -195,7 +345,57 @@ export const Header = () => {
               onClick={toggleDarkMode}
             />
             <Icon icon="boxicons:location" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center" />
-            <Icon icon="mdi:bell-outline" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center" />
+            <div className="relative group h-full flex items-center cursor-pointer">
+              <div className="relative p-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                <Icon
+                  icon="mdi:bell-outline"
+                  className="text-2xl hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm"
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+
+              {/* Desktop Notification Dropdown */}
+              <div className="absolute top-full right-0 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left text-gray-800 dark:text-white">
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700/50">
+                    <span className="font-semibold text-sm">{t("Thông báo")}</span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium cursor-pointer"
+                      >
+                        {t("Đánh dấu tất cả đã đọc")}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2 py-3 max-h-64 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => toggleRead(notif.id)}
+                          className={`flex items-start gap-3 p-2 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-all duration-200 ${!notif.read ? "bg-teal-50/50 dark:bg-teal-950/20 font-medium" : ""}`}
+                        >
+                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${!notif.read ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
+                          <div className="flex flex-col flex-1">
+                            <span className="text-gray-700 dark:text-gray-200 leading-snug">{notif.title}</span>
+                            <span className="text-[11px] text-gray-400 mt-1">{notif.time}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 text-gray-400 text-sm">
+                        {t("Không có thông báo nào")}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
             {isLoggedIn ? (
               <div className="relative group h-full flex items-center cursor-pointer">
                 <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
@@ -203,7 +403,7 @@ export const Header = () => {
                 </div>
 
                 <div className="absolute top-full right-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
+                  <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
                     <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
                       <img
                         src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
@@ -295,13 +495,13 @@ export const Header = () => {
                 >
                   {t("Về chúng tôi")}
                 </Link>
-                <Link
-                  to="/jobs"
+                {/* <Link
+                  to="/viec-lam"
                   className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
                   onClick={toggleMobileMenu}
                 >
-                  {t("Thông tin tuyển dụng")}
-                </Link>
+                  {t("Dịch Vụ")}
+                </Link> */}
                 <Link
                   to="/lien-he"
                   className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
