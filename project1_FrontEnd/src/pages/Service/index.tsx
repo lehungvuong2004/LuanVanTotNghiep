@@ -11,7 +11,7 @@ interface HeroSectionProps {
 
 const HeroSection = ({ t }: HeroSectionProps) => {
   return (
-    <section className="relative rounded-3xl overflow-hidden bg-slate-900 min-h-[360px] flex items-center shadow-lg border border-slate-800">
+    <section className="relative rounded-3xl overflow-hidden bg-slate-900 min-h-90 flex items-center shadow-lg border border-slate-800">
       <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-900/90 to-transparent z-10" />
       <div className="absolute inset-0 bg-teal-950/20 z-10" />
       <img

@@ -3,18 +3,20 @@ import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginApi } from "../../api/auth";
+import { useNavigate, useLocation } from "react-router-dom";
+import { loginApi, googleLoginApi } from "../../api/auth";
 
 export const useLogin = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { email?: string } | null;
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const formik = useFormik({
     initialValues: {
-      emailOrPhone: "",
+      emailOrPhone: state?.email || "",
       password: "",
       rememberMe: false,
     },
@@ -37,7 +39,6 @@ export const useLogin = () => {
         .matches(/[A-Z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in hoa"))
         .matches(/[a-z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in thường"))
         .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số"))
-        .matches(/[@$!%*?&]/, t("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@, $, !, %, *, ?, &)")),
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -47,22 +48,23 @@ export const useLogin = () => {
           email: values.emailOrPhone,
           password: values.password,
         });
-
-        // Store tokens & user details
+        console.log(localStorage.setItem("access_token", response.access_token));
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
 
         // Redirect based on role
         if (response.user.role_id === 1) {
           navigate("/admin");
-        } else if (response.user.role_id === 2) {
+        } else if (response.user.role_id === 3) {
           navigate("/helper");
+        } else if (response.user.role_id === 4) {
+          navigate("/operator");
         } else {
           navigate("/");
         }
       } catch (error: any) {
         console.error("Login failed:", error);
-        const serverError = error?.response?.data?.message || t("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+        const serverError = error?.response?.data?.message;
         setErrorMessage(serverError);
       } finally {
         setLoading(false);
@@ -71,11 +73,37 @@ export const useLogin = () => {
   });
 
   const loginWithGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
+    onSuccess: async (tokenResponse) => {
       console.log("Google Login Success:", tokenResponse);
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const response = await googleLoginApi(tokenResponse.access_token, "login");
+        
+        // Store token & user details
+        localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        
+        // Redirect to Home (or specific role route if desired)
+        if (response.user.role_id === 1) {
+          navigate("/admin");
+        } else if (response.user.role_id === 3) {
+          navigate("/helper");
+        } else if (response.user.role_id === 4) {
+          navigate("/operator");
+        } else {
+          navigate("/");
+        }
+      } catch (error: any) {
+        console.error("Google Login fail:", error);
+        setErrorMessage(error?.response?.data?.message || t("Đăng nhập bằng Google thất bại. Tài khoản chưa đăng ký."));
+      } finally {
+        setLoading(false);
+      }
     },
     onError: () => {
       console.error("Google Login Failed");
+      setErrorMessage(t("Đăng nhập bằng Google thất bại."));
     },
   });
 

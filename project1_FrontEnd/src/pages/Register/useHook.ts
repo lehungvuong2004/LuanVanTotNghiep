@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
-import { registerApi } from "../../api/auth";
+import { registerApi, googleLoginApi } from "../../api/auth";
 
 export const useRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,8 +36,7 @@ export const useRegister = () => {
         .matches(/^\S*$/, t("Mật khẩu không được chứa khoảng trắng"))
         .matches(/[A-Z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in hoa"))
         .matches(/[a-z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in thường"))
-        .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số"))
-        .matches(/[@$!%*?&]/, t("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@, $, !, %, *, ?, &)")),
+        .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số")),
       confirmPassword: Yup.string()
         .required(t("Vui lòng xác nhận mật khẩu"))
         .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),
@@ -54,16 +53,23 @@ export const useRegister = () => {
           password: values.password,
         });
 
-        // Store tokens & user details
-        localStorage.setItem("access_token", response.access_token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-
-        // Redirect to home
-        navigate("/");
+        // Redirect to login page
+        navigate("/dang-nhap", { state: { email: values.email } });
       } catch (error: any) {
         console.error("Register failed:", error);
-        const serverError = error?.response?.data?.message || t("Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.");
-        setErrorMessage(serverError);
+        const validationErrors = error?.response?.data?.errors;
+        if (validationErrors) {
+          if (validationErrors.email) {
+            formik.setFieldError("email", validationErrors.email[0]);
+          }
+          if (validationErrors.phone) {
+            formik.setFieldError("phone", validationErrors.phone[0]);
+          }
+          setErrorMessage(error?.response?.data?.message || t("Thông tin đăng ký trùng lặp hoặc không hợp lệ."));
+        } else {
+          const serverError = error?.response?.data?.message || t("Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.");
+          setErrorMessage(serverError);
+        }
       } finally {
         setLoading(false);
       }
@@ -71,11 +77,25 @@ export const useRegister = () => {
   });
 
   const registerWithGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
+    onSuccess: async (tokenResponse) => {
       console.log("Google Register Success:", tokenResponse);
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const response = await googleLoginApi(tokenResponse.access_token, "register");
+        
+        // Redirect to login page
+        navigate("/dang-nhap");
+      } catch (error: any) {
+        console.error("Google Register fail:", error);
+        setErrorMessage(error?.response?.data?.message || t("Đăng ký bằng Google thất bại."));
+      } finally {
+        setLoading(false);
+      }
     },
     onError: () => {
       console.error("Google Register Failed");
+      setErrorMessage(t("Đăng ký bằng Google thất bại."));
     },
   });
 

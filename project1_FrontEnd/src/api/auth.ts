@@ -45,3 +45,11 @@ export const registerApi = async (data: RegisterRequest): Promise<LoginResponse>
   );
   return response.data;
 };
+
+export const googleLoginApi = async (token: string, action: "login" | "register" = "login"): Promise<LoginResponse> => {
+  const response = await axiosInstance.post<LoginResponse>(
+    API_ENDPOINTS.AUTH.GOOGLE_LOGIN,
+    { token, action }
+  );
+  return response.data;
+};
