@@ -349,7 +349,7 @@ export const Home = () => {
                       <p className="text-gray-500 text-xs md:text-sm">{item.location}</p>
                     </div>
                   </div>
-                  <div className="bg-[#008080] text-white text-[10px] md:text-xs font-semibold px-3 py-1.5 rounded-full shrink-0">
+                  <div className="bg-[#008080] text-white text-xs font-semibold px-3 py-1.5 rounded-full shrink-0">
                     {item.service}
                   </div>
                 </div>

@@ -5,9 +5,9 @@ import { useRegister } from "./useHook";
 import { useTranslation } from "react-i18next";
 
 export const Register = () => {
-  const { formik, showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword } = useRegister();
+  const { formik, showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword, registerWithGoogle, loading, errorMessage } = useRegister();
   const { t } = useTranslation();
-
+  // console.log("error message : ",errorMessage);
   const imgRegister = () => (
     <div className="relative hidden md:block h-full">
       <img src={registerImage} alt="Register background" className="absolute inset-0 w-full h-full object-cover" />
@@ -44,6 +44,14 @@ export const Register = () => {
       <div className="max-w-lg w-full mx-auto">
         <h2 className="text-3xl font-bold text-[#066d72] dark:text-teal-400 mb-2">{t("Tạo tài khoản")}</h2>
         <p className="text-base text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">{t("Đăng ký để đặt lịch dịch vụ, đăng tin tuyển dụng và quản lý công việc dễ dàng hơn.")}</p>
+        
+        {errorMessage && (
+          <div className="mb-5 p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">
+            <Icon icon="mdi:alert-circle-outline" className="w-5 h-5 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         <form className="space-y-4" onSubmit={formik.handleSubmit}>
           {/* Full Name */}
           <div className="space-y-1.5">
@@ -197,9 +205,17 @@ export const Register = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#066d72] hover:bg-[#055a5e] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold py-2.5 rounded-lg transition-colors duration-200 shadow-sm shadow-[#066d72]/20 cursor-pointer"
+            disabled={loading}
+            className="w-full bg-[#066d72] hover:bg-[#055a5e] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-sm shadow-[#066d72]/20 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {t("Tạo tài khoản")}
+            {loading ? (
+              <>
+                <Icon icon="line-md:loading-loop" className="w-5 h-5" />
+                <span>{t("Đang tạo tài khoản...")}</span>
+              </>
+            ) : (
+              t("Tạo tài khoản")
+            )}
           </button>
         </form>
 
@@ -213,6 +229,7 @@ export const Register = () => {
         {/* Google Login */}
         <button
           type="button"
+          onClick={() => registerWithGoogle()}
           className="w-full flex items-center justify-center gap-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 font-medium py-2.5 rounded-lg transition-all duration-200 mb-6 shadow-sm cursor-pointer"
         >
           <Icon icon="logos:google-icon" className="w-4 h-4" />

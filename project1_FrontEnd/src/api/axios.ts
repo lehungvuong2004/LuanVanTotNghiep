@@ -1,21 +1,16 @@
-// import axios from "axios";
+import axios from "axios";
+import { setupInterceptors } from "./interceptor";
 
-// export const getUser = async () => {
-//   try {
-//     // const token = localStorage.getItem("token");
-//     // const response = await axios.get("https://jsonplaceholder.typicode.com/posts/1",
-//     //   {
-//     //     headers: {
-//     //       Authorization: `Bearer ${token}`,
-//     //     }
-//     //   }
-//     // )
-//     // const response = await axios.post("https://jsonplaceholder.typicode.com/posts/1")
-//     // const response = await axios.delete("https://jsonplaceholder.typicode.com/posts/1")
-//     // const response = await axios.put("https://jsonplaceholder.typicode.com/posts/1")
-//     // return response.data;
-//   }
-//   catch (error) {
-//     console.log("Error while fetching user data", error);
-//   }
-// }
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
+
+export const axiosInstance = axios.create({
+  baseURL,
+  timeout: 40000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+setupInterceptors(axiosInstance);
+
+export default axiosInstance;

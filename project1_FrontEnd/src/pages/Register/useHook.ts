@@ -2,11 +2,17 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
+import { registerApi } from "../../api/auth";
 
 export const useRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -37,8 +43,39 @@ export const useRegister = () => {
         .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),
       agreeTerms: Yup.boolean().oneOf([true], t("Bạn phải đồng ý với điều khoản sử dụng và chính sách bảo mật")),
     }),
-    onSubmit: (values) => {
-      console.log("Form register data", values);
+    onSubmit: async (values) => {
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const response = await registerApi({
+          full_name: values.fullName,
+          email: values.email,
+          phone: values.phone,
+          password: values.password,
+        });
+
+        // Store tokens & user details
+        localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+
+        // Redirect to home
+        navigate("/");
+      } catch (error: any) {
+        console.error("Register failed:", error);
+        const serverError = error?.response?.data?.message || t("Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.");
+        setErrorMessage(serverError);
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
+  const registerWithGoogle = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      console.log("Google Register Success:", tokenResponse);
+    },
+    onError: () => {
+      console.error("Google Register Failed");
     },
   });
 
@@ -48,5 +85,8 @@ export const useRegister = () => {
     setShowPassword,
     showConfirmPassword,
     setShowConfirmPassword,
+    registerWithGoogle,
+    loading,
+    errorMessage,
   };
 };

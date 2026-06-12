@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 
 export interface NavLink {
   name: string;
@@ -33,9 +34,32 @@ export interface NewsItem {
 
 export const useHeader = () => {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem("access_token");
+  });
+
+  const [user, setUser] = useState<any>(() => {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  });
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("access_token"));
+    const userStr = localStorage.getItem("user");
+    setUser(userStr ? JSON.parse(userStr) : null);
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setUser(null);
+  };
+
   const [notifications, setNotifications] = useState([
     { id: 1, title: "Đã duyệt bài đăng tuyển", time: "10 phút trước", read: false },
     { id: 2, title: "Có ứng viên mới ứng tuyển", time: "1 giờ trước", read: false },
@@ -179,7 +203,8 @@ export const useHeader = () => {
     setIsMobileMenuOpen,
     isScrolled,
     isLoggedIn,
-    setIsLoggedIn,
+    handleLogout,
+    user,
     notifications,
     unreadCount,
     markAllAsRead,

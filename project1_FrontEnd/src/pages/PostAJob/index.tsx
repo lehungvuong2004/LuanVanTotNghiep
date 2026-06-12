@@ -249,10 +249,10 @@ export default function PostAJob() {
             <span className="text-xs text-gray-400 font-medium">{t("Hôm nay, 30/5")}</span>
           </div>
 
-          <h3 className="text-[17px] font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-[50px] leading-snug">{formik.values.jobTitle || t("Tiêu đề bài đăng của bạn")}</h3>
+          <h3 className="text-lg font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-[50px] leading-snug">{formik.values.jobTitle || t("Tiêu đề bài đăng của bạn")}</h3>
           <p className="text-[#0d5c63] dark:text-teal-400 text-sm font-medium mb-6">{t(serviceCategories.find((c) => c.value === formik.values.serviceCategory)?.label || "Dọn dẹp nhà cửa")}</p>
 
-          <div className="space-y-3.5 text-[13px] text-gray-600 dark:text-gray-300 font-medium">
+          <div className="space-y-3.5 text-sm text-gray-600 dark:text-gray-300 font-medium">
             <div className="flex items-center gap-3">
               <Icon icon="mdi:cash" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
               <span className="truncate">{formik.values.salary || t("Mức lương")}</span>
@@ -274,7 +274,7 @@ export default function PostAJob() {
           <Icon icon="mdi:information-outline" className="w-5 h-5 text-[#f6a053] shrink-0 mt-0.5" />
           <div>
             <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1.5 text-sm">{t("Lưu ý")}</h4>
-            <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed">{t("Bài đăng sẽ được kiểm duyệt trước khi hiển thị để đảm bảo an toàn cho cộng đồng.")}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{t("Bài đăng sẽ được kiểm duyệt trước khi hiển thị để đảm bảo an toàn cho cộng đồng.")}</p>
           </div>
         </div>
       </div>

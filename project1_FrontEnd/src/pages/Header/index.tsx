@@ -8,7 +8,8 @@ export const Header = () => {
     isMobileMenuOpen,
     isScrolled,
     isLoggedIn,
-    setIsLoggedIn,
+    handleLogout,
+    user,
     notifications,
     unreadCount,
     markAllAsRead,
@@ -53,7 +54,7 @@ export const Header = () => {
                 {/* Left Sidebar */}
                 <div className="w-56 shrink-0 flex flex-col gap-3 pr-4">
                   {/* Service Categories (Scrollable) */}
-                  <div className="max-h-[380px] overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                  <div className="max-h-95 overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                     {/* Top 4 Navigation Links */}
                     {navLinks.map((navLink) => (
                       <Link
@@ -119,7 +120,7 @@ export const Header = () => {
                       <div className="col-span-2">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold text-xs text-slate-800 dark:text-slate-100">{t(activeCategory)}</span>
-                          <Link to="/dich-vu" className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold hover:underline flex items-center gap-0.5">
+                          <Link to="/dich-vu" className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline flex items-center gap-0.5">
                             {t("Xem tất cả")} <Icon icon="material-symbols:open-in-new" className="text-xs" />
                           </Link>
                         </div>
@@ -130,8 +131,8 @@ export const Header = () => {
                                 <Icon icon={service.icon} className="text-lg" />
                               </div>
                               <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200 mb-1">{t(service.name)}</h4>
-                              <p className="text-[11px] text-teal-600 dark:text-teal-400 font-bold mb-1">{service.price}</p>
-                              <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-normal line-clamp-2">{t(service.desc)}</p>
+                              <p className="text-xs text-teal-600 dark:text-teal-400 font-bold mb-1">{service.price}</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 leading-normal line-clamp-2">{t(service.desc)}</p>
                             </div>
                           ))}
                         </div>
@@ -141,7 +142,7 @@ export const Header = () => {
                     {/* Featured Helpers */}
                     {categoryDetails[activeCategory] && (
                       <div className="col-span-2">
-                        <h4 className="font-bold text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Người giúp việc nổi bật")}</h4>
+                        <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Người giúp việc nổi bật")}</h4>
                         <div className="flex flex-col gap-2">
                           {categoryDetails[activeCategory].helpers.map((helper) => (
                             <div key={helper.name} className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-700/50">
@@ -154,8 +155,8 @@ export const Header = () => {
                                     {helper.rating}
                                   </span>
                                 </div>
-                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mb-0.5">{helper.exp} • {helper.area}</p>
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic truncate">"{t(helper.desc)}"</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-0.5">{helper.exp} • {helper.area}</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 italic truncate">"{t(helper.desc)}"</p>
                               </div>
                             </div>
                           ))}
@@ -172,21 +173,21 @@ export const Header = () => {
                     <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=300&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-60" alt="Promo" />
                     <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/40 to-transparent" />
                     <div className="relative z-10 text-left">
-                      <span className="bg-teal-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider mb-1 inline-block">{t("Khuyến mãi")}</span>
+                      <span className="bg-teal-500 text-white text-xs font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider mb-1 inline-block">{t("Khuyến mãi")}</span>
                       <h4 className="text-white font-bold text-xs leading-snug">{t("Giảm 20% cho khách hàng mới")}</h4>
                     </div>
                   </div>
 
                   {/* News list */}
                   <div className="text-left">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Tin tức & kinh nghiệm")}</h4>
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Tin tức & kinh nghiệm")}</h4>
                     <div className="flex flex-col gap-2">
                       {newsItems.map((item) => (
                         <div key={item.title} className="flex flex-col gap-0.5 pb-2 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0">
                           <Link to="/tin-tuc" className="font-bold text-xs text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 transition-colors leading-snug line-clamp-2">
                             {t(item.title)}
                           </Link>
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500">{t(item.time)}</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">{t(item.time)}</span>
                         </div>
                       ))}
                     </div>
@@ -207,15 +208,22 @@ export const Header = () => {
         </div>
 
         <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
-          <div className="flex items-center gap-4">
-            <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-4xl md:text-2xl cursor-pointer" onClick={toggleDarkMode} />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleDarkMode}
+              className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer hover:scale-105"
+            >
+              <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-xl" />
+            </button>
             <div className="relative group cursor-pointer flex items-center justify-center">
-              <Icon icon="mdi:bell-outline" className="text-4xl md:text-2xl cursor-pointer" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
-                  {unreadCount}
-                </span>
-              )}
+              <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs hover:scale-105 relative">
+                <Icon icon="mdi:bell-outline" className="text-xl" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
               <div className="absolute top-full right-0 pt-4 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-3 text-left text-gray-800 dark:text-white">
                   <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-700/50">
@@ -223,7 +231,7 @@ export const Header = () => {
                     {unreadCount > 0 && (
                       <button
                         onClick={markAllAsRead}
-                        className="text-[10px] text-teal-600 dark:text-teal-400 hover:underline font-medium cursor-pointer"
+                        className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium cursor-pointer"
                       >
                         {t("Đọc tất cả")}
                       </button>
@@ -240,7 +248,7 @@ export const Header = () => {
                           <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${!notif.read ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
                           <div className="flex flex-col flex-1">
                             <span className="text-gray-700 dark:text-gray-200 leading-tight">{notif.title}</span>
-                            <span className="text-[10px] text-gray-400 mt-0.5">{notif.time}</span>
+                            <span className="text-xs text-gray-400 mt-0.5">{notif.time}</span>
                           </div>
                         </div>
                       ))
@@ -257,23 +265,31 @@ export const Header = () => {
           {isLoggedIn ? (
             <div className="relative group  flex items-center cursor-pointer">
               <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
-                <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+                )}
               </div>
-
+ 
               <div className="absolute top-full right-0 pt-4 w-60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
                   <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
                     <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
+                      src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"}
                       alt="User Avatar"
                       className="w-10 h-10 rounded-full object-cover border border-[#026E5F] dark:border-teal-500"
                     />
                     <div className="flex flex-col">
-                      <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">Nguyễn Văn A</span>
-                      <span className="text-xs text-gray-500 mt-0.5">{t("Khách hàng")}</span>
+                      <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">
+                        {user?.full_name || "Nguyễn Văn A"}
+                      </span>
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        {user?.role_id === 1 ? t("Quản trị viên") : user?.role_id === 2 ? t("Người giúp việc") : t("Khách hàng")}
+                      </span>
                     </div>
                   </div>
-
+ 
                   <div className="flex flex-col gap-1 py-3">
                     <Link
                       to="/ho-so"
@@ -290,10 +306,10 @@ export const Header = () => {
                       <span>{t("Lịch sử đặt lịch")}</span>
                     </Link>
                   </div>
-
+ 
                   <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
                     <button
-                      onClick={() => setIsLoggedIn(false)}
+                      onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
                     >
                       <Icon icon="material-symbols:logout" className="text-lg" />
@@ -318,19 +334,19 @@ export const Header = () => {
             isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"
           }`}>
             <div className="flex items-center gap-2 cursor-pointer font-medium text-base text-white transition-colors">
-              <Icon icon={isEn ? "twemoji:flag-us-outlying-islands" : "twemoji:flag-vietnam"} className="text-2xl" />
+              <Icon icon={isEn ? "twemoji:flag-us-outlying-islands" : "twemoji:flag-vietnam"} className="text-2xl shrink-0" />
               <span>{isEn ? t("English") : t("Việt Nam")}</span>
               <Icon icon="ri:arrow-drop-down-line" className="text-3xl -ml-1" />
             </div>
 
-            <div className="absolute top-full right-0 w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div className="absolute top-full right-0 w-max min-w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="rounded-b-lg shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col bg-white dark:bg-slate-800">
                 <div onClick={() => changeLanguage("vn")} className="flex items-center gap-3 px-4 py-3 cursor-pointer dark:hover:bg-slate-700 transition-colors group/item">
-                  <Icon icon="twemoji:flag-vietnam" className="text-2xl group-hover/item:scale-110 transition-transform" />
+                  <Icon icon="twemoji:flag-vietnam" className="text-2xl shrink-0 group-hover/item:scale-110 transition-transform" />
                   <span className="text-base text-gray-700 dark:text-gray-200 group-hover/item:text-teal-700 dark:group-hover/item:text-teal-400 font-medium transition-colors">{t("Việt Nam")}</span>
                 </div>
                 <div onClick={() => changeLanguage("en")} className="flex items-center gap-3 px-4 py-3 cursor-pointer dark:hover:bg-slate-700 rounded-b-lg transition-colors group/item">
-                  <Icon icon="twemoji:flag-us-outlying-islands" className="text-2xl group-hover/item:scale-110 transition-transform" />
+                  <Icon icon="twemoji:flag-us-outlying-islands" className="text-2xl shrink-0 group-hover/item:scale-110 transition-transform" />
                   <span className="text-base text-gray-700 dark:text-gray-200 group-hover/item:text-teal-700 dark:group-hover/item:text-teal-400 font-medium transition-colors">{t("English")}</span>
                 </div>
               </div>
@@ -338,21 +354,27 @@ export const Header = () => {
           </div>
 
           {/* Icons */}
-          <div className="flex items-stretch gap-5 text-white self-stretch">
-            <Icon
-              icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"}
-              className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center"
+          <div className="flex items-stretch gap-3 text-white self-stretch">
+            <button
               onClick={toggleDarkMode}
-            />
-            <Icon icon="boxicons:location" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm self-center" />
+              className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105"
+            >
+              <Icon
+                icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"}
+                className="text-xl"
+              />
+            </button>
+            <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105">
+              <Icon icon="boxicons:location" className="text-xl" />
+            </div>
             <div className="relative group h-full flex items-center cursor-pointer">
-              <div className="relative p-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+              <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs self-center hover:scale-105 relative">
                 <Icon
                   icon="mdi:bell-outline"
-                  className="text-2xl hover:text-teal-200 hover:scale-110 transition-all duration-300 drop-shadow-sm"
+                  className="text-xl"
                 />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
                     {unreadCount}
                   </span>
                 )}
@@ -383,7 +405,7 @@ export const Header = () => {
                           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${!notif.read ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
                           <div className="flex flex-col flex-1">
                             <span className="text-gray-700 dark:text-gray-200 leading-snug">{notif.title}</span>
-                            <span className="text-[11px] text-gray-400 mt-1">{notif.time}</span>
+                            <span className="text-xs text-gray-400 mt-1">{notif.time}</span>
                           </div>
                         </div>
                       ))
@@ -399,20 +421,28 @@ export const Header = () => {
             {isLoggedIn ? (
               <div className="relative group h-full flex items-center cursor-pointer">
                 <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
-                  <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="User Avatar" className="w-6 h-6 rounded-full object-cover" />
+                  ) : (
+                    <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+                  )}
                 </div>
 
                 <div className="absolute top-full right-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
                     <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
                       <img
-                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
+                        src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"}
                         alt="User Avatar"
                         className="w-10 h-10 rounded-full object-cover border border-[#026E5F] dark:border-teal-500"
                       />
                       <div className="flex flex-col">
-                        <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">Nguyễn Văn A</span>
-                        <span className="text-xs text-gray-500 mt-0.5">{t("Khách hàng")}</span>
+                        <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">
+                          {user?.full_name || "Nguyễn Văn A"}
+                        </span>
+                        <span className="text-xs text-gray-500 mt-0.5">
+                          {user?.role_id === 1 ? t("Quản trị viên") : user?.role_id === 2 ? t("Người giúp việc") : t("Khách hàng")}
+                        </span>
                       </div>
                     </div>
 
@@ -435,7 +465,7 @@ export const Header = () => {
 
                     <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
                       <button
-                        onClick={() => setIsLoggedIn(false)}
+                        onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
                       >
                         <Icon icon="material-symbols:logout" className="text-lg text-red-600 dark:text-red-400" />
@@ -521,7 +551,7 @@ export const Header = () => {
                     }}
                     className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${!isEn ? "border-[#026E5F] dark:border-teal-500 bg-[#026E5F]/5 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400" : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 dark:hover:bg-slate-700"}`}
                   >
-                    <Icon icon="twemoji:flag-vietnam" className="text-xl" />
+                    <Icon icon="twemoji:flag-vietnam" className="text-xl shrink-0" />
                     <span className="font-medium text-sm">VN</span>
                   </div>
                   <div
@@ -531,7 +561,7 @@ export const Header = () => {
                     }}
                     className={`flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${isEn ? "border-[#026E5F] dark:border-teal-500 bg-[#026E5F]/5 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400" : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 dark:hover:bg-slate-700"}`}
                   >
-                    <Icon icon="twemoji:flag-us-outlying-islands" className="text-xl" />
+                    <Icon icon="twemoji:flag-us-outlying-islands" className="text-xl shrink-0" />
                     <span className="font-medium text-sm">EN</span>
                   </div>
                 </div>

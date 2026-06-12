@@ -1,9 +1,17 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginApi } from "../../api/auth";
 
 export const useLogin = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const formik = useFormik({
     initialValues: {
       emailOrPhone: "",
@@ -31,9 +39,45 @@ export const useLogin = () => {
         .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số"))
         .matches(/[@$!%*?&]/, t("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@, $, !, %, *, ?, &)")),
     }),
-    onSubmit: (values) => {
-      console.log("Form data", values);
+    onSubmit: async (values) => {
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const response = await loginApi({
+          email: values.emailOrPhone,
+          password: values.password,
+        });
+
+        // Store tokens & user details
+        localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+
+        // Redirect based on role
+        if (response.user.role_id === 1) {
+          navigate("/admin");
+        } else if (response.user.role_id === 2) {
+          navigate("/helper");
+        } else {
+          navigate("/");
+        }
+      } catch (error: any) {
+        console.error("Login failed:", error);
+        const serverError = error?.response?.data?.message || t("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+        setErrorMessage(serverError);
+      } finally {
+        setLoading(false);
+      }
     },
   });
-  return { formik };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      console.log("Google Login Success:", tokenResponse);
+    },
+    onError: () => {
+      console.error("Google Login Failed");
+    },
+  });
+
+  return { formik, loginWithGoogle, loading, errorMessage };
 };

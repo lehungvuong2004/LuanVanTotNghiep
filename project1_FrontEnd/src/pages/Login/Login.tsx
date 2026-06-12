@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { formik } = useLogin();
+  const { formik, loginWithGoogle, loading, errorMessage } = useLogin();
   const { t } = useTranslation();
 
   const imgLogin = () => (
@@ -29,6 +29,14 @@ export const Login = () => {
       <div className="max-w-lg w-full mx-auto">
         <h2 className="text-3xl font-bold text-[#066d72] dark:text-teal-400 mb-2">{t("Đăng nhập tài khoản")}</h2>
         <p className=" text-gray-500 dark:text-gray-400 mb-8">{t("Truy cập tài khoản để tiếp tục sử dụng dịch vụ")}</p>
+        
+        {errorMessage && (
+          <div className="mb-5 p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">
+            <Icon icon="mdi:alert-circle-outline" className="w-5 h-5 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         <form className="space-y-5" onSubmit={formik.handleSubmit}>
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 dark:text-gray-200 block">{t("Email hoặc số điện thoại")}</label>
@@ -99,9 +107,17 @@ export const Login = () => {
 
           <button
             type="submit"
-            className="w-full text-base bg-[#066d72] hover:bg-[#055a5e] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold py-2.5 rounded-lg transition-colors duration-200 mt-2 shadow-sm shadow-[#066d72]/20 cursor-pointer"
+            disabled={loading}
+            className="w-full text-base bg-[#066d72] hover:bg-[#055a5e] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 mt-2 shadow-sm shadow-[#066d72]/20 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {t("Đăng nhập")}
+            {loading ? (
+              <>
+                <Icon icon="line-md:loading-loop" className="w-5 h-5" />
+                <span>{t("Đang đăng nhập...")}</span>
+              </>
+            ) : (
+              t("Đăng nhập")
+            )}
           </button>
         </form>
 
@@ -114,6 +130,7 @@ export const Login = () => {
         {/* Google Login */}
         <button
           type="button"
+          onClick={() => loginWithGoogle()}
           className="w-full flex items-center justify-center gap-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 font-medium py-2.5 rounded-lg transition-all duration-200 mb-6 shadow-sm cursor-pointer"
         >
           <Icon icon="logos:google-icon" className="w-4 h-4" />
