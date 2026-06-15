@@ -4,6 +4,9 @@ services:
     container_name: lv-gateway
     ports:
       - "8000:8000"
+    volumes:
+      - ./api-gateway:/app
+      - /app/vendor
     depends_on:
       - identity-service
       - order-service
@@ -24,6 +27,9 @@ services:
       - DB_DATABASE=homeservice_identity_db
       - DB_USERNAME=root
       - DB_PASSWORD=
+    volumes:
+      - ./identity-service:/app
+      - /app/vendor
     depends_on:
       - identity-db
 
@@ -53,6 +59,9 @@ services:
       - DB_DATABASE=homeservice_order_db
       - DB_USERNAME=root
       - DB_PASSWORD=
+    volumes:
+      - ./order-service:/app
+      - /app/vendor
     depends_on:
       - order-db
 
@@ -82,6 +91,9 @@ services:
       - DB_DATABASE=homeservice_payment_db
       - DB_USERNAME=root
       - DB_PASSWORD=
+    volumes:
+      - ./payment-service:/app
+      - /app/vendor
     depends_on:
       - payment-db
 
@@ -111,6 +123,9 @@ services:
       - DB_DATABASE=homeservice_provider_db
       - DB_USERNAME=root
       - DB_PASSWORD=
+    volumes:
+      - ./provider-service:/app
+      - /app/vendor
     depends_on:
       - provider-db
 
