@@ -36,6 +36,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3307:3306"
+    volumes:
+      - identity-db-data:/var/lib/mysql
 
   order-service:
     build: ./order-service
@@ -63,6 +65,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3308:3306"
+    volumes:
+      - order-db-data:/var/lib/mysql
 
   payment-service:
     build: ./payment-service
@@ -90,6 +94,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3309:3306"
+    volumes:
+      - payment-db-data:/var/lib/mysql
 
   provider-service:
     build: ./provider-service
@@ -117,6 +123,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3310:3306"
+    volumes:
+      - provider-db-data:/var/lib/mysql
 
   frontend:
     build: ./project1_FrontEnd
@@ -143,3 +151,9 @@ services:
       - order-db
       - payment-db
       - provider-db
+
+volumes:
+  identity-db-data:
+  order-db-data:
+  payment-db-data:
+  provider-db-data:
