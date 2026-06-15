@@ -53,3 +53,28 @@ export const googleLoginApi = async (token: string, action: "login" | "register"
   );
   return response.data;
 };
+
+// API quên mật khẩu
+export const forgotPasswordApi = async (email: string): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>(
+    API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+    { email }
+  );
+  return response.data;
+};
+
+export const verifyOtpApi = async (email: string, otp: string): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>(
+    API_ENDPOINTS.AUTH.VERIFY_OTP,
+    { email, otp }
+  );
+  return response.data;
+};
+
+export const resetPasswordApi = async (data: any): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>(
+    API_ENDPOINTS.AUTH.RESET_PASSWORD,
+    data
+  );
+  return response.data;
+};

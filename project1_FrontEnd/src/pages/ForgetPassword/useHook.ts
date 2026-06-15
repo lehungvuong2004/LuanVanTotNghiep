@@ -3,14 +3,22 @@ import type { KeyboardEvent } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { forgotPasswordApi, verifyOtpApi, resetPasswordApi } from "../../api/auth";
 
 export type StepType = 1 | 2 | 3;
 
 export const useForgetPassword = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [step, setStep] = useState<StepType>(1);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  
+  const [email, setEmail] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // OTP inputs references
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -32,9 +40,21 @@ export const useForgetPassword = () => {
           return emailRegex.test(value) || phoneRegex.test(value);
         }),
     }),
-    onSubmit: (values) => {
-      console.log("Submit Step 1:", values);
-      setStep(2);
+    onSubmit: async (values) => {
+      setLoading(true);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      try {
+        const res = await forgotPasswordApi(values.emailOrPhone);
+        setEmail(values.emailOrPhone);
+        setSuccessMessage(res.message);
+        setStep(2);
+      } catch (error: any) {
+        console.error("Step 1 failed:", error);
+        setErrorMessage(error?.response?.data?.message || t("Gửi yêu cầu thất bại. Vui lòng kiểm tra lại."));
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
@@ -56,9 +76,21 @@ export const useForgetPassword = () => {
           return value ? value.every((v) => v !== "") : false;
         }),
     }),
-    onSubmit: (values) => {
-      console.log("Submit Step 2:", values);
-      setStep(3);
+    onSubmit: async (values) => {
+      setLoading(true);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      try {
+        const otpString = values.otp.join("");
+        const res = await verifyOtpApi(email, otpString);
+        setSuccessMessage(res.message);
+        setStep(3);
+      } catch (error: any) {
+        console.error("Step 2 failed:", error);
+        setErrorMessage(error?.response?.data?.message || t("Xác thực OTP thất bại."));
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
@@ -88,20 +120,51 @@ export const useForgetPassword = () => {
     validationSchema: Yup.object({
       password: Yup.string()
         .required(t("Vui lòng nhập mật khẩu mới"))
-        .min(8, t("Mật khẩu phải có ít nhất 8 ký tự"))
-        .matches(/[a-z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in thường"))
-        .matches(/[A-Z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in hoa"))
-        .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số"))
-        .matches(/[@$!%*?&]/, t("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@, $, !, %, *, ?, &)")),
+        .min(6, t("Mật khẩu phải có ít nhất 6 ký tự")),
       confirmPassword: Yup.string()
         .required(t("Vui lòng xác nhận mật khẩu"))
         .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),
     }),
-    onSubmit: (values) => {
-      console.log("Submit Step 3:", values);
-      console.log("Password reset successfully");
+    onSubmit: async (values) => {
+      setLoading(true);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      try {
+        const otpString = formikStep2.values.otp.join("");
+        const res = await resetPasswordApi({
+          email: email,
+          otp: otpString,
+          password: values.password,
+          password_confirmation: values.confirmPassword,
+        });
+        setSuccessMessage(res.message);
+        setTimeout(() => {
+          navigate("/dang-nhap");
+        }, 2000);
+      } catch (error: any) {
+        console.error("Step 3 failed:", error);
+        setErrorMessage(error?.response?.data?.message || t("Đặt lại mật khẩu thất bại."));
+      } finally {
+        setLoading(false);
+      }
     },
   });
+
+  const handleResendOtp = async () => {
+    if (!email) return;
+    setLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const res = await forgotPasswordApi(email);
+      setSuccessMessage(t("Mã OTP mới đã được gửi lại thành công."));
+    } catch (error: any) {
+      console.error("Resend OTP failed:", error);
+      setErrorMessage(error?.response?.data?.message || t("Không thể gửi lại mã OTP."));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     step,
@@ -116,5 +179,10 @@ export const useForgetPassword = () => {
     setShowPassword,
     showConfirmPassword,
     setShowConfirmPassword,
+    loading,
+    errorMessage,
+    successMessage,
+    email,
+    handleResendOtp,
   };
 };

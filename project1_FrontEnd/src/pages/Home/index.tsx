@@ -130,7 +130,7 @@ export const Home = () => {
   const renderService = () => {
     return (
       <div className="grid md:grid-cols-12 gap-12 items-center">
-        <div className="col-span-12 md:col-span-6 flex flex-col justify-center px-4 md:px-16 mx-auto">
+        <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-[#034d54] mb-6 leading-tight">
             {serviceData.title}
           </h2>
@@ -154,7 +154,7 @@ export const Home = () => {
           </div>
         </div>
 
-        <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120 px-4 md:px-16" style={{ perspective: "1200px" }}>
+        <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "1200px" }}>
 
           <div
             ref={cubeRef}
@@ -196,7 +196,7 @@ export const Home = () => {
   };
   
   const procuder = () => (
-    <div className="w-full my-16 px-4 md:px-16">
+    <>
       <div className="text-center max-w-3xl mx-auto mb-12">
         <h2 className="text-3xl md:text-5xl font-extrabold text-[#034d54] mb-6 leading-tight">
           Khám Phá Các Dịch Vụ
@@ -237,14 +237,14 @@ export const Home = () => {
           ))}
         </div>
       </div>
-    </div>
+   </>
 
 
   );
 
   
   const renderIntroduce = () => (
-    <div className="md:col-span-12 flex flex-col gap-12 mt-8 mb-16 px-4 md:px-16">
+    <div className="md:col-span-12 flex flex-col gap-12 mt-8 mb-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-4xl p-8 md:p-12 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-300">
           <div className="bg-[#094b43] w-14 h-14 rounded-2xl flex items-center justify-center mb-8">
@@ -296,7 +296,7 @@ export const Home = () => {
 
   const renderReview = () => {
     return (
-      <div className="w-full py-16 px-4 md:px-16">
+      <div className="w-full py-16">
         <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-14 gap-6">
           <div className="text-center md:text-left max-w-3xl">
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2830] dark:text-white mb-4">
