@@ -54,7 +54,7 @@ Dự án áp dụng kiến trúc **Microservices** hiện đại chạy trên n�
 
 ---
 
-## 🛠️ Yêu Cầu Cài Đặt Ban Đầu
+## Yêu Cầu Cài Đặt Ban Đầu
 
 Trước khi chạy dự án, hãy tải và cài đặt các công cụ sau:
 1. **Docker Desktop** (Bắt buộc): [Tải tại đây](https://www.docker.com/products/docker-desktop/).
@@ -121,7 +121,7 @@ docker compose stop
 
 ---
 
-## ⚡ Lệnh Rebuild và Đồng Bộ Khi Code Thay Đổi
+## Lệnh Rebuild và Đồng Bộ Khi Code Thay Đổi
 
 Khi bạn thay đổi code ở máy cục bộ, các volume trong Docker đã đồng bộ trực tiếp. Tuy nhiên, nếu bạn cập nhật file `.env` hoặc cài đặt thêm thư viện, hãy chạy lệnh rebuild riêng cho service đó để áp dụng:
 
@@ -138,7 +138,7 @@ docker compose up -d --build frontend
 
 ---
 
-## 🔑 Thiết Lập Key & Xóa Cache Cho Các Service Laravel
+## Thiết Lập Key & Xóa Cache Cho Các Service Laravel
 
 Khi chạy hệ thống lần đầu tiên trên máy mới, bạn cần khởi tạo App Key cho các service Laravel để đảm bảo bảo mật JWT và mã hóa:
 
@@ -162,7 +162,7 @@ docker exec lv-identity php artisan cache:clear
 ```
 
 ---
-## 📧 Hướng Dẫn Cấu Hình Gửi Mail Thật (Gmail SMTP)
+## Hướng Dẫn Cấu Hình Gửi Mail Thật (Gmail SMTP)
 
 Để chức năng **Quên mật khẩu** gửi mã OTP thật về hộp thư Gmail của người dùng:
 
@@ -189,7 +189,7 @@ docker exec lv-identity php artisan cache:clear
    ```
 
 ---
-## 🌐 Các Đường Dẫn Truy Cập Địa Chỉ Dịch Vụ
+## Các Đường Dẫn Truy Cập Địa Chỉ Dịch Vụ
 * **Giao diện Website:** [http://localhost:5173](http://localhost:5173)
 * **Quản trị Database (phpMyAdmin):** [http://localhost:8080](http://localhost:8080)
   * *Tài khoản:* `root` / *Mật khẩu:* Để trống.
