@@ -12,8 +12,12 @@ import { Service } from "./pages/Service";
 import { Recruitment } from "./pages/Recruitment";
 
 function App() {
+  const basename = import.meta.env.BASE_URL.endsWith("/") && import.meta.env.BASE_URL.length > 1
+    ? import.meta.env.BASE_URL.slice(0, -1)
+    : import.meta.env.BASE_URL;
+
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
