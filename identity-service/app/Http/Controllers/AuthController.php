@@ -46,13 +46,42 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $fields = $request->validate([
-            'full_name' => 'required|string|max:100',
+            'full_name' => 'required|string|min:2|max:50',
             'email' => 'required|string|email|max:191|unique:users,email',
-            'phone' => 'required|string|max:20|unique:users,phone',
-            'password' => 'required|string|min:6',
+            'phone' => ['required', 'string', 'regex:/^(0[3|5|7|8|9])[0-9]{8}$/', 'unique:users,phone'],
+            'password' => [
+                'required',
+                'string',
+                'min:6',
+                'max:32',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/\s/', $value)) {
+                        $fail('Mật khẩu không được chứa khoảng trắng.');
+                    }
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $fail('Mật khẩu phải chứa ít nhất 1 ký tự in hoa.');
+                    }
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $fail('Mật khẩu phải chứa ít nhất 1 ký tự in thường.');
+                    }
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $fail('Mật khẩu phải chứa ít nhất 1 ký tự số.');
+                    }
+                }
+            ],
         ], [
+            'full_name.required' => 'Vui lòng nhập họ và tên.',
+            'full_name.min' => 'Họ và tên phải có ít nhất 2 ký tự.',
+            'full_name.max' => 'Họ và tên không được vượt quá 50 ký tự.',
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Vui lòng nhập đúng định dạng email.',
             'email.unique' => 'Email này đã được đăng ký sử dụng.',
+            'phone.required' => 'Vui lòng nhập số điện thoại.',
+            'phone.regex' => 'Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09).',
             'phone.unique' => 'Số điện thoại này đã được đăng ký sử dụng.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password.max' => 'Mật khẩu không được vượt quá 32 ký tự.',
         ]);
 
         $user = User::create([

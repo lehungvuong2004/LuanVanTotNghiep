@@ -1,4 +1,4 @@
-import { Route, Routes, HashRouter } from "react-router-dom";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import { Errors404 } from "./components/Errors404";
 import { Contact } from "./pages/Contact";
@@ -18,7 +18,7 @@ import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
@@ -41,7 +41,7 @@ function App() {
         </Route>
         <Route path="*" element={<Errors404 />} />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
