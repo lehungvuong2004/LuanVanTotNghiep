@@ -18,7 +18,7 @@ import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.DEV ? "/" : "/LuanVanTotNghiep"}>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
