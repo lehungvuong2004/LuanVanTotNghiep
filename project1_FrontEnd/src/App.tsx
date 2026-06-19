@@ -15,6 +15,7 @@ import { DashboardManager } from "./layouts/DashboardManager";
 import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
 import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
+import { Booking } from "./DashBoard/Admin/Booking";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="dashboard" element={<DashboardOverview />} />
           <Route path="services" element={<Services />} />
           <Route path="schedules" element={<Schedules />} />
+          <Route path="bookings" element={<Booking />} />
         </Route>
         <Route path="*" element={<Errors404 />} />
       </Routes>

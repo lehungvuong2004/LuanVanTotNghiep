@@ -1,5 +1,4 @@
-import { useState, useRef } from "react";
-import type { KeyboardEvent } from "react";
+import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
@@ -20,9 +19,6 @@ export const useForgetPassword = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // OTP inputs references
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   // --- Formik Step 1: Email/Phone ---
   const formikStep1 = useFormik({
     initialValues: {
@@ -30,14 +26,12 @@ export const useForgetPassword = () => {
     },
     validationSchema: Yup.object({
       emailOrPhone: Yup.string()
-        .required(t("Vui lòng nhập email hoặc số điện thoại"))
-        .min(5, t("Tài khoản phải có ít nhất 5 ký tự"))
-        .max(30, t("Tài khoản không được vượt quá 30 ký tự"))
-        .test("is-email-or-phone", t("Vui lòng nhập đúng định dạng Email (vd: example@gmail.com) hoặc Số điện thoại (10 số)"), (value) => {
+        .required(t("Vui lòng nhập email"))
+        .max(50, t("Email không được vượt quá 50 ký tự"))
+        .test("is-email", t("Vui lòng nhập đúng định dạng Email (vd: example@gmail.com)"), (value) => {
           if (!value) return true;
           const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-          const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
-          return emailRegex.test(value) || phoneRegex.test(value);
+          return emailRegex.test(value);
         }),
     }),
     onSubmit: async (values) => {
@@ -101,14 +95,16 @@ export const useForgetPassword = () => {
     newOtp[index] = value.substring(value.length - 1);
     formikStep2.setFieldValue("otp", newOtp);
 
-    if (value !== "" && index < 5 && otpRefs.current[index + 1]) {
-      otpRefs.current[index + 1]?.focus();
+    if (value !== "" && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`) as HTMLInputElement | null;
+      nextInput?.focus();
     }
   };
 
-  const handleOtpKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !formikStep2.values.otp[index] && index > 0 && otpRefs.current[index - 1]) {
-      otpRefs.current[index - 1]?.focus();
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !formikStep2.values.otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement | null;
+      prevInput?.focus();
     }
   };
 
@@ -156,8 +152,8 @@ export const useForgetPassword = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      // const res = await forgotPasswordApi(email);
-      setSuccessMessage(t("Mã OTP mới đã được gửi lại thành công."));
+      const res = await forgotPasswordApi(email);
+      setSuccessMessage(res.message || t("Mã OTP mới đã được gửi lại thành công."));
     } catch (error: any) {
       console.error("Resend OTP failed:", error);
       setErrorMessage(error?.response?.data?.message || t("Không thể gửi lại mã OTP."));
@@ -172,7 +168,6 @@ export const useForgetPassword = () => {
     formikStep1,
     formikStep2,
     formikStep3,
-    otpRefs,
     handleOtpChange,
     handleOtpKeyDown,
     showPassword,

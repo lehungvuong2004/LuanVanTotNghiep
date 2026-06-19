@@ -10,7 +10,6 @@ const ForgetPassword = () => {
     formikStep1,
     formikStep2,
     formikStep3,
-    otpRefs,
     handleOtpChange,
     handleOtpKeyDown,
     showPassword,
@@ -107,9 +106,7 @@ const ForgetPassword = () => {
           {formikStep2.values.otp.map((digit, index) => (
             <input
               key={index}
-              ref={(el) => {
-                otpRefs.current[index] = el;
-              }}
+              id={`otp-${index}`}
               type="text"
               maxLength={1}
               className={`w-12 h-12 text-center text-xl font-semibold border bg-gray-50 dark:bg-slate-700 dark:text-white rounded-lg outline-none transition-all ${formikStep2.submitCount > 0 && formikStep2.errors.otp ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"}`}

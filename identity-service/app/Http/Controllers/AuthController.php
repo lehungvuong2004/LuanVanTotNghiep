@@ -315,6 +315,7 @@ class AuthController extends Controller
 
         // Lưu OTP vào Cache với thời hạn 15 phút (900 giây)
         Cache::put('password_reset_otp_' . $email, $otp, 900);
+        \Log::info("Mã OTP cho {$email} là: {$otp}");
 
         // Gửi email chứa OTP
         try {
