@@ -52,6 +52,7 @@ export const useRegister = () => {
           phone: values.phone,
           password: values.password,
         });
+        console.log("Register response:", response);
 
         // Redirect to login page
         navigate("/dang-nhap", { state: { email: values.email } });
@@ -83,6 +84,7 @@ export const useRegister = () => {
       setErrorMessage(null);
       try {
         const response = await googleLoginApi(tokenResponse.access_token, "register");
+        console.log("Google Register response:", response);
         
         // Redirect to login page
         navigate("/dang-nhap");

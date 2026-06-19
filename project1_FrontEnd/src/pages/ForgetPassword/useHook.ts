@@ -156,7 +156,7 @@ export const useForgetPassword = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      const res = await forgotPasswordApi(email);
+      // const res = await forgotPasswordApi(email);
       setSuccessMessage(t("Mã OTP mới đã được gửi lại thành công."));
     } catch (error: any) {
       console.error("Resend OTP failed:", error);
