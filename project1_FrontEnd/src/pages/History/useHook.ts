@@ -205,19 +205,14 @@ export const useHistory = () => {
 
   // Calculate pagination details
   const totalItems = filteredBookings.length;
-  
-  const paginatedBookings = filteredBookings.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+
+  const paginatedBookings = filteredBookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Actions
   const handleCancelBooking = (booking: Booking) => {
     if (booking.status === "upcoming") {
       if (window.confirm("Bạn có chắc chắn muốn hủy lịch đặt này không?")) {
-        setBookings((prev) =>
-          prev.map((b) => (b.id === booking.id ? { ...b, status: "cancelled" } : b))
-        );
+        setBookings((prev) => prev.map((b) => (b.id === booking.id ? { ...b, status: "cancelled" } : b)));
         setToast({
           type: "success",
           title: "Hủy thành công",

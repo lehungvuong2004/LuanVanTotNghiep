@@ -13,7 +13,7 @@ export const useForgetPassword = () => {
   const [step, setStep] = useState<StepType>(1);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  
+
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -114,9 +114,7 @@ export const useForgetPassword = () => {
       confirmPassword: "",
     },
     validationSchema: Yup.object({
-      password: Yup.string()
-        .required(t("Vui lòng nhập mật khẩu mới"))
-        .min(6, t("Mật khẩu phải có ít nhất 6 ký tự")),
+      password: Yup.string().required(t("Vui lòng nhập mật khẩu mới")).min(6, t("Mật khẩu phải có ít nhất 6 ký tự")),
       confirmPassword: Yup.string()
         .required(t("Vui lòng xác nhận mật khẩu"))
         .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),

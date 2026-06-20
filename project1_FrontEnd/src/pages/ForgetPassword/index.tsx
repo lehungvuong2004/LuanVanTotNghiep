@@ -23,7 +23,10 @@ const ForgetPassword = () => {
   } = useForgetPassword();
 
   const renderStep1 = () => (
-    <form onSubmit={formikStep1.handleSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md w-full mx-auto transition-colors duration-300">
+    <form
+      onSubmit={formikStep1.handleSubmit}
+      className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md w-full mx-auto transition-colors duration-300"
+    >
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Quên mật khẩu?</h2>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Nhập email của bạn để nhận mã xác thực khôi phục mật khẩu (chỉ sử dụng Gmail).</p>
 
@@ -131,16 +134,15 @@ const ForgetPassword = () => {
         <div className="text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
             Không nhận được mã?{" "}
-            <button
-              type="button"
-              onClick={handleResendOtp}
-              disabled={loading}
-              className="text-[#005C61] dark:text-teal-400 font-medium hover:underline cursor-pointer disabled:opacity-50"
-            >
+            <button type="button" onClick={handleResendOtp} disabled={loading} className="text-[#005C61] dark:text-teal-400 font-medium hover:underline cursor-pointer disabled:opacity-50">
               Gửi lại mã OTP
             </button>
           </p>
-          <button type="button" onClick={() => setStep(1)} className="text-sm text-gray-500 dark:text-gray-400 font-medium hover:text-gray-800 dark:hover:text-white inline-flex items-center gap-1 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="text-sm text-gray-500 dark:text-gray-400 font-medium hover:text-gray-800 dark:hover:text-white inline-flex items-center gap-1 cursor-pointer"
+          >
             <Icon icon="solar:arrow-left-outline" className="text-lg" />
             Quay lại bước 1
           </button>
@@ -150,7 +152,10 @@ const ForgetPassword = () => {
   );
 
   const renderStep3 = () => (
-    <form onSubmit={formikStep3.handleSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md w-full mx-auto transition-colors duration-300">
+    <form
+      onSubmit={formikStep3.handleSubmit}
+      className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md w-full mx-auto transition-colors duration-300"
+    >
       <div className="inline-flex items-center gap-2 text-[#005C61] dark:text-teal-400 font-semibold text-sm mb-4 bg-teal-50 dark:bg-teal-500/10 px-3 py-1 rounded-full">
         <Icon icon="heroicons-outline:lock-closed" className="text-lg" />
         BƯỚC 3/3
@@ -188,7 +193,11 @@ const ForgetPassword = () => {
               onBlur={formikStep3.handleBlur}
               disabled={loading}
             />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+            >
               <Icon icon={showPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
           </div>
@@ -211,7 +220,11 @@ const ForgetPassword = () => {
               onBlur={formikStep3.handleBlur}
               disabled={loading}
             />
-            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+            >
               <Icon icon={showConfirmPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
           </div>

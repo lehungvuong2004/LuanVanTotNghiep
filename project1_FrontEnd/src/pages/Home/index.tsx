@@ -14,7 +14,7 @@ import { useHome } from "./useHook";
 import { t } from "i18next";
 
 export const Home = () => {
-  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef , produceData, reviewData } = useHome();
+  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData } = useHome();
 
   const swiperRef = useRef<any>(null);
   const renderBanner = () => {
@@ -65,8 +65,8 @@ export const Home = () => {
         </div>
       </div>
     );
-  }; 
-  
+  };
+
   const renderPipeline = () => (
     <div className="md:col-span-12 flex flex-col items-center rounded-2xl my-4">
       <div className="text-center mb-14">
@@ -82,7 +82,9 @@ export const Home = () => {
               <Icon icon="mdi:view-list-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
             <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("1. Chọn dịch vụ")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Lựa chọn từ 20+ dịch vụ đa dạng từ vệ sinh đến sửa chữa.")}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
+              {t("Lựa chọn từ 20+ dịch vụ đa dạng từ vệ sinh đến sửa chữa.")}
+            </p>
           </div>
 
           {/* Bước 2 */}
@@ -91,7 +93,9 @@ export const Home = () => {
               <Icon icon="mdi:calendar-month-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
             <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("2. Đặt lịch")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Chọn thời gian và địa điểm phù hợp nhất với kế hoạch của bạn.")}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
+              {t("Chọn thời gian và địa điểm phù hợp nhất với kế hoạch của bạn.")}
+            </p>
           </div>
 
           {/* Bước 3 */}
@@ -100,7 +104,9 @@ export const Home = () => {
               <Icon icon="mdi:handshake-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
             <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("3. Kết nối")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Hệ thống tự động kết nối bạn với chuyên gia phù hợp nhất.")}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
+              {t("Hệ thống tự động kết nối bạn với chuyên gia phù hợp nhất.")}
+            </p>
           </div>
 
           {/* Bước 4 */}
@@ -108,20 +114,26 @@ export const Home = () => {
             <div className="relative z-10 w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-6 border-2 border-transparent group-hover:border-[#008080] dark:group-hover:border-teal-500 transition-all duration-300">
               <Icon icon="mdi:star-outline" className="text-3xl text-[#008080] dark:text-teal-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
             </div>
-            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">{t("4. Hoàn tất & Đánh giá")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">{t("Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.")}</p>
+            <h3 className="font-bold text-[#0f2830] dark:text-white text-lg mb-2 group-hover:text-[#008080] dark:group-hover:text-teal-400 transition-colors duration-300">
+              {t("4. Hoàn tất & Đánh giá")}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm px-2 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
+              {t("Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.")}
+            </p>
           </div>
 
           {/* Background Connecting Line (Static) */}
           <div className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-gray-200 dark:bg-gray-700 z-0"></div>
 
           {/* Active Running Line (CSS Animated, Non-rounded, Glowing) */}
-          <div className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-[#008080] dark:bg-teal-400 z-0 origin-left scale-x-0 transition-transform duration-500 ease-out shadow-[0_0_8px_rgba(0,128,128,0.6)] dark:shadow-[0_0_8px_rgba(45,212,191,0.6)]
+          <div
+            className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-[#008080] dark:bg-teal-400 z-0 origin-left scale-x-0 transition-transform duration-500 ease-out shadow-[0_0_8px_rgba(0,128,128,0.6)] dark:shadow-[0_0_8px_rgba(45,212,191,0.6)]
             peer-hover/step1:scale-x-0
             peer-hover/step2:scale-x-[0.33]
             peer-hover/step3:scale-x-[0.66]
             peer-hover/step4:scale-x-100
-          "></div>
+          "
+          ></div>
         </div>
       </div>
     </div>
@@ -131,12 +143,8 @@ export const Home = () => {
     return (
       <div className="grid md:grid-cols-12 gap-12 items-center">
         <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#034d54] mb-6 leading-tight">
-            {serviceData.title}
-          </h2>
-          <p className="text-gray-600 text-base md:text-lg mb-8 leading-relaxed">
-            {serviceData.description}
-          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#034d54] mb-6 leading-tight">{serviceData.title}</h2>
+          <p className="text-gray-600 text-base md:text-lg mb-8 leading-relaxed">{serviceData.description}</p>
           <ul className="space-y-4 mb-8">
             {serviceData.features.map((feature, index) => (
               <li key={index} className="flex items-start gap-3 text-gray-700 font-medium">
@@ -155,12 +163,7 @@ export const Home = () => {
         </div>
 
         <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "1200px" }}>
-
-          <div
-            ref={cubeRef}
-            className="w-40 h-52 relative"
-            style={{ transformStyle: "preserve-3d" }}
-          >
+          <div ref={cubeRef} className="w-40 h-52 relative" style={{ transformStyle: "preserve-3d" }}>
             {/* Card 1 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
@@ -194,36 +197,23 @@ export const Home = () => {
       </div>
     );
   };
-  
+
   const procuder = () => (
     <>
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-3xl md:text-5xl font-extrabold text-[#034d54] mb-6 leading-tight">
-          Khám Phá Các Dịch Vụ
-        </h2>
-        <p className="text-gray-600 text-base md:text-lg leading-relaxed">
-          Các dịch vụ chất lượng cao được thiết kế riêng biệt để đáp ứng mọi nhu cầu cho ngôi nhà và không gian sống của bạn.
-        </p>
+        <h2 className="text-3xl md:text-5xl font-extrabold text-[#034d54] mb-6 leading-tight">Khám Phá Các Dịch Vụ</h2>
+        <p className="text-gray-600 text-base md:text-lg leading-relaxed">Các dịch vụ chất lượng cao được thiết kế riêng biệt để đáp ứng mọi nhu cầu cho ngôi nhà và không gian sống của bạn.</p>
       </div>
 
       <div className="h-100 md:h-128 w-full">
         <div className="flex w-full h-full gap-2 md:gap-4">
           {produceData.map((item) => (
-            <div
-              key={item.id}
-              className="group relative h-full flex-1 hover:flex-4 transition-all duration-500 ease-in-out cursor-pointer overflow-hidden rounded-2xl"
-            >
-              <img
-                src={item.image}
-                alt={item.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              
+            <div key={item.id} className="group relative h-full flex-1 hover:flex-4 transition-all duration-500 ease-in-out cursor-pointer overflow-hidden rounded-2xl">
+              <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+
               <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
               <div className="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300 delay-100">
-                <h3 className="text-white font-bold text-xl md:text-2xl whitespace-nowrap transform -rotate-90 tracking-wider">
-                  {item.title}
-                </h3>
+                <h3 className="text-white font-bold text-xl md:text-2xl whitespace-nowrap transform -rotate-90 tracking-wider">{item.title}</h3>
               </div>
 
               <div className="absolute bottom-0 left-0 w-full p-6 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100 flex flex-col items-start">
@@ -237,12 +227,9 @@ export const Home = () => {
           ))}
         </div>
       </div>
-   </>
-
-
+    </>
   );
 
-  
   const renderIntroduce = () => (
     <div className="md:col-span-12 flex flex-col gap-12 mt-8 mb-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -265,7 +252,9 @@ export const Home = () => {
               <span className="text-gray-600 dark:text-gray-300 text-lg">{t("Giá cả minh bạch, không phát sinh")}</span>
             </li>
           </ul>
-          <button className="w-full bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 rounded-xl transition-colors duration-300">{t("Tìm người giúp việc ngay")}</button>
+          <button className="w-full bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 rounded-xl transition-colors duration-300">
+            {t("Tìm người giúp việc ngay")}
+          </button>
         </div>
 
         <div className="bg-[#094b43] rounded-4xl p-8 md:p-12 shadow-lg flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
@@ -293,28 +282,23 @@ export const Home = () => {
     </div>
   );
 
-
   const renderReview = () => {
     return (
       <div className="w-full py-16">
         <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-14 gap-6">
           <div className="text-center md:text-left max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2830] dark:text-white mb-4">
-              Khách hàng nói gì về Gia Đình Việt?
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">
-              Những đánh giá thật từ khách hàng sau khi sử dụng dịch vụ. Chúng tôi luôn nỗ lực mang lại sự hài lòng tối đa.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2830] dark:text-white mb-4">Khách hàng nói gì về Gia Đình Việt?</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">Những đánh giá thật từ khách hàng sau khi sử dụng dịch vụ. Chúng tôi luôn nỗ lực mang lại sự hài lòng tối đa.</p>
           </div>
-          
+
           <div className="flex gap-3 shrink-0">
-            <button 
+            <button
               onClick={() => swiperRef.current?.slidePrev()}
               className="w-12 h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-[#008080] hover:text-white hover:border-[#008080] shadow-sm transition-all cursor-pointer z-10"
             >
               <Icon icon="ooui:previous-ltr" className="text-xl" />
             </button>
-            <button 
+            <button
               onClick={() => swiperRef.current?.slideNext()}
               className="w-12 h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-[#008080] hover:text-white hover:border-[#008080] shadow-sm transition-all cursor-pointer z-10"
             >
@@ -322,7 +306,7 @@ export const Home = () => {
             </button>
           </div>
         </div>
-        
+
         <Swiper
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -336,10 +320,10 @@ export const Home = () => {
           }}
           pagination={{ clickable: true }}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
-          style={{ paddingBottom: '3rem' }}
+          style={{ paddingBottom: "3rem" }}
         >
           {reviewData.map((item) => (
-            <SwiperSlide key={item.id} style={{ height: 'auto' }}>
+            <SwiperSlide key={item.id} style={{ height: "auto" }}>
               <div className="w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-4">
@@ -349,19 +333,17 @@ export const Home = () => {
                       <p className="text-gray-500 text-xs md:text-sm">{item.location}</p>
                     </div>
                   </div>
-                  <div className="bg-[#008080] text-white text-xs font-semibold px-3 py-1.5 rounded-full shrink-0">
-                    {item.service}
-                  </div>
+                  <div className="bg-[#008080] text-white text-xs font-semibold px-3 py-1.5 rounded-full shrink-0">{item.service}</div>
                 </div>
-                
+
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Icon key={i} icon="mdi:star" className="text-yellow-400 text-lg md:text-xl" />
                   ))}
                 </div>
-                
+
                 <p className="text-gray-600 italic mb-8 flex-1 text-sm md:text-base">"{item.comment}"</p>
-                
+
                 <div className="flex justify-between items-center text-xs md:text-sm font-medium text-gray-500 border-t border-gray-100 pt-4 mt-auto">
                   <span>{item.workerName}</span>
                   <span>{item.date}</span>

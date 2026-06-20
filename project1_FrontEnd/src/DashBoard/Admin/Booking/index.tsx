@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import ReactECharts from 'echarts-for-react';
-import { Icon } from '@iconify/react';
-import { useBooking } from './useHook';
-import type { BookingItem } from './useHook';
-import { Pagination } from '../../../components/Pagination';
-import { Toast } from '../../../components/Toast';
-import { formatNumberVI } from '../../../utils';
+import React, { useState } from "react";
+import ReactECharts from "echarts-for-react";
+import { Icon } from "@iconify/react";
+import { useBooking } from "./useHook";
+import type { BookingItem } from "./useHook";
+import { Pagination } from "../../../components/Pagination";
+import { Toast } from "../../../components/Toast";
+import { formatNumberVI } from "../../../utils";
 
 export const Booking: React.FC = () => {
   const {
@@ -41,18 +41,18 @@ export const Booking: React.FC = () => {
 
   // Cancel Reason input for Quick Cancel action
   const [showCancelInput, setShowCancelInput] = useState<string | null>(null);
-  const [cancelReasonText, setCancelReasonText] = useState('');
+  const [cancelReasonText, setCancelReasonText] = useState("");
 
   // List of mock helpers for assignment dropdown in edit modal
   const helperList = [
-    { name: 'Chưa phân phối', value: '' },
-    { name: 'Nguyễn Thị Mai', value: 'Nguyễn Thị Mai', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop', phone: '0912345678' },
-    { name: 'Trần Văn Hùng', value: 'Trần Văn Hùng', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop', phone: '0933111222' },
-    { name: 'Lê Thị Lan', value: 'Lê Thị Lan', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop', phone: '0944555666' },
-    { name: 'Phạm Văn Nam', value: 'Phạm Văn Nam', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop', phone: '0922333444' },
-    { name: 'Hoàng Thanh Mai', value: 'Hoàng Thanh Mai', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop', phone: '0955666777' },
-    { name: 'Lê Văn Nam', value: 'Lê Văn Nam', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=80&auto=format&fit=crop', phone: '0966777888' },
-    { name: 'Trần Văn Tú', value: 'Trần Văn Tú', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop', phone: '0977888999' }
+    { name: "Chưa phân phối", value: "" },
+    { name: "Nguyễn Thị Mai", value: "Nguyễn Thị Mai", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop", phone: "0912345678" },
+    { name: "Trần Văn Hùng", value: "Trần Văn Hùng", avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop", phone: "0933111222" },
+    { name: "Lê Thị Lan", value: "Lê Thị Lan", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop", phone: "0944555666" },
+    { name: "Phạm Văn Nam", value: "Phạm Văn Nam", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop", phone: "0922333444" },
+    { name: "Hoàng Thanh Mai", value: "Hoàng Thanh Mai", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop", phone: "0955666777" },
+    { name: "Lê Văn Nam", value: "Lê Văn Nam", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=80&auto=format&fit=crop", phone: "0966777888" },
+    { name: "Trần Văn Tú", value: "Trần Văn Tú", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop", phone: "0977888999" },
   ];
 
   // Render Page Header
@@ -63,10 +63,7 @@ export const Booking: React.FC = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400">Xem danh sách, kiểm tra chi tiết, phê duyệt trạng thái và phân phối nhân viên.</p>
       </div>
       <div className="relative w-full sm:w-80 shrink-0">
-        <Icon
-          icon="material-symbols:search"
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg"
-        />
+        <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
         <input
           className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all dark:text-slate-100 shadow-xs"
           placeholder="Tìm theo mã đơn, khách hàng, nhân viên..."
@@ -85,9 +82,7 @@ export const Booking: React.FC = () => {
         <div>
           <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550 mb-1">TỔNG ĐƠN ĐẶT</span>
           <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{metrics.total} đơn</span>
-          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 dark:text-blue-400 mt-1">
-            Hệ thống Gia Đình Việt
-          </span>
+          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 dark:text-blue-400 mt-1">Hệ thống Gia Đình Việt</span>
         </div>
         <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400">
           <Icon icon="material-symbols:calendar-today-outline-rounded" className="text-2xl" />
@@ -97,12 +92,8 @@ export const Booking: React.FC = () => {
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between transition-all hover:shadow-sm">
         <div>
           <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550 mb-1">TỔNG DOANH THU</span>
-          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">
-            {formatNumberVI(metrics.totalRevenue)} ₫
-          </span>
-          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-455 mt-1">
-            Đơn hoàn thành/xác nhận
-          </span>
+          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{formatNumberVI(metrics.totalRevenue)} ₫</span>
+          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-455 mt-1">Đơn hoàn thành/xác nhận</span>
         </div>
         <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-455">
           <Icon icon="material-symbols:payments-outline-rounded" className="text-2xl" />
@@ -113,9 +104,7 @@ export const Booking: React.FC = () => {
         <div>
           <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550 mb-1">TỶ LỆ HOÀN THÀNH</span>
           <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{metrics.completionRate}%</span>
-          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-purple-650 dark:text-purple-400 mt-1">
-            Đơn hoàn tất thành công
-          </span>
+          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-purple-650 dark:text-purple-400 mt-1">Đơn hoàn tất thành công</span>
         </div>
         <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400">
           <Icon icon="material-symbols:trending-up-rounded" className="text-2xl" />
@@ -126,9 +115,7 @@ export const Booking: React.FC = () => {
         <div>
           <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550 mb-1">ĐƠN CHỜ PHÊ DUYỆT</span>
           <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{metrics.pending} đơn</span>
-          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">
-            Cần quản trị viên duyệt
-          </span>
+          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">Cần quản trị viên duyệt</span>
         </div>
         <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400">
           <Icon icon="material-symbols:hourglass-empty" className="text-2xl" />
@@ -147,7 +134,7 @@ export const Booking: React.FC = () => {
           <span className="text-xs text-slate-400 dark:text-slate-500">Biểu đồ tổng quan</span>
         </div>
         <div className="flex-1 h-70 flex items-center justify-center">
-          <ReactECharts option={lineOption} style={{ height: '100%', width: '100%' }} />
+          <ReactECharts option={lineOption} style={{ height: "100%", width: "100%" }} />
         </div>
       </div>
 
@@ -158,7 +145,7 @@ export const Booking: React.FC = () => {
           <span className="text-xs text-slate-400 dark:text-slate-500">Tỷ lệ đơn hàng</span>
         </div>
         <div className="flex-1 h-70 flex items-center justify-center">
-          <ReactECharts option={pieOption} style={{ height: '100%', width: '100%' }} />
+          <ReactECharts option={pieOption} style={{ height: "100%", width: "100%" }} />
         </div>
       </div>
     </div>
@@ -191,10 +178,12 @@ export const Booking: React.FC = () => {
           <option value="Refunded">Đã hoàn tiền</option>
         </select>
       </div>
-      
+
       <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
         <Icon icon="material-symbols:filter-list" className="text-lg" />
-        <span>Tìm thấy <b>{filteredCount}</b> đơn hàng</span>
+        <span>
+          Tìm thấy <b>{filteredCount}</b> đơn hàng
+        </span>
       </div>
     </div>
   );
@@ -227,15 +216,10 @@ export const Booking: React.FC = () => {
               >
                 {/* Booking Code */}
                 <div className="col-span-2">
-                  <button
-                    onClick={() => handleOpenDetail(booking)}
-                    className="font-bold text-blue-600 dark:text-blue-400 hover:underline text-left cursor-pointer"
-                  >
+                  <button onClick={() => handleOpenDetail(booking)} className="font-bold text-blue-600 dark:text-blue-400 hover:underline text-left cursor-pointer">
                     {booking.bookingCode}
                   </button>
-                  <div className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">
-                    {booking.createdAt}
-                  </div>
+                  <div className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">{booking.createdAt}</div>
                 </div>
 
                 {/* Customer Info */}
@@ -248,11 +232,7 @@ export const Booking: React.FC = () => {
                 <div className="col-span-2">
                   {hasHelper ? (
                     <div className="flex items-center gap-2">
-                      <img
-                        src={booking.helperAvatar || ''}
-                        alt={booking.helperName || ''}
-                        className="w-7 h-7 rounded-full object-cover border border-slate-200 dark:border-slate-650"
-                      />
+                      <img src={booking.helperAvatar || ""} alt={booking.helperName || ""} className="w-7 h-7 rounded-full object-cover border border-slate-200 dark:border-slate-650" />
                       <div>
                         <div className="font-semibold text-slate-750 dark:text-slate-200 text-xs">{booking.helperName}</div>
                         <div className="text-xxs text-slate-450 dark:text-slate-450">{booking.helperPhone}</div>
@@ -273,26 +253,22 @@ export const Booking: React.FC = () => {
                 </div>
 
                 {/* Price */}
-                <div className="col-span-1 font-bold text-slate-850 dark:text-slate-150">
-                  {formatNumberVI(booking.totalPrice)} ₫
-                </div>
+                <div className="col-span-1 font-bold text-slate-850 dark:text-slate-150">{formatNumberVI(booking.totalPrice)} ₫</div>
 
                 {/* Payment status */}
                 <div className="col-span-1">
                   <span
                     className={`inline-flex px-2 py-0.5 rounded-full text-xxs font-semibold ${
-                      booking.paymentStatus === 'paid'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30'
-                        : booking.paymentStatus === 'pending'
-                        ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/30'
-                        : booking.paymentStatus === 'refunded'
-                        ? 'bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/30'
-                        : 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/30'
+                      booking.paymentStatus === "paid"
+                        ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30"
+                        : booking.paymentStatus === "pending"
+                          ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/30"
+                          : booking.paymentStatus === "refunded"
+                            ? "bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/30"
+                            : "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/30"
                     }`}
                   >
-                    {booking.paymentStatus === 'paid' ? 'Đã trả' :
-                     booking.paymentStatus === 'pending' ? 'Chờ trả' :
-                     booking.paymentStatus === 'refunded' ? 'Hoàn tiền' : 'Lỗi'}
+                    {booking.paymentStatus === "paid" ? "Đã trả" : booking.paymentStatus === "pending" ? "Chờ trả" : booking.paymentStatus === "refunded" ? "Hoàn tiền" : "Lỗi"}
                   </span>
                 </div>
 
@@ -300,29 +276,27 @@ export const Booking: React.FC = () => {
                 <div className="col-span-1">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xxs font-bold ${
-                      booking.status === 'completed'
-                        ? 'bg-emerald-100/80 dark:bg-emerald-950/40 text-emerald-850 dark:text-emerald-300'
-                        : booking.status === 'confirmed'
-                        ? 'bg-blue-105/90 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300'
-                        : booking.status === 'cancelled'
-                        ? 'bg-red-100/80 dark:bg-red-950/40 text-red-850 dark:text-red-300'
-                        : 'bg-amber-100/80 dark:bg-amber-950/40 text-amber-850 dark:text-amber-300'
+                      booking.status === "completed"
+                        ? "bg-emerald-100/80 dark:bg-emerald-950/40 text-emerald-850 dark:text-emerald-300"
+                        : booking.status === "confirmed"
+                          ? "bg-blue-105/90 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
+                          : booking.status === "cancelled"
+                            ? "bg-red-100/80 dark:bg-red-950/40 text-red-850 dark:text-red-300"
+                            : "bg-amber-100/80 dark:bg-amber-950/40 text-amber-850 dark:text-amber-300"
                     }`}
                   >
                     <span
                       className={`w-1 h-1 rounded-full ${
-                        booking.status === 'completed'
-                          ? 'bg-emerald-600 dark:bg-emerald-450'
-                          : booking.status === 'confirmed'
-                          ? 'bg-blue-600 dark:bg-blue-400 animate-pulse'
-                          : booking.status === 'cancelled'
-                          ? 'bg-red-600 dark:bg-red-400'
-                          : 'bg-amber-600 dark:bg-amber-400'
+                        booking.status === "completed"
+                          ? "bg-emerald-600 dark:bg-emerald-450"
+                          : booking.status === "confirmed"
+                            ? "bg-blue-600 dark:bg-blue-400 animate-pulse"
+                            : booking.status === "cancelled"
+                              ? "bg-red-600 dark:bg-red-400"
+                              : "bg-amber-600 dark:bg-amber-400"
                       }`}
                     />
-                    {booking.status === 'completed' ? 'Xong' :
-                     booking.status === 'confirmed' ? 'Duyệt' :
-                     booking.status === 'cancelled' ? 'Hủy' : 'Chờ'}
+                    {booking.status === "completed" ? "Xong" : booking.status === "confirmed" ? "Duyệt" : booking.status === "cancelled" ? "Hủy" : "Chờ"}
                   </span>
                 </div>
 
@@ -330,9 +304,9 @@ export const Booking: React.FC = () => {
                 <div className="col-span-1 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {/* Quick Approve button if pending */}
-                    {booking.status === 'pending' && (
+                    {booking.status === "pending" && (
                       <button
-                        onClick={() => handleQuickStatusChange(booking.id, 'confirmed')}
+                        onClick={() => handleQuickStatusChange(booking.id, "confirmed")}
                         className="p-1.5 text-emerald-600 hover:text-white hover:bg-emerald-600 dark:hover:bg-emerald-500 rounded-lg transition-all cursor-pointer"
                         title="Duyệt đơn hàng"
                       >
@@ -341,9 +315,9 @@ export const Booking: React.FC = () => {
                     )}
 
                     {/* Quick Complete button if confirmed */}
-                    {booking.status === 'confirmed' && (
+                    {booking.status === "confirmed" && (
                       <button
-                        onClick={() => handleQuickStatusChange(booking.id, 'completed')}
+                        onClick={() => handleQuickStatusChange(booking.id, "completed")}
                         className="p-1.5 text-emerald-650 hover:text-white hover:bg-emerald-655 dark:hover:bg-emerald-555 rounded-lg transition-all cursor-pointer"
                         title="Hoàn tất đơn đặt"
                       >
@@ -352,7 +326,7 @@ export const Booking: React.FC = () => {
                     )}
 
                     {/* Quick Cancel button if pending/confirmed */}
-                    {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                    {(booking.status === "pending" || booking.status === "confirmed") && (
                       <div className="relative">
                         <button
                           onClick={() => {
@@ -360,7 +334,7 @@ export const Booking: React.FC = () => {
                               setShowCancelInput(null);
                             } else {
                               setShowCancelInput(booking.id);
-                              setCancelReasonText('');
+                              setCancelReasonText("");
                             }
                           }}
                           className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 dark:hover:bg-amber-500 rounded-lg transition-all cursor-pointer"
@@ -381,23 +355,20 @@ export const Booking: React.FC = () => {
                               autoFocus
                             />
                             <div className="flex justify-end gap-1.5">
-                              <button
-                                onClick={() => setShowCancelInput(null)}
-                                className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-655 dark:text-slate-300 rounded text-xxs font-bold"
-                              >
+                              <button onClick={() => setShowCancelInput(null)} className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-655 dark:text-slate-300 rounded text-xxs font-bold">
                                 Đóng
                               </button>
                               <button
                                 onClick={() => {
-                                  handleQuickStatusChange(booking.id, 'cancelled');
+                                  handleQuickStatusChange(booking.id, "cancelled");
                                   // Update the cancelled booking record details in local state
-                                  const reason = cancelReasonText.trim() || 'Hủy đơn bởi Admin.';
+                                  const reason = cancelReasonText.trim() || "Hủy đơn bởi Admin.";
                                   handleUpdateBooking({
                                     ...booking,
-                                    status: 'cancelled',
-                                    cancelBy: 'Admin',
+                                    status: "cancelled",
+                                    cancelBy: "Admin",
                                     cancelReason: reason,
-                                    refundStatus: (booking.paymentStatus === 'paid') ? 'pending' : 'none'
+                                    refundStatus: booking.paymentStatus === "paid" ? "pending" : "none",
                                   });
                                   setShowCancelInput(null);
                                 }}
@@ -442,11 +413,7 @@ export const Booking: React.FC = () => {
               </div>
             );
           })}
-          {paginatedBookings.length === 0 && (
-            <div className="p-8 text-center text-slate-450 dark:text-slate-500">
-              Không tìm thấy đơn đặt lịch nào phù hợp với bộ lọc.
-            </div>
-          )}
+          {paginatedBookings.length === 0 && <div className="p-8 text-center text-slate-450 dark:text-slate-500">Không tìm thấy đơn đặt lịch nào phù hợp với bộ lọc.</div>}
         </div>
       </div>
     </div>
@@ -480,32 +447,27 @@ export const Booking: React.FC = () => {
 
           {/* Modal Body */}
           <div className="p-6 max-h-[70vh] overflow-y-auto space-y-6 text-left">
-            
             {/* Grid 1: Basic Info & Status badges */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-150 dark:border-slate-700/50">
                 <span className="block text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase mb-2">Trạng thái dịch vụ</span>
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                    booking.status === 'completed'
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
-                      : booking.status === 'confirmed'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
-                      : booking.status === 'cancelled'
-                      ? 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
+                    booking.status === "completed"
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                      : booking.status === "confirmed"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                        : booking.status === "cancelled"
+                          ? "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300"
+                          : "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
                   }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      booking.status === 'completed' ? 'bg-emerald-600' :
-                      booking.status === 'confirmed' ? 'bg-blue-600 animate-pulse' :
-                      booking.status === 'cancelled' ? 'bg-red-600' : 'bg-amber-600'
+                      booking.status === "completed" ? "bg-emerald-600" : booking.status === "confirmed" ? "bg-blue-600 animate-pulse" : booking.status === "cancelled" ? "bg-red-600" : "bg-amber-600"
                     }`}
                   />
-                  {booking.status === 'completed' ? 'Hoàn thành' :
-                   booking.status === 'confirmed' ? 'Đã xác nhận & duyệt' :
-                   booking.status === 'cancelled' ? 'Đã hủy đơn' : 'Đang chờ duyệt'}
+                  {booking.status === "completed" ? "Hoàn thành" : booking.status === "confirmed" ? "Đã xác nhận & duyệt" : booking.status === "cancelled" ? "Đã hủy đơn" : "Đang chờ duyệt"}
                 </span>
               </div>
 
@@ -514,18 +476,16 @@ export const Booking: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span
                     className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                      booking.paymentStatus === 'paid'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600'
-                        : booking.paymentStatus === 'pending'
-                        ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-600'
-                        : booking.paymentStatus === 'refunded'
-                        ? 'bg-purple-50 dark:bg-purple-950/20 text-purple-600'
-                        : 'bg-red-50 dark:bg-red-950/20 text-red-600'
+                      booking.paymentStatus === "paid"
+                        ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600"
+                        : booking.paymentStatus === "pending"
+                          ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600"
+                          : booking.paymentStatus === "refunded"
+                            ? "bg-purple-50 dark:bg-purple-950/20 text-purple-600"
+                            : "bg-red-50 dark:bg-red-950/20 text-red-600"
                     }`}
                   >
-                    {booking.paymentStatus === 'paid' ? 'Đã thanh toán' :
-                     booking.paymentStatus === 'pending' ? 'Chưa trả tiền' :
-                     booking.paymentStatus === 'refunded' ? 'Đã hoàn tiền' : 'Thất bại'}
+                    {booking.paymentStatus === "paid" ? "Đã thanh toán" : booking.paymentStatus === "pending" ? "Chưa trả tiền" : booking.paymentStatus === "refunded" ? "Đã hoàn tiền" : "Thất bại"}
                   </span>
                 </div>
               </div>
@@ -544,7 +504,9 @@ export const Booking: React.FC = () => {
                 </div>
                 <div>
                   <span className="block text-xxs text-slate-400 dark:text-slate-500 mb-0.5">Số điện thoại / Email:</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{booking.customerPhone} / {booking.customerEmail}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {booking.customerPhone} / {booking.customerEmail}
+                  </span>
                 </div>
                 <div className="sm:col-span-2">
                   <span className="block text-xxs text-slate-400 dark:text-slate-500 mb-0.5">Địa chỉ phục vụ:</span>
@@ -563,11 +525,7 @@ export const Booking: React.FC = () => {
               </h4>
               {hasHelper ? (
                 <div className="flex items-center gap-4 bg-blue-50/30 dark:bg-blue-950/10 p-3 rounded-xl border border-blue-100 dark:border-blue-900/25">
-                  <img
-                    src={booking.helperAvatar || ''}
-                    alt={booking.helperName || ''}
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                  />
+                  <img src={booking.helperAvatar || ""} alt={booking.helperName || ""} className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
                   <div className="text-xs sm:text-sm">
                     <div className="font-bold text-slate-800 dark:text-slate-100">{booking.helperName}</div>
                     <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Số điện thoại liên hệ: {booking.helperPhone}</div>
@@ -599,7 +557,7 @@ export const Booking: React.FC = () => {
                 <div className="sm:col-span-2">
                   <span className="block text-xxs text-slate-400 dark:text-slate-500 mb-0.5">Ghi chú của khách hàng:</span>
                   <p className="italic text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-150 dark:border-slate-750">
-                    {booking.note || 'Không có ghi chú gì thêm.'}
+                    {booking.note || "Không có ghi chú gì thêm."}
                   </p>
                 </div>
               </div>
@@ -628,9 +586,7 @@ export const Booking: React.FC = () => {
                         <td className="p-3">{formatNumberVI(srv.price)} ₫</td>
                         <td className="p-3">{srv.duration_hours} giờ</td>
                         <td className="p-3">{srv.quantity}</td>
-                        <td className="p-3 text-right font-bold text-slate-850 dark:text-slate-150">
-                          {formatNumberVI(srv.price * srv.quantity)} ₫
-                        </td>
+                        <td className="p-3 text-right font-bold text-slate-850 dark:text-slate-150">{formatNumberVI(srv.price * srv.quantity)} ₫</td>
                       </tr>
                     ))}
                   </tbody>
@@ -641,27 +597,27 @@ export const Booking: React.FC = () => {
               </div>
             </div>
 
-            {booking.status === 'cancelled' && (
+            {booking.status === "cancelled" && (
               <div className="p-4 bg-red-50/50 dark:bg-red-950/15 border border-red-200 dark:border-red-900/45 rounded-xl space-y-1">
                 <h5 className="text-xs font-bold text-red-800 dark:text-red-400 uppercase flex items-center gap-1">
                   <Icon icon="material-symbols:cancel-presentation-outline" />
                   ĐƠN HÀNG ĐÃ BỊ HỦY
                 </h5>
                 <p className="text-xs text-slate-700 dark:text-slate-300">
-                  <b>Người hủy:</b> {booking.cancelBy || 'Chưa xác định'}
+                  <b>Người hủy:</b> {booking.cancelBy || "Chưa xác định"}
                 </p>
                 <p className="text-xs text-slate-700 dark:text-slate-300">
-                  <b>Lý do hủy:</b> {booking.cancelReason || 'Không có lý do chi tiết.'}
+                  <b>Lý do hủy:</b> {booking.cancelReason || "Không có lý do chi tiết."}
                 </p>
-                {booking.refundStatus !== 'none' && (
+                {booking.refundStatus !== "none" && (
                   <p className="text-xs text-purple-700 dark:text-purple-400 font-semibold">
-                    Trạng thái hoàn tiền: {booking.refundStatus === 'refunded' ? 'Đã hoàn tiền thành công' : 'Đang chờ xử lý hoàn tiền'}
+                    Trạng thái hoàn tiền: {booking.refundStatus === "refunded" ? "Đã hoàn tiền thành công" : "Đang chờ xử lý hoàn tiền"}
                   </p>
                 )}
               </div>
             )}
 
-            {booking.status === 'completed' && booking.rating && (
+            {booking.status === "completed" && booking.rating && (
               <div className="p-4 bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-250 dark:border-emerald-900/35 rounded-xl space-y-2">
                 <h5 className="text-xs font-bold text-emerald-850 dark:text-emerald-300 uppercase flex items-center gap-1">
                   <Icon icon="material-symbols:star-rate-outline-rounded" />
@@ -669,31 +625,22 @@ export const Booking: React.FC = () => {
                 </h5>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Icon
-                      key={i}
-                      icon="material-symbols:star-rate-rounded"
-                      className={`text-lg ${
-                        i < (booking.rating || 0) ? 'text-amber-400' : 'text-slate-300 dark:text-slate-650'
-                      }`}
-                    />
+                    <Icon key={i} icon="material-symbols:star-rate-rounded" className={`text-lg ${i < (booking.rating || 0) ? "text-amber-400" : "text-slate-300 dark:text-slate-650"}`} />
                   ))}
                   <span className="text-xs text-slate-450 ml-1">({booking.rating}/5 sao)</span>
                 </div>
-                <p className="text-xs italic text-slate-700 dark:text-slate-300">
-                  "{booking.reviewComment || 'Không có bình luận gì thêm.'}"
-                </p>
+                <p className="text-xs italic text-slate-700 dark:text-slate-300">"{booking.reviewComment || "Không có bình luận gì thêm."}"</p>
               </div>
             )}
-
           </div>
 
           <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/30">
             <div className="flex gap-2">
               {/* Approve pending */}
-              {booking.status === 'pending' && (
+              {booking.status === "pending" && (
                 <button
                   onClick={() => {
-                    handleQuickStatusChange(booking.id, 'confirmed');
+                    handleQuickStatusChange(booking.id, "confirmed");
                   }}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-755 text-white rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer"
                 >
@@ -702,10 +649,10 @@ export const Booking: React.FC = () => {
               )}
 
               {/* Complete confirmed */}
-              {booking.status === 'confirmed' && (
+              {booking.status === "confirmed" && (
                 <button
                   onClick={() => {
-                    handleQuickStatusChange(booking.id, 'completed');
+                    handleQuickStatusChange(booking.id, "completed");
                   }}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer"
                 >
@@ -748,9 +695,7 @@ export const Booking: React.FC = () => {
           {/* Modal Header */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/30 text-left">
             <div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                Chỉnh Sửa & Phân Công: {booking.bookingCode}
-              </h3>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Chỉnh Sửa & Phân Công: {booking.bookingCode}</h3>
               <p className="text-xxs text-slate-450 dark:text-slate-500">Cập nhật lịch trình dịch vụ, người thực hiện hoặc trạng thái đơn hàng</p>
             </div>
             <button
@@ -772,9 +717,7 @@ export const Booking: React.FC = () => {
             {/* Grid: Booking Date & Start Time */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-550 dark:text-slate-400 mb-1.5">
-                  Ngày làm việc
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-550 dark:text-slate-400 mb-1.5">Ngày làm việc</label>
                 <input
                   required
                   value={booking.bookingDate}
@@ -784,9 +727,7 @@ export const Booking: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                  Giờ làm việc
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Giờ làm việc</label>
                 <input
                   required
                   value={booking.startTime}
@@ -800,27 +741,25 @@ export const Booking: React.FC = () => {
 
             {/* Helper Assignment */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                Nhân viên thực hiện
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Nhân viên thực hiện</label>
               <select
-                value={booking.helperName || ''}
+                value={booking.helperName || ""}
                 onChange={(e) => {
                   const val = e.target.value;
-                  const foundHelper = helperList.find(h => h.value === val);
-                  if (foundHelper && val !== '') {
+                  const foundHelper = helperList.find((h) => h.value === val);
+                  if (foundHelper && val !== "") {
                     setEditingBooking({
                       ...booking,
                       helperName: foundHelper.name,
                       helperAvatar: foundHelper.avatar || null,
-                      helperPhone: foundHelper.phone || null
+                      helperPhone: foundHelper.phone || null,
                     });
                   } else {
                     setEditingBooking({
                       ...booking,
                       helperName: null,
                       helperAvatar: null,
-                      helperPhone: null
+                      helperPhone: null,
                     });
                   }
                 }}
@@ -837,16 +776,14 @@ export const Booking: React.FC = () => {
             {/* Grid: Status & Payment Status */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                  Trạng thái đơn hàng
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Trạng thái đơn hàng</label>
                 <select
                   value={booking.status}
                   onChange={(e) => {
                     const status = e.target.value as any;
                     const update: Partial<BookingItem> = { status };
-                    if (status === 'completed') {
-                      update.paymentStatus = 'paid';
+                    if (status === "completed") {
+                      update.paymentStatus = "paid";
                     }
                     setEditingBooking({ ...booking, ...update });
                   }}
@@ -859,9 +796,7 @@ export const Booking: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                  Trạng thái thanh toán
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Trạng thái thanh toán</label>
                 <select
                   value={booking.paymentStatus}
                   onChange={(e) => setEditingBooking({ ...booking, paymentStatus: e.target.value as any })}
@@ -876,14 +811,12 @@ export const Booking: React.FC = () => {
             </div>
 
             {/* Refund details if cancelled */}
-            {booking.status === 'cancelled' && (
+            {booking.status === "cancelled" && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                    Hủy bởi ai?
-                  </label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Hủy bởi ai?</label>
                   <select
-                    value={booking.cancelBy || 'Admin'}
+                    value={booking.cancelBy || "Admin"}
                     onChange={(e) => setEditingBooking({ ...booking, cancelBy: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-650 focus:ring-1 focus:ring-blue-650 dark:text-slate-100 outline-none cursor-pointer"
                   >
@@ -893,9 +826,7 @@ export const Booking: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                    Trạng thái hoàn tiền
-                  </label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Trạng thái hoàn tiền</label>
                   <select
                     value={booking.refundStatus}
                     onChange={(e) => setEditingBooking({ ...booking, refundStatus: e.target.value as any })}
@@ -910,13 +841,11 @@ export const Booking: React.FC = () => {
             )}
 
             {/* Cancel Reason */}
-            {booking.status === 'cancelled' && (
+            {booking.status === "cancelled" && (
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                  Lý do hủy đơn
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Lý do hủy đơn</label>
                 <input
-                  value={booking.cancelReason || ''}
+                  value={booking.cancelReason || ""}
                   onChange={(e) => setEditingBooking({ ...booking, cancelReason: e.target.value })}
                   placeholder="Nhập lý do hủy đơn hàng..."
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-650 focus:ring-1 focus:ring-blue-650 dark:text-slate-100"
@@ -927,11 +856,9 @@ export const Booking: React.FC = () => {
 
             {/* Customer Note */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">
-                Yêu cầu ghi chú của khách hàng
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-555 dark:text-slate-400 mb-1.5">Yêu cầu ghi chú của khách hàng</label>
               <textarea
-                value={booking.note || ''}
+                value={booking.note || ""}
                 onChange={(e) => setEditingBooking({ ...booking, note: e.target.value })}
                 rows={3}
                 placeholder="Yêu cầu riêng biệt..."
@@ -948,10 +875,7 @@ export const Booking: React.FC = () => {
               >
                 Hủy bỏ
               </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm"
-              >
+              <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm">
                 Lưu Thay Đổi
               </button>
             </div>
@@ -976,12 +900,7 @@ export const Booking: React.FC = () => {
 
           {/* Pagination */}
           <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-750">
-            <Pagination
-              currentPage={currentPage}
-              totalItems={filteredCount}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-            />
+            <Pagination currentPage={currentPage} totalItems={filteredCount} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
           </div>
         </div>
       </main>
@@ -991,14 +910,7 @@ export const Booking: React.FC = () => {
       {renderEditModal()}
 
       {/* Toast Alert message */}
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 };

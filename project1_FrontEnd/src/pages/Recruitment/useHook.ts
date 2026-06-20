@@ -4,24 +4,24 @@ import { useState, useEffect } from "react";
 export const CATEGORIES = ["Trông trẻ", "Giúp việc nhà", "Chăm sóc người già", "Gia sư"];
 
 export const SALARY_OPTS = [
-  { value: "all",        label: "Tất cả" },
-  { value: "under-5m",   label: "Dưới 5 triệu" },
-  { value: "5m-10m",     label: "5 – 10 triệu" },
-  { value: "10m-15m",    label: "10 – 15 triệu" },
+  { value: "all", label: "Tất cả" },
+  { value: "under-5m", label: "Dưới 5 triệu" },
+  { value: "5m-10m", label: "5 – 10 triệu" },
+  { value: "10m-15m", label: "10 – 15 triệu" },
   { value: "negotiable", label: "Thỏa thuận" },
 ];
 
 export const URGENCY_OPTS = [
-  { value: "all",    label: "Tất cả" },
+  { value: "all", label: "Tất cả" },
   { value: "urgent", label: "Cần gấp" },
   { value: "normal", label: "Bình thường" },
 ];
 
 export const CATEGORY_META: Record<string, { icon: string; color: string }> = {
-  "Trông trẻ":          { icon: "material-symbols:child-care-outline",        color: "text-violet-500" },
-  "Giúp việc nhà":      { icon: "material-symbols:cleaning-services-outline", color: "text-amber-500"  },
-  "Chăm sóc người già": { icon: "material-symbols:elderly-outline",            color: "text-sky-500"   },
-  "Gia sư":             { icon: "material-symbols:school-outline",            color: "text-emerald-500" },
+  "Trông trẻ": { icon: "material-symbols:child-care-outline", color: "text-violet-500" },
+  "Giúp việc nhà": { icon: "material-symbols:cleaning-services-outline", color: "text-amber-500" },
+  "Chăm sóc người già": { icon: "material-symbols:elderly-outline", color: "text-sky-500" },
+  "Gia sư": { icon: "material-symbols:school-outline", color: "text-emerald-500" },
 };
 
 // Prop Interfaces
@@ -271,10 +271,7 @@ export const useRecruitment = () => {
   const totalItems = sortedJobs.length;
 
   // Paginated slices
-  const paginatedJobs = sortedJobs.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedJobs = sortedJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const clearFilters = () => {
     setSelectedCategories([]);

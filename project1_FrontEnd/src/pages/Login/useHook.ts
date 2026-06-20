@@ -37,7 +37,7 @@ export const useLogin = () => {
         .test("password-strength", t("Mật khẩu không hợp lệ"), function (value) {
           if (!value) return true;
           if (value === "admin" && this.parent.emailOrPhone === "admin") return true;
-          
+
           const hasMin = value.length >= 6;
           const hasMax = value.length <= 32;
           const noWhitespace = /^\S*$/.test(value);
@@ -106,11 +106,11 @@ export const useLogin = () => {
       setErrorMessage(null);
       try {
         const response = await googleLoginApi(tokenResponse.access_token, "login");
-        
+
         // Store token & user details
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
-        
+
         // Redirect to Home (or specific role route if desired)
         if (response.user.role_id === 1) {
           navigate("/admin");

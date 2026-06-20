@@ -1,7 +1,7 @@
-import React from 'react';
-import { Icon } from '@iconify/react';
-import { useServices } from './useHook';
-import { Pagination } from '../../../components/Pagination';
+import React from "react";
+import { Icon } from "@iconify/react";
+import { useServices } from "./useHook";
+import { Pagination } from "../../../components/Pagination";
 
 export const Services: React.FC = () => {
   const {
@@ -45,10 +45,7 @@ export const Services: React.FC = () => {
           Add Service
         </button>
         <div className="relative w-full sm:w-64">
-          <Icon
-            icon="material-symbols:search"
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg"
-          />
+          <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
           <input
             className="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all dark:text-slate-100 shadow-xs"
             placeholder="Search services, categories..."
@@ -66,12 +63,9 @@ export const Services: React.FC = () => {
       return (
         <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-blue-50/50 dark:bg-blue-950/20 flex items-center justify-between">
           <span className="text-sm font-semibold text-red-400">
-            Selected {selectedIds.length} {selectedIds.length === 1 ? 'service' : 'services'}
+            Selected {selectedIds.length} {selectedIds.length === 1 ? "service" : "services"}
           </span>
-          <button
-            onClick={deleteSelected}
-            className="flex items-center gap-2 bg-red-700  text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer active:scale-95 shadow-sm"
-          >
+          <button onClick={deleteSelected} className="flex items-center gap-2 bg-red-700  text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer active:scale-95 shadow-sm">
             <Icon icon="material-symbols:delete-outline" className="text-base" />
             Delete Selected
           </button>
@@ -135,10 +129,7 @@ export const Services: React.FC = () => {
         {/* Grid Body Rows */}
         <div className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
           {services.map((service) => (
-            <div
-              key={service.id}
-              className="grid grid-cols-12 gap-4 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors py-4 px-6"
-            >
+            <div key={service.id} className="grid grid-cols-12 gap-4 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors py-4 px-6">
               <div className="col-span-1 flex items-center">
                 <input
                   className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
@@ -159,29 +150,21 @@ export const Services: React.FC = () => {
                   <span>{service.category}</span>
                 </div>
               </div>
-              <div className="col-span-2 font-semibold text-sm text-slate-800 dark:text-slate-100">
-                {service.basePrice}
-              </div>
-              <div className="col-span-2 text-sm text-slate-500 dark:text-slate-450">
-                {service.priceType}
-              </div>
+              <div className="col-span-2 font-semibold text-sm text-slate-800 dark:text-slate-100">{service.basePrice}</div>
+              <div className="col-span-2 text-sm text-slate-500 dark:text-slate-450">{service.priceType}</div>
               <div className="col-span-1">
                 <span
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                    service.status === 'Active'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'
-                      : service.status === 'Draft'
-                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-                      : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
+                    service.status === "Active"
+                      ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
+                      : service.status === "Draft"
+                        ? "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                        : "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400"
                   }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      service.status === 'Active'
-                        ? 'bg-emerald-600 dark:bg-emerald-400'
-                        : service.status === 'Draft'
-                        ? 'bg-slate-500 dark:bg-slate-400'
-                        : 'bg-red-600 dark:bg-red-400'
+                      service.status === "Active" ? "bg-emerald-600 dark:bg-emerald-400" : service.status === "Draft" ? "bg-slate-500 dark:bg-slate-400" : "bg-red-600 dark:bg-red-400"
                     }`}
                   />
                   {service.status}
@@ -205,11 +188,7 @@ export const Services: React.FC = () => {
               </div>
             </div>
           ))}
-          {services.length === 0 && (
-            <div className="p-8 text-center text-slate-450 dark:text-slate-500">
-              No services found.
-            </div>
-          )}
+          {services.length === 0 && <div className="p-8 text-center text-slate-450 dark:text-slate-500">No services found.</div>}
         </div>
       </div>
     </div>
@@ -222,9 +201,7 @@ export const Services: React.FC = () => {
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700 transform transition-all scale-100">
           {/* Modal Header */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/30">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-              {modalMode === 'add' ? 'Add New Service' : 'Edit Service'}
-            </h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{modalMode === "add" ? "Add New Service" : "Edit Service"}</h3>
             <button
               onClick={closeModal}
               className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
@@ -240,25 +217,23 @@ export const Services: React.FC = () => {
               const formData = new FormData(e.currentTarget);
               handleSaveService({
                 id: currentService?.id,
-                name: formData.get('name') as string,
-                category: formData.get('category') as string,
-                basePrice: formData.get('basePrice') as string,
-                priceType: formData.get('priceType') as string,
-                status: formData.get('status') as 'Active' | 'Draft' | 'Archived',
-                icon: formData.get('icon') as string || 'material-symbols:handyman-outline-rounded',
+                name: formData.get("name") as string,
+                category: formData.get("category") as string,
+                basePrice: formData.get("basePrice") as string,
+                priceType: formData.get("priceType") as string,
+                status: formData.get("status") as "Active" | "Draft" | "Archived",
+                icon: (formData.get("icon") as string) || "material-symbols:handyman-outline-rounded",
               });
             }}
             className="p-6 space-y-4"
           >
             {/* Name Field */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Service Name
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Service Name</label>
               <input
                 name="name"
                 required
-                defaultValue={currentService?.name || ''}
+                defaultValue={currentService?.name || ""}
                 placeholder="e.g., Deep Home Cleaning"
                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all dark:text-slate-100"
                 type="text"
@@ -268,12 +243,10 @@ export const Services: React.FC = () => {
             {/* Grid for Category and Icon */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Category
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Category</label>
                 <select
                   name="category"
-                  defaultValue={currentService?.category || 'Cleaning'}
+                  defaultValue={currentService?.category || "Cleaning"}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer dark:text-slate-100"
                 >
                   <option value="Cleaning">Cleaning</option>
@@ -282,12 +255,10 @@ export const Services: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Icon
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Icon</label>
                 <select
                   name="icon"
-                  defaultValue={currentService?.icon || 'material-symbols:cleaning-services-outline'}
+                  defaultValue={currentService?.icon || "material-symbols:cleaning-services-outline"}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer dark:text-slate-100"
                 >
                   <option value="material-symbols:cleaning-services-outline">Cleaning Broom</option>
@@ -302,25 +273,21 @@ export const Services: React.FC = () => {
             {/* Grid for Base Price and Price Type */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Base Price
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Base Price</label>
                 <input
                   name="basePrice"
                   required
-                  defaultValue={currentService?.basePrice || ''}
+                  defaultValue={currentService?.basePrice || ""}
                   placeholder="e.g., 500,000 ₫"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all dark:text-slate-100"
                   type="text"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Price Type
-                </label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Price Type</label>
                 <select
                   name="priceType"
-                  defaultValue={currentService?.priceType || 'Fixed'}
+                  defaultValue={currentService?.priceType || "Fixed"}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer dark:text-slate-100"
                 >
                   <option value="Fixed">Fixed</option>
@@ -331,12 +298,10 @@ export const Services: React.FC = () => {
 
             {/* Status */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Status
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Status</label>
               <select
                 name="status"
-                defaultValue={currentService?.status || 'Active'}
+                defaultValue={currentService?.status || "Active"}
                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer dark:text-slate-100"
               >
                 <option value="Active">Active</option>
@@ -354,10 +319,7 @@ export const Services: React.FC = () => {
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm"
-              >
+              <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm">
                 Save Changes
               </button>
             </div>
@@ -380,12 +342,7 @@ export const Services: React.FC = () => {
 
           {/* Pagination Component */}
           <div className="p-4 bg-white dark:bg-slate-800">
-            <Pagination
-              currentPage={currentPage}
-              totalItems={services.length}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-            />
+            <Pagination currentPage={currentPage} totalItems={services.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
           </div>
         </div>
       </main>

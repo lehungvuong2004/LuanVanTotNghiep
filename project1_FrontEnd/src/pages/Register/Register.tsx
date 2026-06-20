@@ -44,7 +44,7 @@ export const Register = () => {
       <div className="max-w-lg w-full mx-auto">
         <h2 className="text-3xl font-bold text-[#066d72] dark:text-teal-400 mb-2">{t("Tạo tài khoản")}</h2>
         <p className="text-base text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">{t("Đăng ký để đặt lịch dịch vụ, đăng tin tuyển dụng và quản lý công việc dễ dàng hơn.")}</p>
-        
+
         {errorMessage && (
           <div className="mb-5 p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">
             <Icon icon="mdi:alert-circle-outline" className="w-5 h-5 flex-shrink-0" />

@@ -72,7 +72,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Dịch vụ rất chuyên nghiệp. Chị giúp việc tên Lan dọn dẹp rất kỹ các ngóc ngách, thái độ lại vô cùng nhã nhặn. Tôi sẽ tiếp tục sử dụng Gia Đình Việt cho căn hộ của mình.",
       workerName: "Giúp việc: Chị Lan",
-      date: "20/10/2023"
+      date: "20/10/2023",
     },
     {
       id: 2,
@@ -83,7 +83,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Anh thợ sửa điện đến rất đúng giờ và xử lý sự cố rò rỉ điện nhanh chóng. Chi phí minh bạch, không phát sinh thêm. Rất yên tâm khi giao nhà cho đội ngũ Gia Đình Việt.",
       workerName: "Kỹ thuật: Anh Hùng",
-      date: "15/11/2023"
+      date: "15/11/2023",
     },
     {
       id: 3,
@@ -94,7 +94,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Món ăn rất hợp khẩu vị gia đình, chị giúp việc rất sạch sẽ và ngăn nắp. Bữa tối của gia đình tôi trở nên ấm cúng hơn rất nhiều nhờ sự hỗ trợ của các bạn.",
       workerName: "Đầu bếp: Chị Nga",
-      date: "02/12/2023"
+      date: "02/12/2023",
     },
     {
       id: 4,
@@ -105,7 +105,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Nhân viên nhiệt tình, tư vấn rõ ràng và làm việc rất cẩn thận. Máy lạnh nhà tôi sau khi vệ sinh hoạt động tốt và không còn tiếng ồn.",
       workerName: "Kỹ thuật: Anh Tuấn",
-      date: "10/12/2023"
+      date: "10/12/2023",
     },
     {
       id: 5,
@@ -116,8 +116,8 @@ export const useHome = () => {
       rating: 5,
       comment: "Khu vườn nhà tôi được cắt tỉa rất gọn gàng và đẹp mắt. Nhân viên có kiến thức tốt về các loại cây cảnh và đã hướng dẫn tôi cách chăm sóc rất tận tình.",
       workerName: "Thợ vườn: Chú Bình",
-      date: "05/01/2024"
-    }
+      date: "05/01/2024",
+    },
   ];
 
   const rafRef = useRef<number | null>(null);

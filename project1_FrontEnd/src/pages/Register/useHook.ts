@@ -85,7 +85,7 @@ export const useRegister = () => {
       try {
         const response = await googleLoginApi(tokenResponse.access_token, "register");
         console.log("Google Register response:", response);
-        
+
         // Redirect to login page
         navigate("/dang-nhap");
       } catch (error: any) {

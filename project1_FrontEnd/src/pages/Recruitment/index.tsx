@@ -1,12 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import {
-  useRecruitment,
-  CATEGORIES,
-  SALARY_OPTS,
-  URGENCY_OPTS,
-  CATEGORY_META,
-} from "./useHook";
+import { useRecruitment, CATEGORIES, SALARY_OPTS, URGENCY_OPTS, CATEGORY_META } from "./useHook";
 import type { HeroProps, SidebarProps, JobListProps, JobCardProps } from "./useHook";
 import { Pagination } from "../../components/Pagination";
 
@@ -25,7 +19,8 @@ const HeroSection = ({ t }: HeroProps) => (
         {t("Cơ hội nghề nghiệp")}
       </span>
       <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-4 tracking-tight">
-        {t("Gia Nhập Đội Ngũ")}<br />
+        {t("Gia Nhập Đội Ngũ")}
+        <br />
         <span className="text-emerald-200">{t("Gia Đình Việt")}</span>
       </h1>
       <p className="text-base text-teal-100/90 max-w-lg leading-relaxed">
@@ -35,9 +30,9 @@ const HeroSection = ({ t }: HeroProps) => (
 
     <div className="relative z-10 mt-10 flex flex-wrap gap-6">
       {[
-        { icon: "material-symbols:work-outline",   label: "Việc mới mỗi ngày",  value: "50+" },
-        { icon: "material-symbols:group-outline",  label: "Ứng viên đã khớp",   value: "2,400+" },
-        { icon: "material-symbols:thumb-up-outline", label: "Tỷ lệ hài lòng",  value: "97%" },
+        { icon: "material-symbols:work-outline", label: "Việc mới mỗi ngày", value: "50+" },
+        { icon: "material-symbols:group-outline", label: "Ứng viên đã khớp", value: "2,400+" },
+        { icon: "material-symbols:thumb-up-outline", label: "Tỷ lệ hài lòng", value: "97%" },
       ].map((s) => (
         <div key={s.label} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/15">
           <Icon icon={s.icon} className="text-2xl text-emerald-250 shrink-0" />
@@ -54,20 +49,9 @@ const HeroSection = ({ t }: HeroProps) => (
 /* ─────────────────────────────────────────────────────────────
    SIDEBAR FILTER
 ───────────────────────────────────────────────────────────── */
-const SidebarFilter = ({
-  t,
-  selectedCategories,
-  setSelectedCategories,
-  selectedSalary,
-  setSelectedSalary,
-  selectedUrgency,
-  setSelectedUrgency,
-  clearFilters,
-}: SidebarProps) => {
+const SidebarFilter = ({ t, selectedCategories, setSelectedCategories, selectedSalary, setSelectedSalary, selectedUrgency, setSelectedUrgency, clearFilters }: SidebarProps) => {
   const handleCategoryChange = (cat: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
+    setSelectedCategories((prev) => (prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]));
   };
 
   return (
@@ -78,10 +62,7 @@ const SidebarFilter = ({
           <Icon icon="material-symbols:tune" className="text-lg text-[#026E5F]" />
           {t("Bộ lọc")}
         </span>
-        <button
-          onClick={clearFilters}
-          className="text-xs font-semibold text-[#026E5F] dark:text-teal-400 hover:underline cursor-pointer"
-        >
+        <button onClick={clearFilters} className="text-xs font-semibold text-[#026E5F] dark:text-teal-400 hover:underline cursor-pointer">
           {t("Xóa tất cả")}
         </button>
       </div>
@@ -97,11 +78,11 @@ const SidebarFilter = ({
               onChange={() => handleCategoryChange(cat)}
               className="rounded border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
             />
-            <span className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-450 transition-colors font-medium ${
-              selectedCategories.includes(cat)
-                ? "text-[#026E5F] dark:text-teal-400 font-bold"
-                : "text-slate-650 dark:text-slate-300"
-            }`}>
+            <span
+              className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-450 transition-colors font-medium ${
+                selectedCategories.includes(cat) ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-650 dark:text-slate-300"
+              }`}
+            >
               {t(cat)}
             </span>
           </label>
@@ -120,11 +101,11 @@ const SidebarFilter = ({
               onChange={() => setSelectedSalary(opt.value)}
               className="rounded-full border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
             />
-            <span className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-455 transition-colors font-medium ${
-              selectedSalary === opt.value
-                ? "text-[#026E5F] dark:text-teal-400 font-bold"
-                : "text-slate-655 dark:text-slate-300"
-            }`}>
+            <span
+              className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-455 transition-colors font-medium ${
+                selectedSalary === opt.value ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-655 dark:text-slate-300"
+              }`}
+            >
               {t(opt.label)}
             </span>
           </label>
@@ -164,7 +145,9 @@ const JobCard = ({ t, job }: JobCardProps) => {
       <div className="flex flex-col flex-grow p-6">
         {/* badges */}
         <div className="flex items-center justify-between gap-2 mb-4">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 ${meta.color}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 ${meta.color}`}
+          >
             <Icon icon={meta.icon} className="text-sm" />
             {t(job.category)}
           </span>
@@ -179,9 +162,7 @@ const JobCard = ({ t, job }: JobCardProps) => {
         <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-snug mb-2 line-clamp-2 group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors">
           {job.title}
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3 mb-5 flex-grow">
-          {job.description}
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3 mb-5 flex-grow">{job.description}</p>
 
         {/* meta info */}
         <div className="grid grid-cols-2 gap-x-3 gap-y-2 pt-4 border-t border-slate-100 dark:border-slate-700/50 mb-5">
@@ -211,18 +192,7 @@ const JobCard = ({ t, job }: JobCardProps) => {
 /* ─────────────────────────────────────────────────────────────
    JOB LIST PANEL  (toolbar + grid + pagination + empty state)
 ───────────────────────────────────────────────────────────── */
-const JobListPanel = ({
-  t,
-  jobs,
-  currentPage,
-  totalItems,
-  itemsPerPage,
-  onPageChange,
-  searchQuery,
-  setSearchQuery,
-  sortBy,
-  setSortBy,
-}: JobListProps) => {
+const JobListPanel = ({ t, jobs, currentPage, totalItems, itemsPerPage, onPageChange, searchQuery, setSearchQuery, sortBy, setSortBy }: JobListProps) => {
   return (
     <div className="flex flex-col gap-5">
       {/* toolbar */}
@@ -269,14 +239,7 @@ const JobListPanel = ({
       )}
 
       {/* pagination */}
-      {totalItems > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={onPageChange}
-        />
-      )}
+      {totalItems > 0 && <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={onPageChange} />}
     </div>
   );
 };

@@ -18,7 +18,7 @@ export const requiredServicesOptions = [
 
 export const usePostAJobHook = () => {
   const { t } = useTranslation();
-
+  
   const validationSchema = Yup.object({
     jobTitle: Yup.string().required(t("Tiêu đề bài tuyển là bắt buộc")),
     serviceCategory: Yup.string().required(t("Danh mục dịch vụ là bắt buộc")),

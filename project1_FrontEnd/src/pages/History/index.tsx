@@ -7,18 +7,7 @@ import { Toast } from "../../components/Toast";
 
 export const HistoryPage = () => {
   const { t } = useTranslation();
-  const {
-    statusFilter,
-    setStatusFilter,
-    currentPage,
-    setCurrentPage,
-    paginatedBookings,
-    totalItems,
-    itemsPerPage,
-    handleCancelBooking,
-    toast,
-    setToast,
-  } = useHistory();
+  const { statusFilter, setStatusFilter, currentPage, setCurrentPage, paginatedBookings, totalItems, itemsPerPage, handleCancelBooking, toast, setToast } = useHistory();
 
   const tabs: { label: string; value: StatusFilter }[] = [
     { label: "Tất cả", value: "all" },
@@ -95,12 +84,8 @@ export const HistoryPage = () => {
 
   const renderHeader = () => (
     <div className="text-left mb-2">
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">
-        {t("Lịch sử đặt lịch")}
-      </h1>
-      <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
-        {t("Quản lý và xem lại các dịch vụ bạn đã sử dụng.")}
-      </p>
+      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">{t("Lịch sử đặt lịch")}</h1>
+      <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">{t("Quản lý và xem lại các dịch vụ bạn đã sử dụng.")}</p>
     </div>
   );
 
@@ -113,9 +98,7 @@ export const HistoryPage = () => {
             key={tab.value}
             onClick={() => setStatusFilter(tab.value)}
             className={`py-3.5 px-6 text-sm font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer ${
-              isActive
-                ? "border-[#026E5F] text-[#026E5F] dark:border-teal-400 dark:text-teal-400"
-                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              isActive ? "border-[#026E5F] text-[#026E5F] dark:border-teal-400 dark:text-teal-400" : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             }`}
           >
             {t(tab.label)}
@@ -143,15 +126,10 @@ export const HistoryPage = () => {
     const config = getServiceColorConfig(booking.serviceName);
 
     return (
-      <tr
-        key={booking.id}
-        className="group hover:-translate-y-0.5 transition-all duration-300"
-      >
+      <tr key={booking.id} className="group hover:-translate-y-0.5 transition-all duration-300">
         {/* Booking ID */}
         <td className="py-5 px-6 bg-white dark:bg-slate-800 border-t border-b border-l border-slate-100 dark:border-slate-700/35 rounded-l-2xl group-hover:bg-slate-50/40 dark:group-hover:bg-slate-750/50 shadow-xs">
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            {booking.id}
-          </span>
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{booking.id}</span>
         </td>
 
         {/* Service Name */}
@@ -160,43 +138,29 @@ export const HistoryPage = () => {
             <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${config.bg} ${config.text} border ${config.border}`}>
               <Icon icon={getServiceIcon(booking.serviceName)} className="text-base" />
             </div>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-250">
-              {t(booking.serviceName)}
-            </span>
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-250">{t(booking.serviceName)}</span>
           </div>
         </td>
 
         {/* Employee */}
         <td className="py-5 px-4 bg-white dark:bg-slate-800 border-t border-b border-slate-100 dark:border-slate-700/35 group-hover:bg-slate-50/40 dark:group-hover:bg-slate-750/50 shadow-xs">
           <div className="flex items-center gap-3">
-            <img
-              src={booking.helper.avatar}
-              alt={booking.helper.name}
-              className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-            />
-            <span className="text-sm font-semibold text-slate-750 dark:text-slate-300">
-              {booking.helper.name}
-            </span>
+            <img src={booking.helper.avatar} alt={booking.helper.name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
+            <span className="text-sm font-semibold text-slate-750 dark:text-slate-300">{booking.helper.name}</span>
           </div>
         </td>
 
         {/* Date / Time */}
         <td className="py-5 px-4 bg-white dark:bg-slate-800 border-t border-b border-slate-100 dark:border-slate-700/35 group-hover:bg-slate-50/40 dark:group-hover:bg-slate-750/50 shadow-xs">
           <div className="flex flex-col text-sm text-left">
-            <span className="font-semibold text-slate-750 dark:text-slate-300">
-              {booking.date}
-            </span>
-            <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-              {booking.time}
-            </span>
+            <span className="font-semibold text-slate-750 dark:text-slate-300">{booking.date}</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{booking.time}</span>
           </div>
         </td>
 
         {/* Price */}
         <td className="py-5 px-4 bg-white dark:bg-slate-800 border-t border-b border-slate-100 dark:border-slate-700/35 group-hover:bg-slate-50/40 dark:group-hover:bg-slate-750/50 shadow-xs">
-          <span className="text-sm font-extrabold text-[#026E5F] dark:text-teal-400">
-            {booking.totalPrice}
-          </span>
+          <span className="text-sm font-extrabold text-[#026E5F] dark:text-teal-400">{booking.totalPrice}</span>
         </td>
 
         {/* Status */}
@@ -251,9 +215,7 @@ export const HistoryPage = () => {
     <div className="w-full overflow-x-auto pb-2">
       <table className="w-full border-separate border-spacing-y-3.5 min-w-[800px] text-left">
         {renderTableHead()}
-        <tbody>
-          {paginatedBookings.map((booking) => renderTableRow(booking))}
-        </tbody>
+        <tbody>{paginatedBookings.map((booking) => renderTableRow(booking))}</tbody>
       </table>
     </div>
   );
@@ -263,12 +225,8 @@ export const HistoryPage = () => {
       <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-900/40 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-4 border border-slate-100 dark:border-slate-700/30">
         <Icon icon="material-symbols:calendar-today-outline-rounded" className="text-3xl" />
       </div>
-      <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 mb-1">
-        {t("Không tìm thấy lịch sử đặt lịch nào")}
-      </h3>
-      <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs leading-normal">
-        {t("Vui lòng thử lại với các tiêu chí hoặc bộ lọc trạng thái khác.")}
-      </p>
+      <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 mb-1">{t("Không tìm thấy lịch sử đặt lịch nào")}</h3>
+      <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs leading-normal">{t("Vui lòng thử lại với các tiêu chí hoặc bộ lọc trạng thái khác.")}</p>
     </div>
   );
 
@@ -285,12 +243,7 @@ export const HistoryPage = () => {
 
             {/* Pagination Controls */}
             <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 shadow-[0_8px_30px_rgb(0,0,0,0.01)] px-6 py-4">
-              <Pagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-              />
+              <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
             </div>
           </div>
         ) : (
@@ -298,14 +251,7 @@ export const HistoryPage = () => {
         )}
       </div>
 
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={t(toast.title)}
-          message={t(toast.message)}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast type={toast.type} title={t(toast.title)} message={t(toast.message)} onClose={() => setToast(null)} />}
     </div>
   );
 };
