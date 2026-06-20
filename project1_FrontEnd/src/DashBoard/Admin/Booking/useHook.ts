@@ -354,7 +354,6 @@ export const useBooking = () => {
 
   const handleUpdateBooking = (updated: BookingItem) => {
     setBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
-    // If selected booking is open, update details too
     if (selectedBooking && selectedBooking.id === updated.id) {
       setSelectedBooking(updated);
     }
@@ -453,9 +452,7 @@ export const useBooking = () => {
     const pending = bookings.filter((b) => b.status === "pending").length;
     const confirmed = bookings.filter((b) => b.status === "confirmed").length;
     const cancelled = bookings.filter((b) => b.status === "cancelled").length;
-
     const totalRevenue = bookings.filter((b) => b.status === "completed" || b.status === "confirmed").reduce((sum, b) => sum + b.totalPrice, 0);
-
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return {
@@ -474,10 +471,7 @@ export const useBooking = () => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredBookings.slice(start, start + itemsPerPage);
   }, [filteredBookings, currentPage, itemsPerPage]);
-
   const rem = getRootFontSizePx();
-
-  // ECharts 1: Status Distribution Pie Chart
   const pieOption = useMemo(() => {
     const data = [
       { name: "Completed", value: bookings.filter((b) => b.status === "completed").length },
@@ -531,12 +525,8 @@ export const useBooking = () => {
     };
   }, [bookings, rem]);
 
-  // ECharts 2: Booking Trends (Grouped by Date)
   const lineOption = useMemo(() => {
-    // Get unique booking dates in sorted order
     const dates = Array.from(new Set(bookings.map((b) => b.bookingDate))).sort();
-
-    // Calculate counts and revenue per date
     const counts = dates.map((date) => bookings.filter((b) => b.bookingDate === date).length);
     const revenue = dates.map((date) => bookings.filter((b) => b.bookingDate === date && (b.status === "completed" || b.status === "confirmed")).reduce((sum, b) => sum + b.totalPrice, 0));
 
