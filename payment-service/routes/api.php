@@ -11,19 +11,8 @@ Route::prefix('payments')->group(function () {
     // ============================================================
     Route::middleware('jwt.auth')->group(function () {
 
-        // ---- PAYMENTS ----
-        // Customer
-        Route::post('/',                [PaymentController::class, 'store']);
-        Route::get('/{id}',             [PaymentController::class, 'show']);
-        Route::post('/{id}/callback',   [PaymentController::class, 'callback']); // Simulate callback
-
-        // ---- REFUNDS ----
-        // Customer
-        Route::post('/refunds',         [RefundController::class, 'store']);
-        Route::get('/{paymentId}/refunds', [RefundController::class, 'getRefundsByPayment']);
-
         // ============================================================
-        //  ADMIN / OPERATOR — Management
+        //  ADMIN / OPERATOR — Management (Put at top to avoid conflicts)
         // ============================================================
         Route::prefix('admin')->group(function () {
             
@@ -35,5 +24,16 @@ Route::prefix('payments')->group(function () {
             Route::get('/refunds',               [RefundController::class, 'adminIndex']);
             Route::patch('/refunds/{id}/process',[RefundController::class, 'process']);
         });
+
+        // ---- PAYMENTS ----
+        // Customer
+        Route::post('/',                [PaymentController::class, 'store']);
+        Route::get('/{id}',             [PaymentController::class, 'show']);
+        Route::post('/{id}/callback',   [PaymentController::class, 'callback']); // Simulate callback
+
+        // ---- REFUNDS ----
+        // Customer
+        Route::post('/refunds',         [RefundController::class, 'store']);
+        Route::get('/{paymentId}/refunds', [RefundController::class, 'getRefundsByPayment']);
     });
 });

@@ -7,8 +7,8 @@ const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: 'material-symbols:grid-view-outline-rounded' },
   { name: 'Users', path: '/admin/users', icon: 'material-symbols:group-outline-rounded' },
   { name: 'Helpers', path: '/admin/helpers', icon: 'material-symbols:engineering-outline-rounded' },
-  { name: 'Service Categories', path: '/admin/categories', icon: 'material-symbols:category-outline-rounded' },
-  { name: 'Services', path: '/admin/services', icon: 'material-symbols:handyman-outline-rounded' },
+  { name: 'Service Categories', path: '/admin/categories', icon: 'boxicons:categories' },
+  { name: 'Services', path: '/admin/services', icon: 'grommet-icons:services' },
   { name: 'Bookings', path: '/admin/bookings', icon: 'material-symbols:calendar-today-outline-rounded' },
   { name: 'Payments', path: '/admin/payments', icon: 'material-symbols:payments-outline-rounded' },
   { name: 'Refunds', path: '/admin/refunds', icon: 'material-symbols:undo-rounded' },
@@ -42,16 +42,16 @@ export const NavBarAdmin: React.FC<NavBarAdminProps> = ({ isCollapsed }) => {
   const email = user?.email || 'admin@gmail.com';
 
   return (
-    <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col py-6">
+    <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col">
       {/* Header / Logo */}
       <div className={`px-4 mb-8 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs shrink-0">
-            <Icon icon="material-symbols:work-rounded" className="text-xl" />
+          <div className="w-10 h-10 rounded-xl bg-cyan-900 flex items-center justify-center shadow-xs shrink-0">
+            <Icon icon="icon-park-outline:family" className="text-xl text-white " />
           </div>
           {!isCollapsed && (
             <div>
-              <h1 className="font-bold text-base text-blue-600 dark:text-blue-400 leading-tight truncate max-w-31.25">Gia Đình Việt</h1>
+              <h1 className="font-bold text-base text-cyan-900 dark:text-blue-400 leading-tight truncate max-w-31.25">Gia Đình Việt</h1>
               <p className="text-xxs text-slate-500 dark:text-slate-400 truncate">Management Portal</p>
             </div>
           )}

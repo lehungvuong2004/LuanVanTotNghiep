@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\BannerController;
 
 // ============================================================
 //  PUBLIC — Không cần token
@@ -17,6 +18,10 @@ Route::prefix('auth')->group(function () {
   Route::post('reset-password', [AuthController::class, 'resetPassword']);
   Route::post('refresh',        [AuthController::class, 'refreshToken']);
 });
+
+// Lấy danh sách banner active (public)
+Route::get('banners', [BannerController::class, 'getActiveBanners']);
+
 Route::middleware('auth:api')->group(function () {
   Route::post('auth/logout',    [AuthController::class, 'logout']);
   Route::get('profile',         [AuthController::class, 'getProfile']);
@@ -58,5 +63,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('notifications',            [NotificationController::class, 'adminIndex']);
     Route::post('notifications/send',      [NotificationController::class, 'send']);
     Route::post('notifications/broadcast', [NotificationController::class, 'broadcast']);
+
+    // Banners — Admin CRUD & Toggle Status
+    Route::get('banners',                  [BannerController::class, 'adminIndex']);
+    Route::post('banners',                 [BannerController::class, 'store']);
+    Route::get('banners/{id}',             [BannerController::class, 'show']);
+    Route::put('banners/{id}',             [BannerController::class, 'update']);
+    Route::patch('banners/{id}/status',     [BannerController::class, 'toggleStatus']);
+    Route::delete('banners/{id}',          [BannerController::class, 'destroy']);
   });
 });

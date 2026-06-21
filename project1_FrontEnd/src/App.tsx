@@ -16,6 +16,8 @@ import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
 import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 import { Booking } from "./DashBoard/Admin/Booking";
+import { Banners } from "./DashBoard/Admin/Banner";
+import { PaymentsRefunds } from "./DashBoard/Admin/PayMent & Refund";
 
 function App() {
   return (
@@ -40,6 +42,9 @@ function App() {
           <Route path="services" element={<Services />} />
           <Route path="schedules" element={<Schedules />} />
           <Route path="bookings" element={<Booking />} />
+          <Route path="banners" element={<Banners />} />
+          <Route path="payments" element={<PaymentsRefunds defaultTab="payments" />} />
+          <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
         </Route>
         <Route path="*" element={<Errors404 />} />
       </Routes>
