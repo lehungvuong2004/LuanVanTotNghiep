@@ -285,7 +285,7 @@ export const Header = () => {
                         {user?.full_name || "Nguyễn Văn A"}
                       </span>
                       <span className="text-xs text-gray-500 mt-0.5">
-                        {user?.role_id === 1 ? t("Quản trị viên") : user?.role_id === 2 ? t("Người giúp việc") : t("Khách hàng")}
+                        {user?.role_id === 1 ? t("Quản trị viên") : user?.role_id === 2 ? t("Nhân viên vận hành") : user?.role_id === 3 ? t("Người giúp việc") : t("Khách hàng")}
                       </span>
                     </div>
                   </div>
@@ -441,7 +441,7 @@ export const Header = () => {
                           {user?.full_name || "Nguyễn Văn A"}
                         </span>
                         <span className="text-xs text-gray-500 mt-0.5">
-                          {user?.role_id === 1 ? t("Quản trị viên") : user?.role_id === 2 ? t("Người giúp việc") : t("Khách hàng")}
+                          {user?.role_id === 1 ? t("Quản trị viên") : user?.role_id === 2 ? t("Nhân viên vận hành") : user?.role_id === 3 ? t("Người giúp việc") : t("Khách hàng")}
                         </span>
                       </div>
                     </div>
