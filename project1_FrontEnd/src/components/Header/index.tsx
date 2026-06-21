@@ -291,6 +291,15 @@ export const Header = () => {
                   </div>
  
                   <div className="flex flex-col gap-1 py-3">
+                    {user && user.role_id !== 4 && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                      >
+                        <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />
+                        <span>{t("Bảng điều khiển")}</span>
+                      </Link>
+                    )}
                     <Link
                       to="/ho-so"
                       className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
@@ -447,6 +456,15 @@ export const Header = () => {
                     </div>
 
                     <div className="flex flex-col gap-1 py-3">
+                      {user && user.role_id !== 4 && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                        >
+                          <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />
+                          <span>{t("Bảng điều khiển")}</span>
+                        </Link>
+                      )}
                       <Link
                         to="/ho-so"
                         className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"

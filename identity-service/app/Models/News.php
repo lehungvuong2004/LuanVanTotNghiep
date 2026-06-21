@@ -6,18 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class News extends Model
 {
-    protected $fillable = [
-        'title',
-        'slug',
-        'thumbnail',
-        'summary',
-        'content',
-        'status',
-        'created_by',
-    ];
+  protected $fillable = [
+    'title',
+    'slug',
+    'thumbnail',
+    'summary',
+    'content',
+    'status',
+    'created_by',
+  ];
 
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
+  public function creator()
+  {
+    return $this->belongsTo(User::class, 'created_by');
+  }
 }
