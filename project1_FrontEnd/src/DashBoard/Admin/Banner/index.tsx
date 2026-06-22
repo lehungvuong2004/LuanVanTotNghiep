@@ -35,15 +35,19 @@ export const Banners = () => {
   // 2. Main banner system header
   const renderHeader = () => {
     return (
-        <div className="flex flex-col md:flex-row md:items-center justify-end">
-          <button
-            onClick={openAddModal}
-            className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-3 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-            Tạo Banner Mới
-          </button>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Banner Quảng Cáo</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Cấu hình các slide ảnh trượt và banner chiến dịch khuyến mãi hiển thị tại trang chủ.</p>
         </div>
+        <button
+          onClick={openAddModal}
+          className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+        >
+          <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+          Tạo Banner Mới
+        </button>
+      </div>
     );
   };
 
@@ -54,33 +58,33 @@ export const Banners = () => {
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl shrink-0">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4 hover:shadow-xs transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl shrink-0">
             <Icon icon="material-symbols:ad-units-outline" />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tổng Banner</p>
-            <p className="text-2xl font-bold mt-0.5">{totalItems}</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng Banner</p>
+            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shrink-0">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4 hover:shadow-xs transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shrink-0">
             <Icon icon="material-symbols:visibility-outline-rounded" />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Đang Hiển Thị</p>
-            <p className="text-2xl font-bold mt-0.5">{activeCount}</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đang Hiển Thị</p>
+            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{activeCount}</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl shrink-0">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4 hover:shadow-xs transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl shrink-0">
             <Icon icon="material-symbols:visibility-off-outline-rounded" />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Đang Ẩn</p>
-            <p className="text-2xl font-bold mt-0.5">{inactiveCount}</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đang Ẩn</p>
+            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{inactiveCount}</p>
           </div>
         </div>
       </div>
@@ -91,7 +95,7 @@ export const Banners = () => {
   const renderFilters = () => {
     return (
       <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 max-w-md w-full">
           <Icon icon="material-symbols:search-rounded" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl" />
           <input
             type="text"
@@ -102,10 +106,11 @@ export const Banners = () => {
           />
         </div>
 
-        <div className="flex items-center gap-3 self-end md:self-auto">
-          <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái:</label>
+        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái:</label>
           <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700">
             <button
+              type="button"
               onClick={() => setStatusFilter("all")}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === "all" ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
@@ -114,6 +119,7 @@ export const Banners = () => {
               Tất Cả
             </button>
             <button
+              type="button"
               onClick={() => setStatusFilter("active")}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === "active"
@@ -124,6 +130,7 @@ export const Banners = () => {
               Hoạt Động
             </button>
             <button
+              type="button"
               onClick={() => setStatusFilter("inactive")}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === "inactive"
@@ -144,7 +151,7 @@ export const Banners = () => {
     if (loading && banners.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-cyan-900 border-t-transparent rounded-full animate-spin"></div>
           <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Đang tải dữ liệu từ máy chủ...</p>
         </div>
       );
@@ -175,100 +182,88 @@ export const Banners = () => {
           {banners.map((banner) => (
             <div
               key={banner.id}
-              className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-700/50 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col"
+              className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-700/50 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col"
             >
               {/* Image with status badge */}
               <div className="relative aspect-video bg-slate-100 dark:bg-slate-900 overflow-hidden shrink-0">
                 <img
                   src={banner.image}
                   alt={banner.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "https://placehold.co/800x450/e2e8f0/64748b?text=Lỗi+Tải+Ảnh";
                   }}
                 />
 
                 {/* Top overlay elements */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                <div className="absolute top-3 left-3">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-xs flex items-center gap-1 ${
+                    className={`px-3 py-1 rounded-full text-[10px] font-bold shadow-sm backdrop-blur-md flex items-center gap-1.5 ${
                       banner.status === "active" ? "bg-emerald-500/90 text-white" : "bg-amber-500/95 text-white"
                     }`}
                   >
-                    <Icon icon={banner.status === "active" ? "material-symbols:check-circle" : "material-symbols:warning"} />
+                    <span className={`w-1.5 h-1.5 rounded-full bg-white ${banner.status === "active" ? "animate-pulse" : ""}`}></span>
                     {banner.status === "active" ? "Hoạt Động" : "Đang Ẩn"}
                   </span>
-
-                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <button
-                      onClick={() => openEditModal(banner)}
-                      className="w-8 h-8 rounded-lg bg-white/90 text-slate-700 hover:bg-blue-600 hover:text-white flex items-center justify-center shadow-xs transition-colors cursor-pointer"
-                      title="Chỉnh sửa"
-                    >
-                      <Icon icon="material-symbols:edit-outline" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteBanner(banner.id)}
-                      className="w-8 h-8 rounded-lg bg-white/90 text-red-650 hover:bg-red-600 hover:text-white flex items-center justify-center shadow-xs transition-colors cursor-pointer"
-                      title="Xóa"
-                    >
-                      <Icon icon="material-symbols:delete-outline" />
-                    </button>
-                  </div>
                 </div>
               </div>
 
               {/* Banner Details Body */}
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                <div>
-                  <h3 className="font-bold text-lg line-clamp-1 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{banner.title}</h3>
+                <div className="space-y-2">
+                  <h3 className="font-bold text-base text-slate-850 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-cyan-900 dark:group-hover:text-blue-400 transition-colors">{banner.title}</h3>
 
-                  <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
                     {banner.link ? (
                       <div className="flex items-center gap-1.5">
-                        <Icon icon="material-symbols:link" className="text-base text-slate-400" />
-                        <a href={banner.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline line-clamp-1 break-all">
+                        <Icon icon="material-symbols:link-rounded" className="text-base text-slate-400 shrink-0" />
+                        <a href={banner.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline truncate flex-1">
                           {banner.link}
                         </a>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <Icon icon="material-symbols:link-off" className="text-base" />
-                        <span>Không có liên kết</span>
+                      <div className="flex items-center gap-1.5 text-slate-400/80">
+                        <Icon icon="material-symbols:link-off-rounded" className="text-base shrink-0" />
+                        <span className="italic">Không có liên kết</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-1.5">
-                      <Icon icon="material-symbols:person-outline" className="text-base text-slate-400" />
-                      <span>Tạo bởi: {banner.creator?.full_name || "Admin"}</span>
+                      <Icon icon="material-symbols:person-outline-rounded" className="text-base text-slate-400 shrink-0" />
+                      <span>Người tạo: <span className="font-medium text-slate-700 dark:text-slate-300">{banner.creator?.full_name || "Admin"}</span></span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions footer of card */}
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
                   <button
+                    type="button"
                     onClick={() => handleToggleStatus(banner)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      banner.status === "active" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100" : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100"
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      banner.status === "active" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70" : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
                     }`}
                   >
-                    <Icon icon={banner.status === "active" ? "material-symbols:visibility-off" : "material-symbols:visibility"} className="text-sm" />
-                    {banner.status === "active" ? "Ẩn Banner" : "Hiện Banner"}
+                    <Icon icon={banner.status === "active" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
+                    <span>{banner.status === "active" ? "Ẩn Banner" : "Hiện Banner"}</span>
                   </button>
 
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-1">
                     <button
+                      type="button"
                       onClick={() => openEditModal(banner)}
-                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                      title="Chỉnh sửa"
                     >
-                      Sửa
+                      <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDeleteBanner(banner.id)}
-                      className="px-2.5 py-1.5 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-650 hover:bg-red-600 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                      title="Xóa"
                     >
-                      Xóa
+                      <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
                     </button>
                   </div>
                 </div>
@@ -286,6 +281,7 @@ export const Banners = () => {
 
             <div className="flex gap-1">
               <button
+                type="button"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1 || loading}
                 className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
@@ -298,11 +294,12 @@ export const Banners = () => {
                 return (
                   <button
                     key={pageNum}
+                    type="button"
                     onClick={() => setCurrentPage(pageNum)}
                     disabled={loading}
                     className={`w-10 h-10 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                       currentPage === pageNum
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                        ? "bg-cyan-900 text-white shadow-xs"
                         : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                     }`}
                   >
@@ -312,6 +309,7 @@ export const Banners = () => {
               })}
 
               <button
+                type="button"
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages || loading}
                 className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
@@ -331,10 +329,10 @@ export const Banners = () => {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={closeModal}></div>
+        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={closeModal}></div>
 
         {/* Modal Content */}
-        <div className="relative bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all duration-300 scale-100 flex flex-col max-h-[90vh]">
+        <div className="relative bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all duration-300 scale-100 flex flex-col max-h-[90vh]">
           {/* Modal Header */}
           <div className="p-5 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
             <div className="flex items-center gap-2.5">
@@ -419,32 +417,41 @@ export const Banners = () => {
             )}
 
             {/* Status Selector */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng Thái Mặc Định</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold select-none">
-                  <input
-                    type="radio"
-                    name="status"
-                    value="active"
-                    checked={formik.values.status === "active"}
-                    onChange={formik.handleChange}
-                    className="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <span className="text-emerald-600 dark:text-emerald-400">Hiển thị (Active)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold select-none">
-                  <input
-                    type="radio"
-                    name="status"
-                    value="inactive"
-                    checked={formik.values.status === "inactive"}
-                    onChange={formik.handleChange}
-                    className="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <span className="text-amber-600 dark:text-amber-400">Ẩn đi (Inactive)</span>
-                </label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div
+                  onClick={() => formik.setFieldValue("status", "active")}
+                  className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 select-none ${
+                    formik.values.status === "active"
+                      ? "border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/10 text-emerald-700 dark:text-emerald-400"
+                      : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-650 dark:text-slate-405"
+                  }`}
+                >
+                  <Icon icon="material-symbols:check-circle-outline-rounded" className="text-xl shrink-0" />
+                  <div className="text-left">
+                    <p className="text-xs font-bold">Hiển thị</p>
+                    <p className="text-[10px] opacity-75 mt-0.5">Kích hoạt banner</p>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => formik.setFieldValue("status", "inactive")}
+                  className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 select-none ${
+                    formik.values.status === "inactive"
+                      ? "border-amber-500 bg-amber-50/30 dark:bg-amber-950/10 text-amber-700 dark:text-amber-450"
+                      : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-650 dark:text-slate-405"
+                  }`}
+                >
+                  <Icon icon="material-symbols:block-rounded" className="text-xl shrink-0" />
+                  <div className="text-left">
+                    <p className="text-xs font-bold">Tạm ẩn</p>
+                    <p className="text-[10px] opacity-75 mt-0.5">Ẩn khỏi người dùng</p>
+                  </div>
+                </div>
               </div>
+              
               {formik.touched.status && formik.errors.status && <p className="text-red-500 text-xs mt-1">{formik.errors.status}</p>}
             </div>
 

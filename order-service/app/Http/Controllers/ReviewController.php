@@ -66,13 +66,13 @@ class ReviewController extends Controller
     }
 
     /**
-     * Admin deletes a review that violates guidelines.
-     * Role: admin (1) only
+     * Admin/Operator deletes a review that violates guidelines.
+     * Role: admin (1) or operator (2)
      */
     public function adminDestroy(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 1) {
-            return response()->json(['message' => 'Only administrators can delete reviews.'], 403);
+        if (!in_array($request->authUser['role_id'], [1, 2])) {
+            return response()->json(['message' => 'Forbidden.'], 403);
         }
 
         $review = Review::find($id);
@@ -81,5 +81,31 @@ class ReviewController extends Controller
         $review->delete();
 
         return response()->json(['message' => 'Review deleted successfully.'], 200);
+    }
+
+    /**
+     * Admin/Operator updates a review.
+     * Role: admin (1) or operator (2)
+     */
+    public function adminUpdate(Request $request, $id)
+    {
+        if (!in_array($request->authUser['role_id'], [1, 2])) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $review = Review::find($id);
+        if (!$review) return response()->json(['message' => 'Review not found.'], 404);
+
+        $fields = $request->validate([
+            'rating'  => 'sometimes|integer|between:1,5',
+            'comment' => 'sometimes|string|max:1000|nullable',
+        ]);
+
+        $review->update($fields);
+
+        return response()->json([
+            'message' => 'Review updated successfully.',
+            'data'    => $review->fresh(),
+        ], 200);
     }
 }

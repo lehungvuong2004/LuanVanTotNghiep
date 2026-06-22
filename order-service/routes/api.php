@@ -8,19 +8,11 @@ use App\Http\Controllers\ReportController;
 
 Route::prefix('orders')->group(function () {
 
-    // ============================================================
-    //  PUBLIC — No authentication required
-    // ============================================================
     Route::get('job-posts',             [JobPostController::class, 'index']);
     Route::get('job-posts/{id}',        [JobPostController::class, 'show']);
     Route::get('reviews/helper/{helperId}', [ReviewController::class, 'helperReviews']);
 
-    // ============================================================
-    //  AUTHENTICATED — JWT required for all routes below
-    // ============================================================
     Route::middleware('jwt.auth')->group(function () {
-
-        // ---- BOOKINGS ----
 
         // Customer
         Route::post('bookings',                      [BookingController::class, 'store']);
@@ -57,9 +49,6 @@ Route::prefix('orders')->group(function () {
         // ---- REPORTS ----
         Route::post('reports',              [ReportController::class, 'store']);
 
-        // ============================================================
-        //  ADMIN / OPERATOR — Management (role enforced per controller)
-        // ============================================================
         Route::prefix('admin')->group(function () {
 
             // Bookings
@@ -75,6 +64,7 @@ Route::prefix('orders')->group(function () {
 
             // Reviews
             Route::get('reviews',                 [ReviewController::class, 'adminIndex']);
+            Route::put('reviews/{id}',            [ReviewController::class, 'adminUpdate']);
             Route::delete('reviews/{id}',         [ReviewController::class, 'adminDestroy']);
 
             // Reports

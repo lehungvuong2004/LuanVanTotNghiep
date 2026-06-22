@@ -25,8 +25,6 @@ export const PaymentsRefunds: React.FC<PaymentsRefundsProps> = ({ defaultTab = "
     paymentsTotal,
     paymentStatusFilter,
     setPaymentStatusFilter,
-    paymentMethodFilter,
-    setPaymentMethodFilter,
     statusDistributionOption,
     handleUpdatePaymentStatus,
 
@@ -42,7 +40,6 @@ export const PaymentsRefunds: React.FC<PaymentsRefundsProps> = ({ defaultTab = "
     // Stats / ECharts
     metrics,
     revenueChartOption,
-    methodDistributionOption,
     itemsPerPage,
   } = usePaymentsRefunds(defaultTab);
 

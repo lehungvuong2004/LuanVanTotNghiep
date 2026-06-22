@@ -1,10 +1,23 @@
-import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { NavBarAdmin } from "../components/NavBarAdmin";
 import { Icon } from "@iconify/react";
 
 export const DashboardManager: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    const userString = localStorage.getItem("user");
+    const user = userString ? JSON.parse(userString) : null;
+
+    if (!token || !user || user.role_id !== 1) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      navigate("/dang-nhap");
+    }
+  }, [navigate]);
 
   return (
     <div className="h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col overflow-hidden">

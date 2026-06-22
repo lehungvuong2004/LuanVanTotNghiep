@@ -18,6 +18,10 @@ import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 import { Booking } from "./DashBoard/Admin/Booking";
 import { Banners } from "./DashBoard/Admin/Banner";
 import { PaymentsRefunds } from "./DashBoard/Admin/PayMent & Refund";
+import { Account } from "./DashBoard/Admin/Account";
+import { Reviews } from "./DashBoard/Admin/Reviews";
+import { StaffReviews } from "./DashBoard/Staff/Reviews";
+import { DashboardStaff } from "./layouts/DashboardStaff";
 
 function App() {
   return (
@@ -37,14 +41,21 @@ function App() {
           <Route path="/quen-mat-khau" element={<ForgetPassword />} />
         </Route>
         <Route path="/admin" element={<DashboardManager />}>
-          <Route index element={<DashboardOverview />} />
-          <Route path="dashboard" element={<DashboardOverview />} />
+          {/* <Route  element={<DashboardOverview />} /> */}
+          <Route path="dashboard"  index element={<DashboardOverview />} />
+          <Route path="users" element={<Account />} />
           <Route path="services" element={<Services />} />
           <Route path="schedules" element={<Schedules />} />
           <Route path="bookings" element={<Booking />} />
           <Route path="banners" element={<Banners />} />
           <Route path="payments" element={<PaymentsRefunds defaultTab="payments" />} />
           <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
+          <Route path="reviews" element={<Reviews />} />
+        </Route>
+        <Route path="/operator" element={<DashboardStaff />}>
+          <Route index element={<StaffReviews />} />
+          <Route path="dashboard" element={<StaffReviews />} />
+          <Route path="reviews" element={<StaffReviews />} />
         </Route>
         <Route path="*" element={<Errors404 />} />
       </Routes>

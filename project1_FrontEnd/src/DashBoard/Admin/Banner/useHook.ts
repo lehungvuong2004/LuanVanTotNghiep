@@ -75,7 +75,17 @@ export const useBanner = () => {
 
   // Load banners on filter/search or pagination change
   useEffect(() => {
-    fetchBanners(1);
+    let active = true;
+    const executeFetch = async () => {
+      await Promise.resolve();
+      if (active) {
+        fetchBanners(1);
+      }
+    };
+    executeFetch();
+    return () => {
+      active = false;
+    };
   }, [searchQuery, statusFilter, fetchBanners]);
 
   const closeModal = () => {

@@ -1,45 +1,9 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useNavBarAdmin, type NavBarAdminProps } from './useHook';
 
-// Define navigation items with their respective Iconify icons and paths
-const navItems = [
-  { name: 'Dashboard', path: '/admin/dashboard', icon: 'material-symbols:grid-view-outline-rounded' },
-  { name: 'Users', path: '/admin/users', icon: 'material-symbols:group-outline-rounded' },
-  { name: 'Helpers', path: '/admin/helpers', icon: 'material-symbols:engineering-outline-rounded' },
-  { name: 'Service Categories', path: '/admin/categories', icon: 'boxicons:categories' },
-  { name: 'Services', path: '/admin/services', icon: 'grommet-icons:services' },
-  { name: 'Bookings', path: '/admin/bookings', icon: 'material-symbols:calendar-today-outline-rounded' },
-  { name: 'Payments', path: '/admin/payments', icon: 'material-symbols:payments-outline-rounded' },
-  { name: 'Refunds', path: '/admin/refunds', icon: 'material-symbols:undo-rounded' },
-  { name: 'Reviews', path: '/admin/reviews', icon: 'material-symbols:rate-review-outline-rounded' },
-  { name: 'Reports', path: '/admin/reports', icon: 'material-symbols:bar-chart-outline-rounded' },
-  { name: 'Contacts', path: '/admin/contacts', icon: 'material-symbols:contact-phone-outline-rounded' },
-  { name: 'News', path: '/admin/news', icon: 'material-symbols:newspaper-outline-rounded' },
-  { name: 'Banners', path: '/admin/banners', icon: 'material-symbols:ad-units-outline-rounded' },
-  { name: 'Notifications', path: '/admin/notifications', icon: 'material-symbols:notifications-outline-rounded' },
-  { name: 'Activity Logs', path: '/admin/activity-logs', icon: 'material-symbols:history-rounded' },
-  { name: 'Settings', path: '/admin/settings', icon: 'material-symbols:settings-outline-rounded' },
-];
-
-interface NavBarAdminProps {
-  isCollapsed: boolean;
-}
-
-export const NavBarAdmin: React.FC<NavBarAdminProps> = ({ isCollapsed }) => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
-  // Get user info from localStorage
-  const userString = localStorage.getItem('user');
-  const user = userString ? JSON.parse(userString) : null;
-  const fullName = user?.full_name || 'Admin User';
-  const email = user?.email || 'admin@gmail.com';
+export const NavBarAdmin = ({ isCollapsed }: NavBarAdminProps) => {
+  const { navItems, handleLogout, fullName, email,  } = useNavBarAdmin();
 
   return (
     <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col">
@@ -47,7 +11,7 @@ export const NavBarAdmin: React.FC<NavBarAdminProps> = ({ isCollapsed }) => {
       <div className={`px-4 mb-8 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-cyan-900 flex items-center justify-center shadow-xs shrink-0">
-            <Icon icon="icon-park-outline:family" className="text-xl text-white " />
+            <Icon icon="icon-park-outline:family" className="text-xl text-white" />
           </div>
           {!isCollapsed && (
             <div>

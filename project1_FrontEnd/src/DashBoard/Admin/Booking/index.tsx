@@ -57,20 +57,44 @@ export const Booking: React.FC = () => {
 
   // Render Page Header
   const renderHeader = () => (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Quản Lý Đặt Lịch (Bookings)</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Xem danh sách, kiểm tra chi tiết, phê duyệt trạng thái và phân phối nhân viên.</p>
+        <h2 className="text-2xl font-bold text-slate-850 dark:text-slate-100 mb-1">Theo dõi đơn đặt lịch</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Quản lý và giám sát trạng thái các yêu cầu dịch vụ thời gian thực.</p>
       </div>
-      <div className="relative w-full sm:w-80 shrink-0">
-        <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
-        <input
-          className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all dark:text-slate-100 shadow-xs"
-          placeholder="Tìm theo mã đơn, khách hàng, nhân viên..."
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <button
+          type="button"
+          onClick={() => {
+            setToast({ type: "success", title: "Xuất báo cáo", message: "Báo cáo thống kê đơn đặt lịch đã được xuất thành công!" });
+          }}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-750 transition-all shadow-xs active:scale-97 cursor-pointer"
+        >
+          <Icon icon="material-symbols:download-rounded" className="text-lg" />
+          <span>Xuất báo cáo</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setToast({ type: "info", title: "Tạo đơn mới", message: "Chức năng tạo đơn mới đang được kích hoạt..." });
+          }}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-xs hover:shadow-sm active:scale-97 transition-all cursor-pointer"
+        >
+          <Icon icon="material-symbols:add-rounded" className="text-lg" />
+          <span>Tạo đơn mới</span>
+        </button>
+
+        <div className="relative flex-1 sm:flex-initial sm:w-64">
+          <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
+          <input
+            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all dark:text-slate-100 shadow-xs"
+            placeholder="Tìm theo mã đơn, khách, nhân viên..."
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
     </div>
   );

@@ -20,13 +20,6 @@ services:
       - "8001:8000"
     env_file:
       - ./identity-service/.env
-    environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=lv-identity-db
-      - DB_PORT=3306
-      - DB_DATABASE=homeservice_identity_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=
     volumes:
       - ./identity-service:/app
       - /app/vendor
@@ -52,13 +45,6 @@ services:
       - "8002:8000"
     env_file:
       - ./order-service/.env
-    environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=lv-order-db
-      - DB_PORT=3306
-      - DB_DATABASE=homeservice_order_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=
     volumes:
       - ./order-service:/app
       - /app/vendor
@@ -84,13 +70,6 @@ services:
       - "8003:8000"
     env_file:
       - ./payment-service/.env
-    environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=lv-payment-db
-      - DB_PORT=3306
-      - DB_DATABASE=homeservice_payment_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=
     volumes:
       - ./payment-service:/app
       - /app/vendor
@@ -116,13 +95,6 @@ services:
       - "8004:8000"
     env_file:
       - ./provider-service/.env
-    environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=lv-provider-db
-      - DB_PORT=3306
-      - DB_DATABASE=homeservice_provider_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=
     volumes:
       - ./provider-service:/app
       - /app/vendor

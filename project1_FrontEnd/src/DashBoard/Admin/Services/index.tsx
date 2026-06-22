@@ -84,7 +84,7 @@ export const Services: React.FC = () => {
           <span className="text-sm font-semibold text-red-500">
             Selected {selectedIds.length} {selectedIds.length === 1 ? "service" : "services"}
           </span>
-          <button onClick={deleteSelected} className="flex items-center gap-2 bg-red-650 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer active:scale-95 shadow-sm">
+          <button onClick={deleteSelected} className="flex items-center gap-2 bg-red-650 hover:bg-red-700 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer active:scale-95 shadow-sm">
             <Icon icon="material-symbols:delete-outline" className="text-base" />
             Delete Selected
           </button>
