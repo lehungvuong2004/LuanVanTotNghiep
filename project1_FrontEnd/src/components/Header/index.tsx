@@ -184,10 +184,10 @@ export const Header = () => {
                     <div className="flex flex-col gap-2">
                       {newsItems.map((item) => (
                         <div key={item.title} className="flex flex-col gap-0.5 pb-2 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0">
-                          <Link to="/tin-tuc" className="font-bold text-xs text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 transition-colors leading-snug line-clamp-2">
+                          <Link to={`/tin-tuc/${item.slug}`} className="font-bold text-xs text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 transition-colors leading-snug line-clamp-2">
                             {t(item.title)}
                           </Link>
-                          <span className="text-xs text-slate-400 dark:text-slate-500">{t(item.time)}</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">{item.time}</span>
                         </div>
                       ))}
                     </div>

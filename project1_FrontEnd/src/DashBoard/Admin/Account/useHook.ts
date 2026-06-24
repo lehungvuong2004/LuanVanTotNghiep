@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import {
-  getUsersAdmin,
-  createUserAdmin,
-  updateUserAdmin,
-  toggleUserStatusAdmin,
-  deleteUserAdmin,
-} from "../../../api/users";
+import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin } from "../../../api/users";
 import type { User } from "../../../api/users";
 import { getRootFontSizePx } from "../../../utils";
 
@@ -38,11 +32,7 @@ export const useAccount = () => {
   } | null>(null);
   const toastTimeoutRef = useRef<any>(null);
 
-  const showToast = useCallback((
-    type: "success" | "error" | "warning" | "info",
-    title: string,
-    message?: string
-  ) => {
+  const showToast = useCallback((type: "success" | "error" | "warning" | "info", title: string, message?: string) => {
     if (toastTimeoutRef.current) {
       clearTimeout(toastTimeoutRef.current);
     }
@@ -58,7 +48,7 @@ export const useAccount = () => {
     try {
       const statusParam = selectedStatus !== "All" ? selectedStatus.toLowerCase() : undefined;
       const roleParam = selectedRole !== "All" ? selectedRole : undefined;
-      
+
       const response = await getUsersAdmin({
         page: currentPage,
         limit: itemsPerPage,

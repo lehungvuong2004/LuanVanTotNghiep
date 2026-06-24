@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
+import { getNewsList } from "../../api/news";
+import type { NewsItem as ApiNewsItem } from "../../api/news";
 
 export interface NavLink {
   name: string;
@@ -29,6 +31,7 @@ export interface FeaturedHelper {
 
 export interface NewsItem {
   title: string;
+  slug: string;
   time: string;
 }
 
@@ -88,11 +91,23 @@ export const useHeader = () => {
     { name: "Tin tức & kinh nghiệm", to: "/tin-tuc" },
   ];
 
-  const newsItems: NewsItem[] = [
-    { title: "5 mẹo giữ nhà luôn thơm mát mùa mưa", time: "Cập nhật 2 giờ trước" },
-    { title: "Cách chọn người giúp việc phù hợp cho gia đình có trẻ...", time: "Hôm qua" },
-    { title: "Bảng giá dịch vụ vệ sinh mới nhất 2024", time: "3 ngày trước" }
-  ];
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+
+  useEffect(() => {
+    getNewsList({ limit: 3, status: "published" })
+      .then((res) => {
+        setNewsItems(
+          res.data.data.map((item: ApiNewsItem) => ({
+            title: item.title,
+            slug: item.slug,
+            time: new Date(item.created_at).toLocaleDateString("vi-VN"),
+          }))
+        );
+      })
+      .catch(() => {
+        // silently fail — header news is non-critical
+      });
+  }, []);
 
   const categoryDetails: Record<string, {
     services: ServiceDetail[];

@@ -5,63 +5,67 @@ import { useService } from "./useHook";
 import type { ServiceItem, HelperItem } from "./useHook";
 
 // 1. Hero Section Component
-interface HeroSectionProps {
-  t: (key: string, options?: any) => string;
-}
+// interface HeroSectionProps {
+//   t: (key: string, options?: any) => string;
+// }
 
-const HeroSection = ({ t }: HeroSectionProps) => {
-  return (
-    <section className="relative rounded-3xl overflow-hidden bg-slate-900 min-h-90 flex items-center shadow-lg border border-slate-800">
-      <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-900/90 to-transparent z-10" />
-      <div className="absolute inset-0 bg-teal-950/20 z-10" />
-      <img
-        alt="Professional household services"
-        className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
-        src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop"
-      />
-      <div className="relative z-20 px-6 md:px-16 py-12 w-full flex flex-col lg:flex-row justify-between items-center gap-8">
-        <div className="max-w-2xl text-center lg:text-left">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">{t("Dịch vụ giúp việc gia đình uy tín")}</h1>
-          <p className="text-lg text-slate-200 mb-8 max-w-lg font-medium opacity-90">{t("Kết nối nhanh chóng với những người giúp việc tận tâm và chuyên nghiệp nhất cho ngôi nhà của bạn.")}</p>
-          <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-            <button className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-full font-bold transition-all flex items-center gap-2 shadow-lg hover:shadow-teal-600/20 active:scale-95 cursor-pointer">
-              {t("Đặt lịch ngay")}
-              <Icon icon="material-symbols:calendar-today-outline" className="text-lg" />
-            </button>
-            <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-8 py-3.5 rounded-full font-bold transition-all active:scale-95 cursor-pointer">
-              {t("Tìm hiểu thêm")}
-            </button>
-          </div>
-        </div>
+// const HeroSection = ({ t }: HeroSectionProps) => {
+//   return (
+//     <section className="relative rounded-3xl overflow-hidden bg-slate-900 min-h-90 flex items-center shadow-lg border border-slate-800">
+//       <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-900/90 to-transparent z-10" />
+//       <div className="absolute inset-0 bg-teal-950/20 z-10" />
+//       <img
+//         alt="Professional household services"
+//         className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
+//         src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop"
+//       />
+//       <div className="relative z-20 px-6 md:px-16 py-12 w-full flex flex-col lg:flex-row justify-between items-center gap-8">
+//         <div className="max-w-2xl text-center lg:text-left">
+//           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">{t("Dịch vụ giúp việc gia đình uy tín")}</h1>
+//           <p className="text-lg text-slate-200 mb-8 max-w-lg font-medium opacity-90">{t("Kết nối nhanh chóng với những người giúp việc tận tâm và chuyên nghiệp nhất cho ngôi nhà của bạn.")}</p>
+//           <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+//             <button className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-full font-bold transition-all flex items-center gap-2 shadow-lg hover:shadow-teal-600/20 active:scale-95 cursor-pointer">
+//               {t("Đặt lịch ngay")}
+//               <Icon icon="material-symbols:calendar-today-outline" className="text-lg" />
+//             </button>
+//             <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-8 py-3.5 rounded-full font-bold transition-all active:scale-95 cursor-pointer">
+//               {t("Tìm hiểu thêm")}
+//             </button>
+//           </div>
+//         </div>
 
-        {/* Stats Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 grid grid-cols-1 gap-6 min-w-[260px] shadow-2xl">
-          <div className="text-center">
-            <div className="text-3xl font-extrabold text-white">24+</div>
-            <div className="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">{t("Dịch vụ")}</div>
-          </div>
-          <div className="h-px bg-white/10"></div>
-          <div className="text-center">
-            <div className="text-3xl font-extrabold text-white">500+</div>
-            <div className="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">{t("Lượt đặt lịch")}</div>
-          </div>
-          <div className="h-px bg-white/10"></div>
-          <div className="text-center">
-            <div className="text-3xl font-extrabold text-white flex items-center justify-center gap-1">
-              4.8
-              <Icon icon="material-symbols:star" className="text-amber-400 text-2xl" />
-            </div>
-            <div className="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">{t("Đánh giá trung bình")}</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
+//         {/* Stats Card */}
+//         <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 grid grid-cols-1 gap-6 min-w-[260px] shadow-2xl">
+//           <div className="text-center">
+//             <div className="text-3xl font-extrabold text-white">24+</div>
+//             <div className="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">{t("Dịch vụ")}</div>
+//           </div>
+//           <div className="h-px bg-white/10"></div>
+//           <div className="text-center">
+//             <div className="text-3xl font-extrabold text-white">500+</div>
+//             <div className="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">{t("Lượt đặt lịch")}</div>
+//           </div>
+//           <div className="h-px bg-white/10"></div>
+//           <div className="text-center">
+//             <div className="text-3xl font-extrabold text-white flex items-center justify-center gap-1">
+//               4.8
+//               <Icon icon="material-symbols:star" className="text-amber-400 text-2xl" />
+//             </div>
+//             <div className="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">{t("Đánh giá trung bình")}</div>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// };
 
 // 2. Sidebar Filter Component
 interface SidebarFilterProps {
   t: (key: string, options?: any) => string;
+}
+interface ServiceListProps {
+  t: (key: string, options?: any) => string;
+  services: ServiceItem[];
 }
 
 const SidebarFilter = ({ t }: SidebarFilterProps) => {
@@ -175,13 +179,9 @@ const SidebarFilter = ({ t }: SidebarFilterProps) => {
 };
 
 // 3. Service List / Grid Component
-interface ServiceListProps {
-  t: (key: string, options?: any) => string;
-  services: ServiceItem[];
-}
 
 const ServiceList = ({ t, services }: ServiceListProps) => {
-  const tabs = ["Tất cả", "Làm sạch", "Nấu ăn", "Người già", "Sửa chữa", "Giặt ủi"];
+  // const tabs = ["Tất cả", "Làm sạch", "Nấu ăn", "Người già", "Sửa chữa", "Giặt ủi"];
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
@@ -204,7 +204,7 @@ const ServiceList = ({ t, services }: ServiceListProps) => {
       {/* Category Tabs & Sort */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-          {tabs.map((tab, index) => (
+          {/* {tabs.map((tab, index) => (
             <button
               key={tab}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
@@ -213,7 +213,7 @@ const ServiceList = ({ t, services }: ServiceListProps) => {
             >
               {t(tab)}
             </button>
-          ))}
+          ))} */}
         </div>
         <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 dark:border-slate-700">
           <span className="text-xs text-slate-500 dark:text-slate-400">{t("Hiển thị {{count}} dịch vụ", { count: services.length })}</span>
@@ -373,10 +373,10 @@ export const Service = () => {
   const { services, helpers } = useService();
 
   return (
-    <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 gap-8 pt-16">
-      <HeroSection t={t} />
+    <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 gap-6 pt-6">
+      {/* <HeroSection t={t} /> */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
-        <aside className="lg:col-span-3">
+        <aside className="lg:col-span-3 lg:sticky lg:top-24 lg:h-fit lg:self-start z-10">
           <SidebarFilter t={t} />
         </aside>
         <div className="lg:col-span-9 flex flex-col gap-6">
