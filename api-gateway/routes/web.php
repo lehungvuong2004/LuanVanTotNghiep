@@ -51,8 +51,8 @@ function proxyTo($targetUrl, Request $request) {
         $headers['Content-Type'] = 'application/json';
         $response = Http::withHeaders($headers)
             ->send($request->method(), $targetUrl, [
-                'query' => $request->query(),      // Truyền tham số GET (query params)
-                'body'  => $request->getContent(),  // Truyền dữ liệu Body (JSON...)
+                'query' => $request->query(),      
+                'body'  => $request->getContent(),  
             ]);
     }
 
@@ -61,9 +61,40 @@ function proxyTo($targetUrl, Request $request) {
         ->header('Content-Type', $response->header('Content-Type'));
 }
 
-// 2. Định tuyến cho Identity Service (Xác thực, Phân quyền, Quản lý User)
+// 2. Định tuyến cho Identity Service (Xác thực, Phân quyền, Quản lý User và Admin)
 Route::any('/api/auth/{any?}', function (Request $request, $any = '') {
     $targetUrl = 'http://identity-service:8000/api/auth/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+Route::any('/api/admin/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/admin/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+Route::any('/api/customer/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/customer/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+Route::any('/api/notifications/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/notifications/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+Route::any('/api/profile', function (Request $request) {
+    $targetUrl = 'http://identity-service:8000/api/profile';
+    return proxyTo($targetUrl, $request);
+});
+
+Route::any('/api/banners/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/banners/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+// Tin tức — proxy sang Identity Service
+Route::any('/api/news/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/news/' . $any;
     return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 

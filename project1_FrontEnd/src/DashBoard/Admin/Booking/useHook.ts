@@ -304,6 +304,13 @@ export const useBooking = () => {
     message: string;
   } | null>(null);
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Clear selection when filters or page changes
+  useEffect(() => {
+    setSelectedIds([]);
+  }, [currentPage, searchQuery, selectedStatus, selectedPayment]);
+
   // Persist data
   useEffect(() => {
     localStorage.setItem("admin_bookings", JSON.stringify(bookings));
@@ -605,6 +612,39 @@ export const useBooking = () => {
     };
   }, [bookings, rem]);
 
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds((prev) =>
+      prev.length === paginatedBookings.length ? [] : paginatedBookings.map((b) => b.id)
+    );
+  };
+
+  const clearSelection = () => {
+    setSelectedIds([]);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    if (window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch đã chọn?`)) {
+      const remainingBookings = bookings.filter((b) => !selectedIds.includes(b.id));
+      setBookings(remainingBookings);
+      setToast({
+        type: "success",
+        title: "Xóa thành công",
+        message: `Đã xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch khỏi hệ thống.`,
+      });
+      setSelectedIds([]);
+      if (selectedBooking && selectedIds.includes(selectedBooking.id)) {
+        handleCloseDetail();
+      }
+    }
+  };
+
   return {
     bookings,
     searchQuery,
@@ -635,5 +675,10 @@ export const useBooking = () => {
     lineOption,
     toast,
     setToast,
+    selectedIds,
+    toggleSelectOne,
+    toggleSelectAll,
+    clearSelection,
+    handleBulkDelete,
   };
 };

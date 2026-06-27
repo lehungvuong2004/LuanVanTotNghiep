@@ -5,16 +5,180 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+  use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
-    {
-        $this->call(RoleSeeder::class);
+  /**
+   * Seed the application's database.
+   */
+  public function run(): void
+  {
+
+    $adminPass = env('SEED_ADMIN_PASSWORD');
+    $customerPass = env('SEED_CUSTOMER_PASSWORD');
+    $helperPass = env('SEED_HELPER_PASSWORD');
+    $operatorPass = env('SEED_OPERATOR_PASSWORD');
+
+    $adminPhone = env('SEED_ADMIN_PHONE', '0901234567');
+    $operatorPhone = env('SEED_OPERATOR_PHONE', '0904567890');
+    $helperPhone = env('SEED_HELPER_PHONE', '0903456789');
+    $customerPhone = env('SEED_CUSTOMER_PHONE', '0902345678');
+
+    if (!$adminPass || !$customerPass || !$helperPass || !$operatorPass) {
+      throw new \Exception("Vui lòng cấu hình đầy đủ SEED_ADMIN_PASSWORD, SEED_CUSTOMER_PASSWORD, SEED_HELPER_PASSWORD, SEED_OPERATOR_PASSWORD trong file .env trước khi chạy Seed.");
     }
+
+    // Seed Admin Account (role_id = 1)
+    User::updateOrCreate(
+      ['email' => 'admin@gmail.com'],
+      [
+        'role_id' => 1,
+        'full_name' => 'Quản trị viên',
+        'phone' => $adminPhone,
+        'password' => Hash::make($adminPass),
+        'status' => 'active',
+      ]
+    );
+
+    // Seed Operator Account (role_id = 2)
+    User::updateOrCreate(
+      ['email' => 'operator@gmail.com'],
+      [
+        'role_id' => 2,
+        'full_name' => 'Nhân viên vận hành C',
+        'phone' => $operatorPhone,
+        'password' => Hash::make($operatorPass),
+        'status' => 'active',
+      ]
+    );
+
+    // Seed Helper Account (role_id = 3)
+    User::updateOrCreate(
+      ['email' => 'helper@gmail.com'],
+      [
+        'id' => 3,
+        'role_id' => 3,
+        'full_name' => 'Người giúp việc B',
+        'phone' => $helperPhone,
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper2@gmail.com'],
+      [
+        'id' => 10,
+        'role_id' => 3,
+        'full_name' => 'Nguyễn Thị Hoa',
+        'phone' => '0903333222',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper3@gmail.com'],
+      [
+        'id' => 11,
+        'role_id' => 3,
+        'full_name' => 'Trần Văn Hùng',
+        'phone' => '0903333444',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper4@gmail.com'],
+      [
+        'id' => 12,
+        'role_id' => 3,
+        'full_name' => 'Phạm Thanh Sơn',
+        'phone' => '0903333555',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper5@gmail.com'],
+      [
+        'id' => 13,
+        'role_id' => 3,
+        'full_name' => 'Lê Thị Mai',
+        'phone' => '0903333666',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    // Seed Customer Account (role_id = 4)
+    User::updateOrCreate(
+      ['email' => 'customer@gmail.com'],
+      [
+        'id' => 4,
+        'role_id' => 4,
+        'full_name' => 'Khách hàng A',
+        'phone' => $customerPhone,
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer2@gmail.com'],
+      [
+        'id' => 14,
+        'role_id' => 4,
+        'full_name' => 'Nguyễn Văn Nam',
+        'phone' => '0902222111',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer3@gmail.com'],
+      [
+        'id' => 15,
+        'role_id' => 4,
+        'full_name' => 'Trần Thị Tuyết',
+        'phone' => '0902222333',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer4@gmail.com'],
+      [
+        'id' => 16,
+        'role_id' => 4,
+        'full_name' => 'Phạm Minh Tuấn',
+        'phone' => '0902222444',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer5@gmail.com'],
+      [
+        'id' => 17,
+        'role_id' => 4,
+        'full_name' => 'Đỗ Thu Trang',
+        'phone' => '0902222555',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    // Seed News Articles
+    $this->call(NewsSeeder::class);
+  }
 }

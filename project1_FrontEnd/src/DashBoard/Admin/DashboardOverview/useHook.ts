@@ -1,123 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getRootFontSizePx } from "../../../utils";
 import { QUALITATIVE_PALETTE, BLUE_PURPLE_07 } from "../../../constants/colors";
+import { getDashboardOverview } from "../../../api/dashboard";
+import type { KPICardData, BookingActivity, ServiceShare, RecentBooking } from "../../../api/dashboard";
 
-export interface KPICardData {
-  title: string;
-  value: number | string;
-  change: string;
-  isPositive: boolean;
-  icon: string;
-  bgColor: string;
-  textColor: string;
-}
-
-export interface BookingActivity {
-  day: string;
-  count: number;
-}
-
-export interface ServiceShare {
-  name: string;
-  value: number;
-  color: string;
-}
-
-export interface RecentBooking {
-  customer: string;
-  service: string;
-  date: string;
-  price: number;
-  status: "Completed" | "Confirmed" | "Pending" | "Cancelled";
-}
-
+export type { KPICardData, BookingActivity, RecentBooking };
 export const useDashboardOverview = () => {
-  // KPI Metrics
-  const [kpis] = useState<KPICardData[]>([
-    {
-      title: "Total Revenue",
-      value: 124500000000,
-      change: "+12%",
-      isPositive: true,
-      icon: "material-symbols:payments-outline-rounded",
-      bgColor: "bg-blue-50 dark:bg-blue-950/30",
-      textColor: "text-blue-600 dark:text-blue-400",
-    },
-    {
-      title: "Bookings",
-      value: "1,842",
-      change: "+8%",
-      isPositive: true,
-      icon: "material-symbols:event-available-outline-rounded",
-      bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
-      textColor: "text-emerald-600 dark:text-emerald-455",
-    },
-    {
-      title: "Active Helpers",
-      value: "145",
-      change: "+4 new",
-      isPositive: true,
-      icon: "material-symbols:group-outline-rounded",
-      bgColor: "bg-amber-50 dark:bg-amber-950/30",
-      textColor: "text-amber-600 dark:text-amber-400",
-    },
-    {
-      title: "Satisfaction",
-      value: "98.4%",
-      change: "Excellent",
-      isPositive: true,
-      icon: "material-symbols:rate-review-outline-rounded",
-      bgColor: "bg-violet-50 dark:bg-violet-950/30",
-      textColor: "text-violet-600 dark:text-violet-400",
-    },
-  ]);
+  const [kpis, setKpis] = useState<KPICardData[]>([]);
+  const [weeklyBookings, setWeeklyBookings] = useState<BookingActivity[]>([]);
+  const [serviceShares, setServiceShares] = useState<ServiceShare[]>([]);
+  const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Weekly Bookings Chart Data
-  const [weeklyBookings] = useState<BookingActivity[]>([
-    { day: "Mon", count: 120 },
-    { day: "Tue", count: 200 },
-    { day: "Wed", count: 150 },
-    { day: "Thu", count: 80 },
-    { day: "Fri", count: 70 },
-    { day: "Sat", count: 110 },
-    { day: "Sun", count: 130 },
-  ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getDashboardOverview();
+        
+        const staticCardMeta = [
+          {
+            icon: "material-symbols:payments-outline-rounded",
+            bgColor: "bg-blue-50 dark:bg-blue-950/30",
+            textColor: "text-blue-600 dark:text-blue-400",
+          },
+          {
+            icon: "material-symbols:event-available-outline-rounded",
+            bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
+            textColor: "text-emerald-600 dark:text-emerald-455",
+          },
+          {
+            icon: "material-symbols:group-outline-rounded",
+            bgColor: "bg-amber-50 dark:bg-amber-950/30",
+            textColor: "text-amber-600 dark:text-amber-400",
+          },
+          {
+            icon: "material-symbols:rate-review-outline-rounded",
+            bgColor: "bg-violet-50 dark:bg-violet-950/30",
+            textColor: "text-violet-600 dark:text-violet-400",
+          },
+        ];
 
-  // Dynamically map QUALITATIVE_PALETTE colors to Service Categories (no hardcoding)
-  const serviceCategories = ["Cleaning", "Repair", "Care", "Others"];
-  const serviceValues = [1048, 735, 580, 484];
-  const [serviceShares] = useState<ServiceShare[]>(
-    serviceCategories.map((name, index) => ({
-      name,
-      value: serviceValues[index],
-      color: QUALITATIVE_PALETTE[index % QUALITATIVE_PALETTE.length],
-    })),
-  );
+        const mappedKpis = data.kpis.map((kpi, idx) => ({
+          ...kpi,
+          ...staticCardMeta[idx],
+        }));
 
-  // Recent Bookings List with numerical prices
-  const [recentBookings] = useState<RecentBooking[]>([
-    {
-      customer: "Nguyen Van A",
-      service: "Deep Home Cleaning",
-      date: "June 19, 2026",
-      price: 500000,
-      status: "Completed",
-    },
-    {
-      customer: "Tran Thi B",
-      service: "AC Repair & Maintenance",
-      date: "June 19, 2026",
-      price: 350000,
-      status: "Confirmed",
-    },
-    {
-      customer: "Le Van C",
-      service: "Elderly Care Hourly",
-      date: "June 18, 2026",
-      price: 120000,
-      status: "Pending",
-    },
-  ]);
+        setKpis(mappedKpis);
+        setWeeklyBookings(data.weeklyBookings);
+        setServiceShares(data.serviceShares);
+        setRecentBookings(data.recentBookings);
+        setError(null);
+      } catch (err: any) {
+        setError(err.message || "Failed to load dashboard overview data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Total Services Count (calculated for display on the top-right of pie chart)
   const totalServiceCount = serviceShares.reduce((acc, curr) => acc + curr.value, 0);
@@ -151,7 +94,7 @@ export const useDashboardOverview = () => {
         type: "value",
         splitLine: { lineStyle: { type: "dashed", color: "#f1f5f9" } },
         axisLine: { show: false },
-        axisLabel: { color: "#64748b", fontSize: 0.8125 * rem }, // Larger text (13px instead of 11px)
+        axisLabel: { color: "#64748b", fontSize: 0.8125 * rem },
       },
     ],
     series: [
@@ -216,10 +159,10 @@ export const useDashboardOverview = () => {
         labelLine: {
           show: false,
         },
-        data: serviceShares.map((item) => ({
+        data: serviceShares.map((item, index) => ({
           value: item.value,
           name: item.name,
-          itemStyle: { color: item.color },
+          itemStyle: { color: QUALITATIVE_PALETTE[index % QUALITATIVE_PALETTE.length] },
         })),
       },
     ],
@@ -231,5 +174,7 @@ export const useDashboardOverview = () => {
     totalServiceCount,
     barOption,
     pieOption,
+    loading,
+    error,
   };
 };

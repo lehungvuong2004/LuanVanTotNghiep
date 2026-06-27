@@ -8,4 +8,8 @@ export const API_ENDPOINTS = {
     VERIFY_OTP: "/auth/verify-otp",
     RESET_PASSWORD: "/auth/reset-password",
   },
+  NEWS: {
+    LIST: "/news",
+    DETAIL: (slug: string) => `/news/${slug}`,
+  },
 } as const;
