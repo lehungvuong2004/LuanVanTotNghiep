@@ -438,6 +438,256 @@ class BookingController extends Controller
         return response()->json(['message' => 'Booking status updated.', 'data' => $booking->fresh()], 200);
     }
 
+    /**
+     * Lấy dữ liệu tổng quan Dashboard cho Admin/Operator.
+     */
+    public function dashboardOverview(Request $request)
+    {
+        if (!in_array($request->authUser['role_id'], [1, 2])) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $authHeader = $request->header('Authorization');
+
+        // 1. Doanh thu & Thay đổi doanh thu
+        $totalRevenue = 0;
+        $revenueChangePercent = 0;
+        try {
+            $revenueResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(3)
+                ->get('http://payment-service:8000/api/payments/admin/stats');
+            if ($revenueResponse->successful()) {
+                $revData = $revenueResponse->json('data');
+                $totalRevenue = $revData['total_revenue'] ?? 0;
+                $revenueChangePercent = $revData['change_percent'] ?? 0;
+            } else {
+                throw new \Exception('Failed to fetch from payment service');
+            }
+        } catch (\Exception $e) {
+            $totalRevenue = Booking::whereIn('status', ['completed', 'confirmed'])->sum('total_price');
+            $thisMonth = now()->startOfMonth();
+            $lastMonth = now()->subMonth()->startOfMonth();
+            $thisMonthRevenue = Booking::whereIn('status', ['completed', 'confirmed'])->where('booking_date', '>=', $thisMonth->toDateString())->sum('total_price');
+            $lastMonthRevenue = Booking::whereIn('status', ['completed', 'confirmed'])->where('booking_date', '>=', $lastMonth->toDateString())->where('booking_date', '<', $thisMonth->toDateString())->sum('total_price');
+            if ($lastMonthRevenue > 0) {
+                $revenueChangePercent = (($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100;
+            } elseif ($thisMonthRevenue > 0) {
+                $revenueChangePercent = 100;
+            }
+        }
+
+        // 2. Tổng số Bookings & Thay đổi bookings
+        $totalBookings = Booking::count();
+        $thisMonthBookings = Booking::where('booking_date', '>=', now()->startOfMonth()->toDateString())->count();
+        $lastMonthBookings = Booking::where('booking_date', '>=', now()->subMonth()->startOfMonth()->toDateString())
+            ->where('booking_date', '<', now()->startOfMonth()->toDateString())->count();
+        $bookingsChangePercent = 0;
+        if ($lastMonthBookings > 0) {
+            $bookingsChangePercent = (($thisMonthBookings - $lastMonthBookings) / $lastMonthBookings) * 100;
+        } elseif ($thisMonthBookings > 0) {
+            $bookingsChangePercent = 100;
+        }
+
+        // 3. Số lượng Helper hoạt động
+        $activeHelpers = 0;
+        $helpersChangeStr = "+0 new";
+        try {
+            $helperStatsResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(3)
+                ->get('http://provider-service:8000/api/providers/admin/helpers/stats');
+            if ($helperStatsResponse->successful()) {
+                $activeHelpers = $helperStatsResponse->json('data.active') ?? 0;
+                $pendingVerifications = $helperStatsResponse->json('data.pending_verifications') ?? 0;
+                $helpersChangeStr = "+" . $pendingVerifications . " pending";
+            } else {
+                throw new \Exception('Failed to fetch helper stats');
+            }
+        } catch (\Exception $e) {
+            $activeHelpers = Booking::whereNotNull('helper_id')->distinct('helper_id')->count('helper_id');
+            $helpersChangeStr = "active";
+        }
+
+        // 4. Mức độ hài lòng (Reviews)
+        $avgRating = Review::avg('rating');
+        $avgRating = $avgRating ? round($avgRating, 1) : 5.0;
+        $satisfactionPercent = ($avgRating / 5) * 100;
+        $satisfactionStr = number_format($satisfactionPercent, 1) . "%";
+
+        // 5. Weekly Booking Activity
+        $startOfWeek = now()->startOfWeek();
+        $endOfWeek = now()->endOfWeek();
+
+        $bookingsByDay = Booking::whereBetween('booking_date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->selectRaw('DAYOFWEEK(booking_date) as day_num, COUNT(*) as count')
+            ->groupBy('day_num')
+            ->pluck('count', 'day_num')
+            ->toArray();
+
+        $dayMap = [
+            2 => 'Mon',
+            3 => 'Tue',
+            4 => 'Wed',
+            5 => 'Thu',
+            6 => 'Fri',
+            7 => 'Sat',
+            1 => 'Sun'
+        ];
+
+        $weeklyBookings = [];
+        foreach ($dayMap as $num => $dayName) {
+            $weeklyBookings[] = [
+                'day' => $dayName,
+                'count' => $bookingsByDay[$num] ?? 0
+            ];
+        }
+
+        // 6. Service category shares
+        $serviceCategoryMap = [];
+        $serviceNameMap = [];
+        try {
+            $servicesResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(3)
+                ->get('http://provider-service:8000/api/providers/services?limit=1000');
+            if ($servicesResponse->successful()) {
+                $servicesData = $servicesResponse->json('data.data') ?? [];
+                foreach ($servicesData as $svc) {
+                    if (isset($svc['id'])) {
+                        if (isset($svc['category']['name'])) {
+                            $serviceCategoryMap[$svc['id']] = $svc['category']['name'];
+                        }
+                        if (isset($svc['name'])) {
+                            $serviceNameMap[$svc['id']] = $svc['name'];
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        $bookingServicesCounts = BookingService::select('service_id', \DB::raw('COUNT(*) as count'))
+            ->groupBy('service_id')
+            ->get();
+
+        $shares = [];
+        foreach ($bookingServicesCounts as $bs) {
+            $categoryName = $serviceCategoryMap[$bs->service_id] ?? 'Others';
+            if (!isset($shares[$categoryName])) {
+                $shares[$categoryName] = 0;
+            }
+            $shares[$categoryName] += $bs->count;
+        }
+
+        $serviceShares = [];
+        foreach ($shares as $name => $val) {
+            $serviceShares[] = [
+                'name' => $name,
+                'value' => (int) $val
+            ];
+        }
+
+        $defaultCategories = ['Cleaning', 'Repair', 'Care', 'Others'];
+        foreach ($defaultCategories as $cat) {
+            $found = false;
+            foreach ($serviceShares as $share) {
+                if ($share['name'] === $cat) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $serviceShares[] = [
+                    'name' => $cat,
+                    'value' => 0
+                ];
+            }
+        }
+
+        // 7. Recent Bookings
+        $userNameMap = [];
+        try {
+            $usersResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(3)
+                ->get('http://identity-service:8000/api/admin/users?limit=1000');
+            if ($usersResponse->successful()) {
+                $usersData = $usersResponse->json('data.data') ?? [];
+                foreach ($usersData as $user) {
+                    if (isset($user['id']) && isset($user['name'])) {
+                        $userNameMap[$user['id']] = $user['name'];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        $recentBookingsRaw = Booking::with('services')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
+        $recentBookings = [];
+        foreach ($recentBookingsRaw as $b) {
+            $svcNames = [];
+            foreach ($b->services as $bs) {
+                $svcNames[] = $serviceNameMap[$bs->service_id] ?? 'Dịch vụ #' . $bs->service_id;
+            }
+            $serviceStr = implode(', ', $svcNames);
+            if (empty($serviceStr)) {
+                $serviceStr = 'Không có dịch vụ';
+            }
+
+            $statusMap = [
+                'pending' => 'Pending',
+                'confirmed' => 'Confirmed',
+                'in_progress' => 'Confirmed',
+                'completed' => 'Completed',
+                'cancelled' => 'Cancelled',
+            ];
+            $displayStatus = $statusMap[$b->status] ?? ucfirst($b->status);
+
+            $recentBookings[] = [
+                'customer' => $userNameMap[$b->customer_id] ?? 'Khách hàng #' . $b->customer_id,
+                'service' => $serviceStr,
+                'date' => \Carbon\Carbon::parse($b->booking_date)->format('F j, Y'),
+                'price' => (float) $b->total_price,
+                'status' => $displayStatus
+            ];
+        }
+
+        return response()->json([
+            'kpis' => [
+                [
+                    'title' => 'Total Revenue',
+                    'value' => (float) $totalRevenue,
+                    'change' => ($revenueChangePercent >= 0 ? '+' : '') . $revenueChangePercent . '%',
+                    'isPositive' => $revenueChangePercent >= 0,
+                ],
+                [
+                    'title' => 'Bookings',
+                    'value' => $totalBookings,
+                    'change' => ($bookingsChangePercent >= 0 ? '+' : '') . $bookingsChangePercent . '%',
+                    'isPositive' => $bookingsChangePercent >= 0,
+                ],
+                [
+                    'title' => 'Active Helpers',
+                    'value' => $activeHelpers,
+                    'change' => $helpersChangeStr,
+                    'isPositive' => true,
+                ],
+                [
+                    'title' => 'Satisfaction',
+                    'value' => $satisfactionStr,
+                    'change' => 'Avg ' . $avgRating . '★',
+                    'isPositive' => true,
+                ]
+            ],
+            'weeklyBookings' => $weeklyBookings,
+            'serviceShares' => $serviceShares,
+            'recentBookings' => $recentBookings
+        ], 200);
+    }
+
     // =====================================================================
     //  PRIVATE HELPERS
     // =====================================================================

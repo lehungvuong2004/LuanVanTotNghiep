@@ -157,4 +157,44 @@ class PaymentController extends Controller
             'data'    => $payment->fresh(),
         ], 200);
     }
+
+    /**
+     * Thống kê doanh thu cho Admin/Operator.
+     */
+    public function stats(Request $request)
+    {
+        if (!in_array($request->authUser['role_id'], [1, 2])) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $totalRevenue = Payment::where('status', 'completed')->sum('amount');
+
+        $thisMonth = now()->startOfMonth();
+        $lastMonth = now()->subMonth()->startOfMonth();
+        
+        $thisMonthRevenue = Payment::where('status', 'completed')
+            ->where('paid_at', '>=', $thisMonth)
+            ->sum('amount');
+            
+        $lastMonthRevenue = Payment::where('status', 'completed')
+            ->where('paid_at', '>=', $lastMonth)
+            ->where('paid_at', '<', $thisMonth)
+            ->sum('amount');
+
+        $changePercent = 0;
+        if ($lastMonthRevenue > 0) {
+            $changePercent = (($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100;
+        } elseif ($thisMonthRevenue > 0) {
+            $changePercent = 100;
+        }
+
+        return response()->json([
+            'data' => [
+                'total_revenue' => (float) $totalRevenue,
+                'this_month_revenue' => (float) $thisMonthRevenue,
+                'last_month_revenue' => (float) $lastMonthRevenue,
+                'change_percent' => round($changePercent, 1)
+            ]
+        ], 200);
+    }
 }

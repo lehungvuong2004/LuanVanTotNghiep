@@ -15,6 +15,7 @@ Route::prefix('payments')->group(function () {
         //  ADMIN / OPERATOR — Management (Put at top to avoid conflicts)
         // ============================================================
         Route::prefix('admin')->group(function () {
+            Route::get('/stats',                 [PaymentController::class, 'stats']);
             
             // Payments
             Route::get('/',                      [PaymentController::class, 'adminIndex']);

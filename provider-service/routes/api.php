@@ -15,6 +15,7 @@ Route::prefix('providers')->group(function () {
     // Tìm kiếm & xem hồ sơ helper
     Route::get('helpers',          [HelperController::class, 'publicList']);
     Route::get('helpers/{id}',     [HelperController::class, 'publicShow']);
+    Route::get('helper-user-ids',  [HelperController::class, 'getHelperUserIds']);
 
     // Danh mục & dịch vụ
     Route::get('service-categories',      [ServiceController::class, 'listCategories']);
@@ -68,6 +69,8 @@ Route::prefix('providers')->group(function () {
             Route::get('helpers/{id}',          [AdminProviderController::class, 'showHelper']);
             Route::patch('helpers/{id}/verify', [AdminProviderController::class, 'verifyHelper']);
             Route::patch('helpers/{id}/status', [AdminProviderController::class, 'toggleHelperStatus']);
+            Route::delete('helpers/{id}',       [AdminProviderController::class, 'deleteHelper']);
+            Route::post('helpers/bulk-delete',  [AdminProviderController::class, 'bulkDeleteHelpers']);
 
             // Service Categories (Admin only — enforced in controller)
             Route::get('service-categories',         [ServiceController::class, 'adminListCategories']);

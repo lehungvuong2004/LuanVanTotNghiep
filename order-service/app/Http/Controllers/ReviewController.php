@@ -62,7 +62,19 @@ class ReviewController extends Controller
         $limit   = (int) $request->query('limit', 20);
         $reviews = $query->paginate($limit);
 
-        return response()->json(['data' => $reviews], 200);
+        // Global rating statistics for charts
+        $stats = [
+            1 => Review::where('rating', 1)->count(),
+            2 => Review::where('rating', 2)->count(),
+            3 => Review::where('rating', 3)->count(),
+            4 => Review::where('rating', 4)->count(),
+            5 => Review::where('rating', 5)->count(),
+        ];
+
+        return response()->json([
+            'data' => $reviews,
+            'rating_stats' => $stats
+        ], 200);
     }
 
     /**
@@ -107,5 +119,32 @@ class ReviewController extends Controller
             'message' => 'Review updated successfully.',
             'data'    => $review->fresh(),
         ], 200);
+    }
+
+    /**
+     * Admin/Operator creates a review.
+     * Role: admin (1) or operator (2)
+     */
+    public function adminCreate(Request $request)
+    {
+        if (!in_array($request->authUser['role_id'], [1, 2])) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $fields = $request->validate([
+            'customer_id' => 'required|integer',
+            'helper_id'   => 'required|integer',
+            'rating'      => 'required|integer|between:1,5',
+            'comment'     => 'nullable|string|max:1000',
+            'booking_id'  => 'nullable|integer',
+            'job_post_id' => 'nullable|integer',
+        ]);
+
+        $review = Review::create($fields);
+
+        return response()->json([
+            'message' => 'Review created successfully.',
+            'data'    => $review,
+        ], 201);
     }
 }

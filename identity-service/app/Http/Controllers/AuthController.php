@@ -392,12 +392,21 @@ class AuthController extends Controller
       ], 403);
     }
 
-    $query = User::with('role');
-
-    // Filter theo role_id (ví dụ: ?role_id=2 chỉ lấy Customer)
-    if ($request->filled('role_id')) {
-      $query->where('role_id', $request->query('role_id'));
+    // Gọi nội bộ lấy danh sách user_id đã có profile helper
+    $helperUserIds = [];
+    try {
+      $response = \Illuminate\Support\Facades\Http::timeout(3)
+        ->get('http://provider-service:8000/api/providers/helper-user-ids');
+      if ($response->successful()) {
+        $helperUserIds = $response->json() ?? [];
+      }
+    } catch (\Exception $e) {
+      // ignore
     }
+
+    $query = User::with('role')
+      ->whereNotIn('id', $helperUserIds)
+      ->where('role_id', 4);
 
     // Filter theo status (active | inactive | banned)
     if ($request->filled('status')) {
@@ -417,9 +426,21 @@ class AuthController extends Controller
     $limit = (int) $request->query('limit', 20);
     $users = $query->orderBy('id', 'desc')->paginate($limit);
 
+    $roleCounts = User::select('role_id', DB::raw('count(*) as count'))
+        ->groupBy('role_id')
+        ->pluck('count', 'role_id')
+        ->toArray();
+
     return response()->json([
       'type' => 'all',
-      'data' => $users
+      'data' => $users,
+      'role_counts' => [
+          'admin' => $roleCounts[1] ?? 0,
+          'operator' => $roleCounts[2] ?? 0,
+          'helper' => $roleCounts[3] ?? 0,
+          'customer' => $roleCounts[4] ?? 0,
+          'total' => array_sum($roleCounts),
+      ]
     ], 200);
   }
 
@@ -582,6 +603,35 @@ class AuthController extends Controller
     return response()->json(['message' => 'Xóa người dùng thành công.'], 200);
   }
 
+  /**
+   * Admin xóa hàng loạt users — CHỈ ADMIN.
+   */
+  public function bulkDeleteUsers(Request $request)
+  {
+    $currentUser = auth('api')->user();
+    if (!$currentUser || $currentUser->role_id !== 1) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    }
+
+    $request->validate([
+      'ids' => 'required|array',
+      'ids.*' => 'integer|exists:users,id',
+    ]);
+
+    $ids = $request->input('ids');
+
+    if (in_array($currentUser->id, $ids)) {
+      return response()->json(['message' => 'Bạn không thể tự xóa tài khoản của chính mình trong danh sách chọn.'], 400);
+    }
+
+    DB::transaction(function () use ($ids) {
+      DB::table('user_tokens')->whereIn('user_id', $ids)->delete();
+      User::whereIn('id', $ids)->delete();
+    });
+
+    return response()->json(['message' => 'Xóa danh sách người dùng thành công.'], 200);
+  }
+
     // =====================================================================
     //  INTERNAL HELPER
     // =====================================================================
@@ -609,5 +659,50 @@ class AuthController extends Controller
       'expires_in'    => auth('api')->factory()->getTTL() * 60,
       'user'          => $user,
     ]);
+  }
+
+  /**
+   * Lấy chi tiết nhiều users theo danh sách IDs — CHỈ ADMIN/OPERATOR.
+   */
+  public function getUsersByIds(Request $request)
+  {
+    $currentUser = auth('api')->user();
+    if (!$currentUser || !in_array($currentUser->role_id, [1, 2])) {
+      return response()->json(['message' => 'Forbidden.'], 403);
+    }
+
+    $request->validate([
+      'ids' => 'required|array',
+      'ids.*' => 'integer'
+    ]);
+
+    $ids = $request->input('ids');
+    $users = User::with('role')->whereIn('id', $ids)->get();
+
+    return response()->json(['data' => $users], 200);
+  }
+
+  /**
+   * Tìm kiếm IDs người dùng theo từ khoá (tên, email, sđt) — CHỈ ADMIN/OPERATOR.
+   */
+  public function searchUserIds(Request $request)
+  {
+    $currentUser = auth('api')->user();
+    if (!$currentUser || !in_array($currentUser->role_id, [1, 2])) {
+      return response()->json(['message' => 'Forbidden.'], 403);
+    }
+
+    $queryStr = $request->query('query');
+    if (empty($queryStr)) {
+      return response()->json([], 200);
+    }
+
+    $userIds = User::where('full_name', 'like', "%{$queryStr}%")
+      ->orWhere('email', 'like', "%{$queryStr}%")
+      ->orWhere('phone', 'like', "%{$queryStr}%")
+      ->pluck('id')
+      ->toArray();
+
+    return response()->json($userIds, 200);
   }
 }

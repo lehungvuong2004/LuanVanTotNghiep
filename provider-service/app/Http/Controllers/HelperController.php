@@ -73,6 +73,15 @@ class HelperController extends Controller
         return response()->json(['data' => $helper], 200);
     }
 
+    /**
+     * Lấy danh sách user_id của tất cả helper (được gọi nội bộ/công khai).
+     */
+    public function getHelperUserIds()
+    {
+        $userIds = HelperProfile::pluck('user_id')->toArray();
+        return response()->json($userIds, 200);
+    }
+
     // =====================================================================
     //  HELPER — Quản lý hồ sơ của chính mình (role_id = 3)
     // =====================================================================

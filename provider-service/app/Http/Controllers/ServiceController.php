@@ -172,8 +172,8 @@ class ServiceController extends Controller
         if (!$category) return response()->json(['message' => 'Không tìm thấy danh mục.'], 404);
 
         // Kiểm tra còn service đang dùng danh mục này không
-        if ($category->services()->where('status', 'active')->exists()) {
-            return response()->json(['message' => 'Không thể xóa danh mục đang có dịch vụ hoạt động.'], 409);
+        if ($category->services()->exists()) {
+            return response()->json(['message' => 'Không thể xóa danh mục đang có dịch vụ.'], 409);
         }
 
         $category->delete();
@@ -262,7 +262,7 @@ class ServiceController extends Controller
         $service = Service::find($id);
         if (!$service) return response()->json(['message' => 'Không tìm thấy dịch vụ.'], 404);
 
-        $service->update(['status' => 'inactive']); // Soft-disable thay vì hard-delete
-        return response()->json(['message' => 'Đã vô hiệu hóa dịch vụ.'], 200);
+        $service->delete(); // Thực hiện xóa cứng khỏi database
+        return response()->json(['message' => 'Xóa dịch vụ thành công.'], 200);
     }
 }

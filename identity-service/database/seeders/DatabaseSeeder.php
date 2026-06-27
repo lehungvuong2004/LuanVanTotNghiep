@@ -60,9 +60,58 @@ class DatabaseSeeder extends Seeder
     User::updateOrCreate(
       ['email' => 'helper@gmail.com'],
       [
+        'id' => 3,
         'role_id' => 3,
         'full_name' => 'Người giúp việc B',
         'phone' => $helperPhone,
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper2@gmail.com'],
+      [
+        'id' => 10,
+        'role_id' => 3,
+        'full_name' => 'Nguyễn Thị Hoa',
+        'phone' => '0903333222',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper3@gmail.com'],
+      [
+        'id' => 11,
+        'role_id' => 3,
+        'full_name' => 'Trần Văn Hùng',
+        'phone' => '0903333444',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper4@gmail.com'],
+      [
+        'id' => 12,
+        'role_id' => 3,
+        'full_name' => 'Phạm Thanh Sơn',
+        'phone' => '0903333555',
+        'password' => Hash::make($helperPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'helper5@gmail.com'],
+      [
+        'id' => 13,
+        'role_id' => 3,
+        'full_name' => 'Lê Thị Mai',
+        'phone' => '0903333666',
         'password' => Hash::make($helperPass),
         'status' => 'active',
       ]
@@ -72,6 +121,7 @@ class DatabaseSeeder extends Seeder
     User::updateOrCreate(
       ['email' => 'customer@gmail.com'],
       [
+        'id' => 4,
         'role_id' => 4,
         'full_name' => 'Khách hàng A',
         'phone' => $customerPhone,
@@ -79,5 +129,56 @@ class DatabaseSeeder extends Seeder
         'status' => 'active',
       ]
     );
+
+    User::updateOrCreate(
+      ['email' => 'customer2@gmail.com'],
+      [
+        'id' => 14,
+        'role_id' => 4,
+        'full_name' => 'Nguyễn Văn Nam',
+        'phone' => '0902222111',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer3@gmail.com'],
+      [
+        'id' => 15,
+        'role_id' => 4,
+        'full_name' => 'Trần Thị Tuyết',
+        'phone' => '0902222333',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer4@gmail.com'],
+      [
+        'id' => 16,
+        'role_id' => 4,
+        'full_name' => 'Phạm Minh Tuấn',
+        'phone' => '0902222444',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    User::updateOrCreate(
+      ['email' => 'customer5@gmail.com'],
+      [
+        'id' => 17,
+        'role_id' => 4,
+        'full_name' => 'Đỗ Thu Trang',
+        'phone' => '0902222555',
+        'password' => Hash::make($customerPass),
+        'status' => 'active',
+      ]
+    );
+
+    // Seed News Articles
+    $this->call(NewsSeeder::class);
   }
 }

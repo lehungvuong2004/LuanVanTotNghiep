@@ -40,7 +40,6 @@ Dự án áp dụng kiến trúc **Microservices** hiện đại chạy trên n�
 ### 3. Containerization & DevOps
 * **Docker & Docker Compose:** Đóng gói toàn bộ các dịch vụ độc lập giúp môi trường phát triển và triển khai đồng bộ.
 * **API Gateway:** Điều hướng yêu cầu (proxy routing) tập trung từ Frontend đến các dịch vụ Backend tương ứng.
-
 ---
 ## Kiến Trúc Hệ Thống
 

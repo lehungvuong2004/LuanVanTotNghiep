@@ -87,6 +87,17 @@ Route::any('/api/profile', function (Request $request) {
     return proxyTo($targetUrl, $request);
 });
 
+Route::any('/api/banners/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/banners/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+// Tin tức — proxy sang Identity Service
+Route::any('/api/news/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/news/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
 // 3. Định tuyến cho Order Service (Quản lý đơn đặt dịch vụ)
 Route::any('/api/orders/{any?}', function (Request $request, $any = '') {
     $targetUrl = 'http://order-service:8000/api/orders/' . $any;

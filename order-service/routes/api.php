@@ -51,6 +51,9 @@ Route::prefix('orders')->group(function () {
 
         Route::prefix('admin')->group(function () {
 
+            // Dashboard Overview
+            Route::get('dashboard-overview',     [BookingController::class, 'dashboardOverview']);
+
             // Bookings
             Route::get('bookings',               [BookingController::class, 'adminIndex']);
             Route::get('bookings/{id}',          [BookingController::class, 'adminShow']);
@@ -64,6 +67,7 @@ Route::prefix('orders')->group(function () {
 
             // Reviews
             Route::get('reviews',                 [ReviewController::class, 'adminIndex']);
+            Route::post('reviews',                [ReviewController::class, 'adminCreate']);
             Route::put('reviews/{id}',            [ReviewController::class, 'adminUpdate']);
             Route::delete('reviews/{id}',         [ReviewController::class, 'adminDestroy']);
 

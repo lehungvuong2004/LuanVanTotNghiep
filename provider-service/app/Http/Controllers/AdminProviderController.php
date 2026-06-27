@@ -45,13 +45,56 @@ class AdminProviderController extends Controller
             $query->whereHas('workingAreas', fn($q) => $q->where('city', $city));
         }
 
+        // Tìm kiếm theo tên hoặc email hoặc số điện thoại (từ identity-service)
         if ($request->filled('search')) {
-            // Tìm theo user_id (vì helper_profiles không lưu tên — tên nằm ở identity-service)
-            $query->where('user_id', $request->query('search'));
+            $search = $request->query('search');
+            $authHeader = $request->header('Authorization');
+            $userIds = [];
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                    ->timeout(3)
+                    ->get('http://identity-service:8000/api/admin/users/search-ids', ['query' => $search]);
+
+                if ($response->successful()) {
+                    $userIds = $response->json() ?? [];
+                    $query->whereIn('user_id', $userIds);
+                } else {
+                    $query->whereIn('user_id', [-1]);
+                }
+            } catch (\Exception $e) {
+                $query->whereIn('user_id', [-1]);
+            }
         }
 
         $limit   = (int) $request->query('limit', 20);
         $helpers = $query->orderByDesc('id')->paginate($limit);
+
+        // Lấy thông tin user tương ứng
+        $userIds = $helpers->pluck('user_id')->unique()->toArray();
+        $userMap = [];
+
+        if (!empty($userIds)) {
+            $authHeader = $request->header('Authorization');
+            try {
+                $usersResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                    ->timeout(3)
+                    ->post('http://identity-service:8000/api/admin/users/by-ids', ['ids' => $userIds]);
+
+                if ($usersResponse->successful()) {
+                    $users = $usersResponse->json('data') ?? [];
+                    foreach ($users as $u) {
+                        $userMap[$u['id']] = $u;
+                    }
+                }
+            } catch (\Exception $e) {
+                // ignore
+            }
+        }
+
+        foreach ($helpers->items() as $helper) {
+            $helper->user = $userMap[$helper->user_id] ?? null;
+        }
 
         return response()->json(['data' => $helpers], 200);
     }
@@ -70,6 +113,23 @@ class AdminProviderController extends Controller
 
         if (!$helper) {
             return response()->json(['message' => 'Không tìm thấy helper.'], 404);
+        }
+
+        // Lấy thông tin chi tiết user
+        $authHeader = $request->header('Authorization');
+        try {
+            $userResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(3)
+                ->post('http://identity-service:8000/api/admin/users/by-ids', ['ids' => [$helper->user_id]]);
+
+            if ($userResponse->successful()) {
+                $users = $userResponse->json('data') ?? [];
+                if (!empty($users)) {
+                    $helper->user = $users[0];
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
         }
 
         return response()->json(['data' => $helper], 200);
@@ -184,4 +244,96 @@ class AdminProviderController extends Controller
 
         return response()->json(['data' => $stats], 200);
     }
+
+    /**
+     * Admin xóa vĩnh viễn 1 helper (chỉ Admin).
+     */
+    public function deleteHelper(Request $request, $id)
+    {
+        // Phải là Admin (role_id = 1)
+        if ($request->authUser['role_id'] !== 1) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        }
+
+        $helper = HelperProfile::find($id);
+        if (!$helper) {
+            return response()->json(['message' => 'Không tìm thấy helper.'], 404);
+        }
+
+        // Gọi identity-service để xóa account user tương ứng
+        $authHeader = $request->header('Authorization');
+        try {
+            $userResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(5)
+                ->delete("http://identity-service:8000/api/admin/users/{$helper->user_id}");
+
+            // Nếu xóa user thành công hoặc user không tồn tại thì ta tiếp tục xóa helper profile
+            if ($userResponse->successful() || $userResponse->status() === 404) {
+                $helper->delete(); // Sẽ cascade delete working areas, verifications, skills, availability...
+                return response()->json(['message' => 'Xóa người giúp việc và tài khoản liên kết thành công.'], 200);
+            }
+
+            return response()->json([
+                'message' => 'Không thể xóa tài khoản liên kết ở Identity Service.',
+                'error' => $userResponse->json()
+            ], $userResponse->status());
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi kết nối liên dịch vụ khi xóa tài khoản helper.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin xóa hàng loạt helper (chỉ Admin).
+     */
+    public function bulkDeleteHelpers(Request $request)
+    {
+        // Phải là Admin (role_id = 1)
+        if ($request->authUser['role_id'] !== 1) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        }
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer'
+        ]);
+
+        $ids = $request->input('ids');
+        $helpers = HelperProfile::whereIn('id', $ids)->get();
+
+        if ($helpers->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy người giúp việc nào để xóa.'], 404);
+        }
+
+        $userIds = $helpers->pluck('user_id')->toArray();
+        $authHeader = $request->header('Authorization');
+
+        try {
+            // Gọi identity-service để bulk delete account
+            $userResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(5)
+                ->post("http://identity-service:8000/api/admin/users/bulk-delete", ['ids' => $userIds]);
+
+            if ($userResponse->successful()) {
+                // Xóa các helper profile tương ứng
+                HelperProfile::whereIn('id', $ids)->delete();
+                return response()->json(['message' => 'Xóa hàng loạt người giúp việc và tài khoản liên kết thành công.'], 200);
+            }
+
+            return response()->json([
+                'message' => 'Không thể xóa hàng loạt tài khoản liên kết ở Identity Service.',
+                'error' => $userResponse->json()
+            ], $userResponse->status());
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi kết nối liên dịch vụ khi xóa hàng loạt helper.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
+
