@@ -1,10 +1,12 @@
 import React from "react";
 import { Icon } from "@iconify/react";
+import ReactECharts from "echarts-for-react";
 import { useAdminReviews } from "./useHook";
 import { Toast } from "../../../components/Toast";
 import { Pagination } from "../../../components/Pagination";
+import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 
-export const Reviews: React.FC = () => {
+export const Reviews = () => {
   const {
     reviews,
     usersMap,
@@ -19,7 +21,36 @@ export const Reviews: React.FC = () => {
     itemsPerPage,
     toast,
     setToast,
+    handleCreateReview,
+    handleUpdateReview,
+    handleDeleteReview,
+    getRatingDistributionOption,
+    getRatingBarOption,
+    selectedIds,
+    toggleSelectOne,
+    toggleSelectAll,
+    clearSelection,
+    handleBulkDelete,
   } = useAdminReviews();
+
+  // Modal states
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+
+  // Form states - Create
+  const [createCustomerId, setCreateCustomerId] = React.useState("");
+  const [createHelperId, setCreateHelperId] = React.useState("");
+  const [createRating, setCreateRating] = React.useState(5);
+  const [createComment, setCreateComment] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Form states - Edit
+  const [editingReview, setEditingReview] = React.useState<any>(null);
+  const [editRating, setEditRating] = React.useState(5);
+  const [editComment, setEditComment] = React.useState("");
+
+  const customersList = Object.values(usersMap).filter((u) => u.role_id === 4);
+  const helpersList = Object.values(usersMap).filter((u) => u.role_id === 3);
 
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -45,14 +76,68 @@ export const Reviews: React.FC = () => {
     return <div className="flex items-center gap-0.5">{stars}</div>;
   };
 
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    if (!createCustomerId || !createHelperId) {
+      alert("Vui lòng chọn đầy đủ Khách hàng và Người giúp việc!");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await handleCreateReview({
+        customer_id: parseInt(createCustomerId),
+        helper_id: parseInt(createHelperId),
+        rating: createRating,
+        comment: createComment,
+      });
+      // Reset & close
+      setCreateCustomerId("");
+      setCreateHelperId("");
+      setCreateRating(5);
+      setCreateComment("");
+      setIsCreateOpen(false);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingReview) return;
+    setIsSubmitting(true);
+    try {
+      await handleUpdateReview(editingReview.id, {
+        rating: editRating,
+        comment: editComment,
+      });
+      setIsEditOpen(false);
+      setEditingReview(null);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ECharts Configurations are retrieved from useAdminReviews hook
+
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Giám Sát Đánh Giá (Reviews)</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc. (Quyền đọc)
+          Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc. (Quyền đọc & Ghi)
         </p>
       </div>
+      <button
+        onClick={() => setIsCreateOpen(true)}
+        className="cursor-pointer bg-[#008080] hover:bg-[#006666] active:scale-95 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shrink-0 flex items-center gap-2 shadow-md shadow-[#008080]/20 text-sm"
+      >
+        <Icon icon="material-symbols:add-rounded" className="text-lg" />
+        Thêm Đánh Giá
+      </button>
     </div>
   );
 
@@ -112,6 +197,21 @@ export const Reviews: React.FC = () => {
     );
   };
 
+  const renderCharts = () => {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 animate-fade-in">
+        {/* Doughnut Chart */}
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+          <ReactECharts option={getRatingDistributionOption()} style={{ height: "300px" }} />
+        </div>
+        {/* Bar Chart */}
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+          <ReactECharts option={getRatingBarOption()} style={{ height: "300px" }} />
+        </div>
+      </div>
+    );
+  };
+
   const renderFilters = () => (
     <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
       <div className="relative w-full md:w-96">
@@ -136,11 +236,11 @@ export const Reviews: React.FC = () => {
             className="bg-slate-50/50 dark:bg-slate-900/40 text-slate-705 dark:text-slate-200 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
           >
             <option value="all">Tất cả</option>
-            <option value="5">5 Sao ★</option>
-            <option value="4">4 Sao ★</option>
-            <option value="3">3 Sao ★</option>
-            <option value="2">2 Sao ★</option>
-            <option value="1">1 Sao ★</option>
+            <option value="5">5 Sao</option>
+            <option value="4">4 Sao</option>
+            <option value="3">3 Sao</option>
+            <option value="2">2 Sao</option>
+            <option value="1">1 Sao</option>
           </select>
         </div>
       </div>
@@ -175,20 +275,48 @@ export const Reviews: React.FC = () => {
           <table className="w-full text-left border-collapse min-w-4xl">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                <th className="py-3 px-5 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.length === reviews.length && reviews.length > 0}
+                    ref={(el) => {
+                      if (el) {
+                        el.indeterminate = selectedIds.length > 0 && selectedIds.length < reviews.length;
+                      }
+                    }}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                  />
+                </th>
                 <th className="py-3 px-5">Khách Hàng</th>
                 <th className="py-3 px-5">Người Giúp Việc</th>
                 <th className="py-3 px-5">Đánh Giá</th>
                 <th className="py-3 px-5">Nội Dung Nhận Xét</th>
                 <th className="py-3 px-5">Thời Gian</th>
+                <th className="py-3 px-5 text-right">Thao Tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-150 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
               {reviews.map((r) => {
                 const customer = usersMap[r.customer_id];
                 const helper = usersMap[r.helper_id];
+                const isSelected = selectedIds.includes(r.id);
 
                 return (
-                  <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors">
+                  <tr
+                    key={r.id}
+                    className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-750/30 ${
+                      isSelected ? "bg-red-50/20 dark:bg-red-950/10" : ""
+                    }`}
+                  >
+                    <td className="py-3 px-5 text-center">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectOne(r.id)}
+                        className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                      />
+                    </td>
                     {/* Customer */}
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
@@ -253,6 +381,31 @@ export const Reviews: React.FC = () => {
                         minute: "2-digit",
                       })}
                     </td>
+
+                    {/* Actions */}
+                    <td className="py-3 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => {
+                            setEditingReview(r);
+                            setEditRating(r.rating);
+                            setEditComment(r.comment || "");
+                            setIsEditOpen(true);
+                          }}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                          title="Sửa đánh giá"
+                        >
+                          <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReview(r.id)}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                          title="Xóa đánh giá"
+                        >
+                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -273,13 +426,219 @@ export const Reviews: React.FC = () => {
     );
   };
 
+  const renderCreateModal = () => {
+    if (!isCreateOpen) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all duration-300">
+          <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30">
+            <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+              <Icon icon="material-symbols:add-reaction-outline-rounded" className="text-xl text-[#008080]" />
+              Tạo Đánh Giá Mới
+            </h3>
+            <button
+              onClick={() => setIsCreateOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <Icon icon="material-symbols:close-rounded" className="text-xl" />
+            </button>
+          </div>
+          <form onSubmit={handleCreateSubmit} className="p-6 flex flex-col gap-4">
+            {/* Customer Dropdown */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Khách Hàng</label>
+              <select
+                required
+                value={createCustomerId}
+                onChange={(e) => setCreateCustomerId(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
+              >
+                <option value="">-- Chọn Khách Hàng --</option>
+                {customersList.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.full_name} ({c.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Helper Dropdown */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Người Giúp Việc</label>
+              <select
+                required
+                value={createHelperId}
+                onChange={(e) => setCreateHelperId(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
+              >
+                <option value="">-- Chọn Người Giúp Việc --</option>
+                {helpersList.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.full_name} ({h.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Rating Selector */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số Sao Đánh Giá</label>
+              <select
+                required
+                value={createRating}
+                onChange={(e) => setCreateRating(parseInt(e.target.value))}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
+              >
+                <option value="5">5 Sao</option>
+                <option value="4">4 Sao</option>
+                <option value="3">3 Sao</option>
+                <option value="2">2 Sao</option>
+                <option value="1">1 Sao</option>
+              </select>
+            </div>
+
+            {/* Comment */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nhận Xét</label>
+              <textarea
+                placeholder="Nhập nội dung phản hồi của khách hàng..."
+                value={createComment}
+                onChange={(e) => setCreateComment(e.target.value)}
+                rows={3}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium resize-none"
+              />
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-end gap-3 mt-4 border-t border-slate-100 dark:border-slate-700 pt-4">
+              <button
+                type="button"
+                onClick={() => setIsCreateOpen(false)}
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl transition-colors cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-[#008080] hover:bg-[#006666] active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-md shadow-[#008080]/10 cursor-pointer disabled:opacity-50"
+              >
+                {isSubmitting ? "Đang xử lý..." : "Lưu lại"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEditModal = () => {
+    if (!isEditOpen || !editingReview) return null;
+    const customer = usersMap[editingReview.customer_id];
+    const helper = usersMap[editingReview.helper_id];
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all duration-300">
+          <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30">
+            <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+              <Icon icon="material-symbols:edit-document-outline-rounded" className="text-xl text-blue-650" />
+              Sửa Đánh Giá
+            </h3>
+            <button
+              onClick={() => setIsEditOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <Icon icon="material-symbols:close-rounded" className="text-xl" />
+            </button>
+          </div>
+          <form onSubmit={handleEditSubmit} className="p-6 flex flex-col gap-4">
+            {/* Meta Info Readonly */}
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Khách Hàng</span>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">{customer?.full_name || `Khách hàng #${editingReview.customer_id}`}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Người Giúp Việc</span>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">{helper?.full_name || `Người giúp việc #${editingReview.helper_id}`}</span>
+              </div>
+            </div>
+
+            {/* Rating Selector */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số Sao Đánh Giá</label>
+              <select
+                required
+                value={editRating}
+                onChange={(e) => setEditRating(parseInt(e.target.value))}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
+              >
+                <option value="5">5 Sao</option>
+                <option value="4">4 Sao</option>
+                <option value="3">3 Sao</option>
+                <option value="2">2 Sao</option>
+                <option value="1">1 Sao</option>
+              </select>
+            </div>
+
+            {/* Comment */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nhận Xét</label>
+              <textarea
+                placeholder="Nhập nội dung phản hồi của khách hàng..."
+                value={editComment}
+                onChange={(e) => setEditComment(e.target.value)}
+                rows={3}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium resize-none"
+              />
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-end gap-3 mt-4 border-t border-slate-100 dark:border-slate-700 pt-4">
+              <button
+                type="button"
+                onClick={() => setIsEditOpen(false)}
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl transition-colors cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-md shadow-blue-600/10 cursor-pointer disabled:opacity-50"
+              >
+                {isSubmitting ? "Đang cập nhật..." : "Cập nhật"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="p-6 w-full">
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       {renderHeader()}
       {renderKPIs()}
+      {renderCharts()}
       {renderFilters()}
+      {selectedIds.length > 0 && (
+        <div className="mb-4">
+          <BulkDeleteBar
+            selectedIds={selectedIds}
+            totalCount={reviews.length}
+            onToggleAll={toggleSelectAll}
+            onDeleteSelected={handleBulkDelete}
+            onClear={clearSelection}
+            loading={loading}
+          />
+        </div>
+      )}
       {renderTable()}
+      {renderCreateModal()}
+      {renderEditModal()}
     </div>
   );
 };

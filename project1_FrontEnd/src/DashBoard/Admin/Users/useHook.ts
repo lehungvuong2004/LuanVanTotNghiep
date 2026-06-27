@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin } from "../../../api/users";
+import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin } from "../../../api/users";
 import type { User } from "../../../api/users";
 import { getRootFontSizePx } from "../../../utils";
 
@@ -7,11 +7,22 @@ export const useAccount = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRole, setSelectedRole] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
+
+  // Real Database Role Counts
+  const [roleCounts, setRoleCounts] = useState({
+    admin: 0,
+    operator: 0,
+    helper: 0,
+    customer: 0,
+    total: 0,
+  });
+
+  // Checkbox Selection
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
 
   // CRUD Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,29 +53,31 @@ export const useAccount = () => {
     }, 4000);
   }, []);
 
-  // Fetch users from API
+  // Fetch users (customers) from API
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const statusParam = selectedStatus !== "All" ? selectedStatus.toLowerCase() : undefined;
-      const roleParam = selectedRole !== "All" ? selectedRole : undefined;
 
       const response = await getUsersAdmin({
         page: currentPage,
         limit: itemsPerPage,
         status: statusParam,
-        role_id: roleParam,
+        role_id: 4, // Exclusively Customers
         search: searchQuery || undefined,
       });
 
       setUsers(response.data.data);
       setTotalItems(response.data.total);
+      if (response.role_counts) {
+        setRoleCounts(response.role_counts);
+      }
     } catch (error: any) {
-      showToast("error", "Lỗi tải dữ liệu", error.response?.data?.message || "Không thể tải danh sách tài khoản");
+      showToast("error", "Lỗi tải dữ liệu", error.response?.data?.message || "Không thể tải danh sách khách hàng");
     } finally {
       setLoading(false);
     }
-  }, [currentPage, selectedStatus, selectedRole, searchQuery, itemsPerPage, showToast]);
+  }, [currentPage, selectedStatus, searchQuery, itemsPerPage, showToast]);
 
   // Fetch users when page or filters change
   useEffect(() => {
@@ -80,6 +93,11 @@ export const useAccount = () => {
       active = false;
     };
   }, [fetchUsers]);
+
+  // Reset checkboxes on page/filter change
+  useEffect(() => {
+    setSelectedUserIds([]);
+  }, [currentPage, selectedStatus, searchQuery]);
 
   const openAddModal = () => {
     setModalMode("add");
@@ -102,10 +120,10 @@ export const useAccount = () => {
     try {
       if (modalMode === "edit" && currentUser) {
         await updateUserAdmin(currentUser.id, userData);
-        showToast("success", "Thành công", "Cập nhật thông tin tài khoản thành công");
+        showToast("success", "Thành công", "Cập nhật thông tin khách hàng thành công");
       } else {
-        await createUserAdmin(userData);
-        showToast("success", "Thành công", "Tạo tài khoản mới thành công");
+        await createUserAdmin({ ...userData, role_id: 4 }); // Always Customer role
+        showToast("success", "Thành công", "Tạo tài khoản khách hàng mới thành công");
       }
       closeModal();
       fetchUsers();
@@ -142,13 +160,44 @@ export const useAccount = () => {
   };
 
   const handleDeleteUser = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này không?")) return;
+    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn khách hàng này không?")) return;
     try {
       await deleteUserAdmin(id);
-      showToast("success", "Thành công", "Xóa tài khoản thành công");
+      showToast("success", "Thành công", "Xóa tài khoản khách hàng thành công");
       fetchUsers();
     } catch (error: any) {
       showToast("error", "Lỗi xóa tài khoản", error.response?.data?.message || "Không thể xóa tài khoản");
+    }
+  };
+
+  const handleToggleSelectUser = useCallback((userId: number) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+    );
+  }, []);
+
+  const handleToggleSelectAll = useCallback(() => {
+    if (selectedUserIds.length === users.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(users.map((u) => u.id));
+    }
+  }, [users, selectedUserIds]);
+
+  const handleBulkDeleteUsers = async () => {
+    if (selectedUserIds.length === 0) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedUserIds.length} tài khoản khách hàng đã chọn không?`)) return;
+    
+    setLoading(true);
+    try {
+      await bulkDeleteUsersAdmin(selectedUserIds);
+      showToast("success", "Thành công", `Đã xóa thành công ${selectedUserIds.length} tài khoản khách hàng`);
+      setSelectedUserIds([]);
+      fetchUsers();
+    } catch (error: any) {
+      showToast("error", "Lỗi xóa tài khoản", error.response?.data?.message || "Không thể xóa các tài khoản đã chọn");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -163,17 +212,13 @@ export const useAccount = () => {
 
   const rem = getRootFontSizePx();
 
-  const roleOption = useMemo(() => {
-    const adminCount = users.filter((u) => u.role_id === 1).length;
-    const operatorCount = users.filter((u) => u.role_id === 2).length;
-    const helperCount = users.filter((u) => u.role_id === 3).length;
-    const customerCount = users.filter((u) => u.role_id === 4).length;
+  const providerOption = useMemo(() => {
+    const localCount = users.filter((u) => u.provider === "local").length;
+    const googleCount = users.filter((u) => u.provider === "google").length;
 
     const data = [
-      { name: "Admin (QTV)", value: adminCount, color: "#f43f5e" },
-      { name: "Operator (Vận hành)", value: operatorCount, color: "#6366f1" },
-      { name: "Helper (Người giúp việc)", value: helperCount, color: "#f59e0b" },
-      { name: "Customer (Khách hàng)", value: customerCount, color: "#10b981" },
+      { name: "Đăng ký thường", value: localCount, color: "#3b82f6" },
+      { name: "Đăng ký Google", value: googleCount, color: "#ef4444" },
     ].filter((item) => item.value > 0);
 
     return {
@@ -191,7 +236,7 @@ export const useAccount = () => {
       },
       series: [
         {
-          name: "Vai trò",
+          name: "Hình thức đăng ký",
           type: "pie",
           radius: ["40%", "70%"],
           center: ["50%", "45%"],
@@ -276,8 +321,6 @@ export const useAccount = () => {
   return {
     searchQuery,
     setSearchQuery,
-    selectedRole,
-    setSelectedRole,
     selectedStatus,
     setSelectedStatus,
     currentPage,
@@ -305,7 +348,13 @@ export const useAccount = () => {
     closeStatusModal,
     handleSaveStatus,
     handleDeleteUser,
-    roleOption,
+    providerOption,
     statusOption,
+    roleCounts,
+    selectedUserIds,
+    setSelectedUserIds,
+    handleToggleSelectUser,
+    handleToggleSelectAll,
+    handleBulkDeleteUsers,
   };
 };

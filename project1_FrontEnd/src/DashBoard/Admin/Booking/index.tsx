@@ -6,6 +6,7 @@ import type { BookingItem } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
 import { formatNumberVI } from "../../../utils";
+import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 
 export const Booking: React.FC = () => {
   const {
@@ -37,6 +38,11 @@ export const Booking: React.FC = () => {
     lineOption,
     toast,
     setToast,
+    selectedIds,
+    toggleSelectOne,
+    toggleSelectAll,
+    clearSelection,
+    handleBulkDelete,
   } = useBooking();
 
   // Cancel Reason input for Quick Cancel action
@@ -217,7 +223,20 @@ export const Booking: React.FC = () => {
     <div className="overflow-x-auto w-full">
       <div className="min-w-250">
         {/* Grid Header */}
-        <div className="grid grid-cols-12 gap-4 items-center bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider py-4 px-5">
+        <div className="grid grid-cols-13 gap-4 items-center bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider py-4 px-5">
+          <div className="col-span-1 text-center">
+            <input
+              type="checkbox"
+              checked={selectedIds.length === paginatedBookings.length && paginatedBookings.length > 0}
+              ref={(el) => {
+                if (el) {
+                  el.indeterminate = selectedIds.length > 0 && selectedIds.length < paginatedBookings.length;
+                }
+              }}
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+            />
+          </div>
           <div className="col-span-2">Mã đơn</div>
           <div className="col-span-2">Khách hàng</div>
           <div className="col-span-2">Người thực hiện</div>
@@ -232,12 +251,24 @@ export const Booking: React.FC = () => {
         <div className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
           {paginatedBookings.map((booking) => {
             const hasHelper = booking.helperName !== null;
+            const isSelected = selectedIds.includes(booking.id);
 
             return (
               <div
                 key={booking.id}
-                className="grid grid-cols-12 gap-4 items-center hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors py-4 px-5 text-sm text-slate-750 dark:text-slate-200"
+                className={`grid grid-cols-13 gap-4 items-center hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors py-4 px-5 text-sm text-slate-750 dark:text-slate-200 ${
+                  isSelected ? "bg-red-50/20 dark:bg-red-950/10" : ""
+                }`}
               >
+                {/* Checkbox */}
+                <div className="col-span-1 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleSelectOne(booking.id)}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+                  />
+                </div>
                 {/* Booking Code */}
                 <div className="col-span-2">
                   <button onClick={() => handleOpenDetail(booking)} className="font-bold text-blue-600 dark:text-blue-400 hover:underline text-left cursor-pointer">
@@ -920,6 +951,17 @@ export const Booking: React.FC = () => {
         {/* Booking List Container */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
           {renderToolbar()}
+          {selectedIds.length > 0 && (
+            <div className="p-4 border-b border-slate-200 dark:border-slate-750 bg-slate-50/30 dark:bg-slate-900/10">
+              <BulkDeleteBar
+                selectedIds={selectedIds}
+                totalCount={paginatedBookings.length}
+                onToggleAll={toggleSelectAll}
+                onDeleteSelected={handleBulkDelete}
+                onClear={clearSelection}
+              />
+            </div>
+          )}
           {renderTable()}
 
           {/* Pagination */}

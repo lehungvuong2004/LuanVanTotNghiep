@@ -28,6 +28,7 @@ export interface PaginatedReviewsResponse {
     total: number;
     per_page: number;
   };
+  rating_stats?: Record<number, number>;
 }
 
 export const getReviewsAdmin = async (params: GetReviewsParams): Promise<PaginatedReviewsResponse> => {
@@ -42,5 +43,17 @@ export const updateReviewAdmin = async (id: number, data: { rating?: number; com
 
 export const deleteReviewAdmin = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/orders/admin/reviews/${id}`);
+  return response.data;
+};
+
+export const createReviewAdmin = async (data: {
+  customer_id: number;
+  helper_id: number;
+  rating: number;
+  comment?: string | null;
+  booking_id?: number | null;
+  job_post_id?: number | null;
+}): Promise<{ message: string; data: Review }> => {
+  const response = await axiosInstance.post<{ message: string; data: Review }>("/orders/admin/reviews", data);
   return response.data;
 };

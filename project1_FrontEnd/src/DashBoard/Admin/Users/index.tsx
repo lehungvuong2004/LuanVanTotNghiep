@@ -5,13 +5,12 @@ import ReactECharts from "echarts-for-react";
 import { useAccount } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
+import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 
 export const Account = () => {
   const {
     searchQuery,
     setSearchQuery,
-    selectedRole,
-    setSelectedRole,
     selectedStatus,
     setSelectedStatus,
     currentPage,
@@ -39,13 +38,18 @@ export const Account = () => {
     closeStatusModal,
     handleSaveStatus,
     handleDeleteUser,
-    roleOption,
+    providerOption,
     statusOption,
+    roleCounts,
+    selectedUserIds,
+    setSelectedUserIds,
+    handleToggleSelectUser,
+    handleToggleSelectAll,
+    handleBulkDeleteUsers,
   } = useAccount();
 
-  // 1. Validation Schemas for Formik
+  // 1. Validation Schemas for Formik (Customers only)
   const addValidationSchema = Yup.object().shape({
-    role_id: Yup.number().required("Vui lòng chọn vai trò"),
     full_name: Yup.string()
       .min(2, "Họ tên phải có ít nhất 2 ký tự")
       .max(100, "Họ tên không được vượt quá 100 ký tự")
@@ -66,7 +70,6 @@ export const Account = () => {
   });
 
   const editValidationSchema = Yup.object().shape({
-    role_id: Yup.number().required("Vui lòng chọn vai trò"),
     full_name: Yup.string()
       .min(2, "Họ tên phải có ít nhất 2 ký tự")
       .max(100, "Họ tên không được vượt quá 100 ký tự")
@@ -80,7 +83,6 @@ export const Account = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      role_id: currentUser?.role_id || 4,
       full_name: currentUser?.full_name || "",
       email: currentUser?.email || "",
       phone: currentUser?.phone || "",
@@ -90,61 +92,9 @@ export const Account = () => {
     },
     validationSchema: modalMode === "add" ? addValidationSchema : editValidationSchema,
     onSubmit: (values) => {
-      if (modalMode === "edit") {
-        // Only send fields allowed for edit
-        handleSaveUser({
-          role_id: values.role_id,
-          full_name: values.full_name,
-          phone: values.phone || null,
-          avatar: values.avatar || null,
-        });
-      } else {
-        handleSaveUser({
-          role_id: values.role_id,
-          full_name: values.full_name,
-          email: values.email,
-          phone: values.phone || null,
-          password: values.password,
-          status: values.status,
-          avatar: values.avatar || null,
-        });
-      }
+      handleSaveUser(values);
     },
   });
-
-  // Helper functions for UI
-  const getRoleBadge = (roleId: number) => {
-    switch (roleId) {
-      case 1:
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 flex items-center gap-1 w-fit">
-            <Icon icon="material-symbols:admin-panel-settings-outline-rounded" />
-            Admin
-          </span>
-        );
-      case 2:
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 flex items-center gap-1 w-fit">
-            <Icon icon="material-symbols:support-agent-rounded" />
-            Operator
-          </span>
-        );
-      case 3:
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 flex items-center gap-1 w-fit">
-            <Icon icon="material-symbols:construction-rounded" />
-            Helper
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 w-fit">
-            <Icon icon="material-symbols:person-outline-rounded" />
-            Customer
-          </span>
-        );
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -173,7 +123,7 @@ export const Account = () => {
   };
 
   const getInitials = (name: string) => {
-    if (!name) return "U";
+    if (!name) return "KH";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -196,9 +146,9 @@ export const Account = () => {
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Tài Khoản Người Dùng</h2>
+        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Khách Hàng</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý quyền hạn, thông tin cá nhân và trạng thái hoạt động của các tài khoản hệ thống Gia Đình Việt.
+          Quản lý thông tin cá nhân và trạng thái hoạt động của khách hàng hệ thống Gia Đình Việt.
         </p>
       </div>
       <button
@@ -206,54 +156,39 @@ export const Account = () => {
         className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
       >
         <Icon icon="material-symbols:person-add-rounded" className="text-xl" />
-        Thêm Tài Khoản Mới
+        Thêm Khách Hàng Mới
       </button>
     </div>
   );
 
   // Render KPI Metrics Cards
   const renderKPIs = () => {
-    const adminCount = users.filter((u) => u.role_id === 1).length;
-    const operatorCount = users.filter((u) => u.role_id === 2).length;
-    const helperCount = users.filter((u) => u.role_id === 3).length;
-    const customerCount = users.filter((u) => u.role_id === 4).length;
-
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng tài khoản</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{totalItems}</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng tài khoản hệ thống</p>
+            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.total}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:group-outline" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between col-span-1 sm:col-span-1 lg:col-span-2">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Khách hàng</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{customerCount} / trang</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tài khoản Khách Hàng (Customers)</p>
+            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.customer}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl">
+          <div className="w-12 h-12 rounded-xl bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:person-outline-rounded" />
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Người giúp việc</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{helperCount} / trang</p>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl">
-            <Icon icon="material-symbols:construction-rounded" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Quản trị & Vận hành</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{adminCount + operatorCount} / trang</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Vai trò khác (QTV, VH, GV)</p>
+            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.total - roleCounts.customer}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-650 dark:text-rose-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:admin-panel-settings-outline-rounded" />
@@ -282,25 +217,6 @@ export const Account = () => {
       </div>
 
       <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-        {/* Role Filter dropdown */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider shrink-0">Vai trò:</label>
-          <select
-            value={selectedRole}
-            onChange={(e) => {
-              setSelectedRole(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-650 dark:text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none cursor-pointer"
-          >
-            <option value="All">Tất cả vai trò</option>
-            <option value="1">Quản trị viên (Admin)</option>
-            <option value="2">Nhân viên vận hành (Operator)</option>
-            <option value="3">Người giúp việc (Helper)</option>
-            <option value="4">Khách hàng (Customer)</option>
-          </select>
-        </div>
-
         {/* Status filter tab */}
         <div className="flex items-center gap-2">
           <label className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider shrink-0">Trạng thái:</label>
@@ -340,7 +256,7 @@ export const Account = () => {
       return (
         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs">
           <div className="w-12 h-12 border-4 border-[#026E5F] border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Đang tải danh sách tài khoản...</p>
+          <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Đang tải danh sách khách hàng...</p>
         </div>
       );
     }
@@ -351,8 +267,8 @@ export const Account = () => {
           <div className="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-900/60 flex items-center justify-center text-slate-400 text-4xl mb-4">
             <Icon icon="material-symbols:sentiment-dissatisfied-outline" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy người dùng nào</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Hãy kiểm tra bộ lọc hoặc tạo một tài khoản mới.</p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy khách hàng nào</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Hãy kiểm tra bộ lọc hoặc tạo tài khoản khách hàng mới.</p>
         </div>
       );
     }
@@ -363,9 +279,22 @@ export const Account = () => {
           <table className="w-full text-left border-collapse min-w-4xl">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <th className="py-3 px-5">Người Dùng</th>
+                <th className="py-3 px-5 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedUserIds.length === users.length && users.length > 0}
+                    ref={(el) => {
+                      if (el) {
+                        el.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < users.length;
+                      }
+                    }}
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                  />
+                </th>
+                <th className="py-3 px-5">Khách Hàng</th>
+                <th className="py-3 px-5">Email</th>
                 <th className="py-3 px-5">Số Điện Thoại</th>
-                <th className="py-3 px-5">Vai Trò</th>
                 <th className="py-3 px-5">Nguồn Đăng Nhập</th>
                 <th className="py-3 px-5">Trạng Thái</th>
                 <th className="py-3 px-5">Ngày Tham Gia</th>
@@ -375,6 +304,14 @@ export const Account = () => {
             <tbody className="divide-y divide-slate-150 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors">
+                  <td className="py-3 px-5 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(user.id)}
+                      onChange={() => handleToggleSelectUser(user.id)}
+                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                    />
+                  </td>
                   {/* User Profile column */}
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-3">
@@ -391,9 +328,13 @@ export const Account = () => {
                       )}
                       <div>
                         <h4 className="font-bold text-slate-800 dark:text-slate-100">{user.full_name}</h4>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{user.email}</p>
                       </div>
                     </div>
+                  </td>
+
+                  {/* Email column */}
+                  <td className="py-3 px-5">
+                    <span className="font-semibold text-slate-600 dark:text-slate-350">{user.email}</span>
                   </td>
 
                   {/* Phone column */}
@@ -402,9 +343,6 @@ export const Account = () => {
                       {user.phone || <span className="italic text-slate-400 dark:text-slate-600 text-xs">Chưa cung cấp</span>}
                     </span>
                   </td>
-
-                  {/* Role column */}
-                  <td className="py-3 px-5">{getRoleBadge(user.role_id)}</td>
 
                   {/* Provider column */}
                   <td className="py-3 px-5">
@@ -425,7 +363,7 @@ export const Account = () => {
                   <td className="py-3 px-5">{getStatusBadge(user.status)}</td>
 
                   {/* Created At column */}
-                  <td className="py-3 px-5 text-xs text-slate-500 dark:text-slate-400">
+                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400">
                     {new Date(user.created_at).toLocaleDateString("vi-VN", {
                       year: "numeric",
                       month: "long",
@@ -493,7 +431,7 @@ export const Account = () => {
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${modalMode === "add" ? "bg-blue-100 text-blue-600" : "bg-indigo-100 text-indigo-600"}`}>
                 <Icon icon={modalMode === "add" ? "material-symbols:person-add-rounded" : "material-symbols:edit-note"} />
               </div>
-              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Tài Khoản Mới" : "Chỉnh Sửa Tài Khoản"}</h3>
+              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Khách Hàng Mới" : "Chỉnh Sửa Khách Hàng"}</h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -502,24 +440,6 @@ export const Account = () => {
 
           {/* Modal Form */}
           <form onSubmit={formik.handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* Role select */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vai Trò Người Dùng *</label>
-              <select
-                name="role_id"
-                value={formik.values.role_id}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all cursor-pointer font-semibold text-slate-700 dark:text-slate-350"
-              >
-                <option value={4}>Khách hàng (Customer)</option>
-                <option value={3}>Người giúp việc (Helper)</option>
-                <option value={2}>Nhân viên vận hành (Operator)</option>
-                <option value={1}>Quản trị viên (Admin)</option>
-              </select>
-              {formik.touched.role_id && formik.errors.role_id && <p className="text-red-500 text-xs mt-1">{String(formik.errors.role_id)}</p>}
-            </div>
-
             {/* Full Name input */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Họ và Tên *</label>
@@ -580,7 +500,7 @@ export const Account = () => {
                 <input
                   type="password"
                   name="password"
-                  placeholder="Nhập ít nhất 6 ký tự, gồm chữ hoa, thường & số"
+                  placeholder="Nhập mật khẩu cho tài khoản..."
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -592,12 +512,12 @@ export const Account = () => {
               </div>
             )}
 
-            {/* Avatar URL input (Edit mode only) */}
+            {/* Avatar input (Edit mode only) */}
             {modalMode === "edit" && (
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Link Ảnh Đại Diện (Avatar URL)</label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Đường Dẫn Ảnh Đại Diện (Avatar URL)</label>
                 <input
-                  type="url"
+                  type="text"
                   name="avatar"
                   placeholder="https://example.com/avatar.jpg"
                   value={formik.values.avatar}
@@ -611,46 +531,8 @@ export const Account = () => {
               </div>
             )}
 
-            {/* Status selection cards (Add mode only) */}
-            {modalMode === "add" && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng Thái Mặc Định</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div
-                    onClick={() => formik.setFieldValue("status", "active")}
-                    className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 select-none ${
-                      formik.values.status === "active"
-                        ? "border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/10 text-emerald-700 dark:text-emerald-400"
-                        : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-650 dark:text-slate-400"
-                    }`}
-                  >
-                    <Icon icon="material-symbols:check-circle-outline-rounded" className="text-xl shrink-0" />
-                    <div className="text-left">
-                      <p className="text-xs font-bold">Kích hoạt</p>
-                      <p className="text-xs font-normal opacity-75 mt-0.5">Sử dụng ngay</p>
-                    </div>
-                  </div>
-
-                  <div
-                    onClick={() => formik.setFieldValue("status", "inactive")}
-                    className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 select-none ${
-                      formik.values.status === "inactive"
-                        ? "border-amber-500 bg-amber-50/30 dark:bg-amber-950/10 text-amber-700 dark:text-amber-400"
-                        : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-655 dark:text-slate-400"
-                    }`}
-                  >
-                    <Icon icon="material-symbols:block-rounded" className="text-xl shrink-0" />
-                    <div className="text-left">
-                      <p className="text-xs font-bold">Khóa tạm thời</p>
-                      <p className="text-xs font-normal opacity-75 mt-0.5">Tạm dừng truy cập</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Actions footer */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-end gap-3 mt-6">
+            {/* Form actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700/80 mt-4">
               <button
                 type="button"
                 onClick={closeModal}
@@ -660,11 +542,9 @@ export const Account = () => {
               </button>
               <button
                 type="submit"
-                disabled={loading}
-                className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md active:scale-98 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md active:scale-98 transition-all cursor-pointer"
               >
-                {loading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
-                Lưu Lại
+                Lưu lại
               </button>
             </div>
           </form>
@@ -673,7 +553,7 @@ export const Account = () => {
     );
   };
 
-  // 7. Render Status update / block dialog modal
+  // 7. Dialog Modal renderer for Changing Account Status (Lock/Unlock)
   const renderStatusModal = () => {
     if (!isStatusModalOpen || !statusUser) return null;
 
@@ -682,31 +562,34 @@ export const Account = () => {
         <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={closeStatusModal}></div>
 
         <div className="relative bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all duration-300 scale-100 flex flex-col">
-          {/* Header */}
+          {/* Modal Header */}
           <div className="p-5 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-lg">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-lg bg-amber-100 text-amber-600">
                 <Icon icon="material-symbols:shield-lock-outline-rounded" />
               </div>
-              <h3 className="font-extrabold text-base">Cập Nhật Trạng Thái</h3>
+              <h3 className="font-extrabold text-base">Khóa / Mở Khóa Tài Khoản</h3>
             </div>
             <button type="button" onClick={closeStatusModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
             </button>
           </div>
 
-          {/* Body */}
           <div className="p-6 space-y-4">
-            <div className="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-xl">
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tài khoản</p>
-              <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 mt-0.5">{statusUser.full_name}</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{statusUser.email}</p>
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] font-bold text-sm flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                {getInitials(statusUser.full_name)}
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-850 dark:text-slate-100">{statusUser.full_name}</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{statusUser.email}</p>
+              </div>
             </div>
 
-            {/* Status Card selection options */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Trạng thái mới</label>
-              <div className="grid grid-cols-3 gap-2">
+            {/* Select Status Cards */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Chọn Trạng Thái Mới</label>
+              <div className="grid grid-cols-3 gap-3">
                 <div
                   onClick={() => setNewStatus("active")}
                   className={`p-2.5 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center select-none ${
@@ -784,14 +667,14 @@ export const Account = () => {
   const renderCharts = () => {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pie Chart: Role Distribution */}
+        {/* Pie Chart: Provider Distribution */}
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Cơ Cấu Vai Trò</h3>
-            <span className="text-xs text-slate-400 dark:text-slate-500">Phân bố quyền hạn trên trang hiện tại</span>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Hình Thức Đăng Ký</h3>
+            <span className="text-xs text-slate-400 dark:text-slate-500">Phân bố nguồn đăng ký khách hàng hiện tại</span>
           </div>
           <div className="h-64 flex items-center justify-center">
-            <ReactECharts option={roleOption} style={{ height: "100%", width: "100%" }} />
+            <ReactECharts option={providerOption} style={{ height: "100%", width: "100%" }} />
           </div>
         </div>
 
@@ -799,7 +682,7 @@ export const Account = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Trạng Thái Tài Khoản</h3>
-            <span className="text-xs text-slate-400 dark:text-slate-500">Thống kê hoạt động trên trang hiện tại</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">Thống kê hoạt động của khách hàng hiện tại</span>
           </div>
           <div className="h-64 flex items-center justify-center">
             <ReactECharts option={statusOption} style={{ height: "100%", width: "100%" }} />
@@ -823,6 +706,18 @@ export const Account = () => {
       {renderKPIs()}
       {renderCharts()}
       {renderFilters()}
+      {selectedUserIds.length > 0 && (
+        <div className="my-2">
+          <BulkDeleteBar
+            selectedIds={selectedUserIds}
+            totalCount={users.length}
+            onToggleAll={handleToggleSelectAll}
+            onDeleteSelected={handleBulkDeleteUsers}
+            onClear={() => setSelectedUserIds([])}
+            loading={loading}
+          />
+        </div>
+      )}
       {renderTable()}
       {renderModal()}
       {renderStatusModal()}

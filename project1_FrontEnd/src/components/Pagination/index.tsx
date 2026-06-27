@@ -29,7 +29,7 @@ export const Pagination = ({
   const pages = Array.from({ length: pagesCount }, (_, i) => i + 1);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-slate-100 dark:border-slate-700/50">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-5 px-5 border-t border-slate-100 dark:border-slate-700/50">
       <div className="text-sm text-slate-500 dark:text-slate-400">
         Hiển thị <span className="font-semibold text-slate-700 dark:text-slate-200">{startIndex}-{endIndex}</span> của{" "}
         <span className="font-semibold text-slate-700 dark:text-slate-200">{itemsCount}</span>

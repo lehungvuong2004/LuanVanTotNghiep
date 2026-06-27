@@ -6,7 +6,27 @@ import { formatNumberVI, formatMoneyShortVI } from "../../../utils";
 
 export const DashboardOverview = () => {
   // Delegate all charts configuration and lifecycle to the custom hook
-  const { kpis, recentBookings, totalServiceCount, barOption, pieOption } = useDashboardOverview();
+  const { kpis, recentBookings, totalServiceCount, barOption, pieOption, loading, error } = useDashboardOverview();
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-10 min-h-96">
+        <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-blue-600 mb-2" />
+        <span className="text-slate-500 text-sm">Loading dashboard statistics...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-1 p-5 w-full max-w-350 mx-auto">
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 p-4 rounded-xl flex items-center gap-2">
+          <Icon icon="material-symbols:error-outline-rounded" className="text-xl" />
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   // Sub-render 1: Page Header
   const renderHeader = () => (

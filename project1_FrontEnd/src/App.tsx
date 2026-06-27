@@ -16,11 +16,13 @@ import { NewsDetail } from "./pages/NewsDetail";
 import { DashboardManager } from "./layouts/DashboardManager";
 import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
+import { ServiceCategories } from "./DashBoard/Admin/Service_Categories";
 import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 import { Booking } from "./DashBoard/Admin/Booking";
 import { Banners } from "./DashBoard/Admin/Banner";
 import { PaymentsRefunds } from "./DashBoard/Admin/PayMent & Refund";
-import { Account } from "./DashBoard/Admin/Account";
+import { Account } from "./DashBoard/Admin/Users";
+import { Helpers } from "./DashBoard/Admin/Helper";
 import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
 import { StaffReviews } from "./DashBoard/Staff/Reviews";
@@ -46,9 +48,11 @@ function App() {
           <Route path="/quen-mat-khau" element={<ForgetPassword />} />
         </Route>
         <Route path="/admin" element={<DashboardManager />}>
-          {/* <Route  element={<DashboardOverview />} /> */}
-          <Route path="dashboard"  index element={<DashboardOverview />} />
+          <Route index  element={<DashboardOverview />} />
+          <Route path="dashboard"  element={<DashboardOverview />} />
           <Route path="users" element={<Account />} />
+          <Route path="helpers" element={<Helpers />} />
+          <Route path="categories" element={<ServiceCategories />} />
           <Route path="services" element={<Services />} />
           <Route path="schedules" element={<Schedules />} />
           <Route path="bookings" element={<Booking />} />

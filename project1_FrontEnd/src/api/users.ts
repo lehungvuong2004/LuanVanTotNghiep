@@ -43,6 +43,13 @@ export interface PaginatedUsersResponse {
     to: number;
     total: number;
   };
+  role_counts?: {
+    admin: number;
+    operator: number;
+    helper: number;
+    customer: number;
+    total: number;
+  };
 }
 
 export const getUsersAdmin = async (params: GetUsersParams): Promise<PaginatedUsersResponse> => {
@@ -67,5 +74,10 @@ export const toggleUserStatusAdmin = async (id: number, data: { status: string; 
 
 export const deleteUserAdmin = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/admin/users/${id}`);
+  return response.data;
+};
+
+export const bulkDeleteUsersAdmin = async (ids: number[]): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>("/admin/users/bulk-delete", { ids });
   return response.data;
 };

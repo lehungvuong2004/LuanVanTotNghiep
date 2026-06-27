@@ -105,3 +105,42 @@ export const getCategoriesAdmin = async (params?: {
   });
   return response.data;
 };
+
+
+export const createCategoryAdmin = async (data: {
+  name: string;
+  description?: string | null;
+  icon?: string | null;
+  type?: "booking" | "job" | "both";
+  status?: "active" | "inactive";
+}): Promise<{ message: string; data: ServiceCategory }> => {
+  const response = await axiosInstance.post<{ message: string; data: ServiceCategory }>(
+    "/providers/admin/service-categories",
+    data
+  );
+  return response.data;
+};
+
+export const updateCategoryAdmin = async (
+  id: number,
+  data: {
+    name?: string;
+    description?: string | null;
+    icon?: string | null;
+    type?: "booking" | "job" | "both";
+    status?: "active" | "inactive";
+  }
+): Promise<{ message: string; data: ServiceCategory }> => {
+  const response = await axiosInstance.put<{ message: string; data: ServiceCategory }>(
+    `/providers/admin/service-categories/${id}`,
+    data
+  );
+  return response.data;
+};
+
+export const deleteCategoryAdmin = async (id: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(
+    `/providers/admin/service-categories/${id}`
+  );
+  return response.data;
+};

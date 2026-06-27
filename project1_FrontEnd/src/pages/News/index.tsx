@@ -202,8 +202,8 @@ export const News = () => {
     <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pt-16 pb-16 px-4 md:px-0">
       <div className="container mx-auto grid gap-6">
         {renderHeader()}
-        {loading && renderLoading()}
         {error && !loading && renderError()}
+        {loading && renderLoading()}
         {!loading && !error && renderContent()}
       </div>
     </div>
