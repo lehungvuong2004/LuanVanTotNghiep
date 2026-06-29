@@ -10,7 +10,7 @@ Hệ thống được thiết kế và xây dựng nhằm giải quyết nhu c�
 Dự án áp dụng kiến trúc **Microservices** hiện đại chạy trên nền tảng **Docker**, bao gồm ứng dụng **Frontend (React)** và các dịch vụ **Backend (Laravel PHP)** giao tiếp thông qua **API Gateway**.
 
 ## Link Deploy Frontend lên GitHub Pages  ( tạm thời đang lỗi )
-### GitHub Pages: https://lehungvuong2004.github.io/
+### GitHub Pages: https://lehungvuong2004.github.io/LuanVanTotNghiep/
 
 
 ## 🛠️ Công Nghệ Sử Dụng

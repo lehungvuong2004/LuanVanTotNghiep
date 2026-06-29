@@ -55,7 +55,7 @@ export const Header = () => {
                           <Link
                             key={navLink.name}
                             to={navLink.to}
-                            className="w-full text-left px-3 py-2 rounded-xl text-sm font-bold flex items-center justify-between text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                            className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-between text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
                           >
                             {t(navLink.name)}
                             <Icon icon="material-symbols:chevron-right" className="text-base opacity-0 group-hover:opacity-100" />
@@ -70,8 +70,10 @@ export const Header = () => {
                             <button
                               key={cat.name}
                               onMouseEnter={() => setActiveCategory(cat.name)}
-                              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
-                                isActive ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400" : "hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-600 dark:text-slate-300"
+                              className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                                isActive
+                                  ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400"
+                                  : "hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400"
                               }`}
                             >
                               {t(cat.name)}
@@ -87,7 +89,7 @@ export const Header = () => {
                           <Link
                             key={link.name}
                             to={link.to}
-                            className="w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all"
+                            className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all"
                           >
                             {t(link.name)}
                           </Link>

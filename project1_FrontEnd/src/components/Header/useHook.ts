@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getNewsList } from "../../api/news";
 import type { NewsItem as ApiNewsItem } from "../../api/news";
-
-export interface NavLink {
-  name: string;
-  to: string;
-}
 
 export interface Category {
   name: string;
@@ -38,6 +33,7 @@ export interface NewsItem {
 export const useHeader = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -61,6 +57,7 @@ export const useHeader = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setUser(null);
+    navigate("/");
   };
 
   const [notifications, setNotifications] = useState([
@@ -71,7 +68,7 @@ export const useHeader = () => {
 
   const [activeCategory, setActiveCategory] = useState("Giúp việc theo giờ");
 
-  const navLinks: NavLink[] = [
+  const navLinks = [
     { name: "Trang Chủ", to: "/" },
     { name: "Dịch Vụ", to: "/dich-vu" },
     { name: "Liên hệ", to: "/lien-he" },
@@ -80,8 +77,8 @@ export const useHeader = () => {
 
   const categories: Category[] = [{ name: "Giúp việc theo giờ" }, { name: "Tổng vệ sinh" }, { name: "Chăm sóc người già" }, { name: "Chăm em bé" }, { name: "Nấu ăn gia đình" }];
 
-  const bottomLinks: NavLink[] = [
-    { name: "Tìm người giúp việc", to: "/tim-nguoi-giup-viec" },
+  const bottomLinks = [
+    // { name: "Tìm người giúp việc", to: "/tim-nguoi-giup-viec" },
     { name: "Tin tức & kinh nghiệm", to: "/tin-tuc" },
   ];
 
@@ -98,9 +95,7 @@ export const useHeader = () => {
           })),
         );
       })
-      .catch(() => {
-        // silently fail — header news is non-critical
-      });
+      .catch(() => {});
   }, []);
 
   const categoryDetails: Record<

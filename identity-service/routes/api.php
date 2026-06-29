@@ -31,6 +31,7 @@ Route::middleware('auth:api')->group(function () {
   Route::post('auth/logout',    [AuthController::class, 'logout']);
   Route::get('profile',         [AuthController::class, 'getProfile']);
   Route::put('profile',         [AuthController::class, 'updateProfile']);
+  Route::post('profile/avatar', [AuthController::class, 'uploadAvatar']);
 
   // -- Customer Profile & Addresses (role: customer) --
   Route::prefix('customer')->group(function () {
@@ -53,7 +54,6 @@ Route::middleware('auth:api')->group(function () {
 
   //  ADMIN — Chỉ Admin (role_id = 1) — phân quyền trong controller
   Route::prefix('admin')->group(function () {
-
     // Users
     Route::get('users',              [AuthController::class, 'getUsers']);
     Route::post('users/by-ids',      [AuthController::class, 'getUsersByIds']);

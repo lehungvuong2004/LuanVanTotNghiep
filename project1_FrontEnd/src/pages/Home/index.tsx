@@ -12,6 +12,7 @@ import repairLight from "../../assets/images/home_service/repairLight.webp";
 import repairPlumber from "../../assets/images/home_service/repairPlumber.webp";
 import { useHome } from "./useHook";
 import { t } from "i18next";
+import { Link } from "react-router-dom";
 
 export const Home = () => {
   const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData } = useHome();
@@ -36,7 +37,7 @@ export const Home = () => {
           <h1 className="text-white text-4xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-xl max-w-4xl">
             {bannerData.title} <span className="text-teal-400 block md:inline">{bannerData.highlightTitle}</span>
           </h1>
-          <p className="text-white/95 text-base md:text-xl max-w-2xl mb-10 drop-shadow-md font-medium">{bannerData.description}</p>
+          {/* <p className="text-white/95 text-base md:text-xl max-w-2xl mb-10 drop-shadow-md font-medium">{bannerData.description}</p> */}
 
           <div className="w-full max-w-3xl bg-white p-3 md:p-4 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-3 mb-12">
             <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-2 md:py-0">
@@ -156,9 +157,9 @@ export const Home = () => {
 
           {/* Explore Button */}
           <div>
-            <button className="cursor-pointer bg-[#034d54] hover:bg-[#023c42] active:scale-95 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 shadow-md">
-              {serviceData.buttonText}
-            </button>
+            <Link to="/dich-vu" className="cursor-pointer bg-[#034d54] hover:bg-[#023c42] active:scale-95 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 shadow-md">
+              Khám phá ngay
+            </Link>
           </div>
         </div>
 
@@ -219,9 +220,9 @@ export const Home = () => {
               <div className="absolute bottom-0 left-0 w-full p-6 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100 flex flex-col items-start">
                 <h3 className="text-white font-bold text-2xl mb-2">{item.title}</h3>
                 <p className="text-white/90 text-sm mb-4 line-clamp-2">{item.description}</p>
-                <button className="bg-white/20 cursor-pointer hover:bg-white text-white hover:text-[#034d54] backdrop-blur-sm px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300">
+                <Link to="/dich-vu" className="bg-white/20 cursor-pointer hover:bg-white text-white hover:text-[#034d54] backdrop-blur-sm px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300">
                   Xem tất cả
-                </button>
+                </Link>
               </div>
             </div>
           ))}
@@ -252,31 +253,33 @@ export const Home = () => {
               <span className="text-gray-600 dark:text-gray-300 text-lg">{t("Giá cả minh bạch, không phát sinh")}</span>
             </li>
           </ul>
-          <button className="w-full bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 rounded-xl transition-colors duration-300">
+          <Link to="/dich-vu" className="w-full text-center bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300">
             {t("Tìm người giúp việc ngay")}
-          </button>
+          </Link>
         </div>
 
         <div className="bg-[#094b43] rounded-4xl p-8 md:p-12 shadow-lg flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
           <div className="bg-[#126c60] w-14 h-14 rounded-2xl flex items-center justify-center mb-8">
-            <Icon icon="mdi:briefcase-outline" className="text-3xl text-white" />
+            <Icon icon="mdi:clipboard-text-outline" className="text-3xl text-white" />
           </div>
-          <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">{t("Trở thành Đối tác")}</h3>
+          <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">{t("Đăng Bài Tuyển Dụng")}</h3>
           <ul className="flex-1 space-y-5 mb-10">
             <li className="flex items-start gap-3">
               <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#4ade80] mt-0.5 shrink-0" />
-              <span className="text-gray-100 text-lg">{t("Thu nhập hấp dẫn và ổn định hàng tháng")}</span>
+              <span className="text-gray-100 text-lg">{t("Tự do đề xuất mức lương và thời gian mong muốn")}</span>
             </li>
             <li className="flex items-start gap-3">
               <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#4ade80] mt-0.5 shrink-0" />
-              <span className="text-gray-100 text-lg">{t("Chủ động thời gian và địa điểm làm việc")}</span>
+              <span className="text-gray-100 text-lg">{t("Tiếp cận hàng ngàn người giúp việc uy tín nhanh chóng")}</span>
             </li>
             <li className="flex items-start gap-3">
               <Icon icon="mdi:check-circle-outline" className="text-2xl text-[#4ade80] mt-0.5 shrink-0" />
-              <span className="text-gray-100  text-lg">{t("Được đào tạo kỹ năng chuyên nghiệp miễn phí")}</span>
+              <span className="text-gray-100  text-lg">{t("Dễ dàng lựa chọn và trao đổi trực tiếp với ứng viên")}</span>
             </li>
           </ul>
-          <button className="w-full bg-[#126c60] hover:bg-[#0e5249] text-white font-semibold py-4 rounded-xl transition-colors duration-300 cursor-pointer">{t("Đăng ký làm đối tác")}</button>
+          <Link to="/dang-bai-tuyen" className="w-full text-center bg-[#126c60] hover:bg-[#0e5249] text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300 cursor-pointer">
+            {t("Đăng bài tuyển ngay")}
+          </Link>
         </div>
       </div>
     </div>

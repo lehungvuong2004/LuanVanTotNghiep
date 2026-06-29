@@ -6,16 +6,15 @@ import contactImg from "../../assets/images/contact/contact.webp";
 
 export const Contact = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
-
   const { t } = useTranslation();
-
   const { questions, formik } = useContact();
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
 
-  const formContact = () => (
+  // 1. RENDER CONTACT FORM
+  const renderFormContact = () => (
     <div className="py-6 md:py-5 w-full max-w-full overflow-hidden">
       <div className="flex flex-col w-full">
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full">
@@ -110,6 +109,7 @@ export const Contact = () => {
               </div>
             </form>
           </div>
+          
           {/* Right Info */}
           <div className="w-full md:w-1/3">
             <div className="grid grid-cols-1 gap-8">
@@ -139,14 +139,14 @@ export const Contact = () => {
                 </div>
               </div>
 
-              {/* Văn phòng Card */}
+              {/* Office Card */}
               <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xs flex items-center gap-5 hover:shadow-md transition-shadow duration-300">
                 <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center text-teal-700 dark:text-teal-300 shrink-0 border border-teal-100 dark:border-teal-900/50">
                   <Icon icon="ph:map-pin-bold" className="w-8 h-8" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 tracking-wider uppercase mb-1">{t("VĂN PHÒNG")}</p>
-                  <p className="text-lg font-extrabold text-teal-950 dark:text-white">
+                  <p className="text-lg font-extrabold text-teal-955 dark:text-white">
                     {t("Quận 1, TP. Hồ Chí Minh")}
                   </p>
                 </div>
@@ -155,7 +155,7 @@ export const Contact = () => {
               {/* Image Card */}
               <div className="relative rounded-3xl overflow-hidden h-48 md:h-56 shadow-md group border border-gray-100 dark:border-gray-700">
                 <img src={contactImg} alt="Support Team" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-teal-955/80 via-teal-955/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-teal-950/80 via-teal-950/20 to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20">
                   <img src="https://i.pravatar.cc/100?img=32" alt="Support Agent" className="w-10 h-10 rounded-full object-cover border-2 border-white" />
                   <p className="text-sm font-semibold text-white">{t("Đội ngũ chuyên gia luôn sẵn sàng")}</p>
@@ -167,7 +167,9 @@ export const Contact = () => {
       </div>
     </div>
   );
-  const questionContact = () => (
+
+  // 2. RENDER FAQ SECTION
+  const renderQuestionContact = () => (
     <div className="max-w-5xl mx-auto mb-10 mt-2">
       <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">{t("Câu hỏi thường gặp")}</h2>
       <div className="space-y-2.5">
@@ -197,7 +199,8 @@ export const Contact = () => {
     </div>
   );
 
-  const featuresContact = () => (
+  // 3. RENDER CORE FEATURES
+  const renderFeaturesContact = () => (
     <div className="w-full max-w-5xl mx-auto px-4 pt-10 border-blue-200 dark:border-gray-700">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="flex flex-col items-center text-center group">
@@ -232,6 +235,7 @@ export const Contact = () => {
     </div>
   );
 
+  // 4. RENDER HERO BANNER
   const renderBanner = () => {
     return (
       <div className="w-full bg-linear-to-br from-[#eef9f8] via-[#e6f4f2]/70 to-white dark:from-[#0d2e2b]/40 dark:via-[#092220]/20 dark:to-slate-900/60 p-8 md:p-12 rounded-3xl border border-teal-100/60 dark:border-teal-900/40 shadow-xs relative overflow-hidden">
@@ -300,14 +304,17 @@ export const Contact = () => {
     );
   };
 
+  // ROOT RETURN
   return (
     <div className="w-full min-h-screen dark:bg-slate-900 transition-colors duration-300 py-12">
       <div className="w-full px-4 md:px-16 flex flex-col gap-12">
         {renderBanner()}
-        {formContact()}
-        {featuresContact()}
-        {questionContact()}
+        {renderFormContact()}
+        {renderFeaturesContact()}
+        {renderQuestionContact()}
       </div>
     </div>
   );
 };
+
+export default Contact;

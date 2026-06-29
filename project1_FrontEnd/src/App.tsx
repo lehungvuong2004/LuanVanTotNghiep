@@ -1,4 +1,5 @@
 import { Route, Routes, HashRouter } from "react-router-dom";
+import { useEffect } from "react";
 import { MainLayout } from "./layouts/MainLayout";
 import { Errors404 } from "./components/Errors404";
 import { Contact } from "./pages/Contact";
@@ -13,6 +14,8 @@ import { Recruitment } from "./pages/Recruitment";
 import { HistoryPage } from "./pages/History";
 import { News } from "./pages/News";
 import { NewsDetail } from "./pages/NewsDetail";
+import { Profile } from "./pages/Profile";
+import { Pricing } from "./pages/Pricing";
 import { DashboardManager } from "./layouts/DashboardManager";
 import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
@@ -29,6 +32,18 @@ import { StaffReviews } from "./DashBoard/Staff/Reviews";
 import { DashboardStaff } from "./layouts/DashboardStaff";
 
 function App() {
+  useEffect(() => {
+    const sessionActive = sessionStorage.getItem("session_active");
+    if (!sessionActive) {
+      const rememberMe = localStorage.getItem("remember_me");
+      if (rememberMe !== "true") {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+      }
+      sessionStorage.setItem("session_active", "true");
+    }
+  }, []);
+
   return (
     <HashRouter>
       <Routes>
@@ -41,6 +56,8 @@ function App() {
           <Route path="/lich-su-dat-lich" element={<HistoryPage />} />
           <Route path="/tin-tuc" element={<News />} />
           <Route path="/tin-tuc/:slug" element={<NewsDetail />} />
+          <Route path="/ho-so" element={<Profile />} />
+          <Route path="/pricing" element={<Pricing />} />
         </Route>
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />

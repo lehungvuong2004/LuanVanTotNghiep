@@ -370,6 +370,52 @@ class AuthController extends Controller
     ], 200);
   }
 
+  /**
+   * Tải ảnh đại diện lên server (public/uploads/avatars) và cập nhật avatar của user.
+   */
+  public function uploadAvatar(Request $request)
+  {
+    $user = auth('api')->user();
+    if (!$user) {
+      return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
+
+    $request->validate([
+      'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ], [
+      'avatar.required' => 'Vui lòng chọn hình ảnh đại diện.',
+      'avatar.image'    => 'File tải lên phải là hình ảnh.',
+      'avatar.mimes'    => 'Chấp nhận các định dạng ảnh: jpeg, png, jpg, gif.',
+      'avatar.max'      => 'Kích thước ảnh tối đa là 2MB.',
+    ]);
+
+    if ($request->hasFile('avatar')) {
+      $file = $request->file('avatar');
+      $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+      // Ensure directory exists
+      $directory = public_path('uploads/avatars');
+      if (!file_exists($directory)) {
+        mkdir($directory, 0755, true);
+      }
+
+      $file->move($directory, $filename);
+
+      $url = url('uploads/avatars/' . $filename);
+
+      $user->update(['avatar' => $url]);
+      $user->load('role');
+
+      return response()->json([
+        'message' => 'Tải ảnh đại diện lên thành công.',
+        'url'     => $url,
+        'data'    => $user
+      ], 200);
+    }
+
+    return response()->json(['message' => 'Không tìm thấy file tải lên.'], 400);
+  }
+
     // =====================================================================
     //  ADMIN — Quản lý Users (Chỉ Admin role_id = 1)
     // =====================================================================

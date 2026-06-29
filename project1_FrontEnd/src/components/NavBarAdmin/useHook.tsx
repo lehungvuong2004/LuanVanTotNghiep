@@ -33,7 +33,7 @@ export const useNavBarAdmin = () => {
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/');
   };
 
   // Get user info from localStorage

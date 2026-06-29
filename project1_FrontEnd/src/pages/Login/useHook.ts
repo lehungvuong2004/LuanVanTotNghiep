@@ -14,11 +14,14 @@ export const useLogin = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const rememberedEmail = localStorage.getItem("remembered_email") || "";
+  const initialRememberMe = localStorage.getItem("remember_me") === "true";
+
   const formik = useFormik({
     initialValues: {
-      email: state?.email || "",
+      email: state?.email || rememberedEmail,
       password: "",
-      rememberMe: false,
+      rememberMe: initialRememberMe,
     },
     validationSchema: Yup.object({
       email: Yup.string()
@@ -37,6 +40,14 @@ export const useLogin = () => {
       setLoading(true);
       setErrorMessage(null);
       try {
+        if (values.rememberMe) {
+          localStorage.setItem("remembered_email", values.email);
+          localStorage.setItem("remember_me", "true");
+        } else {
+          localStorage.removeItem("remembered_email");
+          localStorage.setItem("remember_me", "false");
+        }
+
         const response = await loginApi({
           email: values.email,
           password: values.password,
@@ -73,6 +84,7 @@ export const useLogin = () => {
         const response = await googleLoginApi(tokenResponse.access_token, "login");
 
         // Store token & user details
+        localStorage.setItem("remember_me", "true");
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
 

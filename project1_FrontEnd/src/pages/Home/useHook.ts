@@ -13,9 +13,8 @@ export const useHome = () => {
   const cubeRef = useRef<HTMLDivElement>(null);
 
   const bannerData = {
-    title: "bình tĩnh",
-    highlightTitle: "tận tâm & uy tín.",
-    description: "Gia đình",
+    title: "Bình tĩnh vì mọi việc gia đình luôn có người",
+    highlightTitle: "đồng hành.",
     searchPlaceholders: {
       service: "Bạn cần dịch vụ gì?",
       location: "Khu vực của bạn",
@@ -59,7 +58,6 @@ export const useHome = () => {
     description:
       "Đội ngũ chuyên gia của chúng tôi được tuyển chọn kỹ lưỡng, đào tạo bài bản và luôn đặt sự hài lòng của khách hàng lên hàng đầu. Với HomeHelper, mọi vấn đề trong ngôi nhà của bạn đều được giải quyết một cách nhanh chóng, hiệu quả và an toàn nhất.",
     features: ["Đội ngũ giàu kinh nghiệm và chuyên môn cao", "Phục vụ tận tâm 24/7, luôn có mặt khi bạn cần", "Chất lượng dịch vụ được đảm bảo 100%"],
-    buttonText: "Khám phá ngay",
   };
 
   const reviewData = [

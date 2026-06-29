@@ -3,6 +3,13 @@
 
 @theme {
   --font-sans: "InterCustom", system-ui, sans-serif;
+  --color-slate-950: #041514;
+  --color-slate-900: #092c29;
+  --color-slate-850: #0c3c39;
+  --color-slate-800: #0e4a46;
+  --color-slate-750: #125c57;
+  --color-slate-700: #16726c;
+  --color-slate-600: #1e928a;
 }
 
 body {
@@ -15,11 +22,11 @@ html {
   overflow-x: clip;
 }
 html.dark {
-  background-color: #0f172a;
+  background-color: #092c29;
   color-scheme: dark;
 }
 html.dark body {
-  background-color: #0f172a;
+  background-color: #092c29;
   color: #e2e8f0;
 }
 

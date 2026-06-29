@@ -26,7 +26,6 @@ function proxyTo($targetUrl, Request $request) {
         'Accept' => 'application/json',
     ];
 
-    // TH 1: Request chứa file upload (multipart/form-data)
     $contentType = $request->header('Content-Type', '');
     if (str_contains($contentType, 'multipart/form-data')) {
         $pendingRequest = Http::withHeaders($headers);
@@ -38,13 +37,17 @@ function proxyTo($targetUrl, Request $request) {
                 $pendingRequest->attach(
                     $name,
                     file_get_contents($file->getRealPath()),
-                    $file->getClientOriginalName()
+                    $file->getClientOriginalName(),
+                    ['Content-Type' => $file->getClientMimeType()]
                 );
             } else {
                 $pendingRequest->attach($name, $value);
             }
         }
-        $response = $pendingRequest->send($request->method(), $targetUrl);
+        $response = $pendingRequest->send($request->method(), $targetUrl, [
+            'query' => $request->query(),
+            'multipart' => []
+        ]);
     } 
     // TH 2: Request dạng JSON hoặc dữ liệu thường
     else {
@@ -57,8 +60,39 @@ function proxyTo($targetUrl, Request $request) {
     }
 
     // Trả lại kết quả và kiểu dữ liệu (Content-Type) từ microservice về cho Client
-    return response($response->body(), $response->status())
-        ->header('Content-Type', $response->header('Content-Type'));
+    $body = $response->body();
+    $resContentType = $response->header('Content-Type');
+
+    if ($resContentType && str_contains(strtolower($resContentType), 'application/json')) {
+        $gatewayUrl = $request->getSchemeAndHttpHost();
+        $escapedGatewayUrl = str_replace('/', '\/', $gatewayUrl);
+        $body = str_replace(
+            [
+                'http://identity-service:8000',
+                'http:\/\/identity-service:8000',
+                'http://order-service:8000',
+                'http:\/\/order-service:8000',
+                'http://payment-service:8000',
+                'http:\/\/payment-service:8000',
+                'http://provider-service:8000',
+                'http:\/\/provider-service:8000'
+            ],
+            [
+                $gatewayUrl,
+                $escapedGatewayUrl,
+                $gatewayUrl,
+                $escapedGatewayUrl,
+                $gatewayUrl,
+                $escapedGatewayUrl,
+                $gatewayUrl,
+                $escapedGatewayUrl
+            ],
+            $body
+        );
+    }
+
+    return response($body, $response->status())
+        ->header('Content-Type', $resContentType);
 }
 
 // 2. Định tuyến cho Identity Service (Xác thực, Phân quyền, Quản lý User và Admin)
@@ -82,10 +116,10 @@ Route::any('/api/notifications/{any?}', function (Request $request, $any = '') {
     return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-Route::any('/api/profile', function (Request $request) {
-    $targetUrl = 'http://identity-service:8000/api/profile';
+Route::any('/api/profile/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/profile' . ($any !== '' ? '/' . $any : '');
     return proxyTo($targetUrl, $request);
-});
+})->where('any', '.*');
 
 Route::any('/api/banners/{any?}', function (Request $request, $any = '') {
     $targetUrl = 'http://identity-service:8000/api/banners/' . $any;
@@ -113,5 +147,11 @@ Route::any('/api/payments/{any?}', function (Request $request, $any = '') {
 // 5. Định tuyến cho Provider Service (Quản lý thợ, nhà cung cấp dịch vụ)
 Route::any('/api/providers/{any?}', function (Request $request, $any = '') {
     $targetUrl = 'http://provider-service:8000/api/providers/' . $any;
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
+// 6. Định tuyến tải ảnh tĩnh (uploads) từ Identity Service
+Route::any('/uploads/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/uploads/' . $any;
     return proxyTo($targetUrl, $request);
 })->where('any', '.*');

@@ -10,7 +10,8 @@ export const Login = () => {
   const { formik, loginWithGoogle, loading, errorMessage } = useLogin();
   const { t } = useTranslation();
 
-  const imgLogin = () => (
+  // 1. RENDER LEFT SIDE IMAGE & WELCOME TEXT
+  const renderImgLogin = () => (
     <div className="relative hidden md:block h-full">
       <img src={loginImage} alt="Login background" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-linear-to-t from-[#066d72]/80 via-transparent to-transparent flex flex-col justify-end p-10 text-white z-10">
@@ -24,7 +25,8 @@ export const Login = () => {
     </div>
   );
 
-  const formLogin = () => (
+  // 2. RENDER RIGHT SIDE LOGIN FORM
+  const renderFormLogin = () => (
     <div className="p-8 md:p-12 lg:py-24 flex flex-col justify-center bg-white dark:bg-slate-800 h-full transition-colors duration-300">
       <div className="max-w-lg w-full mx-auto">
         <h2 className="text-3xl font-bold text-[#066d72] dark:text-teal-400 mb-2">{t("Đăng nhập tài khoản")}</h2>
@@ -150,14 +152,17 @@ export const Login = () => {
     </div>
   );
 
+  // ROOT RETURN
   return (
     <div className="flex-1 flex flex-col justify-center w-full bg-[#f8f9fa] dark:bg-slate-900 py-8 relative transition-colors duration-300">
       <div className="w-full px-4 md:px-16 mx-auto">
         <div className="w-full max-w-7xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] overflow-hidden border border-gray-100 dark:border-gray-700 mt-6 md:mt-0 grid grid-cols-1 md:grid-cols-2 z-10">
-          {imgLogin()}
-          {formLogin()}
+          {renderImgLogin()}
+          {renderFormLogin()}
         </div>
       </div>
     </div>
   );
 };
+
+export default Login;
