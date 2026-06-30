@@ -256,6 +256,21 @@ export const useProfile = () => {
       setErrorMessage(null);
       setSuccessMessage(null);
       try {
+        const isDuplicate = addresses.some((item) => {
+          if (editingAddress && item.id === editingAddress.id) return false;
+          return (
+            item.address.trim().toLowerCase() === values.address.trim().toLowerCase() &&
+            (item.district || "").trim().toLowerCase() === values.district.trim().toLowerCase() &&
+            (item.city || "").trim().toLowerCase() === values.city.trim().toLowerCase()
+          );
+        });
+
+        if (isDuplicate) {
+          setErrorMessage(t("Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn."));
+          setUpdating(false);
+          return;
+        }
+
         if (editingAddress) {
           // Update address details
           await updateCustomerAddressApi(editingAddress.id, {

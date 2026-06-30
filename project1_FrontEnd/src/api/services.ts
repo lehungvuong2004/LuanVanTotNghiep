@@ -144,3 +144,28 @@ export const deleteCategoryAdmin = async (id: number): Promise<{ message: string
   );
   return response.data;
 };
+
+// Public Category & Service API endpoints
+export const getCategoriesApi = async (params?: {
+  type?: string;
+}): Promise<{ data: ServiceCategory[] }> => {
+  const response = await axiosInstance.get<{ data: ServiceCategory[] }>("/providers/service-categories", {
+    params,
+  });
+  return response.data;
+};
+
+export const getServicesApi = async (params?: {
+  category_id?: number | string;
+  price_type?: string;
+  min_price?: number;
+  max_price?: number;
+  limit?: number;
+  page?: number;
+}): Promise<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }> => {
+  const response = await axiosInstance.get<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }>("/providers/services", {
+    params,
+  });
+  return response.data;
+};
+

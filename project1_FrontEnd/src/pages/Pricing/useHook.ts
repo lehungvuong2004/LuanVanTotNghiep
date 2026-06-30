@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatNumberVI } from "../../utils";
 
@@ -13,8 +12,8 @@ export interface PricingPackage {
 
 export interface PricingCategory {
   id: string;
-  name: string;
-  icon: string;
+  name?: string;
+  icon?: string;
   packages: PricingPackage[];
 }
 
@@ -24,8 +23,6 @@ export const usePricing = () => {
   const pricingCategories: PricingCategory[] = [
     {
       id: "cleaning",
-      name: t("Giúp việc & Dọn dẹp"),
-      icon: "material-symbols:cleaning-services-outline",
       packages: [
         {
           name: t("Dọn dẹp căn hộ nhỏ"),
@@ -274,16 +271,8 @@ export const usePricing = () => {
     }
   ];
 
-  const [activeCategory, setActiveCategory] = useState<string>("cleaning");
-  
-  // Calculator integration based on packages
-  const allPackages = pricingCategories.flatMap(cat => cat.packages);
-  const [calcPackageName, setCalcPackageName] = useState<string>(allPackages[0]?.name || "");
-  const [includeTools, setIncludeTools] = useState<boolean>(false);
 
-  const selectedPackageObj = allPackages.find(p => p.name === calcPackageName) || allPackages[0];
-  const toolsPrice = includeTools ? 50000 : 0;
-  const estimatedTotal = (selectedPackageObj ? selectedPackageObj.price : 360000) + toolsPrice;
+
 
   const formatCurrency = (val: number) => {
     const formatted = formatNumberVI(val);
@@ -305,19 +294,29 @@ export const usePricing = () => {
     }
   ];
 
+  const pricingCommitments = [
+    {
+      icon: "material-symbols:verified-user-outline",
+      title: t("Người giúp việc xác minh 100%"),
+      desc: t("Lý lịch tư pháp rõ ràng, được kiểm tra sức khỏe định kỳ và đào tạo kỹ năng vệ sinh giao tiếp bài bản.")
+    },
+    {
+      icon: "material-symbols:shield-lock-outline",
+      title: t("Bảo hiểm đổ vỡ & mất cắp"),
+      desc: t("Bảo hiểm bồi thường rủi ro hư hỏng, đổ vỡ tài sản trong quá trình làm việc giúp bảo vệ quyền lợi tối đa.")
+    },
+    {
+      icon: "material-symbols:price-change-outline",
+      title: t("Đồng giá ngày lễ (tùy chỉnh)"),
+      desc: t("Bảng giá ngày thường cố định, không phát sinh. Báo trước và thống nhất giá ngày lễ rõ ràng.")
+    }
+  ];
+
   return {
     t,
     pricingCategories,
-    activeCategory,
-    setActiveCategory,
-    calcPackageName,
-    setCalcPackageName,
-    includeTools,
-    setIncludeTools,
-    estimatedTotal,
-    selectedPackageObj,
-    allPackages,
     formatCurrency,
-    pricingFaqs
+    pricingFaqs,
+    pricingCommitments
   };
 };

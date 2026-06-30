@@ -43,3 +43,11 @@ export const formatDate = (dateStr: string) => {
   const d = new Date(dateStr);
   return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 };
+
+export function formatMoneyInput(value: string | number | null | undefined): string {
+  if (value === undefined || value === null) return "";
+  const cleanVal = value.toString().replace(/\D/g, "");
+  if (!cleanVal) return "";
+  const num = parseInt(cleanVal, 10);
+  return new Intl.NumberFormat("vi-VN").format(num);
+}

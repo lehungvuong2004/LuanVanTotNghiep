@@ -1,10 +1,28 @@
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import { useRecruitment, CATEGORIES, SALARY_OPTS, URGENCY_OPTS, CATEGORY_META } from "./useHook";
+import { useRecruitment, SALARY_OPTS, URGENCY_OPTS } from "./useHook";
 import { Pagination } from "../../components/Pagination";
+
+
+const formatDate = (dateStr: string | null) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
+};
 
 export const Recruitment = () => {
   const { t } = useTranslation();
+
+  // Read current user from localStorage to gate apply button
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem("user") || "null"); } catch { return null; }
+  })();
+  const isHelper = currentUser?.role_id === 3;
   const {
     jobs,
     totalItems,
@@ -22,6 +40,8 @@ export const Recruitment = () => {
     sortBy,
     setSortBy,
     clearFilters,
+    categories,
+    isLoading,
   } = useRecruitment();
 
   // 1. RENDER HERO SECTION
@@ -66,8 +86,8 @@ export const Recruitment = () => {
 
   // 2. RENDER SIDEBAR FILTER
   const renderSidebarFilter = () => {
-    const handleCategoryChange = (cat: string) => {
-      setSelectedCategories((prev) => (prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]));
+    const handleCategoryChange = (catId: number | string) => {
+      setSelectedCategories((prev) => (prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId]));
     };
 
     return (
@@ -86,23 +106,44 @@ export const Recruitment = () => {
         {/* Category */}
         <div className="px-5 py-4 flex flex-col gap-2.5">
           <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t("Loại công việc")}</p>
-          {CATEGORIES.map((cat) => (
-            <label key={cat} className="flex items-center gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={selectedCategories.includes(cat)}
-                onChange={() => handleCategoryChange(cat)}
-                className="rounded border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
-              />
-              <span
-                className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors font-medium ${
-                  selectedCategories.includes(cat) ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-600 dark:text-slate-300"
-                }`}
-              >
-                {t(cat)}
-              </span>
-            </label>
-          ))}
+          {categories.length > 0 ? (
+            <>
+              {categories.map((cat) => (
+                <label key={cat.id} className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(cat.id)}
+                    onChange={() => handleCategoryChange(cat.id)}
+                    className="rounded border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
+                  />
+                  <span
+                    className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors font-medium ${
+                      selectedCategories.includes(cat.id) ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-600 dark:text-slate-300"
+                    }`}
+                  >
+                    {t(cat.name)}
+                  </span>
+                </label>
+              ))}
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.includes("other" as never)}
+                  onChange={() => handleCategoryChange("other")}
+                  className="rounded border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
+                />
+                <span
+                  className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors font-medium ${
+                    selectedCategories.includes("other" as never) ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-600 dark:text-slate-300"
+                  }`}
+                >
+                  {t("Khác")}
+                </span>
+              </label>
+            </>
+          ) : (
+            <p className="text-xs text-gray-400 italic">{t("Đang tải danh mục...")}</p>
+          )}
         </div>
 
         {/* Salary */}
@@ -153,16 +194,15 @@ export const Recruitment = () => {
 
   // 3. RENDER JOB CARD
   const renderJobCard = (job: any) => {
-    const meta = CATEGORY_META[job.category] ?? { icon: "material-symbols:work-outline", color: "text-teal-500" };
     return (
       <article key={job.id} className="relative flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-150 dark:border-slate-700/50 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#026E5F] dark:hover:border-[#026E5F]/50 transition-all duration-300 group">
-        <div className="flex flex-col flex-grow p-6">
+        <div className="flex flex-col grow p-6">
           {/* badges */}
           <div className="flex items-center justify-between gap-2 mb-4">
             <span
-              className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 ${meta.color}`}
+              className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 ${job.categoryColor}`}
             >
-              <Icon icon={meta.icon} className="text-sm" />
+              <Icon icon={job.categoryIcon} className="text-sm" />
               {t(job.category)}
             </span>
             {job.isUrgent && (
@@ -176,7 +216,20 @@ export const Recruitment = () => {
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-snug mb-2 line-clamp-2 group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors">
             {job.title}
           </h2>
-          <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed line-clamp-3 mb-5 flex-grow">{job.description}</p>
+          <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed line-clamp-3 mb-4 grow">{job.description}</p>
+
+          {job.services && job.services.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              {job.services.map((srv, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-0.5 text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 rounded"
+                >
+                  {srv}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* meta info */}
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 pt-4 border-t border-slate-100 dark:border-slate-700/50 mb-5">
@@ -184,20 +237,53 @@ export const Recruitment = () => {
               <Icon icon="material-symbols:payments-outline" className="text-[#026E5F] dark:text-teal-400 text-base shrink-0" />
               {job.salary}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-1.5 text-xs text-slate-650 dark:text-slate-400">
               <Icon icon="material-symbols:location-on-outline" className="text-base shrink-0" />
               <span className="truncate">{job.location}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 col-span-2">
+            {job.workingTime && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 col-span-2">
+                <Icon icon="material-symbols:calendar-month-outline" className="text-base shrink-0 text-[#026E5F] dark:text-teal-400" />
+                <span className="truncate">{t("Lịch làm việc")}: {job.workingTime}</span>
+              </div>
+            )}
+            {/* Expiration date */}
+            {job.expirationDate && (
+              <div className="flex items-center gap-1.5 text-xs col-span-2 font-semibold text-rose-600 dark:text-rose-400">
+                <Icon icon="material-symbols:event-busy-outline" className="text-base shrink-0" />
+                <span>{t("Hết hạn")}: {formatDate(job.expirationDate)}</span>
+              </div>
+            )}
+            {/* Posting date */}
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
               <Icon icon="material-symbols:schedule-outline" className="text-base shrink-0" />
               {job.postedTime}
             </div>
+            {job.createdAt && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                <Icon icon="material-symbols:calendar-add-on-outline" className="text-base shrink-0" />
+                <span>{formatDate(job.createdAt)?.split(" ")[1] ?? ""}</span>
+              </div>
+            )}
           </div>
 
-          {/* CTA */}
-          <button className="mt-auto w-full py-2.5 bg-[#026E5F] hover:bg-[#01564a] active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs hover:shadow-teal-600/10 transition-all cursor-pointer">
-            {t("Ứng Tuyển Ngay")}
-          </button>
+          {/* CTA — only helpers (role_id 3) can apply */}
+          {isHelper ? (
+            <button className="mt-auto w-full py-2.5 bg-[#026E5F] hover:bg-[#01564a] active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs hover:shadow-teal-600/10 transition-all cursor-pointer">
+              {t("Ứng Tuyển Ngay")}
+            </button>
+          ) : currentUser ? (
+            <div className="mt-auto w-full py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 text-sm font-semibold rounded-xl text-center select-none">
+              {t("Chỉ người giúp việc mới được ứng tuyển")}
+            </div>
+          ) : (
+            <button
+              onClick={() => window.location.href = "/dang-nhap"}
+              className="mt-auto w-full py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+            >
+              {t("Đăng nhập để ứng tuyển")}
+            </button>
+          )}
         </div>
       </article>
     );
@@ -208,7 +294,7 @@ export const Recruitment = () => {
     <div className="flex flex-col gap-5">
       {/* toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 px-5 py-3.5 shadow-sm">
-        <div className="relative flex-grow max-w-sm">
+        <div className="relative grow max-w-sm">
           <Icon icon="material-symbols:search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
           <input
             type="text"
@@ -234,8 +320,13 @@ export const Recruitment = () => {
         </div>
       </div>
 
-      {/* grid list */}
-      {jobs.length > 0 ? (
+      {/* Loading state / grid list */}
+      {isLoading ? (
+        <div className="py-20 flex flex-col items-center justify-center gap-3">
+          <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-[#026E5F]" />
+          <p className="text-sm text-gray-500">{t("Đang tải dữ liệu tuyển dụng...")}</p>
+        </div>
+      ) : jobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {jobs.map((job) => renderJobCard(job))}
         </div>
@@ -248,7 +339,9 @@ export const Recruitment = () => {
       )}
 
       {/* pagination */}
-      {totalItems > 0 && <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />}
+      {!isLoading && totalItems > 0 && (
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
+      )}
     </div>
   );
 
