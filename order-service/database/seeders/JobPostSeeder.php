@@ -80,9 +80,9 @@ class JobPostSeeder extends Seeder
         foreach ($posts as $postData) {
             $services = [];
             if ($postData['category_id'] == 1) {
-                $services = [1, 2]; // Deep cleaning, Sofa cleaning
+                $services = [1, 2];
             } else if ($postData['category_id'] == 3) {
-                $services = [4]; // Elderly care
+                $services = [4];
             }
 
             $jobPost = JobPost::create($postData);

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { getCategoriesApi, type ServiceCategory } from "../../api/services";
-import { getJobPostsApi, type JobPost } from "../../api/jobPosts";
-
+import { getJobPostsApi, type JobPost } from "../../api/jobPostsApi/jobPosts";
 
 export const SALARY_OPTS = [
   { value: "all", label: "Tất cả" },
@@ -16,7 +15,6 @@ export const URGENCY_OPTS = [
   { value: "urgent", label: "Cần gấp" },
   { value: "normal", label: "Bình thường" },
 ];
-
 
 const formatWorkingTime = (timeStr: string | null) => {
   if (!timeStr) return "";
@@ -51,7 +49,6 @@ export const useRecruitment = () => {
   const [allJobs, setAllJobs] = useState<JobPost[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
   // Filter States
   const [selectedCategories, setSelectedCategories] = useState<(number | string)[]>([]);
   const [selectedSalary, setSelectedSalary] = useState<string>("all");
@@ -89,13 +86,7 @@ export const useRecruitment = () => {
 
   const getRelativeTime = (createdAtStr: string) => {
     if (!createdAtStr) return "";
-    // Normalize to UTC: if the server returns "2026-06-30 10:10:50" (no timezone),
-    // JS would parse it as local time, causing a +7h offset in Vietnam.
-    // Replacing space with T and appending Z forces correct UTC interpretation.
-    const normalized =
-      createdAtStr.includes("Z") || createdAtStr.includes("+")
-        ? createdAtStr
-        : createdAtStr.replace(" ", "T") + "Z";
+    const normalized = createdAtStr.includes("Z") || createdAtStr.includes("+") ? createdAtStr : createdAtStr.replace(" ", "T") + "Z";
     const created = new Date(normalized);
     const now = new Date();
     const diffMs = now.getTime() - created.getTime();
@@ -144,12 +135,14 @@ export const useRecruitment = () => {
 
     // 4. Urgency filter
     if (selectedUrgency !== "all") {
-      // Determine urgency (e.g. if expired_at is within 5 days, or just mock it)
-      const isUrgent = job.expired_at
-        ? (new Date(job.expired_at).getTime() - new Date().getTime()) / 86400000 <= 5
-        : false;
-      const isUrgentFilter = selectedUrgency === "urgent";
-      if (isUrgent !== isUrgentFilter) return false;
+      let urgencyLevel: "urgent" | "normal" | "long" = "long";
+      if (job.expired_at) {
+        const daysLeft = (new Date(job.expired_at).getTime() - Date.now()) / 86400000;
+        if (daysLeft <= 4) urgencyLevel = "urgent";
+        else if (daysLeft <= 7) urgencyLevel = "normal";
+        else urgencyLevel = "long";
+      }
+      if (urgencyLevel !== selectedUrgency) return false;
     }
 
     return true;
@@ -169,10 +162,12 @@ export const useRecruitment = () => {
         displayDescription = displayDescription.replace(/^\[Danh mục:\s*[^\]]+\]\s*/, "");
       }
 
-      // Extract Services Tag (this could be after Category Tag)
       const serviceMatch = displayDescription.match(/^\[Dịch vụ:\s*([^\]]+)\]\s*/);
       if (serviceMatch) {
-        customServicesList = serviceMatch[1].split(",").map(s => s.trim()).filter(Boolean);
+        customServicesList = serviceMatch[1]
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
         displayDescription = displayDescription.replace(/^\[Dịch vụ:\s*[^\]]+\]\s*/, "");
       }
     }
@@ -188,17 +183,16 @@ export const useRecruitment = () => {
       categoryColor = colors[job.category_id % colors.length];
     }
 
-    // Determine urgency level from expiration date
     let urgencyLevel: "urgent" | "normal" | "long" = "long";
     if (job.expired_at) {
       const daysLeft = (new Date(job.expired_at).getTime() - Date.now()) / 86400000;
-      if (daysLeft < 2) urgencyLevel = "urgent";
-      else if (daysLeft < 4) urgencyLevel = "normal";
+      if (daysLeft <= 4) urgencyLevel = "urgent";
+      else if (daysLeft <= 7) urgencyLevel = "normal";
       else urgencyLevel = "long";
     }
     const isUrgent = urgencyLevel === "urgent";
 
-    const standardServices = job.services?.map(s => s.name) || [];
+    const standardServices = job.services?.map((s) => s.name) || [];
     const combinedServices = [...standardServices, ...customServicesList];
 
     return {
@@ -233,13 +227,11 @@ export const useRecruitment = () => {
       if (a.isUrgent && !b.isUrgent) return -1;
       if (!a.isUrgent && b.isUrgent) return 1;
     }
-    // Default: "Mới nhất" (descending by id)
     return b.id - a.id;
   });
 
   const totalItems = sortedJobs.length;
 
-  // Paginated slices
   const paginatedJobs = sortedJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const clearFilters = () => {

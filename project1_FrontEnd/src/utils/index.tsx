@@ -10,6 +10,18 @@ export function formatNumberVI(value: number | null | undefined): string | null 
   return new Intl.NumberFormat("vi-VN").format(value);
 }
 
+export const formatDateTime = (dateStr: string | null) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
+};
+
+
 
 export const getRootFontSizePx = () => {
   if (typeof window === 'undefined') return 16;

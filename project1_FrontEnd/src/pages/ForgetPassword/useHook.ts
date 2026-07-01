@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { forgotPasswordApi, verifyOtpApi, resetPasswordApi } from "../../api/auth";
+import { forgotPasswordApi, verifyOtpApi, resetPasswordApi } from "../../api/authApi/auth";
+import {
+  getForgotPasswordStep1Schema,
+  getForgotPasswordStep2Schema,
+  getForgotPasswordStep3Schema
+} from "../../api/authApi/validation";
 
 export type StepType = 1 | 2 | 3;
 
@@ -24,16 +28,7 @@ export const useForgetPassword = () => {
     initialValues: {
       emailOrPhone: "",
     },
-    validationSchema: Yup.object({
-      emailOrPhone: Yup.string()
-        .required(t("Vui lòng nhập email"))
-        .max(50, t("Email không được vượt quá 50 ký tự"))
-        .test("is-email", t("Vui lòng nhập đúng định dạng Email (vd: example@gmail.com)"), (value) => {
-          if (!value) return true;
-          const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-          return emailRegex.test(value);
-        }),
-    }),
+    validationSchema: getForgotPasswordStep1Schema(t),
     onSubmit: async (values) => {
       setLoading(true);
       setErrorMessage(null);
@@ -57,19 +52,7 @@ export const useForgetPassword = () => {
     initialValues: {
       otp: Array(6).fill(""),
     },
-    validationSchema: Yup.object({
-      otp: Yup.array()
-        .of(
-          Yup.string()
-            .required()
-            .matches(/^[0-9]$/, "Chỉ cho phép số"),
-        )
-        .min(6)
-        .max(6)
-        .test("is-6-digits", t("Vui lòng nhập đủ 6 số OTP"), (value) => {
-          return value ? value.every((v) => v !== "") : false;
-        }),
-    }),
+    validationSchema: getForgotPasswordStep2Schema(t),
     onSubmit: async (values) => {
       setLoading(true);
       setErrorMessage(null);
@@ -113,12 +96,7 @@ export const useForgetPassword = () => {
       password: "",
       confirmPassword: "",
     },
-    validationSchema: Yup.object({
-      password: Yup.string().required(t("Vui lòng nhập mật khẩu mới")).min(6, t("Mật khẩu phải có ít nhất 6 ký tự")),
-      confirmPassword: Yup.string()
-        .required(t("Vui lòng xác nhận mật khẩu"))
-        .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),
-    }),
+    validationSchema: getForgotPasswordStep3Schema(t),
     onSubmit: async (values) => {
       setLoading(true);
       setErrorMessage(null);

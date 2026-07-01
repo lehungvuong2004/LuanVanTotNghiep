@@ -1,10 +1,10 @@
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { loginApi, googleLoginApi } from "../../api/auth";
+import { loginApi, googleLoginApi } from "../../api/authApi/auth";
+import { getLoginSchema } from "../../api/authApi/validation";
 
 export const useLogin = () => {
   const { t } = useTranslation();
@@ -23,19 +23,7 @@ export const useLogin = () => {
       password: "",
       rememberMe: initialRememberMe,
     },
-    validationSchema: Yup.object({
-      email: Yup.string()
-        .required(t("Vui lòng nhập email"))
-        .email(t("Vui lòng nhập đúng định dạng email")),
-      password: Yup.string()
-        .required(t("Vui lòng nhập mật khẩu"))
-        .min(6, t("Mật khẩu phải có ít nhất 6 ký tự"))
-        .max(32, t("Mật khẩu không được vượt quá 32 ký tự"))
-        .matches(/^\S*$/, t("Mật khẩu không được chứa khoảng trắng"))
-        .matches(/[A-Z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in hoa"))
-        .matches(/[a-z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in thường"))
-        .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số")),
-    }),
+    validationSchema: getLoginSchema(t),
     onSubmit: async (values) => {
       setLoading(true);
       setErrorMessage(null);

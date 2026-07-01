@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profile";
-import { createJobPostApi } from "../../api/jobPosts";
+import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profileApi/profile";
+import { createJobPostApi } from "../../api/jobPostsApi/jobPosts";
+import { getPostJobSchema } from "../../api/jobPostsApi/validation";
 
 // ----------------------------------------------------------------
 // Derive urgency level and multiplier from (expirationDate - workingTime)
@@ -16,26 +16,29 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
   if (!workingTime || !expirationDate) return null;
   const diffDays =
     (new Date(expirationDate).getTime() - new Date(workingTime).getTime()) / 86400000;
-  if (diffDays < 2)
+  
+  if (diffDays <= 4) {
     return {
       level: "urgent",
-      multiplier: 1.4,
-      label: "Cần gấp (< 2 ngày) — x0.4",
+      multiplier: 1.25,
+      label: diffDays < 2 ? "Cần gấp (< 2 ngày) — +25%" : "Cần gấp (2 - 4 ngày) — +25%",
       color: "text-red-600 dark:text-red-400",
       bg: "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900",
     };
-  if (diffDays < 4)
+  }
+  if (diffDays <= 7) {
     return {
       level: "normal",
-      multiplier: 1.2,
-      label: "Bình thường (< 4 ngày) — x0.2",
+      multiplier: 1.15,
+      label: "Bình thường (4 - 7 ngày) — +15%",
       color: "text-amber-600 dark:text-amber-400",
       bg: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900",
     };
+  }
   return {
     level: "long",
     multiplier: 1.0,
-    label: "Lâu dài (≥ 4 ngày) — giá gốc",
+    label: "Lâu dài (> 7 ngày) — Giá gốc (+0%)",
     color: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900",
   };
@@ -51,33 +54,7 @@ export const usePostAJobHook = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const validationSchema = Yup.object({
-    jobTitle: Yup.string().required(t("Tiêu đề bài tuyển là bắt buộc")),
-    customCategory: Yup.string().required(t("Vui lòng nhập tên danh mục của bạn")),
-    customServices: Yup.string().required(t("Vui lòng nhập dịch vụ của bạn")),
-    salary: Yup.string().required(t("Mức lương là bắt buộc")),
-    workingTime: Yup.string()
-      .required(t("Thời gian làm việc là bắt buộc"))
-      .test("not-past", t("Thời gian làm việc không được là thời điểm trong quá khứ"), (val) => {
-        if (!val) return true;
-        return new Date(val).getTime() >= Date.now();
-      }),
-    expirationDate: Yup.string()
-      .required(t("Ngày hết hạn là bắt buộc"))
-      .test(
-        "after-working",
-        t("Ngày hết hạn phải sau thời gian làm việc"),
-        function (val) {
-          const { workingTime } = this.parent;
-          if (!val || !workingTime) return true;
-          return new Date(val).getTime() > new Date(workingTime).getTime();
-        }
-      ),
-    specificAddress: Yup.string().required(t("Địa chỉ cụ thể là bắt buộc")),
-    district: Yup.string().required(t("Quận/Huyện là bắt buộc")),
-    city: Yup.string().required(t("Thành phố là bắt buộc")),
-    jobDescription: Yup.string(),
-  });
+  const validationSchema = getPostJobSchema(t);
 
   const formik = useFormik({
     initialValues: {

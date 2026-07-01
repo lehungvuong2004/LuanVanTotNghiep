@@ -1,5 +1,5 @@
-import axiosInstance from "./axios";
-import { API_ENDPOINTS } from "./endpoints";
+import axiosInstance from "../axios";
+import { API_ENDPOINTS } from "../endpoints";
 
 export interface LoginRequest {
   email: string;

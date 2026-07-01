@@ -21,7 +21,7 @@ class JwtAuthMiddleware
         $authHeader = $request->header('Authorization');
 
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-            return response()->json(['message' => 'No token provided.'], 401);
+            return response()->json(['message' => 'Vui lòng đăng nhập lại'], 401);
         }
 
         $token   = substr($authHeader, 7);

@@ -51,9 +51,11 @@ jobs:
         run: npm run lint || echo "Lint warnings found but continuing build..."
 
       # 5. Build source code
-      # --base=/LuanVanTotNghiep/ giúp trang web tải đúng CSS/JS trên GitHub Pages
       - name: Build Project
         run: npx vite build --base=/LuanVanTotNghiep/
+        env:
+          VITE_GOOGLE_CLIENT_ID: 950867093121-s7fm3rjmkk3abn5n7ai2bt6v3mnha33p.apps.googleusercontent.com
+          VITE_API_URL: http://localhost:8000/api
 
       # 6. Cấu hình GitHub Pages
       - name: Setup Pages

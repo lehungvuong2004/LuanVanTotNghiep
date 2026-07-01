@@ -71,8 +71,8 @@ export const useHeader = () => {
   const navLinks = [
     { name: "Trang Chủ", to: "/" },
     { name: "Dịch Vụ", to: "/dich-vu" },
-    { name: "Liên hệ", to: "/lien-he" },
     { name: "Tuyển dụng", to: "/tuyen-dung" },
+    { name: "Liên hệ", to: "/lien-he" },
   ];
 
   const categories: Category[] = [{ name: "Giúp việc theo giờ" }, { name: "Tổng vệ sinh" }, { name: "Chăm sóc người già" }, { name: "Chăm em bé" }, { name: "Nấu ăn gia đình" }];

@@ -159,7 +159,7 @@ export default function PostAJob() {
                 {formik.values.salary && computedUrgency && (
                   <div className="bg-slate-50 dark:bg-slate-700/50 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
                     <span className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-                      {t("Mức lương sau khi áp hệ số (x{mult}):").replace("{mult}", computedUrgency.multiplier.toString())}
+                      {t("Mức lương sau khi tăng thêm (+{pct}%):").replace("{pct}", Math.round((computedUrgency.multiplier - 1) * 100).toString())}
                     </span>
                     <span className="text-lg font-bold text-[#0d5c63] dark:text-teal-400">
                       {Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * computedUrgency.multiplier).toLocaleString("vi-VN")} VND
@@ -268,7 +268,7 @@ export default function PostAJob() {
           <div>
             <textarea
               name="jobDescription"
-              rows={4}
+              rows={5}
               placeholder={t("Mô tả công việc, yêu cầu, quyền lợi...")}
               className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all resize-none"
               value={formik.values.jobDescription}
@@ -298,7 +298,7 @@ export default function PostAJob() {
           <button
             type="submit"
             disabled={isLoading}
-            className="px-8 py-2.5 bg-amber-600 hover:bg-[#e5934a] text-white rounded-full cursor-pointer font-medium shadow-sm transition-all text-sm disabled:opacity-70 flex items-center gap-2"
+            className="px-8 py-2.5 bg-[#1ab9bf] hover:bg-[#189ca0] text-white rounded-full cursor-pointer font-medium shadow-sm transition-all text-sm disabled:opacity-70 flex items-center gap-2"
           >
             {isLoading ? (
               <>
@@ -374,12 +374,12 @@ export default function PostAJob() {
         </div>
       </div>
 
-      <div className="bg-[#fcfaf8] dark:bg-slate-800 border border-[#f5e6da] dark:border-gray-700 rounded-2xl p-5 shadow-sm">
+      <div className="bg-amber-300/50 dark:bg-slate-800/50 border border-amber-200/60 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
         <div className="flex gap-3">
-          <Icon icon="mdi:information-outline" className="w-5 h-5 text-[#f6a053] shrink-0 mt-0.5" />
+          <Icon icon="mdi:information-outline" className="w-5 h-5 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1.5 text-sm">{t("Lưu ý")}</h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{t("Bài đăng sẽ được kiểm duyệt trước khi hiển thị để đảm bảo an toàn cho cộng đồng.")}</p>
+            <h4 className="font-semibold text-amber-800 dark:text-amber-400 mb-1.5 text-sm">{t("Lưu ý")}</h4>
+            <p className="text-sm text-amber-700 dark:text-gray-300 leading-relaxed">{t("Bài đăng sẽ được kiểm duyệt trước khi hiển thị để đảm bảo an toàn cho cộng đồng.")}</p>
           </div>
         </div>
       </div>
