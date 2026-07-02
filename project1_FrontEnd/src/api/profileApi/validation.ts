@@ -17,8 +17,16 @@ export const getProfileInfoSchema = (t: any) =>
     gender: Yup.string().oneOf(["male", "female", "other"]).nullable(),
     birthday: Yup.date()
       .nullable()
-      .max(new Date(), t("Ngày sinh phải trước ngày hôm nay")),
-    note: Yup.string().max(191, t("Ghi chú không quá 191 ký tự")).nullable()
+      .test("is-18", t("Bạn phải từ 18 tuổi trở lên"), (value) => {
+        if (!value) return true;
+        const cutoff = new Date();
+        cutoff.setFullYear(cutoff.getFullYear() - 18);
+        return new Date(value) <= cutoff;
+      }),
+    note: Yup.string().max(191, t("Ghi chú không quá 191 ký tự")).nullable(),
+    bio: Yup.string().nullable().max(1000, t("Giới thiệu không quá 1000 ký tự")),
+    experience_year: Yup.number().nullable().min(0, t("Kinh nghiệm phải lớn hơn hoặc bằng 0")),
+    address: Yup.string().nullable().max(255, t("Địa chỉ không quá 255 ký tự"))
   });
 
 export const getProfilePasswordSchema = (t: any) =>

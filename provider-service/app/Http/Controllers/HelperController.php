@@ -8,6 +8,8 @@ use App\Models\HelperSkill;
 use App\Models\HelperWorkingArea;
 use App\Models\HelperAvailability;
 use App\Models\HelperVerification;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class HelperController extends Controller
 {
@@ -62,15 +64,93 @@ class HelperController extends Controller
     public function publicShow($id)
     {
         $helper = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities'])
-                               ->where('id', $id)
-                               ->where('status', 'active')
+                               ->where(function($q) use ($id) {
+                                   $q->where('id', $id)
+                                     ->orWhere('user_id', $id);
+                               })
                                ->first();
 
         if (!$helper) {
+            try {
+                $userResponse = Http::timeout(3)
+                    ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => [$id]]);
+
+                if ($userResponse->successful()) {
+                    $users = $userResponse->json('data') ?? [];
+                    if (!empty($users) && $users[0]['role_id'] == 3) {
+                        $helper = HelperProfile::create([
+                            'user_id' => $users[0]['id'],
+                            'bio' => 'Chưa cập nhật giới thiệu.',
+                            'experience_year' => 0,
+                            'status' => 'approved',
+                            'rating_avg' => 5.0,
+                            'total_reviews' => 0
+                        ]);
+                        $helper->load(['skills.service', 'workingAreas', 'availabilities']);
+                        $helper->user = $users[0];
+                        return response()->json(['data' => $helper], 200);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to auto-create helper profile: ' . $e->getMessage());
+            }
+
             return response()->json(['message' => 'Không tìm thấy helper.'], 404);
         }
 
+        // Fetch user info from identity-service internally
+        try {
+            $userResponse = Http::timeout(3)
+                ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => [$helper->user_id]]);
+
+            if ($userResponse->successful()) {
+                $users = $userResponse->json('data') ?? [];
+                if (!empty($users)) {
+                    $helper->user = $users[0];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch user details for public helper profile: ' . $e->getMessage());
+        }
+
         return response()->json(['data' => $helper], 200);
+    }
+
+    /**
+     * API nội bộ: Kiểm tra trạng thái hoàn thiện hồ sơ của Helper.
+     */
+    public function profileStatusCheck($id)
+    {
+        $helper = HelperProfile::with(['skills', 'workingAreas'])
+                               ->where('user_id', $id)
+                               ->orWhere('id', $id)
+                               ->first();
+                               
+        if (!$helper) {
+            return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật thông tin hồ sơ người giúp việc.'], 200);
+        }
+        
+        if (empty($helper->bio)) {
+            return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật phần giới thiệu bản thân.'], 200);
+        }
+        
+        if (empty($helper->gender) || empty($helper->birthday)) {
+            return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật giới tính và ngày sinh.'], 200);
+        }
+        
+        if (empty($helper->address)) {
+            return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật địa chỉ liên hệ.'], 200);
+        }
+        
+        if ($helper->skills->count() === 0) {
+            return response()->json(['is_complete' => false, 'message' => 'Vui lòng chọn ít nhất một kỹ năng/dịch vụ chuyên môn.'], 200);
+        }
+        
+        if ($helper->workingAreas->count() === 0) {
+            return response()->json(['is_complete' => false, 'message' => 'Vui lòng chọn ít nhất một khu vực hoạt động.'], 200);
+        }
+        
+        return response()->json(['is_complete' => true], 200);
     }
 
     /**

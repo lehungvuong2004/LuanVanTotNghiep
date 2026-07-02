@@ -27,6 +27,11 @@ Route::get('banners', [BannerController::class, 'getActiveBanners']);
 Route::get('news',        [NewsController::class, 'index']);
 Route::get('news/{slug}', [NewsController::class, 'show']);
 
+// API nội bộ cho các service khác gọi
+Route::post('internal/notifications', [NotificationController::class, 'createInternal']);
+Route::post('internal/users/by-ids',  [AuthController::class, 'getUsersByIdsInternal']);
+Route::post('internal/customer/profile-status', [CustomerProfileController::class, 'getCustomerProfileStatusInternal']);
+
 Route::middleware('auth:api')->group(function () {
   Route::post('auth/logout',    [AuthController::class, 'logout']);
   Route::get('profile',         [AuthController::class, 'getProfile']);

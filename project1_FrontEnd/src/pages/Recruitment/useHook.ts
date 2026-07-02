@@ -1,6 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import { getCategoriesApi, type ServiceCategory } from "../../api/services";
-import { getJobPostsApi, type JobPost } from "../../api/jobPostsApi/jobPosts";
+import {
+  getJobPostsApi,
+  applyJobPostApi,
+  getMyApplicationsApi,
+  getMyJobPostsApi,
+  deleteJobPostApi,
+  updateJobPostApi,
+  getApplicationsApi,
+  selectHelperApi,
+  rejectHelperApi,
+  getHelperPublicProfileApi,
+  type JobPost,
+} from "../../api/jobPostsApi/jobPosts";
 
 export const SALARY_OPTS = [
   { value: "all", label: "Tất cả" },
@@ -21,7 +35,7 @@ const formatWorkingTime = (timeStr: string | null) => {
   const isoRegex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/;
   const match = timeStr.match(isoRegex);
   if (match) {
-    const [_, year, month, day, hours, minutes] = match;
+    const [, year, month, day, hours, minutes] = match;
     return `${hours}:${minutes} ngày ${day}/${month}/${year}`;
   }
   return timeStr;
@@ -45,7 +59,37 @@ export interface JobItem {
   description: string;
 }
 
+export interface Applicant {
+  id: number;
+  job_post_id: number;
+  helper_id: number;
+  status: "pending" | "accepted" | "rejected";
+  proposed_price?: number | null;
+  created_at: string;
+  helper: {
+    id: number;
+    full_name: string;
+    avatar: string | null;
+    phone: string;
+    email: string;
+  } | null;
+  profile?: {
+    bio: string;
+    experience_year: number;
+    rating_avg: number;
+    total_reviews: number;
+    gender: string;
+    skills: { service?: { name: string } }[];
+    workingAreas: { district: string; city: string }[];
+  } | null;
+}
+
+export interface MyJobPost extends JobPost {
+  applicantCount?: number;
+}
+
 export const useRecruitment = () => {
+  const [nowTime] = useState(() => Date.now());
   const [allJobs, setAllJobs] = useState<JobPost[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +104,44 @@ export const useRecruitment = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 6;
 
+  const [appliedJobIds, setAppliedJobIds] = useState<number[]>([]);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tabParam = searchParams.get("tab");
+  const postIdParam = searchParams.get("post_id");
+
+  // Customer tab: "browse" (default) or "my-posts"
+  const [activeTab, setActiveTab] = useState<"browse" | "my-posts">("browse");
+
+  useEffect(() => {
+    if (tabParam === "my-posts") {
+      setActiveTab("my-posts");
+    } else {
+      setActiveTab("browse");
+    }
+  }, [tabParam]);
+
+  // Customer: My job posts
+  const [myJobPosts, setMyJobPosts] = useState<MyJobPost[]>([]);
+  const [myPostsLoading, setMyPostsLoading] = useState(false);
+
+
+  // Customer: Applications modal
+  const [selectedJobPost, setSelectedJobPost] = useState<MyJobPost | null>(null);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
+  const [showApplicationsModal, setShowApplicationsModal] = useState(false);
+
+  // Helper profile drawer
+  const [helperProfile, setHelperProfile] = useState<any>(null);
+  const [helperProfileLoading, setHelperProfileLoading] = useState(false);
+  const [showHelperProfile, setShowHelperProfile] = useState(false);
+
+  // Customer: Edit job post modal
+  const [editingJobPost, setEditingJobPost] = useState<JobPost | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
@@ -70,6 +152,17 @@ export const useRecruitment = () => {
 
         const jobRes = await getJobPostsApi({ limit: 1000 });
         setAllJobs(jobRes.data.data || []);
+
+        // Load applications if user is a helper
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user.role_id === 3) {
+            const appRes = await getMyApplicationsApi({ limit: 1000 });
+            const appIds = (appRes.data?.data || []).map((app: any) => app.job_post_id);
+            setAppliedJobIds(appIds);
+          }
+        }
       } catch (err) {
         console.error("Error loading recruitment data:", err);
       } finally {
@@ -79,35 +172,73 @@ export const useRecruitment = () => {
     fetchData();
   }, []);
 
+  // Real-time Socket.IO for new job posts
+  useEffect(() => {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:8005";
+    const socket = io(socketUrl);
+
+    socket.on("connect", () => {
+      console.log("Recruitment page socket connected");
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        socket.emit("join", user.id);
+      }
+    });
+
+    socket.on("new_job_post", (newJob: JobPost) => {
+      console.log("Received real-time job post:", newJob);
+      setAllJobs((prev) => {
+        if (prev.some((j) => j.id === newJob.id)) return prev;
+        return [newJob, ...prev];
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   // Reset page when any filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategories, selectedSalary, selectedUrgency, searchQuery, sortBy]);
 
-  const getRelativeTime = (createdAtStr: string) => {
-    if (!createdAtStr) return "";
-    const normalized = createdAtStr.includes("Z") || createdAtStr.includes("+") ? createdAtStr : createdAtStr.replace(" ", "T") + "Z";
-    const created = new Date(normalized);
-    const now = new Date();
-    const diffMs = now.getTime() - created.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+  const getRelativeTime = (createdAtStr: string | null | undefined) => {
+    if (!createdAtStr) return "Đăng 1 phút trước";
+    try {
+      const normalized = createdAtStr.includes("Z") || createdAtStr.includes("+") 
+        ? createdAtStr 
+        : createdAtStr.replace(" ", "T") + "Z";
+      const created = new Date(normalized);
+      if (isNaN(created.getTime())) {
+        return "Đăng 1 phút trước";
+      }
+      const now = new Date();
+      const diffMs = now.getTime() - created.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
 
-    if (diffMins < 65) {
-      const mins = Math.max(1, diffMins);
-      return `Đăng ${mins} phút trước`;
-    } else if (diffHours < 24) {
-      return `Đăng ${diffHours} giờ trước`;
-    } else {
+      if (diffMins < 1) {
+        return "Đăng 1 phút trước";
+      }
+      if (diffMins < 60) {
+        return `Đăng ${diffMins} phút trước`;
+      }
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) {
+        return `Đăng ${diffHours} giờ trước`;
+      }
+      const diffDays = Math.floor(diffHours / 24);
       return `Đăng ${diffDays} ngày trước`;
+    } catch {
+      return "Đăng 1 phút trước";
     }
   };
 
   // Filter logic
   const filteredJobs = allJobs.filter((job) => {
     // 0. Hide expired jobs (expired_at has passed)
-    if (job.expired_at && new Date(job.expired_at).getTime() < Date.now()) return false;
+    if (job.expired_at && new Date(job.expired_at).getTime() < nowTime) return false;
 
     // 1. Search Query filter
     if (searchQuery.trim()) {
@@ -137,7 +268,7 @@ export const useRecruitment = () => {
     if (selectedUrgency !== "all") {
       let urgencyLevel: "urgent" | "normal" | "long" = "long";
       if (job.expired_at) {
-        const daysLeft = (new Date(job.expired_at).getTime() - Date.now()) / 86400000;
+        const daysLeft = (new Date(job.expired_at).getTime() - nowTime) / 86400000;
         if (daysLeft <= 4) urgencyLevel = "urgent";
         else if (daysLeft <= 7) urgencyLevel = "normal";
         else urgencyLevel = "long";
@@ -185,7 +316,7 @@ export const useRecruitment = () => {
 
     let urgencyLevel: "urgent" | "normal" | "long" = "long";
     if (job.expired_at) {
-      const daysLeft = (new Date(job.expired_at).getTime() - Date.now()) / 86400000;
+      const daysLeft = (new Date(job.expired_at).getTime() - nowTime) / 86400000;
       if (daysLeft <= 4) urgencyLevel = "urgent";
       else if (daysLeft <= 7) urgencyLevel = "normal";
       else urgencyLevel = "long";
@@ -205,8 +336,8 @@ export const useRecruitment = () => {
       urgencyLevel,
       salary: job.salary ? `${Number(job.salary).toLocaleString()} VNĐ/dịch vụ` : "Thỏa thuận",
       location: job.district || job.city ? `${job.district}, ${job.city}` : "Việt Nam",
-      postedTime: getRelativeTime(job.created_at),
-      createdAt: job.created_at,
+      postedTime: getRelativeTime(job.created_at || new Date().toISOString()),
+      createdAt: job.created_at || new Date().toISOString(),
       expirationDate: job.expired_at || null,
       workingTime: formatWorkingTime(job.working_time),
       services: combinedServices,
@@ -234,6 +365,217 @@ export const useRecruitment = () => {
 
   const paginatedJobs = sortedJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  const [toast, setToast] = useState<{ type: "success" | "error" | "warning"; title: string; message: string } | null>(null);
+
+  const applyJob = async (jobId: number) => {
+    try {
+      const res = await applyJobPostApi(jobId);
+      setToast({
+        type: "success",
+        title: "Ứng tuyển thành công",
+        message: res.message || "Hồ sơ ứng tuyển của bạn đã được gửi thành công."
+      });
+      setAppliedJobIds((prev) => [...prev, jobId]);
+    } catch (error: any) {
+      const errMsg = error.response?.data?.message || "Đã xảy ra lỗi khi ứng tuyển.";
+      setToast({
+        type: "error",
+        title: "Ứng tuyển thất bại",
+        message: errMsg
+      });
+      if (errMsg.includes("hoàn thiện hồ sơ") || errMsg.includes("số điện thoại")) {
+        setTimeout(() => {
+          navigate("/ho-so");
+        }, 3000);
+      }
+    }
+  };
+
+  // ─── Customer: fetch my job posts ───────────────────────
+  const fetchMyJobPosts = useCallback(async () => {
+    setMyPostsLoading(true);
+    try {
+      const res = await getMyJobPostsApi({ limit: 100 });
+      setMyJobPosts(res.data.data || []);
+    } catch (err) {
+      console.error("Error loading my job posts:", err);
+    } finally {
+      setMyPostsLoading(false);
+    }
+  }, []);
+
+  // Load my posts when tab switches to "my-posts"
+  useEffect(() => {
+    if (activeTab === "my-posts") {
+      fetchMyJobPosts();
+    }
+  }, [activeTab, fetchMyJobPosts]);
+
+  // ─── View helper profile detail ─────────────────────────
+  const viewHelperProfile = useCallback(async (helperId: number) => {
+    setHelperProfileLoading(true);
+    setShowHelperProfile(true);
+    setHelperProfile(null);
+    try {
+      const res = await getHelperPublicProfileApi(helperId);
+      setHelperProfile(res.data);
+    } catch (err) {
+      console.error("Error loading helper profile:", err);
+    } finally {
+      setHelperProfileLoading(false);
+    }
+  }, []);
+
+  const closeHelperProfile = useCallback(() => {
+    setShowHelperProfile(false);
+    setHelperProfile(null);
+  }, []);
+
+  // ─── Customer: open applications for a job post ─────────
+  const openApplications = useCallback(async (jobPost: MyJobPost) => {
+    setSelectedJobPost(jobPost);
+    setShowApplicationsModal(true);
+    setApplicantsLoading(true);
+    setApplicants([]);
+    try {
+      const res = await getApplicationsApi(jobPost.id);
+      const apps: Applicant[] = res.data || [];
+
+      // Fetch helper profiles for each applicant (skills, experience, rating)
+      const enriched = await Promise.all(
+        apps.map(async (app) => {
+          try {
+            const profileRes = await getHelperPublicProfileApi(app.helper_id);
+            return { ...app, profile: profileRes.data || null };
+          } catch {
+            return { ...app, profile: null };
+          }
+        })
+      );
+      setApplicants(enriched);
+    } catch (err) {
+      console.error("Error loading applications:", err);
+    } finally {
+      setApplicantsLoading(false);
+    }
+  }, []);
+
+  const closeApplications = useCallback(() => {
+    setShowApplicationsModal(false);
+    setSelectedJobPost(null);
+    setApplicants([]);
+  }, []);
+
+  // Auto-open applications modal if postIdParam exists in the URL and match is found
+  useEffect(() => {
+    if (postIdParam && myJobPosts.length > 0) {
+      const matched = myJobPosts.find((p) => p.id === Number(postIdParam));
+      if (matched) {
+        openApplications(matched);
+      }
+    }
+  }, [postIdParam, myJobPosts, openApplications]);
+
+  // ─── Customer: accept a helper ──────────────────────────
+  const acceptHelper = useCallback(async (jobPostId: number, helperId: number) => {
+    if (!window.confirm("Bạn có chắc chắn muốn chọn người giúp việc này? Tất cả đơn ứng tuyển khác sẽ bị từ chối.")) return;
+    try {
+      await selectHelperApi(jobPostId, helperId);
+      setToast({
+        type: "success",
+        title: "Chấp nhận thành công",
+        message: "Người giúp việc đã được chọn. Đang chờ người giúp việc đồng ý nhận việc.",
+      });
+      if (selectedJobPost) {
+        openApplications(selectedJobPost);
+      }
+      fetchMyJobPosts();
+    } catch (err: any) {
+      setToast({
+        type: "error",
+        title: "Lỗi",
+        message: err.response?.data?.message || "Không thể chấp nhận người giúp việc.",
+      });
+    }
+  }, [selectedJobPost, openApplications, fetchMyJobPosts]);
+
+  // ─── Customer: reject a helper ──────────────────────────
+  const rejectHelper = useCallback(async (jobPostId: number, helperId: number) => {
+    if (!window.confirm("Bạn có chắc chắn muốn từ chối người giúp việc này không?")) return;
+    try {
+      await rejectHelperApi(jobPostId, helperId);
+      setToast({
+        type: "success",
+        title: "Từ chối thành công",
+        message: "Người giúp việc đã bị từ chối.",
+      });
+      // Re-fetch applications list to update UI status
+      if (selectedJobPost) {
+        openApplications(selectedJobPost);
+      }
+      fetchMyJobPosts();
+    } catch (err: any) {
+      setToast({
+        type: "error",
+        title: "Lỗi",
+        message: err.response?.data?.message || "Không thể từ chối người giúp việc.",
+      });
+    }
+  }, [selectedJobPost, openApplications, fetchMyJobPosts]);
+
+  const deleteJobPost = useCallback(async (id: number) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa bài đăng tuyển dụng này không? Hành động này không thể hoàn tác.")) return;
+    try {
+      await deleteJobPostApi(id);
+      setToast({
+        type: "success",
+        title: "Xóa thành công",
+        message: "Bài đăng tuyển dụng đã được xóa thành công."
+      });
+      fetchMyJobPosts();
+    } catch (err: any) {
+      setToast({
+        type: "error",
+        title: "Xóa thất bại",
+        message: err.response?.data?.message || "Không thể xóa bài đăng tuyển dụng."
+      });
+    }
+  }, [fetchMyJobPosts]);
+
+  const openEditJobPost = useCallback((post: JobPost) => {
+    setEditingJobPost(post);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const closeEditJobPost = useCallback(() => {
+    setEditingJobPost(null);
+    setIsEditModalOpen(false);
+  }, []);
+
+  const updateJobPost = useCallback(async (id: number, data: any) => {
+    try {
+      await updateJobPostApi(id, data);
+      setToast({
+        type: "success",
+        title: "Cập nhật thành công",
+        message: "Bài đăng tuyển dụng đã được cập nhật thành công."
+      });
+      closeEditJobPost();
+      fetchMyJobPosts();
+      // Refresh browse page jobs
+      const jobRes = await getJobPostsApi({ limit: 1000 });
+      setAllJobs(jobRes.data.data || []);
+    } catch (err: any) {
+      setToast({
+        type: "error",
+        title: "Cập nhật thất bại",
+        message: err.response?.data?.message || "Không thể cập nhật bài đăng tuyển dụng."
+      });
+    }
+  }, [closeEditJobPost, fetchMyJobPosts]);
+
+
+
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedSalary("all");
@@ -243,6 +585,7 @@ export const useRecruitment = () => {
   };
 
   return {
+    // Browse tab
     jobs: paginatedJobs,
     totalItems,
     currentPage,
@@ -261,5 +604,38 @@ export const useRecruitment = () => {
     clearFilters,
     categories,
     isLoading,
+    toast,
+    setToast,
+    applyJob,
+    appliedJobIds,
+    // Tab switching
+    activeTab,
+    setActiveTab,
+    // Customer: My posts
+    myJobPosts,
+    myPostsLoading,
+    fetchMyJobPosts,
+    // Customer: Applications modal
+    selectedJobPost,
+    applicants,
+    applicantsLoading,
+    showApplicationsModal,
+    openApplications,
+    closeApplications,
+    acceptHelper,
+    rejectHelper,
+    deleteJobPost,
+    // Customer: Edit job post
+    editingJobPost,
+    isEditModalOpen,
+    openEditJobPost,
+    closeEditJobPost,
+    updateJobPost,
+    // Helper profile
+    helperProfile,
+    helperProfileLoading,
+    showHelperProfile,
+    viewHelperProfile,
+    closeHelperProfile,
   };
 };

@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import { getNewsList } from "../../api/news";
 import type { NewsItem as ApiNewsItem } from "../../api/news";
+import {
+  getNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification,
+} from "../../api/notifications";
+import type { Notification } from "../../api/notifications";
 
 export interface Category {
   name: string;
@@ -60,13 +68,133 @@ export const useHeader = () => {
     navigate("/");
   };
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: "Đã duyệt bài đăng tuyển", time: "10 phút trước", read: false },
-    { id: 2, title: "Có ứng viên mới ứng tuyển", time: "1 giờ trước", read: false },
-    { id: 3, title: "Hồ sơ của bạn đã được cập nhật", time: "2 giờ trước", read: true },
-  ]);
+  // ─── Notifications (API-backed & Real-time) ──────────────────────────────────
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifPage, setNotifPage] = useState(1);
+  const [notifLastPage, setNotifLastPage] = useState(1);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const socketRef = useRef<any>(null);
+  const [toast, setToast] = useState<{ type: string; title: string; message: string } | null>(null);
+
+  /** Tải trang đầu hoặc tải thêm (infinite scroll) */
+  const fetchNotifications = useCallback(
+    async (page = 1, replace = true) => {
+      if (!localStorage.getItem("access_token")) return;
+      setNotifLoading(true);
+      try {
+        const res = await getNotifications(undefined, 20, page);
+        const items = res.data.data;
+        setNotifications((prev) => (replace ? items : [...prev, ...items]));
+        setUnreadCount(res.unread_count);
+        setNotifPage(res.data.current_page);
+        setNotifLastPage(res.data.last_page);
+      } catch {
+        // không toast — lỗi im lặng trong dropdown
+      } finally {
+        setNotifLoading(false);
+      }
+    },
+    []
+  );
+
+  /** Load thêm trang tiếp theo */
+  const loadMoreNotifications = useCallback(() => {
+    if (notifPage < notifLastPage && !notifLoading) {
+      fetchNotifications(notifPage + 1, false);
+    }
+  }, [notifPage, notifLastPage, notifLoading, fetchNotifications]);
+
+  // Fetch lần đầu khi user đăng nhập; reset khi logout
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNotifications(1, true);
+    } else {
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+  }, [isLoggedIn, fetchNotifications]);
+
+  // Thiết lập kết nối Socket.IO thời gian thực
+  useEffect(() => {
+    if (isLoggedIn && user?.id) {
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:8005";
+      const socket = io(socketUrl);
+      socketRef.current = socket;
+
+      socket.on("connect", () => {
+        console.log("Connected to Socket.IO server");
+        socket.emit("join", user.id);
+      });
+
+      socket.on("notification", (notif: Notification) => {
+        console.log("Received real-time notification:", notif);
+        setNotifications((prev) => [notif, ...prev]);
+        setUnreadCount((c) => c + 1);
+        setToast({
+          type: "info",
+          title: notif.title || t("Thông báo mới"),
+          message: notif.message || ""
+        });
+      });
+
+      return () => {
+        socket.disconnect();
+        socketRef.current = null;
+      };
+    }
+  }, [isLoggedIn, user?.id, t]);
+
+  /** Đánh dấu 1 thông báo đã đọc */
+  const toggleRead = useCallback(async (id: number) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
+    );
+    setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      await markNotificationRead(id);
+    } catch {
+      // revert on error
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: 0 } : n))
+      );
+      setUnreadCount((c) => c + 1);
+    }
+  }, []);
+
+  /** Đánh dấu TẤT CẢ đã đọc (optimistic update) */
+  const markAllAsRead = useCallback(async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 as const })));
+    setUnreadCount(0);
+    try {
+      await markAllNotificationsRead();
+    } catch {
+      // revert — tải lại từ API
+      fetchNotifications(1, true);
+    }
+  }, [fetchNotifications]);
+
+  /** Xoá 1 thông báo */
+  const removeNotification = useCallback(async (id: number) => {
+    const removed = notifications.find((n) => n.id === id);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    if (removed && !removed.is_read) setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      await deleteNotification(id);
+    } catch {
+      // revert
+      if (removed) {
+        setNotifications((prev) => [removed, ...prev]);
+        if (!removed.is_read) setUnreadCount((c) => c + 1);
+      }
+    }
+  }, [notifications]);
+
+  // ─── End Notifications ──────────────────────────────────────────────────────
 
   const [activeCategory, setActiveCategory] = useState("Giúp việc theo giờ");
+
 
   const navLinks = [
     { name: "Trang Chủ", to: "/" },
@@ -195,15 +323,6 @@ export const useHeader = () => {
     },
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAllAsRead = () => {
-    setNotifications(notifications.map((n) => ({ ...n, read: true })));
-  };
-
-  const toggleRead = (id: number) => {
-    setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: !n.read } : n)));
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -256,6 +375,12 @@ export const useHeader = () => {
     unreadCount,
     markAllAsRead,
     toggleRead,
+    removeNotification,
+    notifLoading,
+    notifPage,
+    notifLastPage,
+    loadMoreNotifications,
+    fetchNotifications,
     isDarkMode,
     toggleDarkMode,
     changeLanguage,
@@ -268,5 +393,7 @@ export const useHeader = () => {
     bottomLinks,
     newsItems,
     categoryDetails,
+    toast,
+    setToast,
   };
 };

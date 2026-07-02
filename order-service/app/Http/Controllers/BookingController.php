@@ -9,6 +9,8 @@ use App\Models\BookingService;
 use App\Models\BookingStatusHistory;
 use App\Models\BookingWorkLog;
 use App\Models\Review;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -20,7 +22,8 @@ class BookingController extends Controller
     private const CUSTOMER_CANCEL_ALLOWED = ['pending', 'confirmed'];
     private const HELPER_ACCEPT_FROM      = ['pending'];
     private const HELPER_REJECT_FROM      = ['pending'];
-    private const HELPER_CHECKIN_FROM     = ['confirmed'];
+    private const HELPER_START_MOVING_FROM= ['confirmed'];
+    private const HELPER_CHECKIN_FROM     = ['on_the_way', 'confirmed'];
     private const HELPER_CHECKOUT_FROM    = ['in_progress'];
 
     // =====================================================================
@@ -116,6 +119,30 @@ class BookingController extends Controller
 
         $limit    = (int) $request->query('limit', 20);
         $bookings = $query->orderByDesc('created_at')->paginate($limit);
+
+        // Fetch helper user info from identity-service internally
+        $helperIds = collect($bookings->items())->pluck('helper_id')->filter()->unique()->toArray();
+        $userMap = [];
+
+        if (!empty($helperIds)) {
+            try {
+                $response = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $helperIds]);
+
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    foreach ($users as $u) {
+                        $userMap[$u['id']] = $u;
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to fetch user details for myBookings: ' . $e->getMessage());
+            }
+        }
+
+        foreach ($bookings->items() as $booking) {
+            $booking->helper = $userMap[$booking->helper_id] ?? null;
+        }
 
         return response()->json(['data' => $bookings], 200);
     }
@@ -245,6 +272,30 @@ class BookingController extends Controller
         $limit    = (int) $request->query('limit', 20);
         $bookings = $query->orderBy('booking_date')->paginate($limit);
 
+        // Fetch customer user info from identity-service internally
+        $customerIds = collect($bookings->items())->pluck('customer_id')->filter()->unique()->toArray();
+        $userMap = [];
+
+        if (!empty($customerIds)) {
+            try {
+                $response = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $customerIds]);
+
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    foreach ($users as $u) {
+                        $userMap[$u['id']] = $u;
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to fetch user details for helperBookings: ' . $e->getMessage());
+            }
+        }
+
+        foreach ($bookings->items() as $booking) {
+            $booking->customer = $userMap[$booking->customer_id] ?? null;
+        }
+
         return response()->json(['data' => $bookings], 200);
     }
 
@@ -302,6 +353,41 @@ class BookingController extends Controller
     }
 
     /**
+     * Helper starts moving (confirmed → on_the_way).
+     */
+    public function startMoving(Request $request, $id)
+    {
+        if ($request->authUser['role_id'] !== 3) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $booking = Booking::where('id', $id)->where('helper_id', $request->authUser['id'])->first();
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+
+        if (!in_array($booking->status, self::HELPER_START_MOVING_FROM)) {
+            return response()->json(['message' => "Cannot start moving for a booking with status '{$booking->status}'."], 422);
+        }
+
+        $old = $booking->status;
+        $booking->update(['status' => 'on_the_way']);
+        $this->recordStatusHistory($booking->id, $old, 'on_the_way', $request->authUser['id'], 'Helper started moving.');
+
+        // Notify Customer
+        try {
+            Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
+                'user_id' => $booking->customer_id,
+                'title'   => 'Người giúp việc đang di chuyển',
+                'message' => 'Người giúp việc đang trên đường đến địa chỉ của bạn.',
+                'type'    => 'booking',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to notify customer helper moving: ' . $e->getMessage());
+        }
+
+        return response()->json(['message' => 'Started moving.', 'data' => $booking->fresh()], 200);
+    }
+
+    /**
      * Helper checks in — records start time and sets status to in_progress.
      */
     public function checkin(Request $request, $id)
@@ -327,6 +413,18 @@ class BookingController extends Controller
         $old = $booking->status;
         $booking->update(['status' => 'in_progress']);
         $this->recordStatusHistory($booking->id, $old, 'in_progress', $request->authUser['id'], 'Helper checked in.');
+
+        // Notify Customer
+        try {
+            Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
+                'user_id' => $booking->customer_id,
+                'title'   => 'Người giúp việc đã đến nơi',
+                'message' => 'Người giúp việc đã đến địa chỉ của bạn và bắt đầu công việc.',
+                'type'    => 'booking',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to notify customer helper checkin: ' . $e->getMessage());
+        }
 
         return response()->json(['message' => 'Checked in successfully.', 'data' => $workLog], 200);
     }
@@ -365,6 +463,18 @@ class BookingController extends Controller
         $this->recordStatusHistory($booking->id, $old, 'completed', $request->authUser['id'],
             $request->input('note', 'Helper checked out.'));
 
+        // Notify Customer
+        try {
+            Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
+                'user_id' => $booking->customer_id,
+                'title'   => 'Công việc đã hoàn thành',
+                'message' => 'Người giúp việc đã hoàn thành công việc. Vui lòng đánh giá chất lượng dịch vụ.',
+                'type'    => 'booking',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to notify customer helper checkout: ' . $e->getMessage());
+        }
+
         return response()->json(['message' => 'Checked out successfully. Booking completed.', 'data' => $booking->fresh()], 200);
     }
 
@@ -383,6 +493,11 @@ class BookingController extends Controller
         }
 
         $query = Booking::with(['services']);
+
+        if ($request->filled('ids')) {
+            $ids = explode(',', $request->query('ids'));
+            $query->whereIn('id', $ids);
+        }
 
         if ($request->filled('status'))      $query->where('status', $request->query('status'));
         if ($request->filled('customer_id')) $query->where('customer_id', $request->query('customer_id'));
@@ -453,9 +568,9 @@ class BookingController extends Controller
         $totalRevenue = 0;
         $revenueChangePercent = 0;
         try {
-            $revenueResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $revenueResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
-                ->get('http://payment-service:8000/api/payments/admin/stats');
+                ->get(env('PAYMENT_SERVICE_URL', 'http://payment-service:8000') . '/api/payments/admin/stats');
             if ($revenueResponse->successful()) {
                 $revData = $revenueResponse->json('data');
                 $totalRevenue = $revData['total_revenue'] ?? 0;
@@ -492,9 +607,9 @@ class BookingController extends Controller
         $activeHelpers = 0;
         $helpersChangeStr = "+0 new";
         try {
-            $helperStatsResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $helperStatsResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
-                ->get('http://provider-service:8000/api/providers/admin/helpers/stats');
+                ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/admin/helpers/stats');
             if ($helperStatsResponse->successful()) {
                 $activeHelpers = $helperStatsResponse->json('data.active') ?? 0;
                 $pendingVerifications = $helperStatsResponse->json('data.pending_verifications') ?? 0;
@@ -545,9 +660,9 @@ class BookingController extends Controller
         $serviceCategoryMap = [];
         $serviceNameMap = [];
         try {
-            $servicesResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $servicesResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
-                ->get('http://provider-service:8000/api/providers/services?limit=1000');
+                ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/services?limit=1000');
             if ($servicesResponse->successful()) {
                 $servicesData = $servicesResponse->json('data.data') ?? [];
                 foreach ($servicesData as $svc) {
@@ -606,9 +721,9 @@ class BookingController extends Controller
         // 7. Recent Bookings
         $userNameMap = [];
         try {
-            $usersResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $usersResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
-                ->get('http://identity-service:8000/api/admin/users?limit=1000');
+                ->get(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users?limit=1000');
             if ($usersResponse->successful()) {
                 $usersData = $usersResponse->json('data.data') ?? [];
                 foreach ($usersData as $user) {
@@ -691,6 +806,70 @@ class BookingController extends Controller
     // =====================================================================
     //  PRIVATE HELPERS
     // =====================================================================
+
+    public function updatePaymentStatus(Request $request)
+    {
+        $fields = $request->validate([
+            'booking_id' => 'required|integer',
+            'status'     => 'required|string',
+        ]);
+
+        $booking = Booking::find($fields['booking_id']);
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found.'], 404);
+        }
+
+        $oldStatus = $booking->status;
+
+        // If payment is completed and booking is pending, mark it confirmed
+        if ($fields['status'] === 'completed' && $booking->status === 'pending') {
+            $booking->update(['status' => 'confirmed']);
+            $this->recordStatusHistory($booking->id, $oldStatus, 'confirmed', 0, 'Thanh toán thành công.');
+
+            // Send notification to Customer
+            try {
+                Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
+                    'user_id' => $booking->customer_id,
+                    'title'   => 'Thanh toán thành công',
+                    'message' => 'Bạn đã thanh toán thành công cho đơn đặt lịch ' . ($booking->booking_code ?: '#' . $booking->id) . '. Lịch hẹn đã được xác nhận.',
+                    'type'    => 'payment',
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to notify customer payment success: ' . $e->getMessage());
+            }
+
+            // Send notification to Helper
+            if ($booking->helper_id) {
+                try {
+                    Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
+                        'user_id' => $booking->helper_id,
+                        'title'   => 'Lịch hẹn được xác nhận',
+                        'message' => 'Khách hàng đã thanh toán thành công cho đơn đặt lịch ' . ($booking->booking_code ?: '#' . $booking->id) . '. Lịch hẹn đã được xác nhận.',
+                        'type'    => 'booking',
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to notify helper payment success: ' . $e->getMessage());
+                }
+            }
+
+            // Send socket real-time update
+            try {
+                Http::post(env('SOCKET_SERVICE_URL', 'http://socket-service:3000') . '/publish', [
+                    'event' => 'booking_updated',
+                    'data' => [
+                        'booking_id'  => $booking->id,
+                        'status'      => 'confirmed',
+                        'helper_id'   => $booking->helper_id,
+                        'customer_id' => $booking->customer_id
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to publish booking payment update to socket: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['message' => 'Payment status processed.'], 200);
+    }
 
     private function recordStatusHistory(int $bookingId, ?string $old, string $new, int $changedBy, ?string $note): void
     {

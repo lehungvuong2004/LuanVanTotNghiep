@@ -2,6 +2,7 @@ import { usePostAJobHook } from "./useHook";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { formatMoneyInput } from "../../utils";
+import { Link } from "react-router-dom";
 
 const formatWorkingTime = (timeStr: string | null) => {
   if (!timeStr) return "";
@@ -280,8 +281,16 @@ export default function PostAJob() {
         </div>
 
         {errorMsg && (
-          <div className="p-4 text-sm text-red-800 rounded-xl bg-red-50 dark:bg-slate-800 dark:text-red-400 border border-red-200 dark:border-red-900">
-            {errorMsg}
+          <div className="p-4 text-sm text-red-800 rounded-xl bg-red-50 dark:bg-slate-800 dark:text-red-400 border border-red-200 dark:border-red-900 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <span>{errorMsg}</span>
+            {errorMsg.includes("hoàn thiện hồ sơ") && (
+              <Link
+                to="/ho-so"
+                className="px-4 py-1.5 bg-[#0d5c63] dark:bg-teal-500 hover:bg-[#0a4d52] dark:hover:bg-teal-600 text-white dark:text-slate-900 text-xs font-bold rounded-lg transition-colors whitespace-nowrap text-center"
+              >
+                {t("Cập nhật ngay")}
+              </Link>
+            )}
           </div>
         )}
 

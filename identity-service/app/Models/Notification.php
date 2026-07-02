@@ -12,6 +12,7 @@ class Notification extends Model
     'message',
     'type',
     'is_read',
+    'created_at',
   ];
 
   public $timestamps = false;

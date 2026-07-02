@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -177,14 +178,14 @@ class AuthController extends Controller
     $otp   = sprintf("%06d", mt_rand(100000, 999999));
 
     Cache::put('password_reset_otp_' . $email, $otp, 900);
-    \Log::info("Mã OTP cho {$email} là: {$otp}");
+    Log::info("Mã OTP cho {$email} là: {$otp}");
 
     try {
       Mail::raw("Mã OTP khôi phục mật khẩu của bạn là: {$otp}. Mã này có hiệu lực trong vòng 15 phút.", function ($message) use ($email) {
         $message->to($email)->subject("Khôi phục mật khẩu - Gia Đình Việt");
       });
     } catch (\Exception $e) {
-      \Log::info("Không thể gửi email OTP tới {$email}. Mã OTP test là: {$otp}. Chi tiết: " . $e->getMessage());
+      Log::info("Không thể gửi email OTP tới {$email}. Mã OTP test là: {$otp}. Chi tiết: " . $e->getMessage());
       return response()->json([
         'message' => 'Mã OTP đã được tạo. Vì chưa cấu hình SMTP nên bạn hãy kiểm tra mã OTP tại file log: storage/logs/laravel.log. Mã OTP test là: ' . $otp
       ], 200);
@@ -441,7 +442,7 @@ class AuthController extends Controller
     // Gọi nội bộ lấy danh sách user_id đã có profile helper
     $helperUserIds = [];
     try {
-      $response = \Illuminate\Support\Facades\Http::timeout(3)
+      $response = Http::timeout(3)
         ->get('http://provider-service:8000/api/providers/helper-user-ids');
       if ($response->successful()) {
         $helperUserIds = $response->json() ?? [];
@@ -750,5 +751,21 @@ class AuthController extends Controller
       ->toArray();
 
     return response()->json($userIds, 200);
+  }
+
+  /**
+   * Lấy chi tiết nhiều users theo danh sách IDs cho các microservice nội bộ.
+   */
+  public function getUsersByIdsInternal(Request $request)
+  {
+    $request->validate([
+      'ids' => 'required|array',
+      'ids.*' => 'integer'
+    ]);
+
+    $ids = $request->input('ids');
+    $users = User::whereIn('id', $ids)->get(['id', 'full_name', 'phone', 'avatar', 'email', 'role_id']);
+
+    return response()->json(['data' => $users], 200);
   }
 }

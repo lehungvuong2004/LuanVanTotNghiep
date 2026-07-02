@@ -124,6 +124,15 @@ services:
     depends_on:
       - api-gateway
 
+  socket-service:
+    build: ./socket-service
+    container_name: lv-socket
+    ports:
+      - "8005:3000"
+    volumes:
+      - ./socket-service:/app
+      - /app/node_modules
+
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: lv-phpmyadmin

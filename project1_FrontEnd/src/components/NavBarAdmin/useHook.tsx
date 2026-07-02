@@ -1,14 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 
-export interface NavItem {
-  name: string;
-  path: string;
-  icon: string;
-}
 export interface NavBarAdminProps {
   isCollapsed: boolean;
 }
-export const navItems: NavItem[] = [
+export const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: 'material-symbols:grid-view-outline-rounded' },
   { name: 'Users', path: '/admin/users', icon: 'material-symbols:group-outline-rounded' },
   { name: 'Helpers', path: '/admin/helpers', icon: 'material-symbols:engineering-outline-rounded' },

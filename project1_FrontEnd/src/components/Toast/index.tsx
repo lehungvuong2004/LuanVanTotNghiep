@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Icon } from "@iconify/react";
 import type { ToastProps } from "../../types/Toast";
 
@@ -39,9 +40,16 @@ const toastConfig = {
 export const Toast = ({ type = "success", title, message, onClose }: ToastProps) => {
   const config = toastConfig[type];
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onClose) onClose();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
   return (
     <div
-      className={`fixed top-6 right-6 z-50 w-120 max-w-[calc(100vw-2rem)] rounded-2xl border ${config.border} ${config.cardBg} shadow-lg dark:shadow-[0_8px_30px_rgb(0,0,0,0.25)] px-5 py-4 flex gap-4 transition-all duration-300 hover:scale-[1.01]`}
+      className={`fixed top-6 right-6 z-300 w-120 max-w-[calc(100vw-2rem)] rounded-2xl border ${config.border} ${config.cardBg} shadow-lg dark:shadow-[0_8px_30px_rgb(0,0,0,0.25)] px-5 py-4 flex gap-4 transition-all duration-300 hover:scale-[1.01]`}
     >
       <Icon icon={config.icon} className={`text-2xl mt-0.5 shrink-0 ${config.iconColor}`} />
       <div className="flex-1 text-left">

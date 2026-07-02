@@ -266,4 +266,37 @@ class CustomerProfileController extends Controller
       'data'    => $address->fresh()
     ], 200);
   }
+
+  /**
+   * API nội bộ: Kiểm tra trạng thái hoàn thiện hồ sơ của Customer.
+   */
+  public function getCustomerProfileStatusInternal(Request $request)
+  {
+      $request->validate([
+          'user_id' => 'required|integer'
+      ]);
+      
+      $userId = $request->input('user_id');
+      
+      $user = \App\Models\User::find($userId);
+      if (!$user) {
+          return response()->json(['is_complete' => false, 'message' => 'Người dùng không tồn tại.'], 404);
+      }
+      
+      if (empty($user->phone)) {
+          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật số điện thoại liên hệ.'], 200);
+      }
+      
+      $profile = CustomerProfile::where('user_id', $userId)->first();
+      if (!$profile || empty($profile->gender) || empty($profile->birthday)) {
+          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật giới tính và ngày sinh.'], 200);
+      }
+      
+      $hasAddress = CustomerAddress::where('customer_id', $profile->id)->exists();
+      if (!$hasAddress) {
+          return response()->json(['is_complete' => false, 'message' => 'Vui lòng thêm ít nhất một địa chỉ liên hệ.'], 200);
+      }
+      
+      return response()->json(['is_complete' => true], 200);
+  }
 }

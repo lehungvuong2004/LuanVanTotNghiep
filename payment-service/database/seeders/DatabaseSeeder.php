@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
         $p1 = Payment::updateOrCreate(
             ['transaction_code' => 'TXN-COMPLETED1'],
             [
-                'booking_id'     => 9921,
-                'job_post_id'    => null,
+                'booking_id'     => 5,
+                'job_post_id'    => 39,
                 'payment_method' => 'vnpay',
                 'amount'         => 450000.00,
                 'status'         => 'completed',
@@ -30,9 +30,9 @@ class DatabaseSeeder extends Seeder
         $p2 = Payment::updateOrCreate(
             ['transaction_code' => 'TXN-COMPLETED2'],
             [
-                'booking_id'     => 9870,
-                'job_post_id'    => null,
-                'payment_method' => 'momo',
+                'booking_id'     => 6,
+                'job_post_id'    => 40,
+                'payment_method' => 'cash',
                 'amount'         => 200000.00,
                 'status'         => 'completed',
                 'paid_at'        => now()->subDay(),
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         $p3 = Payment::updateOrCreate(
             ['transaction_code' => 'TXN-PENDING1'],
             [
-                'booking_id'     => 9542,
+                'booking_id'     => 1,
                 'job_post_id'    => null,
                 'payment_method' => 'vnpay',
                 'amount'         => 300000.00,
@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
         $p4 = Payment::updateOrCreate(
             ['transaction_code' => 'TXN-FAILED1'],
             [
-                'booking_id'     => 9340,
+                'booking_id'     => 2,
                 'job_post_id'    => null,
                 'payment_method' => 'vnpay',
                 'amount'         => 150000.00,
@@ -69,9 +69,9 @@ class DatabaseSeeder extends Seeder
         $p5 = Payment::updateOrCreate(
             ['transaction_code' => 'TXN-REFUNDED1'],
             [
-                'booking_id'     => 9122,
+                'booking_id'     => 3,
                 'job_post_id'    => null,
-                'payment_method' => 'momo',
+                'payment_method' => 'cash',
                 'amount'         => 500000.00,
                 'status'         => 'refunded',
                 'paid_at'        => now()->subDays(5),

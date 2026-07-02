@@ -11,6 +11,7 @@ Route::prefix('orders')->group(function () {
     Route::get('job-posts',             [JobPostController::class, 'index']);
     Route::get('job-posts/{id}',        [JobPostController::class, 'show']);
     Route::get('reviews/helper/{helperId}', [ReviewController::class, 'helperReviews']);
+    Route::post('internal/bookings/update-payment-status', [BookingController::class, 'updatePaymentStatus']);
 
     Route::middleware('jwt.auth')->group(function () {
 
@@ -25,6 +26,7 @@ Route::prefix('orders')->group(function () {
         Route::get('helper/bookings',                [BookingController::class, 'helperBookings']);
         Route::patch('helper/bookings/{id}/accept',  [BookingController::class, 'accept']);
         Route::patch('helper/bookings/{id}/reject',  [BookingController::class, 'reject']);
+        Route::post('helper/bookings/{id}/start-moving', [BookingController::class, 'startMoving']);
         Route::post('helper/bookings/{id}/checkin',  [BookingController::class, 'checkin']);
         Route::post('helper/bookings/{id}/checkout', [BookingController::class, 'checkout']);
 
@@ -38,6 +40,7 @@ Route::prefix('orders')->group(function () {
         Route::delete('job-posts/{id}',                         [JobPostController::class, 'destroy']);
         Route::get('job-posts/{id}/applications',               [JobPostController::class, 'applications']);
         Route::patch('job-posts/{id}/select/{helperId}',        [JobPostController::class, 'selectHelper']);
+        Route::patch('job-posts/{id}/reject/{helperId}',        [JobPostController::class, 'rejectHelper']);
         Route::post('job-posts/{id}/review',                    [JobPostController::class, 'review']);
 
         // Helper
@@ -45,6 +48,7 @@ Route::prefix('orders')->group(function () {
         Route::post('helper/job-posts/{id}/apply',  [JobPostController::class, 'apply']);
         Route::get('helper/applications',           [JobPostController::class, 'myApplications']);
         Route::patch('helper/applications/{id}/withdraw', [JobPostController::class, 'withdraw']);
+        Route::patch('helper/applications/{id}/respond',  [JobPostController::class, 'respondToSelection']);
 
         // ---- REPORTS ----
         Route::post('reports',              [ReportController::class, 'store']);

@@ -15,6 +15,7 @@ Route::prefix('providers')->group(function () {
     // Tìm kiếm & xem hồ sơ helper
     Route::get('helpers',          [HelperController::class, 'publicList']);
     Route::get('helpers/{id}',     [HelperController::class, 'publicShow']);
+    Route::get('helpers/{id}/status-check', [HelperController::class, 'profileStatusCheck']);
     Route::get('helper-user-ids',  [HelperController::class, 'getHelperUserIds']);
 
     // Danh mục & dịch vụ

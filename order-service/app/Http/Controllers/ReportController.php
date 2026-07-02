@@ -91,10 +91,6 @@ class ReportController extends Controller
         return response()->json(['data' => $reports], 200);
     }
 
-    /**
-     * View detail of a single report.
-     * Role: admin (1) or operator (4)
-     */
     public function adminShow(Request $request, $id)
     {
         if (!in_array($request->authUser['role_id'], [1, 2])) {

@@ -6,9 +6,88 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Payment;
 use App\Models\Refund;
+use App\Services\VnpayService;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
+    /**
+     * Get payments for the authenticated user (Customer).
+     */
+    public function index(Request $request)
+    {
+        $token = $request->header('Authorization');
+        if (!$token) {
+            return response()->json(['message' => 'Unauthorized.'], 401);
+        }
+
+        $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
+        $bookingIds = [];
+        $jobPostIds = [];
+
+        // 1. Fetch customer's booking IDs
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(3)
+                ->withHeaders(['Authorization' => $token])
+                ->get($orderUrl . '/api/orders/bookings', ['limit' => 1000]);
+
+            if ($response->successful()) {
+                $bookingsData = $response->json('data.data') ?? $response->json('data') ?? [];
+                $bookingIds = collect($bookingsData)->pluck('id')->toArray();
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to fetch user bookings for payments: ' . $e->getMessage());
+        }
+
+        // 2. Fetch customer's job post IDs
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(3)
+                ->withHeaders(['Authorization' => $token])
+                ->get($orderUrl . '/api/orders/my/job-posts', ['limit' => 1000]);
+
+            if ($response->successful()) {
+                $jobPostsData = $response->json('data.data') ?? $response->json('data') ?? [];
+                $jobPostIds = collect($jobPostsData)->pluck('id')->toArray();
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to fetch user job posts for payments: ' . $e->getMessage());
+        }
+
+        // If no bookings and no job posts, return empty pagination format
+        if (empty($bookingIds) && empty($jobPostIds)) {
+            return response()->json([
+                'data' => [
+                    'current_page' => 1,
+                    'data' => [],
+                    'total' => 0,
+                    'last_page' => 1,
+                    'per_page' => 20,
+                ]
+            ], 200);
+        }
+
+        $limit = (int) $request->query('limit', 20);
+        $query = Payment::with('refunds');
+
+        $query->where(function ($q) use ($bookingIds, $jobPostIds) {
+            if (!empty($bookingIds)) {
+                $q->whereIn('booking_id', $bookingIds);
+            }
+            if (!empty($jobPostIds)) {
+                $q->orWhereIn('job_post_id', $jobPostIds);
+            }
+        });
+
+        $payments = $query->orderByDesc('created_at')->paginate($limit);
+
+        // Enrich with user details from the request authUser
+        foreach ($payments->items() as $payment) {
+            $payment->user = $request->authUser;
+        }
+
+        return response()->json(['data' => $payments], 200);
+    }
+
     /**
      * Customer creates a new payment for a booking or job post.
      */
@@ -59,9 +138,26 @@ class PaymentController extends Controller
         }
 
         // Ideally, check if the customer owns the booking/job_post here (requires calling order-service or passing ownership data).
-        // For simplicity, we allow Admin/Operator (1, 4) and Customer (2) to view.
+        // For simplicity, we allow Admin/Operator (1, 2) and Customer (4) to view.
         if (!in_array($request->authUser['role_id'], [1, 2, 4])) {
              return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $customerId = $this->getCustomerIdFromOrderService($request, $payment->booking_id, $payment->job_post_id);
+
+        if ($customerId) {
+            try {
+                $identityUrl = env('IDENTITY_SERVICE_URL', 'http://identity-service:8000');
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->post($identityUrl . '/api/internal/users/by-ids', ['ids' => [$customerId]]);
+
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    $payment->user = !empty($users) ? $users[0] : null;
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to fetch user details for show payment: ' . $e->getMessage());
+            }
         }
 
         return response()->json(['data' => $payment], 200);
@@ -86,6 +182,8 @@ class PaymentController extends Controller
             'status'  => 'completed',
             'paid_at' => now(),
         ]);
+
+        $this->syncPaymentStatusWithOrderService($payment);
 
         return response()->json([
             'message' => 'Payment marked as completed.',
@@ -122,6 +220,8 @@ class PaymentController extends Controller
 
         $limit    = (int) $request->query('limit', 20);
         $payments = $query->paginate($limit);
+
+        $this->enrichPaymentsWithUsers($payments, $request);
 
         return response()->json(['data' => $payments], 200);
     }
@@ -196,5 +296,392 @@ class PaymentController extends Controller
                 'change_percent' => round($changePercent, 1)
             ]
         ], 200);
+    }
+
+    // =========================================================
+    //  VNPay Integration
+    // =========================================================
+
+    /**
+     * Customer requests a VNPay payment URL.
+     * Creates a pending Payment record, then returns the redirect URL.
+     *
+     * POST /payments/vnpay/create
+     */
+    public function createVnpayUrl(Request $request)
+    {
+        if ($request->authUser['role_id'] !== 4) {
+            return response()->json(['message' => 'Only customers can initiate payments.'], 403);
+        }
+
+        $fields = $request->validate([
+            'booking_id'  => 'nullable|integer',
+            'job_post_id' => 'nullable|integer',
+            'amount'      => 'required|numeric|min:1000',  // VNPay minimum is 1,000 VNĐ
+            'order_info'  => 'nullable|string|max:255',
+            'locale'      => 'nullable|string|in:vn,en',
+        ]);
+
+        if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
+            return response()->json([
+                'message' => 'Payment must be associated with a booking or a job post.'
+            ], 422);
+        }
+
+        // 1. Create a pending payment record
+        $payment = Payment::create([
+            'booking_id'       => $fields['booking_id']  ?? null,
+            'job_post_id'      => $fields['job_post_id'] ?? null,
+            'payment_method'   => 'vnpay',
+            'transaction_code' => 'VNP-' . strtoupper(Str::random(8)),
+            'amount'           => $fields['amount'],
+            'status'           => 'pending',
+            'paid_at'          => null,
+        ]);
+
+        // 2. Fetch customer details for VNPay Billing info
+        $billingInfo = [];
+        $customerId = $request->authUser['id'] ?? null;
+        if ($customerId) {
+            try {
+                $identityUrl = env('IDENTITY_SERVICE_URL', 'http://identity-service:8000');
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->post($identityUrl . '/api/internal/users/by-ids', ['ids' => [$customerId]]);
+
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    if (!empty($users)) {
+                        $u = $users[0];
+                        $fullName = $u['full_name'] ?? 'Nguoi thanh toan';
+                        $email    = $u['email'] ?? ($request->authUser['email'] ?? 'customer@example.com');
+                        $phone    = $u['phone'] ?? '0901234567';
+
+                        $nameParts = explode(' ', trim($fullName));
+                        $lastName  = array_pop($nameParts) ?: 'Customer';
+                        $firstName = implode(' ', $nameParts) ?: 'Customer';
+
+                        $billingInfo = [
+                            'vnp_Bill_Mobile'    => $phone,
+                            'vnp_Bill_Email'     => $email,
+                            'vnp_Bill_FirstName' => $firstName,
+                            'vnp_Bill_LastName'  => $lastName,
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to fetch customer profile for VNPay: ' . $e->getMessage());
+            }
+        }
+
+        // 3. Build VNPay redirect URL
+        $vnpay      = new VnpayService();
+        $clientIp   = $request->ip() ?? '127.0.0.1';
+        $orderInfo  = $fields['order_info'] ?? 'Thanh toan dich vu HomeService #' . $payment->id;
+        $locale     = $fields['locale'] ?? 'vn';
+
+        $paymentUrl = $vnpay->buildPaymentUrl(
+            $payment->id,
+            (float) $fields['amount'],
+            $orderInfo,
+            $clientIp,
+            $locale,
+            $billingInfo
+        );
+
+        return response()->json([
+            'message'     => 'VNPay URL generated.',
+            'payment_id'  => $payment->id,
+            'payment_url' => $paymentUrl,
+        ], 201);
+    }
+
+    /**
+     * VNPay Return URL — user is redirected here after paying (GET).
+     * Verifies signature and updates payment status.
+     *
+     * GET /payments/vnpay/return
+     */
+    public function vnpayReturn(Request $request)
+    {
+        $data = $request->query();
+
+        $vnpay = new VnpayService();
+
+        if (!$vnpay->verifySignature($data)) {
+            Log::warning('VNPay return: invalid signature', $data);
+            return response()->json(['message' => 'Chữ ký không hợp lệ.', 'code' => '97'], 400);
+        }
+
+        $responseCode = $data['vnp_ResponseCode'] ?? '';
+        $txnRef       = $data['vnp_TxnRef']       ?? '';
+        $paymentId    = $vnpay->extractPaymentId($txnRef);
+
+        if (!$paymentId) {
+            return response()->json(['message' => 'Mã giao dịch không hợp lệ.'], 400);
+        }
+
+        $payment = Payment::find($paymentId);
+        if (!$payment) {
+            return response()->json(['message' => 'Không tìm thấy thanh toán.'], 404);
+        }
+
+        // Only update if still pending (guard against duplicate callbacks)
+        if ($payment->status === 'pending') {
+            if ($responseCode === '00') {
+                $payment->update([
+                    'status'  => 'completed',
+                    'paid_at' => now()->toDateTimeString(),
+                    'transaction_code' => $data['vnp_TransactionNo'] ?? $payment->transaction_code,
+                ]);
+                $this->syncPaymentStatusWithOrderService($payment);
+            } else {
+                $payment->update(['status' => 'failed']);
+            }
+        }
+
+        return response()->json([
+            'message'      => $responseCode === '00' ? 'Thanh toán thành công.' : 'Thanh toán thất bại.',
+            'code'         => $responseCode,
+            'payment_id'   => $payment->id,
+            'status'       => $payment->fresh()->status,
+            'amount'       => $payment->amount,
+            'paid_at'      => $payment->paid_at,
+            'order_info'   => $data['vnp_OrderInfo'] ?? null,
+            'bank_code'    => $data['vnp_BankCode']  ?? null,
+            'txn_ref'      => $txnRef,
+        ], 200);
+    }
+
+    /**
+     * VNPay IPN (Instant Payment Notification) — server-to-server (GET/POST).
+     * Must respond with JSON { RspCode, Message } for VNPay to acknowledge.
+     *
+     * POST /payments/vnpay/ipn
+     */
+    public function vnpayIpn(Request $request)
+    {
+        $data = $request->all();
+
+        $vnpay = new VnpayService();
+
+        if (!$vnpay->verifySignature($data)) {
+            return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature'], 200);
+        }
+
+        $responseCode = $data['vnp_ResponseCode'] ?? '';
+        $txnRef       = $data['vnp_TxnRef']       ?? '';
+        $paymentId    = $vnpay->extractPaymentId($txnRef);
+
+        if (!$paymentId) {
+            return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], 200);
+        }
+
+        $payment = Payment::find($paymentId);
+        if (!$payment) {
+            return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], 200);
+        }
+
+        // Check amount matches
+        $vnpAmount = (int) ($data['vnp_Amount'] ?? 0);
+        if ($vnpAmount !== (int) ($payment->amount * 100)) {
+            return response()->json(['RspCode' => '04', 'Message' => 'Invalid amount'], 200);
+        }
+
+        if ($payment->status !== 'pending') {
+            return response()->json(['RspCode' => '02', 'Message' => 'Order already confirmed'], 200);
+        }
+
+        if ($responseCode === '00') {
+            $payment->update([
+                'status'           => 'completed',
+                'paid_at'          => now()->toDateTimeString(),
+                'transaction_code' => $data['vnp_TransactionNo'] ?? $payment->transaction_code,
+            ]);
+            $this->syncPaymentStatusWithOrderService($payment);
+        } else {
+            $payment->update(['status' => 'failed']);
+        }
+
+        return response()->json(['RspCode' => '00', 'Message' => 'Confirm success'], 200);
+    }
+
+    private function enrichPaymentsWithUsers($payments, Request $request)
+    {
+        $token = $request->header('Authorization');
+        if (!$token) {
+            return;
+        }
+
+        $bookingIds = collect($payments->items())->pluck('booking_id')->filter()->unique()->toArray();
+        $jobPostIds = collect($payments->items())->pluck('job_post_id')->filter()->unique()->toArray();
+
+        $bookingToCustomer = [];
+        $jobPostToCustomer = [];
+
+        $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
+
+        // 1. Fetch Bookings in bulk
+        if (!empty($bookingIds)) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->withHeaders(['Authorization' => $token])
+                    ->get($orderUrl . '/api/orders/admin/bookings', [
+                        'ids' => implode(',', $bookingIds),
+                        'limit' => 1000
+                    ]);
+
+                if ($response->successful()) {
+                    $bookings = $response->json('data.data') ?? [];
+                    foreach ($bookings as $b) {
+                        $bookingToCustomer[$b['id']] = $b['customer_id'];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to bulk fetch bookings: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Fetch Job Posts in bulk
+        if (!empty($jobPostIds)) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->withHeaders(['Authorization' => $token])
+                    ->get($orderUrl . '/api/orders/admin/job-posts', [
+                        'ids' => implode(',', $jobPostIds),
+                        'limit' => 1000
+                    ]);
+
+                if ($response->successful()) {
+                    $posts = $response->json('data.data') ?? [];
+                    foreach ($posts as $p) {
+                        $jobPostToCustomer[$p['id']] = $p['customer_id'];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to bulk fetch job posts: ' . $e->getMessage());
+            }
+        }
+
+        // 3. Map payments to customer IDs and gather unique customer IDs
+        $customerIds = [];
+        foreach ($payments->items() as $payment) {
+            $cId = null;
+            if ($payment->booking_id) {
+                $cId = $bookingToCustomer[$payment->booking_id] ?? null;
+            }
+            if (!$cId && $payment->job_post_id) {
+                $cId = $jobPostToCustomer[$payment->job_post_id] ?? null;
+            }
+            if ($cId) {
+                $payment->customer_id_temp = $cId;
+                $customerIds[] = $cId;
+            }
+        }
+
+        $customerIds = array_unique(array_filter($customerIds));
+        if (empty($customerIds)) {
+            return;
+        }
+
+        // 4. Fetch User Details from identity-service in bulk
+        try {
+            $identityUrl = env('IDENTITY_SERVICE_URL', 'http://identity-service:8000');
+            $response = \Illuminate\Support\Facades\Http::timeout(3)
+                ->post($identityUrl . '/api/internal/users/by-ids', ['ids' => array_values($customerIds)]);
+
+            if ($response->successful()) {
+                $users = $response->json('data') ?? [];
+                $userMap = [];
+                foreach ($users as $u) {
+                    $userMap[$u['id']] = $u;
+                }
+
+                foreach ($payments->items() as $payment) {
+                    if (isset($payment->customer_id_temp)) {
+                        $payment->user = $userMap[$payment->customer_id_temp] ?? null;
+                        unset($payment->customer_id_temp);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to fetch user details for payments: ' . $e->getMessage());
+        }
+    }
+
+    private function getCustomerIdFromOrderService(Request $request, ?int $bookingId, ?int $jobPostId): ?int
+    {
+        $token = $request->header('Authorization');
+        if (!$token) {
+            return null;
+        }
+
+        $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
+
+        if ($bookingId) {
+            try {
+                // Try admin endpoint first
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->withHeaders(['Authorization' => $token])
+                    ->get($orderUrl . '/api/orders/admin/bookings/' . $bookingId);
+
+                if ($response->successful()) {
+                    return $response->json('data.customer_id');
+                }
+
+                // Try customer endpoint
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->withHeaders(['Authorization' => $token])
+                    ->get($orderUrl . '/api/orders/bookings/' . $bookingId);
+
+                if ($response->successful()) {
+                    return $response->json('data.customer_id');
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to fetch booking: ' . $e->getMessage());
+            }
+        }
+
+        if ($jobPostId) {
+            try {
+                // Try admin endpoint first
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->withHeaders(['Authorization' => $token])
+                    ->get($orderUrl . '/api/orders/admin/job-posts/' . $jobPostId);
+
+                if ($response->successful()) {
+                    return $response->json('data.customer_id');
+                }
+
+                // Public endpoint
+                $response = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->get($orderUrl . '/api/orders/job-posts/' . $jobPostId);
+
+                if ($response->successful()) {
+                    return $response->json('data.customer_id');
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to fetch job post: ' . $e->getMessage());
+            }
+        }
+
+        return null;
+    }
+
+    private function syncPaymentStatusWithOrderService($payment)
+    {
+        if (!$payment->booking_id) {
+            return;
+        }
+
+        try {
+            $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
+            \Illuminate\Support\Facades\Http::timeout(3)
+                ->post($orderUrl . '/api/orders/internal/bookings/update-payment-status', [
+                    'booking_id' => $payment->booking_id,
+                    'status'     => $payment->status,
+                ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to sync payment status with order service: ' . $e->getMessage());
+        }
     }
 }

@@ -17,7 +17,9 @@ class ServiceController extends Controller
      */
     public function listCategories(Request $request)
     {
-        $query = ServiceCategory::withCount('services');
+        $query = ServiceCategory::with([
+            'services' => fn($q) => $q->where('status', 'active')
+        ])->withCount('services');
 
         if ($request->filled('type')) {
             $query->where('type', $request->query('type'));

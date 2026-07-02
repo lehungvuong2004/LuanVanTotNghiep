@@ -8,6 +8,7 @@ export interface ServiceCategory {
   type: string;
   status: "active" | "inactive";
   services_count?: number;
+  services?: Service[];
 }
 
 export interface Service {

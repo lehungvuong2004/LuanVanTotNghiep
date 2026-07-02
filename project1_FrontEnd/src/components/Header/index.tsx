@@ -1,6 +1,19 @@
+import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useHeader } from "./useHook";
+import type { NotificationType, Notification } from "../../api/notifications";
+import { Toast } from "../Toast";
+
+// Icon & colour mapping per notification type
+const NOTIF_META: Record<NotificationType, { icon: string; bg: string; fg: string }> = {
+  booking:   { icon: "mdi:calendar-check",      bg: "bg-teal-100 dark:bg-teal-900/40",   fg: "text-teal-600 dark:text-teal-400" },
+  payment:   { icon: "mdi:credit-card-outline",  bg: "bg-green-100 dark:bg-green-900/40", fg: "text-green-600 dark:text-green-400" },
+  system:    { icon: "mdi:bell-outline",          bg: "bg-slate-100 dark:bg-slate-700",    fg: "text-slate-500 dark:text-slate-300" },
+  promotion: { icon: "mdi:tag-outline",           bg: "bg-orange-100 dark:bg-orange-900/40", fg: "text-orange-500 dark:text-orange-400" },
+  report:    { icon: "mdi:alert-circle-outline",  bg: "bg-red-100 dark:bg-red-900/40",    fg: "text-red-500 dark:text-red-400" },
+};
+const DEFAULT_META = NOTIF_META.system;
 
 export const Header = () => {
   const {
@@ -14,6 +27,11 @@ export const Header = () => {
     unreadCount,
     markAllAsRead,
     toggleRead,
+    removeNotification,
+    notifLoading,
+    notifPage,
+    notifLastPage,
+    loadMoreNotifications,
     isDarkMode,
     toggleDarkMode,
     changeLanguage,
@@ -26,7 +44,49 @@ export const Header = () => {
     bottomLinks,
     newsItems,
     categoryDetails,
+    toast,
+    setToast,
   } = useHeader();
+
+  const navigate = useNavigate();
+
+  const handleNotificationClick = (notif: Notification) => {
+    toggleRead(notif.id);
+    if (notif.type === "booking") {
+      const titleLower = notif.title?.toLowerCase() || "";
+      const msgLower = notif.message?.toLowerCase() || "";
+      const isRecruitment = titleLower.includes("ứng tuyển") || msgLower.includes("ứng tuyển") || msgLower.includes("tuyển dụng");
+      const isAccepted = titleLower.includes("chấp nhận") || msgLower.includes("chấp nhận");
+
+      if (isRecruitment) {
+        if (user?.role_id === 4) {
+          const match = notif.message?.match(/mã:\s*#(\d+)/i);
+          if (match && match[1]) {
+            navigate(`/lich-su-dat-lich?tab=job-posts&post_id=${match[1]}`);
+          } else {
+            navigate("/lich-su-dat-lich?tab=job-posts");
+          }
+        } else if (user?.role_id === 3) {
+          if (isAccepted) {
+            navigate("/lich-su-dat-lich");
+          } else {
+            navigate("/tuyen-dung");
+          }
+        } else {
+          navigate("/lich-su-dat-lich");
+        }
+      } else {
+        navigate("/lich-su-dat-lich");
+      }
+    }
+  };
+
+  const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
+  const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+
+  const displayedNotifications = notifFilter === 'all'
+    ? notifications
+    : notifications.filter(notif => !notif.is_read);
 
   return (
     <>
@@ -45,11 +105,11 @@ export const Header = () => {
 
                 {/* Submenu Dropdown */}
                 <div className="absolute top-full left-0 w-max max-w-screen-xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50">
-                  <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5">
+                  <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5 h-120">
                     {/* Left Sidebar */}
                     <div className="w-56 shrink-0 flex flex-col gap-3 pr-4">
                       {/* Service Categories (Scrollable) */}
-                      <div className="max-h-95 overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                         {/* Top 4 Navigation Links */}
                         {navLinks.map((navLink) => (
                           <Link
@@ -109,7 +169,7 @@ export const Header = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 flex flex-col gap-4">
                         {/* Active Category detail */}
                         {categoryDetails[activeCategory] && (
                           <div className="col-span-2">
@@ -163,10 +223,9 @@ export const Header = () => {
                       </div>
                     </div>
 
-                    {/* Rightmost column: Tin tức & khuyến mãi */}
                     <div className="w-60 shrink-0 pl-5 flex flex-col gap-4">
                       {/* Promotion Banner */}
-                      <div className="relative rounded-xl overflow-hidden aspect-[4/3] bg-slate-900 flex items-end p-3 border border-slate-800">
+                      <div className="relative rounded-xl overflow-hidden aspect-4/3 bg-slate-900 flex items-end p-3 border border-slate-800">
                         <img
                           src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=300&auto=format&fit=crop"
                           className="absolute inset-0 w-full h-full object-cover opacity-60"
@@ -237,19 +296,35 @@ export const Header = () => {
                       </div>
                       <div className="flex flex-col gap-1.5 py-2 max-h-56 overflow-y-auto">
                         {notifications.length > 0 ? (
-                          notifications.map((notif) => (
-                            <div
-                              key={notif.id}
-                              onClick={() => toggleRead(notif.id)}
-                              className={`flex items-start gap-2 p-1.5 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-all duration-200 ${!notif.read ? "bg-teal-50/50 dark:bg-teal-950/20 font-medium" : ""}`}
-                            >
-                              <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${!notif.read ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
-                              <div className="flex flex-col flex-1">
-                                <span className="text-gray-700 dark:text-gray-200 leading-tight">{notif.title}</span>
-                                <span className="text-xs text-gray-400 mt-0.5">{notif.time}</span>
+                          notifications.map((notif) => {
+                            const isUnread = !notif.is_read;
+                            const timeLabel = new Date(notif.created_at).toLocaleString("vi-VN", {
+                              day: "2-digit", month: "2-digit", year: "numeric",
+                              hour: "2-digit", minute: "2-digit",
+                            });
+                            return (
+                              <div
+                                key={notif.id}
+                                onClick={() => handleNotificationClick(notif)}
+                                className={`flex items-start gap-2 p-1.5 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-all duration-200 ${isUnread ? "bg-teal-50/50 dark:bg-teal-950/20 font-medium" : ""}`}
+                              >
+                                <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${isUnread ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
+                                <div className="flex flex-col flex-1 text-left">
+                                  <span className="text-gray-700 dark:text-gray-200 leading-tight font-semibold">{notif.title}</span>
+                                  {notif.message && (
+                                    <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{notif.message}</span>
+                                  )}
+                                  {notif.type === "booking" && (
+                                    <span className="text-[10px] text-[#026E5F] dark:text-teal-400 font-bold mt-0.5 flex items-center gap-0.5">
+                                      <Icon icon="material-symbols:arrow-forward-rounded" className="text-[10px]" />
+                                      {t("Xem chi tiết")}
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-gray-400 mt-0.5">{timeLabel}</span>
+                                </div>
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <div className="text-center py-4 text-gray-400 text-xs">{t("Không có thông báo nào")}</div>
                         )}
@@ -380,33 +455,156 @@ export const Header = () => {
                   </div>
 
                   {/* Desktop Notification Dropdown */}
-                  <div className="absolute top-full right-0 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left text-gray-800 dark:text-white">
-                      <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700/50">
-                        <span className="font-semibold text-sm">{t("Thông báo")}</span>
-                        {unreadCount > 0 && (
-                          <button onClick={markAllAsRead} className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium cursor-pointer">
-                            {t("Đánh dấu tất cả đã đọc")}
+                  <div className="absolute top-full right-0 w-96 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 text-left text-gray-800 dark:text-white h-[480px] overflow-hidden">
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-4 pt-4 pb-2 relative">
+                        <span className="font-bold text-xl text-gray-900 dark:text-white">{t("Thông báo")}</span>
+                        <div className="relative">
+                          <button
+                            onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full transition-colors cursor-pointer"
+                          >
+                            <Icon icon="lucide:ellipsis" className="text-xl" />
                           </button>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2 py-3 max-h-64 overflow-y-auto">
-                        {notifications.length > 0 ? (
-                          notifications.map((notif) => (
-                            <div
-                              key={notif.id}
-                              onClick={() => toggleRead(notif.id)}
-                              className={`flex items-start gap-3 p-2 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-all duration-200 ${!notif.read ? "bg-teal-50/50 dark:bg-teal-950/20 font-medium" : ""}`}
-                            >
-                              <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${!notif.read ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
-                              <div className="flex flex-col flex-1">
-                                <span className="text-gray-700 dark:text-gray-200 leading-snug">{notif.title}</span>
-                                <span className="text-xs text-gray-400 mt-1">{notif.time}</span>
+
+                          {/* Popover Menu */}
+                          {isNotifMenuOpen && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setIsNotifMenuOpen(false)} />
+                              <div className="absolute right-0 mt-1 w-60 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700/50 py-1.5 z-50 text-sm">
+                                <button
+                                  onClick={() => {
+                                    markAllAsRead();
+                                    setIsNotifMenuOpen(false);
+                                  }}
+                                  className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-slate-700/50 text-gray-700 dark:text-gray-200 flex items-center gap-2.5 font-medium cursor-pointer"
+                                >
+                                  <Icon icon="lucide:check-check" className="text-teal-600 dark:text-teal-400 text-lg" />
+                                  <span>{t("Đánh dấu tất cả đã đọc")}</span>
+                                </button>
                               </div>
-                            </div>
-                          ))
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Filter Tabs */}
+                      <div className="flex gap-2 px-4 pb-2 border-b border-gray-100 dark:border-gray-700/30 text-xs">
+                        <button
+                          onClick={() => setNotifFilter("all")}
+                          className={`px-3 py-1.5 font-semibold rounded-full cursor-pointer transition-colors ${
+                            notifFilter === "all"
+                              ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400"
+                              : "hover:bg-gray-100 dark:hover:bg-slate-700/50 text-gray-600 dark:text-gray-300"
+                          }`}
+                        >
+                          {t("Tất cả")}
+                        </button>
+                        <button
+                          onClick={() => setNotifFilter("unread")}
+                          className={`px-3 py-1.5 font-semibold rounded-full cursor-pointer transition-colors ${
+                            notifFilter === "unread"
+                              ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400"
+                              : "hover:bg-gray-100 dark:hover:bg-slate-700/50 text-gray-600 dark:text-gray-300"
+                          }`}
+                        >
+                          {t("Chưa đọc")}
+                        </button>
+                      </div>
+
+                      {/* Notification List (scroll flush to right edge) */}
+                      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 flex flex-col py-1">
+                        {notifLoading && notifications.length === 0 ? (
+                          <div className="flex-1 flex items-center justify-center py-12">
+                            <Icon icon="lucide:loader-2" className="text-2xl text-teal-500 animate-spin" />
+                          </div>
+                        ) : displayedNotifications.length > 0 ? (
+                          <>
+                            {notifFilter === "all" && (
+                              <div className="px-4 py-2 text-xs font-bold text-gray-900 dark:text-white">
+                                {t("Hôm nay")}
+                              </div>
+                            )}
+                            {displayedNotifications.map((notif) => {
+                              const meta = NOTIF_META[notif.type as NotificationType] ?? DEFAULT_META;
+                              const isUnread = !notif.is_read;
+                              
+                              const timeLabel = new Date(notif.created_at).toLocaleString("vi-VN", {
+                                day: "2-digit", month: "2-digit", year: "numeric",
+                                hour: "2-digit", minute: "2-digit",
+                              });
+                              return (
+                                <div
+                                  key={notif.id}
+                                  onClick={() => handleNotificationClick(notif)}
+                                  className={`group/item flex items-start gap-3 px-4 py-2.5 cursor-pointer transition-all duration-200 ${
+                                    isUnread
+                                      ? "bg-teal-50/40 dark:bg-teal-950/10 hover:bg-teal-50 dark:hover:bg-teal-950/20"
+                                      : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                                  }`}
+                                >
+                                  {/* Avatar / Type icon */}
+                                  <div className={`w-11 h-11 rounded-full ${meta.bg} flex items-center justify-center shrink-0`}>
+                                    <Icon icon={meta.icon} className={`text-xl ${meta.fg}`} />
+                                  </div>
+
+                                  {/* Content */}
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-sm leading-snug break-words ${isUnread ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-700 dark:text-gray-300"}`}>
+                                      {notif.title}
+                                    </p>
+                                    {notif.message && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug line-clamp-2">
+                                        {notif.message}
+                                      </p>
+                                    )}
+                                    {notif.type === "booking" && (
+                                      <span className="inline-flex items-center gap-1 text-xs text-[#026E5F] dark:text-teal-400 font-bold mt-1.5 hover:underline">
+                                        <Icon icon="material-symbols:arrow-forward-rounded" className="text-xs" />
+                                        {t("Xem chi tiết")}
+                                      </span>
+                                    )}
+                                    <span className={`text-xs mt-1 block ${isUnread ? "text-teal-600 dark:text-teal-400 font-semibold" : "text-gray-400"}`}>
+                                      {timeLabel}
+                                    </span>
+                                  </div>
+
+                                  {/* Actions */}
+                                  <div className="flex flex-col items-center gap-1 shrink-0">
+                                    {isUnread && (
+                                      <div className="w-2.5 h-2.5 rounded-full bg-teal-600 dark:bg-teal-400 mt-1" />
+                                    )}
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); removeNotification(notif.id); }}
+                                      className="opacity-0 group-hover/item:opacity-100 p-1 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 rounded-full transition-all cursor-pointer"
+                                      title={t("Xoá")}
+                                    >
+                                      <Icon icon="lucide:x" className="text-xs" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                            {/* Load-more button */}
+                            {notifPage < notifLastPage && (
+                              <button
+                                onClick={() => loadMoreNotifications()}
+                                disabled={notifLoading}
+                                className="mx-4 my-2 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1"
+                              >
+                                {notifLoading
+                                  ? <Icon icon="lucide:loader-2" className="text-sm animate-spin" />
+                                  : t("Xem thêm")}
+                              </button>
+                            )}
+                          </>
                         ) : (
-                          <div className="text-center py-6 text-gray-400 text-sm">{t("Không có thông báo nào")}</div>
+                          <div className="flex-1 flex flex-col items-center justify-center gap-2 py-10 text-gray-400 text-sm">
+                            <Icon icon="mdi:bell-off-outline" className="text-4xl opacity-40" />
+                            <span>{notifFilter === "unread" ? t("Không có thông báo chưa đọc") : t("Không có thông báo nào")}</span>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -587,6 +785,14 @@ export const Header = () => {
           <span className="text-white font-bold text-2xl md:text-3xl invisible">Gia Đình Việt</span>
         </div>
       </div>
+      {toast && (
+        <Toast
+          type={toast.type as any}
+          title={toast.title}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </>
   );
 };

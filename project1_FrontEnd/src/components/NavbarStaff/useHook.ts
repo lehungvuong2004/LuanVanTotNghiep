@@ -1,16 +1,11 @@
 import { useNavigate } from "react-router-dom";
 
-export interface NavItem {
-  name: string;
-  path: string;
-  icon: string;
-}
 
 export interface NavbarStaffProps {
   isCollapsed: boolean;
 }
 
-export const navItems: NavItem[] = [
+export const navItems= [
   { name: "Dashboard", path: "/operator/dashboard", icon: "material-symbols:grid-view-outline-rounded" },
   { name: "Bookings", path: "/operator/bookings", icon: "material-symbols:calendar-today-outline-rounded" },
   { name: "Reviews", path: "/operator/reviews", icon: "material-symbols:rate-review-outline-rounded" },

@@ -63,3 +63,7 @@ export function formatMoneyInput(value: string | number | null | undefined): str
   const num = parseInt(cleanVal, 10);
   return new Intl.NumberFormat("vi-VN").format(num);
 }
+
+export const sortBookingsByDate = (items: any[]) => {
+  return [...items].sort((a, b) => b.id - a.id);
+};

@@ -116,3 +116,73 @@ export const uploadAvatarApi = async (file: File): Promise<{ message: string; ur
   });
   return response.data;
 };
+
+// 11. Helper Profile & Skills APIs
+export interface HelperProfile {
+  id: number;
+  user_id: number;
+  bio?: string;
+  experience_year?: number;
+  gender?: "male" | "female" | "other" | string;
+  birthday?: string;
+  address?: string;
+  status?: string;
+  skills?: any[];
+  workingAreas?: any[];
+}
+
+export interface UpdateHelperProfileRequest {
+  bio?: string;
+  experience_year?: number;
+  gender?: "male" | "female" | "other" | string;
+  birthday?: string;
+  address?: string;
+}
+
+export const getHelperProfileApi = async (): Promise<{ data: HelperProfile | null }> => {
+  const response = await axiosInstance.get<{ data: HelperProfile | null }>("/providers/helper/profile");
+  return response.data;
+};
+
+export const updateHelperProfileApi = async (data: UpdateHelperProfileRequest): Promise<{ message: string; data: HelperProfile }> => {
+  try {
+    const response = await axiosInstance.put<{ message: string; data: HelperProfile }>("/providers/helper/profile", data);
+    return response.data;
+  } catch (error: any) {
+    if (error?.response?.status === 404 || error?.response?.data?.message?.includes("chưa có hồ sơ")) {
+      const response = await axiosInstance.post<{ message: string; data: HelperProfile }>("/providers/helper/profile", data);
+      return response.data;
+    }
+    throw error;
+  }
+};
+
+export const getHelperSkillsApi = async (): Promise<{ data: any[] }> => {
+  const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/skills");
+  return response.data;
+};
+
+export const addHelperSkillApi = async (serviceId: number): Promise<{ message: string; data: any }> => {
+  const response = await axiosInstance.post<{ message: string; data: any }>("/providers/helper/skills", { service_id: serviceId });
+  return response.data;
+};
+
+export const removeHelperSkillApi = async (serviceId: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/skills/${serviceId}`);
+  return response.data;
+};
+
+export const getHelperWorkingAreasApi = async (): Promise<{ data: any[] }> => {
+  const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/working-areas");
+  return response.data;
+};
+
+export const addHelperWorkingAreaApi = async (data: { district: string; city: string }): Promise<{ message: string; data: any }> => {
+  const response = await axiosInstance.post<{ message: string; data: any }>("/providers/helper/working-areas", data);
+  return response.data;
+};
+
+export const removeHelperWorkingAreaApi = async (id: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/working-areas/${id}`);
+  return response.data;
+};

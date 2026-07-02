@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -155,24 +157,29 @@ class NotificationController extends Controller
       'user_ids.*' => 'integer|exists:users,id',
       'title'      => 'required|string|max:150',
       'message'    => 'required|string|max:1000',
-      'type'       => 'sometimes|string|in:system,booking,payment,promotion,report',
+      'type'       => 'sometimes|string|in:system,booking,payment,promotion,report,recruitment',
     ]);
 
-    $now           = now();
-    $notifications = [];
-
+    $insertedNotifications = [];
     foreach ($fields['user_ids'] as $userId) {
-      $notifications[] = [
-        'user_id'    => $userId,
-        'title'      => $fields['title'],
-        'message'    => $fields['message'],
-        'type'       => $fields['type'] ?? 'system',
-        'is_read'    => 0,
-        'created_at' => $now,
-      ];
+      $insertedNotifications[] = Notification::create([
+        'user_id' => $userId,
+        'title'   => $fields['title'],
+        'message' => $fields['message'],
+        'type'    => $fields['type'] ?? 'system',
+        'is_read' => 0,
+        'created_at' => now()->toDateTimeString(),
+      ]);
     }
 
-    DB::table('notifications')->insert($notifications);
+    $socketPayload = [];
+    foreach ($insertedNotifications as $notif) {
+      $socketPayload[] = [
+        'user_id'      => $notif->user_id,
+        'notification' => $notif
+      ];
+    }
+    $this->pushToSocket(['notifications' => $socketPayload]);
 
     return response()->json([
       'message' => 'Gửi thông báo thành công đến ' . count($fields['user_ids']) . ' người dùng.',
@@ -198,7 +205,6 @@ class NotificationController extends Controller
       'type'    => 'sometimes|string|in:system,booking,payment,promotion,report',
     ]);
 
-    // Map role name → role_id
     $roleMap = ['admin' => 1, 'customer' => 4, 'helper' => 3, 'operator' => 2];
     $roleId  = $roleMap[$fields['role']];
 
@@ -210,24 +216,113 @@ class NotificationController extends Controller
       return response()->json(['message' => 'Không có user nào thuộc role này.'], 404);
     }
 
-    $now           = now();
-    $notifications = [];
-
+    $insertedNotifications = [];
     foreach ($userIds as $userId) {
-      $notifications[] = [
-        'user_id'    => $userId,
-        'title'      => $fields['title'],
-        'message'    => $fields['message'],
-        'type'       => $fields['type'] ?? 'system',
-        'is_read'    => 0,
-        'created_at' => $now,
-      ];
+      $insertedNotifications[] = Notification::create([
+        'user_id' => $userId,
+        'title'   => $fields['title'],
+        'message' => $fields['message'],
+        'type'    => $fields['type'] ?? 'system',
+        'is_read' => 0,
+        'created_at' => now()->toDateTimeString(),
+      ]);
     }
 
-    DB::table('notifications')->insert($notifications);
+    $socketPayload = [];
+    foreach ($insertedNotifications as $notif) {
+      $socketPayload[] = [
+        'user_id'      => $notif->user_id,
+        'notification' => $notif
+      ];
+    }
+    $this->pushToSocket(['notifications' => $socketPayload]);
 
     return response()->json([
       'message' => "Broadcast thành công đến {$userIds->count()} người dùng role [{$fields['role']}].",
     ], 201);
+  }
+
+  /**
+   * Endpoint nội bộ dành cho các microservice khác tạo thông báo.
+   * POST /api/internal/notifications
+   */
+  public function createInternal(Request $request)
+  {
+    $fields = $request->validate([
+      'user_id' => 'sometimes|required|integer',
+      'role'    => 'sometimes|required|string|in:customer,helper,operator,admin',
+      'title'   => 'required|string|max:150',
+      'message' => 'required|string|max:1000',
+      'type'    => 'sometimes|string|in:system,booking,payment,promotion,report,recruitment',
+    ]);
+
+    if (isset($fields['role'])) {
+      $roleMap = ['admin' => 1, 'customer' => 4, 'helper' => 3, 'operator' => 2];
+      $roleId  = $roleMap[$fields['role']];
+
+      $userIds = User::where('role_id', $roleId)
+        ->where('status', 'active')
+        ->pluck('id');
+
+      $insertedNotifications = [];
+      if (!$userIds->isEmpty()) {
+        foreach ($userIds as $userId) {
+          $insertedNotifications[] = Notification::create([
+            'user_id' => $userId,
+            'title'   => $fields['title'],
+            'message' => $fields['message'],
+            'type'    => $fields['type'] ?? 'system',
+            'is_read' => 0,
+            'created_at' => now()->toDateTimeString(),
+          ]);
+        }
+
+        $socketPayload = [];
+        foreach ($insertedNotifications as $notif) {
+          $socketPayload[] = [
+            'user_id'      => $notif->user_id,
+            'notification' => $notif
+          ];
+        }
+        $this->pushToSocket(['notifications' => $socketPayload]);
+      }
+
+      return response()->json([
+        'message' => 'Tạo thông báo nội bộ cho nhóm role thành công.',
+        'data'    => $insertedNotifications
+      ], 201);
+    }
+
+    $notification = Notification::create([
+      'user_id' => $fields['user_id'],
+      'title'   => $fields['title'],
+      'message' => $fields['message'],
+      'type'    => $fields['type'] ?? 'system',
+      'is_read' => 0,
+      'created_at' => now()->toDateTimeString(),
+    ]);
+
+    $this->pushToSocket([
+      'user_id'      => $notification->user_id,
+      'notification' => $notification
+    ]);
+
+    return response()->json([
+      'message' => 'Tạo thông báo nội bộ thành công.',
+      'data'    => $notification
+    ], 201);
+  }
+
+  /**
+   * Gửi thông báo real-time qua Socket.IO service.
+   */
+  private function pushToSocket($payload)
+  {
+    try {
+      $url = env('SOCKET_SERVICE_URL', 'http://socket-service:3000') . '/publish';
+      Http::timeout(2)->post($url, $payload);
+    } catch (\Exception $e) {
+      Log::error('Lỗi đẩy thông báo tới Socket.IO: ' . $e->getMessage());
+    }
   }
 }

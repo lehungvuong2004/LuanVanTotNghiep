@@ -12,14 +12,25 @@ import {
   updateCustomerAddressApi,
   deleteCustomerAddressApi,
   setDefaultCustomerAddressApi,
-  uploadAvatarApi
+  uploadAvatarApi,
+  getHelperProfileApi,
+  updateHelperProfileApi,
+  getHelperSkillsApi,
+  addHelperSkillApi,
+  removeHelperSkillApi,
+  getHelperWorkingAreasApi,
+  addHelperWorkingAreaApi,
+  removeHelperWorkingAreaApi
 } from "../../api/profileApi/profile";
 
 import type {
   UserProfile,
   CustomerProfile,
-  CustomerAddress
+  CustomerAddress,
+  HelperProfile
 } from "../../api/profileApi/profile";
+
+import { getCategoriesApi, type ServiceCategory } from "../../api/services";
 
 import {
   getProfileInfoSchema,
@@ -31,12 +42,16 @@ export const useProfile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<"info" | "address" | "password">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "address" | "password" | "skills" | "working_areas">("info");
   const [loading, setLoading] = useState<boolean>(true);
   const [updating, setUpdating] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null);
+  const [helperProfile, setHelperProfile] = useState<HelperProfile | null>(null);
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
+  const [helperSkills, setHelperSkills] = useState<any[]>([]);
+  const [helperWorkingAreas, setHelperWorkingAreas] = useState<any[]>([]);
+  const [allCategories, setAllCategories] = useState<ServiceCategory[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -69,8 +84,6 @@ export const useProfile = () => {
     }
   };
 
-
-
   // Fetch all addresses
   const fetchAddresses = async () => {
     try {
@@ -78,6 +91,24 @@ export const useProfile = () => {
       setAddresses(res.data);
     } catch (err) {
       console.error("Failed to fetch addresses:", err);
+    }
+  };
+
+  const fetchHelperSkills = async () => {
+    try {
+      const res = await getHelperSkillsApi();
+      setHelperSkills(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch helper skills:", err);
+    }
+  };
+
+  const fetchHelperWorkingAreas = async () => {
+    try {
+      const res = await getHelperWorkingAreasApi();
+      setHelperWorkingAreas(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch helper working areas:", err);
     }
   };
 
@@ -105,6 +136,20 @@ export const useProfile = () => {
           setAddresses(custRes.data.addresses || []);
         } catch (custErr) {
           console.error("Failed to fetch customer profile:", custErr);
+        }
+      }
+
+      // 3. Fetch Helper profile if user role is Helper (role_id = 3)
+      if (user.role_id === 3) {
+        try {
+          const helperRes = await getHelperProfileApi();
+          setHelperProfile(helperRes.data);
+          await fetchHelperSkills();
+          await fetchHelperWorkingAreas();
+          const catRes = await getCategoriesApi();
+          setAllCategories(catRes.data || []);
+        } catch (helperErr) {
+          console.error("Failed to fetch helper profile:", helperErr);
         }
       }
     } catch (err: any) {
@@ -142,9 +187,12 @@ export const useProfile = () => {
       full_name: userProfile?.full_name || "",
       phone: userProfile?.phone || "",
       avatar: userProfile?.avatar || "",
-      gender: customerProfile?.gender || "male",
-      birthday: customerProfile?.birthday || "",
-      note: customerProfile?.note || ""
+      gender: userProfile?.role_id === 3 ? (helperProfile?.gender || "male") : (customerProfile?.gender || "male"),
+      birthday: userProfile?.role_id === 3 ? (helperProfile?.birthday || "") : (customerProfile?.birthday || ""),
+      note: customerProfile?.note || "",
+      bio: helperProfile?.bio || "",
+      experience_year: helperProfile?.experience_year ?? 0,
+      address: helperProfile?.address || ""
     },
     enableReinitialize: true,
     validationSchema: getProfileInfoSchema(t),
@@ -174,6 +222,17 @@ export const useProfile = () => {
           });
         }
 
+        // 3. Update helper profile info if they are helper
+        if (userProfile?.role_id === 3) {
+          await updateHelperProfileApi({
+            bio: values.bio,
+            experience_year: Number(values.experience_year),
+            gender: values.gender,
+            birthday: values.birthday || undefined,
+            address: values.address
+          });
+        }
+
         await fetchAllData();
         setSuccessMessage(t("Cập nhật thông tin cá nhân thành công."));
       } catch (error: any) {
@@ -184,6 +243,72 @@ export const useProfile = () => {
       }
     }
   });
+
+  const handleAddSkill = async (serviceId: number) => {
+    setUpdating(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await addHelperSkillApi(serviceId);
+      setSuccessMessage(t("Thêm kỹ năng thành công."));
+      await fetchHelperSkills();
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || t("Thêm kỹ năng thất bại."));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleRemoveSkill = async (serviceId: number) => {
+    if (!window.confirm(t("Bạn có chắc muốn xóa kỹ năng này không?"))) return;
+    setUpdating(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await removeHelperSkillApi(serviceId);
+      setSuccessMessage(t("Xóa kỹ năng thành công."));
+      await fetchHelperSkills();
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || t("Xóa kỹ năng thất bại."));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleAddWorkingArea = async (district: string, city: string) => {
+    if (!district || !city) {
+      setErrorMessage(t("Vui lòng điền đầy đủ Quận/Huyện và Tỉnh/Thành phố."));
+      return;
+    }
+    setUpdating(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await addHelperWorkingAreaApi({ district, city });
+      setSuccessMessage(t("Thêm khu vực hoạt động thành công."));
+      await fetchHelperWorkingAreas();
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || t("Thêm khu vực hoạt động thất bại."));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleRemoveWorkingArea = async (id: number) => {
+    if (!window.confirm(t("Bạn có chắc muốn xóa khu vực hoạt động này không?"))) return;
+    setUpdating(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await removeHelperWorkingAreaApi(id);
+      setSuccessMessage(t("Xóa khu vực hoạt động thành công."));
+      await fetchHelperWorkingAreas();
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || t("Xóa khu vực hoạt động thất bại."));
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   // Formik for Password Change
   const passwordForm = useFormik({
@@ -341,7 +466,11 @@ export const useProfile = () => {
     updating,
     userProfile,
     customerProfile,
+    helperProfile,
     addresses,
+    helperSkills,
+    helperWorkingAreas,
+    allCategories,
     errorMessage,
     successMessage,
     profileForm,
@@ -355,6 +484,10 @@ export const useProfile = () => {
     handleDeleteAddress,
     handleSetDefaultAddress,
     avatarUploading,
-    handleAvatarUpload
+    handleAvatarUpload,
+    handleAddSkill,
+    handleRemoveSkill,
+    handleAddWorkingArea,
+    handleRemoveWorkingArea
   };
 };

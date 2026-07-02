@@ -16,6 +16,8 @@ import { News } from "./pages/News";
 import { NewsDetail } from "./pages/NewsDetail";
 import { Profile } from "./pages/Profile";
 import { Pricing } from "./pages/Pricing";
+import { Payment } from "./pages/Payment";
+import { PaymentReturn } from "./pages/PaymentReturn";
 import { DashboardManager } from "./layouts/DashboardManager";
 import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
@@ -30,9 +32,17 @@ import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
 import { StaffReviews } from "./DashBoard/Staff/Reviews";
 import { DashboardStaff } from "./layouts/DashboardStaff";
-
 function App() {
   useEffect(() => {
+    // VNPay strips hashes from returnUrl, resulting in query parameters before hash.
+    // We detect and route them to HashRouter's /thanh-toan/ket-qua route.
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.has("vnp_ResponseCode") && searchParams.has("vnp_TxnRef")) {
+      const hashQuery = searchParams.toString();
+      window.location.href = `${window.location.origin}/#/thanh-toan/ket-qua?${hashQuery}`;
+      return;
+    }
+
     const sessionActive = sessionStorage.getItem("session_active");
     if (!sessionActive) {
       const rememberMe = localStorage.getItem("remember_me");
@@ -58,6 +68,8 @@ function App() {
           <Route path="/tin-tuc/:slug" element={<NewsDetail />} />
           <Route path="/ho-so" element={<Profile />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
+          <Route path="/thanh-toan" element={<Payment />} />
         </Route>
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />

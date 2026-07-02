@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useRecruitment, SALARY_OPTS, URGENCY_OPTS } from "./useHook";
 import { Pagination } from "../../components/Pagination";
 import { formatDateTime } from "../../utils";
+import { Toast } from "../../components/Toast";
+import { Link } from "react-router-dom";
 
 export const Recruitment = () => {
   const { t } = useTranslation();
@@ -25,7 +27,12 @@ export const Recruitment = () => {
     clearFilters,
     categories,
     isLoading,
+    toast,
+    setToast,
+    applyJob,
+    appliedJobIds,
   } = useRecruitment();
+
   const currentUser = (() => {
     try {
       return JSON.parse(localStorage.getItem("user") || "null");
@@ -34,6 +41,7 @@ export const Recruitment = () => {
     }
   })();
   const isHelper = currentUser?.role_id === 3;
+  const isCustomer = currentUser?.role_id === 4;
 
   const renderSidebarFilter = () => {
     const handleCategoryChange = (catId: number | string) => {
@@ -218,20 +226,32 @@ export const Recruitment = () => {
           </div>
 
           {isHelper ? (
-            <button className="mt-auto w-full py-2.5 bg-[#026E5F] hover:bg-[#01564a] active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs hover:shadow-teal-600/10 transition-all cursor-pointer">
-              {t("Ứng Tuyển Ngay")}
-            </button>
+            appliedJobIds.includes(job.id) ? (
+              <button
+                disabled
+                className="mt-auto w-full py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-bold rounded-xl cursor-not-allowed select-none"
+              >
+                {t("Đã Ứng Tuyển")}
+              </button>
+            ) : (
+              <button
+                onClick={() => applyJob(job.id)}
+                className="mt-auto w-full py-2.5 bg-[#026E5F] hover:bg-[#01564a] active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs hover:shadow-teal-600/10 transition-all cursor-pointer"
+              >
+                {t("Ứng Tuyển Ngay")}
+              </button>
+            )
           ) : currentUser ? (
             <div className="mt-auto w-full py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 text-sm font-semibold rounded-xl text-center select-none">
               {t("Chỉ người giúp việc mới được ứng tuyển")}
             </div>
           ) : (
-            <button
-              onClick={() => (window.location.href = "/dang-nhap")}
-              className="mt-auto w-full py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+            <Link
+              to="/dang-nhap"
+              className="mt-auto w-full py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer text-center block"
             >
               {t("Đăng nhập để ứng tuyển")}
-            </button>
+            </Link>
           )}
         </div>
       </article>
@@ -287,11 +307,37 @@ export const Recruitment = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 mt-8">
-        <aside className="lg:col-span-3">{renderSidebarFilter()}</aside>
+      {/* Title Header */}
+      <div className="text-left mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t("Sàn Tuyển Dụng Việc Làm")}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t("Kết nối người giúp việc uy tín và khách hàng nhanh chóng.")}</p>
+        </div>
+        {isCustomer && (
+          <Link
+            to="/dang-bai-tuyen"
+            className="px-5 py-2.5 bg-[#026E5F] text-white font-bold rounded-xl shadow-sm hover:bg-[#01564a] active:scale-95 transition flex items-center gap-2 self-start"
+          >
+            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+            {t("Đăng bài tuyển dụng")}
+          </Link>
+        )}
+      </div>
 
+      {/* Main Grid View */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 mt-2">
+        <aside className="lg:col-span-3">{renderSidebarFilter()}</aside>
         <main className="lg:col-span-9">{renderJobListPanel()}</main>
       </div>
+
+      {toast && (
+        <Toast
+          type={toast.type}
+          title={t(toast.title)}
+          message={t(toast.message)}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

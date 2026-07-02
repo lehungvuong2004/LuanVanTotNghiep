@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HelperProfile;
 use App\Models\HelperVerification;
+use Illuminate\Support\Facades\Http;
 
 class AdminProviderController extends Controller
 {
@@ -52,7 +53,7 @@ class AdminProviderController extends Controller
             $userIds = [];
 
             try {
-                $response = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                $response = Http::withHeaders(['Authorization' => $authHeader])
                     ->timeout(3)
                     ->get('http://identity-service:8000/api/admin/users/search-ids', ['query' => $search]);
 
@@ -77,7 +78,7 @@ class AdminProviderController extends Controller
         if (!empty($userIds)) {
             $authHeader = $request->header('Authorization');
             try {
-                $usersResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+                $usersResponse = Http::withHeaders(['Authorization' => $authHeader])
                     ->timeout(3)
                     ->post('http://identity-service:8000/api/admin/users/by-ids', ['ids' => $userIds]);
 
@@ -118,7 +119,7 @@ class AdminProviderController extends Controller
         // Lấy thông tin chi tiết user
         $authHeader = $request->header('Authorization');
         try {
-            $userResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
                 ->post('http://identity-service:8000/api/admin/users/by-ids', ['ids' => [$helper->user_id]]);
 
@@ -263,7 +264,7 @@ class AdminProviderController extends Controller
         // Gọi identity-service để xóa account user tương ứng
         $authHeader = $request->header('Authorization');
         try {
-            $userResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(5)
                 ->delete("http://identity-service:8000/api/admin/users/{$helper->user_id}");
 
@@ -313,7 +314,7 @@ class AdminProviderController extends Controller
 
         try {
             // Gọi identity-service để bulk delete account
-            $userResponse = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $authHeader])
+            $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(5)
                 ->post("http://identity-service:8000/api/admin/users/bulk-delete", ['ids' => $userIds]);
 
