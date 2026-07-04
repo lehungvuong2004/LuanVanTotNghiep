@@ -462,7 +462,7 @@ export const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Gender */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-sm font-semibold  dark:text-slate-300 mb-2">
                   {t("Giới tính")} <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-3 gap-3">

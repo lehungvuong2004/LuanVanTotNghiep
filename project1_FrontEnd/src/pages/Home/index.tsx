@@ -39,7 +39,7 @@ export const Home = () => {
           </h1>
           {/* <p className="text-white/95 text-base md:text-xl max-w-2xl mb-10 drop-shadow-md font-medium">{bannerData.description}</p> */}
 
-          <div className="w-full max-w-3xl bg-white p-3 md:p-4 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-3 mb-12">
+          <div className="w-full max-w-3xl bg-white p-3 md:p-4 rounded-none md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-3 mb-12">
             <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-2 md:py-0">
               <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
               <input

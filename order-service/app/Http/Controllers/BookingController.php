@@ -68,6 +68,16 @@ class BookingController extends Controller
         $totalPrice = collect($fields['services'])
             ->sum(fn($s) => $s['price'] * ($s['quantity'] ?? 1));
 
+        if (!empty($fields['helper_id'])) {
+            $durationHours = collect($fields['services'])
+                ->sum(fn($s) => $s['duration_hours'] * ($s['quantity'] ?? 1));
+            if (Booking::hasConflict((int) $fields['helper_id'], $fields['booking_date'], $fields['start_time'], (float) $durationHours)) {
+                return response()->json([
+                    'message' => 'Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.'
+                ], 400);
+            }
+        }
+
         $booking = Booking::create([
             'booking_code' => 'BK-' . strtoupper(Str::random(8)),
             'customer_id'  => $request->authUser['id'],

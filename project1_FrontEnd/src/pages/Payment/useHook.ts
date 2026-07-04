@@ -42,22 +42,22 @@ export interface RefundFormState {
 const DEFAULT_REFUND_FORM: RefundFormState = { amount: "", reason: "" };
 
 export const PAYMENT_METHODS = [
-  { value: "cash",          label: "Tiền mặt",          icon: "material-symbols:payments-outline" },
-  { value: "vnpay",         label: "VNPay",              icon: "simple-icons:vnpay" },
+  { value: "cash", label: "Tiền mặt", icon: "material-symbols:payments-outline" },
+  { value: "vnpay", label: "VNPay", icon: "simple-icons:vnpay" },
 ];
 
 export const STATUS_META: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "Chờ thanh toán",  cls: "bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400" },
-  completed: { label: "Hoàn thành",      cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
-  failed:    { label: "Thất bại",        cls: "bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400" },
-  refunded:  { label: "Đã hoàn tiền",   cls: "bg-violet-100  text-violet-700  dark:bg-violet-900/30  dark:text-violet-400" },
+  pending: { label: "Chờ thanh toán", cls: "bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400" },
+  completed: { label: "Hoàn thành", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+  failed: { label: "Thất bại", cls: "bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400" },
+  refunded: { label: "Đã hoàn tiền", cls: "bg-violet-100  text-violet-700  dark:bg-violet-900/30  dark:text-violet-400" },
 };
 
 export const REFUND_STATUS_META: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "Đang chờ",    cls: "bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400" },
-  approved:  { label: "Đã duyệt",    cls: "bg-sky-100     text-sky-700     dark:bg-sky-900/30     dark:text-sky-400" },
-  rejected:  { label: "Từ chối",     cls: "bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400" },
-  completed: { label: "Hoàn tất",    cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+  pending: { label: "Đang chờ", cls: "bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400" },
+  approved: { label: "Đã duyệt", cls: "bg-sky-100     text-sky-700     dark:bg-sky-900/30     dark:text-sky-400" },
+  rejected: { label: "Từ chối", cls: "bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400" },
+  completed: { label: "Hoàn tất", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
 };
 
 export const usePayment = () => {
@@ -129,8 +129,7 @@ export const usePayment = () => {
   const [refundError, setRefundError] = useState<string | null>(null);
 
   // ── Helpers ───────────────────────────────────────────────
-  const notify = (type: ToastProps["type"], title: string, message?: string) =>
-    setToast({ type, title, message });
+  const notify = (type: ToastProps["type"], title: string, message?: string) => setToast({ type, title, message });
 
   // ── Load payment by ID ────────────────────────────────────
   const loadPayment = useCallback(async (id: number) => {
@@ -175,6 +174,17 @@ export const usePayment = () => {
     if (!form.amount || isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) {
       setFormError("Số tiền thanh toán phải lớn hơn 0.");
       return;
+    }
+    if (form.payment_method === "vnpay") {
+      const amountVal = parseFloat(form.amount);
+      if (amountVal < 10000) {
+        setFormError("Số tiền thanh toán tối thiểu qua VNPay là 10.000 đ.");
+        return;
+      }
+      if (amountVal > 1000000000) {
+        setFormError("Số tiền thanh toán tối đa qua VNPay là 1.000.000.000 đ.");
+        return;
+      }
     }
     if (!form.booking_id && !form.job_post_id) {
       setFormError("Vui lòng nhập Mã đặt lịch hoặc Mã bài đăng tuyển.");
@@ -280,24 +290,45 @@ export const usePayment = () => {
   };
 
   return {
-    toast, setToast,
+    toast,
+    setToast,
     // create
-    showCreateModal, setShowCreateModal,
-    form, formError,
-    handleCreateOpen, handleFormChange, handleCreateSubmit,
+    showCreateModal,
+    setShowCreateModal,
+    form,
+    formError,
+    handleCreateOpen,
+    handleFormChange,
+    handleCreateSubmit,
     isCreating,
     // lookup
-    payment, refunds, lookupId, setLookupId, isLooking, handleLookup, loadPayment,
+    payment,
+    refunds,
+    lookupId,
+    setLookupId,
+    isLooking,
+    handleLookup,
+    loadPayment,
     // simulate
-    handleSimulate, isSimulating,
+    handleSimulate,
+    isSimulating,
     // vnpay
     isVnpayLoading,
     // refund
-    showRefundModal, setShowRefundModal,
-    refundForm, refundError,
-    handleRefundOpen, handleRefundChange, handleRefundSubmit,
+    showRefundModal,
+    setShowRefundModal,
+    refundForm,
+    refundError,
+    handleRefundOpen,
+    handleRefundChange,
+    handleRefundSubmit,
     isRefunding,
     // payments list
-    myPayments, paymentsPage, setPaymentsPage, totalPayments, lastPage, isPaymentsLoading,
+    myPayments,
+    paymentsPage,
+    setPaymentsPage,
+    totalPayments,
+    lastPage,
+    isPaymentsLoading,
   };
 };

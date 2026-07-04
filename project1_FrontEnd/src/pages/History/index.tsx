@@ -8,10 +8,11 @@ import { Pagination } from "../../components/Pagination";
 import { Toast } from "../../components/Toast";
 import { Link, useSearchParams } from "react-router-dom";
 import { formatDateTime } from "../../utils";
+import { PaymentReceipt } from "../../components/PaymentReceipt";
 
 export const HistoryPage = () => {
   const { t } = useTranslation();
-  
+
   // ── History hook (direct bookings) ───────────────────────
   const {
     setStatusFilter,
@@ -31,6 +32,15 @@ export const HistoryPage = () => {
     isHelper,
     applications,
     isApplicationsLoading,
+    // Inline payment
+    showPaymentModal,
+    paymentBooking,
+    paymentMethod,
+    setPaymentMethod,
+    isPaymentProcessing,
+    openPaymentModal,
+    closePaymentModal,
+    handlePayBooking,
   } = useHistory();
 
   // ── Recruitment hook (job postings) ──────────────────────
@@ -219,11 +229,7 @@ export const HistoryPage = () => {
   const renderHeader = () => (
     <div className="text-left mb-2">
       <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">
-        {activeMainTab === "bookings" 
-          ? t("Lịch sử đặt lịch") 
-          : activeMainTab === "job-posts" 
-            ? t("Bài đăng tuyển dụng của tôi") 
-            : t("Đơn ứng tuyển của tôi")}
+        {activeMainTab === "bookings" ? t("Lịch sử đặt lịch") : activeMainTab === "job-posts" ? t("Bài đăng tuyển dụng của tôi") : t("Đơn ứng tuyển của tôi")}
       </h1>
       <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
         {activeMainTab === "bookings"
@@ -238,10 +244,9 @@ export const HistoryPage = () => {
   const renderTabs = () => {
     const tabs = [
       { label: "Lịch đặt dịch vụ", value: "bookings", icon: "material-symbols:calendar-today-outline" },
-      ...(!isHelper 
-        ? [{ label: "Bài đăng tuyển dụng", value: "job-posts", icon: "material-symbols:assignment-ind-outline-rounded" }] 
-        : [{ label: "Đơn ứng tuyển", value: "helper-applications", icon: "material-symbols:assignment-ind-outline-rounded" }]
-      ),
+      ...(!isHelper
+        ? [{ label: "Bài đăng tuyển dụng", value: "job-posts", icon: "material-symbols:assignment-ind-outline-rounded" }]
+        : [{ label: "Đơn ứng tuyển", value: "helper-applications", icon: "material-symbols:assignment-ind-outline-rounded" }]),
       { label: "Tất cả", value: "all", icon: "material-symbols:list-alt-outline" },
       { label: "Đã hoàn thành", value: "completed", icon: "material-symbols:event-available" },
       { label: "Đã hủy", value: "cancelled", icon: "material-symbols:event-busy" },
@@ -291,7 +296,9 @@ export const HistoryPage = () => {
       <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
         <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">{t("Mã đặt lịch")}</th>
         <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">{t("Dịch vụ")}</th>
-        <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">{isHelper ? t("Khách hàng") : t("Nhân viên")}</th>
+        <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">
+          {isHelper ? t("Khách hàng") : t("Nhân viên")}
+        </th>
         <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">{t("Ngày / Giờ")}</th>
         <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">{t("Tổng tiền")}</th>
         <th className="px-6 py-4.5 text-sm font-bold text-slate-750 dark:text-white border-r last:border-r-0 border-slate-200 dark:border-slate-700 text-left">{t("Trạng thái")}</th>
@@ -404,17 +411,25 @@ export const HistoryPage = () => {
         </td>
 
         {/* Status */}
-        <td className="px-6 py-4.5 whitespace-nowrap border-r last:border-r-0 border-slate-200 dark:border-slate-750">
-          {renderBookingStatusBadge(booking)}
-        </td>
+        <td className="px-6 py-4.5 whitespace-nowrap border-r last:border-r-0 border-slate-200 dark:border-slate-750">{renderBookingStatusBadge(booking)}</td>
 
         {/* Payment Status */}
         <td className="px-6 py-4.5 whitespace-nowrap border-r last:border-r-0 border-slate-200 dark:border-slate-750">
           {booking.paymentStatus === "completed" && (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100/90 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30">
-              <Icon icon="material-symbols:check-circle" className="mr-1 text-emerald-600 dark:text-emerald-400" />
-              {t("Đã thanh toán")}
-            </span>
+            <div className="flex flex-col items-center gap-1">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100/90 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30">
+                <Icon icon="material-symbols:check-circle" className="mr-1 text-emerald-600 dark:text-emerald-450" />
+                {t("Đã thanh toán")}
+              </span>
+              <button
+                onClick={() => openPaymentModal(booking)}
+                title={t("Xem hóa đơn")}
+                className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#026E5F]/10 text-[#026E5F] dark:bg-teal-500/10 dark:text-teal-400 hover:bg-[#026E5F]/20 transition-all cursor-pointer border border-[#026E5F]/20 hover:scale-105"
+              >
+                <Icon icon="material-symbols:receipt-long-outline" className="text-xs" />
+                <span>{t("Hóa đơn")}</span>
+              </button>
+            </div>
           )}
           {booking.paymentStatus === "pending" && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100/90 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/30">
@@ -434,22 +449,21 @@ export const HistoryPage = () => {
               {t("Đã hoàn tiền")}
             </span>
           )}
-          {(booking.paymentStatus === "unpaid" || !booking.paymentStatus) && (
-            !isHelper ? (
-              <a
-                href={`/#/thanh-toan?booking_id=${booking.idRaw}&amount=${parseFloat(booking.totalPrice.replace(/[^0-9]/g, ""))}`}
-                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100/90 text-[#026E5F] hover:bg-slate-200 dark:bg-slate-950/40 dark:text-teal-400 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-900/30 transition-all cursor-pointer"
+          {(booking.paymentStatus === "unpaid" || !booking.paymentStatus) &&
+            (!isHelper ? (
+              <button
+                onClick={() => openPaymentModal(booking)}
+                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100/90 text-[#026E5F] hover:bg-slate-200 dark:bg-slate-950/40 dark:text-teal-400 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-900/30 transition-all cursor-pointer hover:scale-105"
               >
                 <Icon icon="material-symbols:payment" className="mr-1 text-[#026E5F] dark:text-teal-400" />
                 {t("Thanh toán")}
-              </a>
+              </button>
             ) : (
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100/90 text-slate-805 dark:bg-slate-950/40 dark:text-slate-300 border border-slate-200 dark:border-slate-900/30">
                 <Icon icon="material-symbols:payment" className="mr-1 text-slate-400" />
                 {t("Chưa thanh toán")}
               </span>
-            )
-          )}
+            ))}
         </td>
 
         {/* Action buttons */}
@@ -498,9 +512,7 @@ export const HistoryPage = () => {
                     <span>{t("Hoàn thành")}</span>
                   </button>
                 )}
-                {!["confirmed", "on_the_way", "in_progress"].includes(booking.statusRaw) && (
-                  <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>
-                )}
+                {!["confirmed", "on_the_way", "in_progress"].includes(booking.statusRaw) && <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>}
               </>
             )}
           </div>
@@ -514,9 +526,7 @@ export const HistoryPage = () => {
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[900px]">
           {renderTableHead()}
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-750">
-            {paginatedBookings.map((booking) => renderTableRow(booking))}
-          </tbody>
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-750">{paginatedBookings.map((booking) => renderTableRow(booking))}</tbody>
         </table>
       </div>
 
@@ -676,7 +686,9 @@ export const HistoryPage = () => {
                   const hasDetails = !!app.profile;
                   const helperName = app.helper?.full_name || t("Người giúp việc");
                   const helperAvatar = app.helper?.avatar
-                    ? (app.helper.avatar.startsWith("http") ? app.helper.avatar : `http://localhost:8000${app.helper.avatar}`)
+                    ? app.helper.avatar.startsWith("http")
+                      ? app.helper.avatar
+                      : `http://localhost:8000${app.helper.avatar}`
                     : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop";
 
                   return (
@@ -705,9 +717,7 @@ export const HistoryPage = () => {
                             {app.helper?.phone && (
                               <div className="text-xs text-slate-600 dark:text-slate-350 font-bold mt-1.5 flex items-center gap-1.5">
                                 <Icon icon="material-symbols:phone-enabled" className="text-sm text-[#026E5F]" />
-                                <span>
-                                  {revealedPhones[app.helper_id] ? app.helper.phone : maskPhone(app.helper.phone)}
-                                </span>
+                                <span>{revealedPhones[app.helper_id] ? app.helper.phone : maskPhone(app.helper.phone)}</span>
                                 <button
                                   type="button"
                                   onClick={() => togglePhoneReveal(app.helper_id)}
@@ -735,11 +745,7 @@ export const HistoryPage = () => {
                               </span>
                             </div>
 
-                            {app.profile.bio && (
-                              <p className="text-xs text-slate-500 dark:text-slate-455 line-clamp-2 italic">
-                                "{app.profile.bio}"
-                              </p>
-                            )}
+                            {app.profile.bio && <p className="text-xs text-slate-500 dark:text-slate-455 line-clamp-2 italic">"{app.profile.bio}"</p>}
 
                             {app.profile.skills && app.profile.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-3">
@@ -814,7 +820,9 @@ export const HistoryPage = () => {
                   <img
                     src={
                       helperProfile.user?.avatar
-                        ? (helperProfile.user.avatar.startsWith("http") ? helperProfile.user.avatar : `http://localhost:8000${helperProfile.user.avatar}`)
+                        ? helperProfile.user.avatar.startsWith("http")
+                          ? helperProfile.user.avatar
+                          : `http://localhost:8000${helperProfile.user.avatar}`
                         : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop"
                     }
                     alt={helperProfile.user?.full_name}
@@ -825,9 +833,7 @@ export const HistoryPage = () => {
                   {helperProfile.user?.phone && (
                     <div className="text-xs text-slate-700 dark:text-slate-300 font-bold bg-[#026E5F]/10 dark:bg-teal-500/10 text-[#026E5F] dark:text-teal-400 px-3 py-1 rounded-full mt-1.5 flex items-center gap-1.5">
                       <Icon icon="material-symbols:phone-enabled" />
-                      <span>
-                        {revealedPhones[helperProfile.user.id] ? helperProfile.user.phone : maskPhone(helperProfile.user.phone)}
-                      </span>
+                      <span>{revealedPhones[helperProfile.user.id] ? helperProfile.user.phone : maskPhone(helperProfile.user.phone)}</span>
                       <button
                         type="button"
                         onClick={() => togglePhoneReveal(helperProfile.user.id)}
@@ -851,7 +857,9 @@ export const HistoryPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-slate-50 dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/40">
                       <span className="text-xs font-bold text-slate-400 block mb-0.5">{t("Kinh nghiệm")}</span>
-                      <span className="text-sm font-extrabold text-slate-750 dark:text-slate-100">{helperProfile.experience_year} {t("năm")}</span>
+                      <span className="text-sm font-extrabold text-slate-750 dark:text-slate-100">
+                        {helperProfile.experience_year} {t("năm")}
+                      </span>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/40">
                       <span className="text-xs font-bold text-slate-400 block mb-0.5">{t("Đánh giá trung bình")}</span>
@@ -936,7 +944,7 @@ export const HistoryPage = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
-      
+
       let prefix = "";
       if (editingJobPost.description) {
         const catMatch = editingJobPost.description.match(/^(\[Danh mục:\s*[^\]]+\]\s*)/);
@@ -968,7 +976,9 @@ export const HistoryPage = () => {
                 <Icon icon="solar:pen-bold" className="text-2xl text-[#026E5F]" />
                 {t("Chỉnh sửa bài đăng tuyển dụng")}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">#{editingJobPost.id} - {editingJobPost.title}</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                #{editingJobPost.id} - {editingJobPost.title}
+              </p>
             </div>
             <button
               onClick={closeEditJobPost}
@@ -1080,10 +1090,7 @@ export const HistoryPage = () => {
               >
                 {t("Hủy")}
               </button>
-              <button
-                type="submit"
-                className="bg-[#026E5F] hover:bg-[#01564a] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all duration-300 shadow-sm cursor-pointer"
-              >
+              <button type="submit" className="bg-[#026E5F] hover:bg-[#01564a] text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all duration-300 shadow-sm cursor-pointer">
                 {t("Lưu thay đổi")}
               </button>
             </div>
@@ -1227,13 +1234,9 @@ export const HistoryPage = () => {
             )}
           </>
         ) : activeMainTab === "helper-applications" ? (
-          <div className="mt-2">
-            {renderHelperApplicationsSection()}
-          </div>
+          <div className="mt-2">{renderHelperApplicationsSection()}</div>
         ) : (
-          <div className="mt-2">
-            {renderMyJobPostsSection()}
-          </div>
+          <div className="mt-2">{renderMyJobPostsSection()}</div>
         )}
       </div>
 
@@ -1242,16 +1245,253 @@ export const HistoryPage = () => {
       {renderHelperProfileModal()}
       {renderEditJobPostModal()}
 
+      {/* ── Inline Payment Modal ────────────────────────────────── */}
+      {showPaymentModal &&
+        paymentBooking &&
+        (() => {
+          const isCompleted = paymentBooking.paymentStatus === "completed";
+          if (isCompleted) {
+            return (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+                <PaymentReceipt
+                  bookingId={paymentBooking.id}
+                  serviceName={paymentBooking.serviceName}
+                  helperName={paymentBooking.helper?.name || ""}
+                  bookingDate={paymentBooking.date}
+                  bookingTime={paymentBooking.time}
+                  totalPrice={paymentBooking.totalPrice}
+                  paymentMethod={paymentBooking.paymentInfo?.payment_method}
+                  transactionId={paymentBooking.paymentInfo?.transaction_id || paymentBooking.paymentInfo?.vnpay_txn_ref || `TX-${paymentBooking.idRaw}`}
+                  paymentDate={paymentBooking.paymentInfo?.created_at ? formatDateTime(paymentBooking.paymentInfo.created_at) : paymentBooking.date}
+                  isSuccess={true}
+                  onClose={closePaymentModal}
+                  actions={
+                    <>
+                      <button
+                        onClick={() => window.print()}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-750 transition cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:print-outline" className="text-sm" />
+                        {t("In hóa đơn")}
+                      </button>
+                      <button
+                        onClick={closePaymentModal}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-[#026E5F] hover:bg-[#01564a] text-white text-xs font-bold transition active:scale-95 cursor-pointer text-center"
+                      >
+                        {t("Đóng")}
+                      </button>
+                    </>
+                  }
+                />
+              </div>
+            );
+          }
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white dark:bg-slate-850 w-full max-w-md rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-700/50">
+                  <div className="text-left">
+                    <h3 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
+                      <Icon icon={isCompleted ? "material-symbols:receipt-long-outline" : "material-symbols:payments-outline"} className="text-2xl text-[#026E5F]" />
+                      {isCompleted ? t("Hóa đơn thanh toán") : t("Thanh toán đặt lịch")}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {paymentBooking.id} {!isCompleted && `— ${paymentBooking.serviceName}`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={closePaymentModal}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:scale-105 transition cursor-pointer"
+                  >
+                    <Icon icon="material-symbols:close" className="text-xl" />
+                  </button>
+                </div>
+
+                {/* Body */}
+                {isCompleted ? (
+                  <div className="px-6 py-6 space-y-4">
+                    <div className="text-center pb-4 border-b border-dashed border-slate-200 dark:border-slate-700">
+                      <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-2.5">
+                        <Icon icon="material-symbols:check-circle-outline" className="text-4xl text-emerald-500" />
+                      </div>
+                      <h4 className="text-base font-bold text-slate-800 dark:text-white">{t("Thanh toán thành công")}</h4>
+                      <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-450 mt-1">{paymentBooking.totalPrice}</p>
+                    </div>
+
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{t("Mã đặt lịch")}</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right">{paymentBooking.id}</span>
+                      </div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{t("Dịch vụ")}</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right">{paymentBooking.serviceName}</span>
+                      </div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{isHelper ? t("Khách hàng") : t("Nhân viên")}</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right">{paymentBooking.helper?.name || ""}</span>
+                      </div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{t("Thời gian")}</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right">
+                          {paymentBooking.date} ({paymentBooking.time})
+                        </span>
+                      </div>
+
+                      <div className="border-t border-dashed border-slate-200 dark:border-slate-700 pt-3 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{t("Phương thức")}</span>
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right">
+                            {paymentBooking.paymentInfo?.payment_method === "vnpay" ? "VNPay" : paymentBooking.paymentInfo?.payment_method === "cash" ? t("Tiền mặt") : t("Ví điện tử / Thẻ")}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{t("Mã giao dịch")}</span>
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right break-all">
+                            {paymentBooking.paymentInfo?.transaction_id || paymentBooking.paymentInfo?.vnpay_txn_ref || `TX-${paymentBooking.idRaw}`}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{t("Thời gian thanh toán")}</span>
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-right">
+                            {paymentBooking.paymentInfo?.created_at ? formatDateTime(paymentBooking.paymentInfo.created_at) : paymentBooking.date}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-center text-[11px] text-slate-450 dark:text-slate-500">
+                      {t("Hóa đơn này được tạo tự động bởi hệ thống và có giá trị làm bằng chứng thanh toán hợp lệ.")}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="px-6 py-6 space-y-5">
+                    {/* Booking info summary */}
+                    <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Đơn đặt lịch")}</span>
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{paymentBooking.id}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Dịch vụ")}</span>
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{paymentBooking.serviceName}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Ngày / Giờ")}</span>
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                          {paymentBooking.date} — {paymentBooking.time}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
+                        <span className="text-sm font-extrabold text-slate-700 dark:text-white">{t("Tổng tiền")}</span>
+                        <span className="text-lg font-extrabold text-[#026E5F] dark:text-teal-400">{paymentBooking.totalPrice}</span>
+                      </div>
+                    </div>
+
+                    {/* Payment method selector */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2.5">{t("Phương thức thanh toán")}</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("vnpay")}
+                          disabled={isPaymentProcessing}
+                          className={`flex items-center gap-2.5 px-4 py-3.5 rounded-xl border text-sm font-bold transition-all cursor-pointer disabled:opacity-50 ${
+                            paymentMethod === "vnpay"
+                              ? "border-[#026E5F] bg-teal-50 dark:bg-teal-900/20 text-[#026E5F] dark:text-teal-400 shadow-sm ring-1 ring-[#026E5F]/20"
+                              : "border-slate-200 dark:border-slate-70 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
+                          }`}
+                        >
+                          <Icon icon="arcticons:v-vnpay" className="text-lg shrink-0" />
+                          VNPay
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("cash")}
+                          disabled={isPaymentProcessing}
+                          className={`flex items-center gap-2.5 px-4 py-3.5 rounded-xl border text-sm font-bold transition-all cursor-pointer disabled:opacity-50 ${
+                            paymentMethod === "cash"
+                              ? "border-[#026E5F] bg-teal-50 dark:bg-teal-900/20 text-[#026E5F] dark:text-teal-400 shadow-sm ring-1 ring-[#026E5F]/20"
+                              : "border-slate-200 dark:border-slate-70 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
+                          }`}
+                        >
+                          <Icon icon="material-symbols:payments-outline" className="text-lg shrink-0" />
+                          {t("Tiền mặt")}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* VNPay notice */}
+                    {paymentMethod === "vnpay" && !isPaymentProcessing && (
+                      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs">
+                        <Icon icon="material-symbols:open-in-new" className="shrink-0 text-sm mt-0.5" />
+                        <span>{t("Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất giao dịch an toàn.")}</span>
+                      </div>
+                    )}
+
+                    {/* Processing state */}
+                    {isPaymentProcessing && (
+                      <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800">
+                        <Icon icon="svg-spinners:3-dots-fade" className="text-2xl text-[#026E5F]" />
+                        <span className="text-sm font-medium text-[#026E5F] dark:text-teal-300">{t("Đang xử lý thanh toán...")}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Footer actions */}
+                <div className="px-6 pb-6 flex gap-3">
+                  {isCompleted ? (
+                    <>
+                      <button
+                        onClick={() => window.print()}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:print-outline" className="text-sm" />
+                        {t("In hóa đơn")}
+                      </button>
+                      <button
+                        onClick={closePaymentModal}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-[#026E5F] hover:bg-[#01564a] text-white text-xs font-bold transition active:scale-95 cursor-pointer text-center"
+                      >
+                        {t("Đóng")}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={closePaymentModal}
+                        disabled={isPaymentProcessing}
+                        className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {t("Hủy")}
+                      </button>
+                      <button
+                        onClick={handlePayBooking}
+                        disabled={isPaymentProcessing}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#026E5F] hover:bg-[#01564a] text-white text-sm font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-60 shadow-sm"
+                      >
+                        {isPaymentProcessing ? (
+                          <Icon icon="svg-spinners:3-dots-fade" className="text-lg" />
+                        ) : paymentMethod === "vnpay" ? (
+                          <Icon icon="material-symbols:open-in-new" className="text-lg" />
+                        ) : (
+                          <Icon icon="material-symbols:check-circle-outline" className="text-lg" />
+                        )}
+                        {paymentMethod === "vnpay" ? t("Thanh toán qua VNPay") : t("Xác nhận thanh toán")}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
       {/* Toast states */}
       {toast && <Toast type={toast.type} title={t(toast.title)} message={t(toast.message)} onClose={() => setToast(null)} />}
-      {recruitmentToast && (
-        <Toast
-          type={recruitmentToast.type}
-          title={t(recruitmentToast.title)}
-          message={t(recruitmentToast.message)}
-          onClose={() => setRecruitmentToast(null)}
-        />
-      )}
+      {recruitmentToast && <Toast type={recruitmentToast.type} title={t(recruitmentToast.title)} message={t(recruitmentToast.message)} onClose={() => setRecruitmentToast(null)} />}
     </div>
   );
 };

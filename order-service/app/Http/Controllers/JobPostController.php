@@ -110,7 +110,7 @@ class JobPostController extends Controller
             'title'        => 'required|string|max:150',
             'description'  => 'nullable|string',
             'category_id'  => 'nullable|integer',
-            'salary'       => 'nullable|numeric|min:0',
+            'salary'       => 'nullable|numeric|min:10000|max:1000000000',
             'address'      => 'nullable|string|max:255',
             'district'     => 'nullable|string|max:100',
             'city'         => 'nullable|string|max:100',
@@ -118,7 +118,41 @@ class JobPostController extends Controller
             'expired_at'   => 'nullable|date|after:today',
             'service_ids'  => 'nullable|array',
             'service_ids.*'=> 'integer',
+        ], [
+            'salary.min' => 'Mức lương tối thiểu là 10.000 đ.',
+            'salary.max' => 'Mức lương tối đa không vượt quá giới hạn 1.000.000.000 đ của VNPay.',
         ]);
+
+        if (isset($fields['title'])) {
+            $cleaned = preg_replace('/\s+/', '', $fields['title']);
+            if (preg_match('/^\d+$/', $cleaned)) {
+                return response()->json([
+                    'message' => 'Tiêu đề không được chỉ chứa chữ số.'
+                ], 422);
+            }
+        }
+
+        if (!empty($fields['description'])) {
+            if (preg_match('/\[Danh mục:\s*([^\]\r\n]+)\]/', $fields['description'], $matches)) {
+                $category = trim($matches[1]);
+                $cleaned = preg_replace('/\s+/', '', $category);
+                if (preg_match('/^\d+$/', $cleaned)) {
+                    return response()->json([
+                        'message' => 'Tên danh mục không được chỉ chứa chữ số.'
+                    ], 422);
+                }
+            }
+
+            if (preg_match('/\[Dịch vụ:\s*([^\]\r\n]+)\]/', $fields['description'], $matches)) {
+                $service = trim($matches[1]);
+                $cleaned = preg_replace('/\s+/', '', $service);
+                if (preg_match('/^\d+$/', $cleaned)) {
+                    return response()->json([
+                        'message' => 'Tên dịch vụ không được chỉ chứa chữ số.'
+                    ], 422);
+                }
+            }
+        }
 
         $post = JobPost::create([
             'customer_id'  => $request->authUser['id'],
@@ -180,13 +214,47 @@ class JobPostController extends Controller
             'title'        => 'sometimes|required|string|max:150',
             'description'  => 'sometimes|nullable|string',
             'category_id'  => 'sometimes|nullable|integer',
-            'salary'       => 'sometimes|nullable|numeric|min:0',
+            'salary'       => 'sometimes|nullable|numeric|min:10000|max:1000000000',
             'address'      => 'sometimes|nullable|string|max:255',
             'district'     => 'sometimes|nullable|string|max:100',
             'city'         => 'sometimes|nullable|string|max:100',
             'working_time' => 'sometimes|nullable|string|max:255',
             'expired_at'   => 'sometimes|nullable|date|after:today',
+        ], [
+            'salary.min' => 'Mức lương tối thiểu là 10.000 đ.',
+            'salary.max' => 'Mức lương tối đa không vượt quá giới hạn 1.000.000.000 đ của VNPay.',
         ]);
+
+        if (isset($fields['title'])) {
+            $cleaned = preg_replace('/\s+/', '', $fields['title']);
+            if (preg_match('/^\d+$/', $cleaned)) {
+                return response()->json([
+                    'message' => 'Tiêu đề không được chỉ chứa chữ số.'
+                ], 422);
+            }
+        }
+
+        if (!empty($fields['description'])) {
+            if (preg_match('/\[Danh mục:\s*([^\]\r\n]+)\]/', $fields['description'], $matches)) {
+                $category = trim($matches[1]);
+                $cleaned = preg_replace('/\s+/', '', $category);
+                if (preg_match('/^\d+$/', $cleaned)) {
+                    return response()->json([
+                        'message' => 'Tên danh mục không được chỉ chứa chữ số.'
+                    ], 422);
+                }
+            }
+
+            if (preg_match('/\[Dịch vụ:\s*([^\]\r\n]+)\]/', $fields['description'], $matches)) {
+                $service = trim($matches[1]);
+                $cleaned = preg_replace('/\s+/', '', $service);
+                if (preg_match('/^\d+$/', $cleaned)) {
+                    return response()->json([
+                        'message' => 'Tên dịch vụ không được chỉ chứa chữ số.'
+                    ], 422);
+                }
+            }
+        }
 
         $post->update($fields);
 
@@ -303,10 +371,25 @@ class JobPostController extends Controller
             return response()->json(['message' => 'No pending application from this helper.'], 404);
         }
 
+        if ($post->working_time) {
+            $parsedTime = strtotime($post->working_time);
+            if ($parsedTime !== false) {
+                $bookingDate = date('Y-m-d', $parsedTime);
+                $startTime = date('H:i:s', $parsedTime);
+                $servicesCount = $post->services()->count();
+                $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+
+                if (Booking::hasConflict((int) $helperId, $bookingDate, $startTime, (float) $durationHours)) {
+                    return response()->json([
+                        'message' => 'Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.'
+                    ], 400);
+                }
+            }
+        }
+
         // Set this application status to selected
         $application->update(['status' => 'selected']);
 
-        // Temporarily close the job post and link the selected helper
         $post->update([
             'selected_helper_id' => $helperId,
             'status'             => 'closed',
@@ -317,7 +400,8 @@ class JobPostController extends Controller
             Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
                 'user_id' => $helperId,
                 'title'   => 'Bạn được mời nhận công việc',
-                'message' => 'Khách hàng đã chọn bạn cho công việc: ' . $post->title . '. Vui lòng phản hồi Đồng ý hoặc Từ chối.',
+                //  . $post->title . '
+                'message' => 'Khách hàng đã chọn bạn cho công việc. Vui lòng phản hồi Đồng ý hoặc Từ chối.',
                 'type'    => 'recruitment',
             ]);
         } catch (\Exception $e) {
@@ -358,6 +442,22 @@ class JobPostController extends Controller
         }
 
         if ($fields['action'] === 'accept') {
+            if ($post->working_time) {
+                $parsedTime = strtotime($post->working_time);
+                if ($parsedTime !== false) {
+                    $bookingDate = date('Y-m-d', $parsedTime);
+                    $startTime = date('H:i:s', $parsedTime);
+                    $servicesCount = $post->services()->count();
+                    $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+
+                    if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
+                        return response()->json([
+                            'message' => 'Bạn không thể đồng ý nhận việc này do trùng lịch với một công việc khác đang chờ hoặc đang làm.'
+                        ], 400);
+                    }
+                }
+            }
+
             // Update this application status to accepted
             $application->update(['status' => 'accepted']);
 
@@ -411,7 +511,8 @@ class JobPostController extends Controller
                 Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
                     'user_id' => $post->customer_id,
                     'title'   => 'Người giúp việc đã đồng ý nhận công việc',
-                    'message' => 'Người giúp việc đã đồng ý nhận công việc: ' . $post->title . '. Vui lòng thanh toán trong 30 phút.',
+                    // ' . $post->title . 
+                    'message' => 'Người giúp việc đã đồng ý nhận công việc. Vui lòng thanh toán trong 30 phút.',
                     'type'    => 'booking',
                 ]);
             } catch (\Exception $e) {
@@ -439,7 +540,8 @@ class JobPostController extends Controller
                 Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
                     'user_id' => $post->customer_id,
                     'title'   => 'Người giúp việc từ chối lời mời',
-                    'message' => 'Người giúp việc đã từ chối nhận công việc: ' . $post->title . '. Vui lòng chọn người giúp việc khác.',
+                    // ' . $post->title .
+                    'message' => 'Người giúp việc đã từ chối nhận công việc. Vui lòng chọn người giúp việc khác.',
                     'type'    => 'recruitment',
                 ]);
             } catch (\Exception $e) {
@@ -612,6 +714,22 @@ class JobPostController extends Controller
 
         $post = JobPost::where('id', $id)->where('status', 'open')->first();
         if (!$post) return response()->json(['message' => 'Job post not found or already closed.'], 404);
+
+        if ($post->working_time) {
+            $parsedTime = strtotime($post->working_time);
+            if ($parsedTime !== false) {
+                $bookingDate = date('Y-m-d', $parsedTime);
+                $startTime = date('H:i:s', $parsedTime);
+                $servicesCount = $post->services()->count();
+                $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+
+                if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
+                    return response()->json([
+                        'message' => 'Bạn không thể ứng tuyển do trùng ngày giờ hoặc đang trong lịch làm việc ca khác.'
+                    ], 400);
+                }
+            }
+        }
 
         if (JobApplication::where('job_post_id', $id)->where('helper_id', $request->authUser['id'])->exists()) {
             return response()->json(['message' => 'You have already applied for this job post.'], 409);

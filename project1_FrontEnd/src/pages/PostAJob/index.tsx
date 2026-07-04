@@ -16,16 +16,7 @@ const formatWorkingTime = (timeStr: string | null) => {
 };
 
 export default function PostAJob() {
-  const {
-    formik,
-    addresses,
-    isNewAddress,
-    selectedAddressId,
-    handleAddressChange,
-    isLoading,
-    errorMsg,
-    computedUrgency,
-  } = usePostAJobHook();
+  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency } = usePostAJobHook();
   const { t } = useTranslation();
 
   const renderAddressForm = () => (
@@ -120,9 +111,7 @@ export default function PostAJob() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.workingTime && formik.errors.workingTime && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.workingTime}</p>
-                )}
+                {formik.touched.workingTime && formik.errors.workingTime && <p className="text-red-500 text-sm mt-1">{formik.errors.workingTime}</p>}
               </div>
 
               {/* Ngày hết hạn — người dùng tự chọn */}
@@ -139,9 +128,7 @@ export default function PostAJob() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.expirationDate && formik.errors.expirationDate && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDate}</p>
-                )}
+                {formik.touched.expirationDate && formik.errors.expirationDate && <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDate}</p>}
               </div>
             </div>
 
@@ -181,9 +168,7 @@ export default function PostAJob() {
 
           {addresses.length > 0 && (
             <div className="mb-5">
-              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                {t("Địa chỉ đã lưu")}
-              </label>
+              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">{t("Địa chỉ đã lưu")}</label>
               <div className="relative">
                 <select
                   value={selectedAddressId}
@@ -344,17 +329,13 @@ export default function PostAJob() {
           </div>
 
           <h3 className="text-lg font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-[50px] leading-snug">{formik.values.jobTitle || t("Tiêu đề bài đăng của bạn")}</h3>
-          <p className="text-[#0d5c63] dark:text-teal-400 text-sm font-medium mb-6">
-            {formik.values.customCategory || t("Danh mục tuyển dụng")}
-          </p>
+          <p className="text-[#0d5c63] dark:text-teal-400 text-sm font-medium mb-6">{formik.values.customCategory || t("Danh mục tuyển dụng")}</p>
 
           <div className="space-y-3.5 text-sm text-gray-600 dark:text-gray-300 font-medium">
             <div className="flex items-center gap-3">
               <Icon icon="mdi:cash" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
               <span className="truncate">
-                {formik.values.salary
-                  ? `${Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * (computedUrgency?.multiplier ?? 1.0)).toLocaleString()} VNĐ`
-                  : t("Mức lương")}
+                {formik.values.salary ? `${Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * (computedUrgency?.multiplier ?? 1.0)).toLocaleString()} VNĐ` : t("Mức lương")}
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -375,7 +356,7 @@ export default function PostAJob() {
             )}
             <div className="flex items-center gap-3">
               <Icon icon="mdi:calendar-plus-outline" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
-              <span className="truncate text-xs text-gray-400">
+              <span className="truncate">
                 {t("Đăng ngày")}: {new Date().toLocaleDateString("vi-VN")}
               </span>
             </div>

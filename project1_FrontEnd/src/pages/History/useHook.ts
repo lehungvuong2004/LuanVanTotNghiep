@@ -1,14 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  getCustomerBookingsApi,
-  getHelperBookingsApi,
-  cancelBookingApi,
-  startMovingApi,
-  checkinApi,
-  checkoutApi,
-} from "../../api/bookings";
+import { getCustomerBookingsApi, getHelperBookingsApi, cancelBookingApi, startMovingApi, checkinApi, checkoutApi } from "../../api/bookings";
 import { getServicesApi } from "../../api/services";
-import { getMyPaymentsApi } from "../../api/payments";
+import { getMyPaymentsApi, createVnpayUrlApi, createPaymentApi, simulatePaymentCallbackApi } from "../../api/payments";
 import { getMyApplicationsApi, respondToSelectionApi } from "../../api/jobPostsApi/jobPosts";
 import { io } from "socket.io-client";
 import { sortBookingsByDate } from "../../utils";
@@ -28,6 +21,7 @@ export interface Booking {
   status: "upcoming" | "completed" | "cancelled";
   statusRaw: string; // e.g. pending, confirmed, in_progress, completed, cancelled
   paymentStatus?: "unpaid" | "pending" | "completed" | "failed" | "refunded";
+  paymentInfo?: any;
 }
 
 export type StatusFilter = "all" | "completed" | "cancelled";
@@ -76,9 +70,7 @@ export const useHistory = () => {
       const user = JSON.parse(userStr);
 
       // 3. Call API based on role
-      const response = user.role_id === 3
-        ? await getHelperBookingsApi({ limit: 1000 })
-        : await getCustomerBookingsApi({ limit: 1000 });
+      const response = user.role_id === 3 ? await getHelperBookingsApi({ limit: 1000 }) : await getCustomerBookingsApi({ limit: 1000 });
 
       // Laravel paginate result has data inside response.data.data.data
       const rawBookingsData = response.data?.data?.data || response.data?.data || [];
@@ -86,24 +78,24 @@ export const useHistory = () => {
 
       // 3.5 Fetch payments to map status
       const paymentMap = new Map<number, string>();
+      const paymentDetailMap = new Map<number, any>();
       try {
         const payRes = await getMyPaymentsApi({ limit: 1000 });
         const payments = payRes.data?.data || [];
         payments.forEach((p: any) => {
           if (p.booking_id) {
             paymentMap.set(p.booking_id, p.status);
+            paymentDetailMap.set(p.booking_id, p);
           }
         });
       } catch (payErr) {
         console.error("Error fetching payments for history map:", payErr);
       }
 
-      // 4. Map raw backend data to frontend Booking interface
       const mapped: Booking[] = rawBookings.map((b: any) => {
         const firstServiceId = b.services?.[0]?.service_id;
         const serviceName = svcMap.get(firstServiceId) || "Dịch vụ gia đình";
 
-        // Date format: YYYY-MM-DD -> DD/MM/YYYY
         let dateStr = b.booking_date;
         if (b.booking_date && b.booking_date.includes("-")) {
           const parts = b.booking_date.split("-");
@@ -126,9 +118,7 @@ export const useHistory = () => {
         const partner = isHelper ? b.customer : b.helper;
 
         const defaultAvatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop";
-        const avatarUrl = partner?.avatar
-          ? (partner.avatar.startsWith("http") ? partner.avatar : `http://localhost:8000${partner.avatar}`)
-          : defaultAvatar;
+        const avatarUrl = partner?.avatar ? (partner.avatar.startsWith("http") ? partner.avatar : `http://localhost:8000${partner.avatar}`) : defaultAvatar;
 
         // Map status: pending, confirmed, in_progress -> upcoming
         let frontendStatus: "upcoming" | "completed" | "cancelled" = "upcoming";
@@ -139,6 +129,7 @@ export const useHistory = () => {
         }
 
         const payStatus = paymentMap.get(b.id) || "unpaid";
+        const paymentInfo = paymentDetailMap.get(b.id) || null;
 
         return {
           id: b.booking_code || `#BK-${b.id}`,
@@ -155,6 +146,7 @@ export const useHistory = () => {
           status: frontendStatus,
           statusRaw: b.status,
           paymentStatus: payStatus as any,
+          paymentInfo,
         };
       });
 
@@ -196,7 +188,7 @@ export const useHistory = () => {
       const res = await getMyApplicationsApi({ limit: 1000 });
       const rawApps = res.data?.data || res.data || [];
       // Normalize array if nested in paginator object
-      setApplications(Array.isArray(rawApps) ? rawApps : (rawApps.data || []));
+      setApplications(Array.isArray(rawApps) ? rawApps : rawApps.data || []);
     } catch (err) {
       console.error("Error fetching helper applications:", err);
     } finally {
@@ -355,9 +347,7 @@ export const useHistory = () => {
         setToast({
           type: "success",
           title: "Thành công",
-          message: action === "accept"
-            ? "Đã chấp nhận công việc. Lịch đặt mới đã được tạo và chờ khách hàng thanh toán."
-            : "Đã từ chối lời mời nhận việc.",
+          message: action === "accept" ? "Đã chấp nhận công việc. Lịch đặt mới đã được tạo và chờ khách hàng thanh toán." : "Đã từ chối lời mời nhận việc.",
         });
         fetchData();
         fetchApplications();
@@ -368,6 +358,79 @@ export const useHistory = () => {
           message: err.response?.data?.message || "Không thể thực hiện thao tác này.",
         });
       }
+    }
+  };
+
+  // ── Inline Payment Modal ──────────────────────────────────
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentBooking, setPaymentBooking] = useState<Booking | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"vnpay" | "cash">("vnpay");
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+
+  const openPaymentModal = (booking: Booking) => {
+    setPaymentBooking(booking);
+    setPaymentMethod("vnpay");
+    setShowPaymentModal(true);
+  };
+
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setPaymentBooking(null);
+    setIsPaymentProcessing(false);
+  };
+
+  const handlePayBooking = async () => {
+    if (!paymentBooking) return;
+
+    const amount = parseFloat(paymentBooking.totalPrice.replace(/[^0-9]/g, ""));
+    if (!amount || amount <= 0) {
+      setToast({ type: "error", title: "Lỗi", message: "Số tiền không hợp lệ." });
+      return;
+    }
+
+    setIsPaymentProcessing(true);
+    try {
+      if (paymentMethod === "vnpay") {
+        // VNPay: create VNPay URL and redirect
+        if (amount < 10000) {
+          setToast({
+            type: "error",
+            title: "Lỗi",
+            message: "Số tiền thanh toán tối thiểu qua VNPay là 10.000 đ.",
+          });
+          setIsPaymentProcessing(false);
+          return;
+        }
+        const res = await createVnpayUrlApi({
+          amount,
+          booking_id: paymentBooking.idRaw,
+        });
+        closePaymentModal();
+        window.location.href = res.payment_url;
+      } else {
+        // Cash: create payment + auto-confirm
+        const createRes = await createPaymentApi({
+          payment_method: "cash",
+          amount,
+          booking_id: paymentBooking.idRaw,
+        });
+        // Auto-confirm cash payment
+        await simulatePaymentCallbackApi(createRes.data.id);
+        closePaymentModal();
+        setToast({
+          type: "success",
+          title: "Thanh toán thành công",
+          message: "Đã xác nhận thanh toán bằng tiền mặt. Lịch hẹn đã được xác nhận.",
+        });
+        fetchData();
+      }
+    } catch (err: any) {
+      setToast({
+        type: "error",
+        title: "Thanh toán thất bại",
+        message: err.response?.data?.message || "Không thể xử lý thanh toán. Vui lòng thử lại.",
+      });
+      setIsPaymentProcessing(false);
     }
   };
 
@@ -392,5 +455,14 @@ export const useHistory = () => {
     applications,
     isApplicationsLoading,
     refreshApplications: fetchApplications,
+    // Inline payment
+    showPaymentModal,
+    paymentBooking,
+    paymentMethod,
+    setPaymentMethod,
+    isPaymentProcessing,
+    openPaymentModal,
+    closePaymentModal,
+    handlePayBooking,
   };
 };

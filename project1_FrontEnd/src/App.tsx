@@ -16,7 +16,9 @@ import { News } from "./pages/News";
 import { NewsDetail } from "./pages/NewsDetail";
 import { Profile } from "./pages/Profile";
 import { Pricing } from "./pages/Pricing";
-import { Payment } from "./pages/Payment";
+// [NOTE] Trang Thanh toán độc lập đã được loại bỏ.
+// Chức năng thanh toán được tích hợp trực tiếp vào trang Lịch sử đặt lịch (/lich-su-dat-lich).
+// import { Payment } from "./pages/Payment";
 import { PaymentReturn } from "./pages/PaymentReturn";
 import { DashboardManager } from "./layouts/DashboardManager";
 import { Schedules } from "./DashBoard/Admin/Schedules";
@@ -69,7 +71,8 @@ function App() {
           <Route path="/ho-so" element={<Profile />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
-          <Route path="/thanh-toan" element={<Payment />} />
+          {/* [NOTE] Route thanh toán độc lập đã loại bỏ — tích hợp vào /lich-su-dat-lich */}
+          {/* <Route path="/thanh-toan" element={<Payment />} /> */}
         </Route>
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />

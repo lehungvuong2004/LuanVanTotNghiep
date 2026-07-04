@@ -6,12 +6,6 @@ import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } 
 import { createJobPostApi } from "../../api/jobPostsApi/jobPosts";
 import { getPostJobSchema } from "../../api/jobPostsApi/validation";
 
-// ----------------------------------------------------------------
-// Derive urgency level and multiplier from (expirationDate - workingTime)
-//   diff < 2 days  → urgent  → x0.4
-//   diff < 4 days  → normal  → x0.2
-//   diff >= 4 days → long    → x1.0 (original price)
-// ----------------------------------------------------------------
 export const getUrgencyFromDates = (workingTime: string, expirationDate: string) => {
   if (!workingTime || !expirationDate) return null;
   const diffDays =

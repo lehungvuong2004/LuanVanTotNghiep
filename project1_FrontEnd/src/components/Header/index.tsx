@@ -7,11 +7,12 @@ import { Toast } from "../Toast";
 
 // Icon & colour mapping per notification type
 const NOTIF_META: Record<NotificationType, { icon: string; bg: string; fg: string }> = {
-  booking:   { icon: "mdi:calendar-check",      bg: "bg-teal-100 dark:bg-teal-900/40",   fg: "text-teal-600 dark:text-teal-400" },
-  payment:   { icon: "mdi:credit-card-outline",  bg: "bg-green-100 dark:bg-green-900/40", fg: "text-green-600 dark:text-green-400" },
-  system:    { icon: "mdi:bell-outline",          bg: "bg-slate-100 dark:bg-slate-700",    fg: "text-slate-500 dark:text-slate-300" },
-  promotion: { icon: "mdi:tag-outline",           bg: "bg-orange-100 dark:bg-orange-900/40", fg: "text-orange-500 dark:text-orange-400" },
-  report:    { icon: "mdi:alert-circle-outline",  bg: "bg-red-100 dark:bg-red-900/40",    fg: "text-red-500 dark:text-red-400" },
+  booking: { icon: "mdi:calendar-check", bg: "bg-teal-100 dark:bg-teal-900/40", fg: "text-teal-600 dark:text-teal-400" },
+  payment: { icon: "mdi:credit-card-outline", bg: "bg-green-100 dark:bg-green-900/40", fg: "text-green-600 dark:text-green-400" },
+  system: { icon: "mdi:bell-outline", bg: "bg-slate-100 dark:bg-slate-700", fg: "text-slate-500 dark:text-slate-300" },
+  promotion: { icon: "mdi:tag-outline", bg: "bg-orange-100 dark:bg-orange-900/40", fg: "text-orange-500 dark:text-orange-400" },
+  report: { icon: "mdi:alert-circle-outline", bg: "bg-red-100 dark:bg-red-900/40", fg: "text-red-500 dark:text-red-400" },
+  recruitment: { icon: "mdi:briefcase-outline", bg: "bg-blue-100 dark:bg-blue-900/40", fg: "text-blue-600 dark:text-blue-400" },
 };
 const DEFAULT_META = NOTIF_META.system;
 
@@ -52,11 +53,10 @@ export const Header = () => {
 
   const handleNotificationClick = (notif: Notification) => {
     toggleRead(notif.id);
-    if (notif.type === "booking") {
+    if (notif.type === "booking" || notif.type === "recruitment") {
       const titleLower = notif.title?.toLowerCase() || "";
       const msgLower = notif.message?.toLowerCase() || "";
-      const isRecruitment = titleLower.includes("ứng tuyển") || msgLower.includes("ứng tuyển") || msgLower.includes("tuyển dụng");
-      const isAccepted = titleLower.includes("chấp nhận") || msgLower.includes("chấp nhận");
+      const isRecruitment = notif.type === "recruitment" || titleLower.includes("ứng tuyển") || msgLower.includes("ứng tuyển") || msgLower.includes("tuyển dụng");
 
       if (isRecruitment) {
         if (user?.role_id === 4) {
@@ -67,11 +67,7 @@ export const Header = () => {
             navigate("/lich-su-dat-lich?tab=job-posts");
           }
         } else if (user?.role_id === 3) {
-          if (isAccepted) {
-            navigate("/lich-su-dat-lich");
-          } else {
-            navigate("/tuyen-dung");
-          }
+          navigate("/lich-su-dat-lich?tab=helper-applications");
         } else {
           navigate("/lich-su-dat-lich");
         }
@@ -81,12 +77,10 @@ export const Header = () => {
     }
   };
 
-  const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
+  const [notifFilter, setNotifFilter] = useState<"all" | "unread">("all");
   const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
 
-  const displayedNotifications = notifFilter === 'all'
-    ? notifications
-    : notifications.filter(notif => !notif.is_read);
+  const displayedNotifications = notifFilter === "all" ? notifications : notifications.filter((notif) => !notif.is_read);
 
   return (
     <>
@@ -299,8 +293,11 @@ export const Header = () => {
                           notifications.map((notif) => {
                             const isUnread = !notif.is_read;
                             const timeLabel = new Date(notif.created_at).toLocaleString("vi-VN", {
-                              day: "2-digit", month: "2-digit", year: "numeric",
-                              hour: "2-digit", minute: "2-digit",
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             });
                             return (
                               <div
@@ -311,9 +308,7 @@ export const Header = () => {
                                 <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${isUnread ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
                                 <div className="flex flex-col flex-1 text-left">
                                   <span className="text-gray-700 dark:text-gray-200 leading-tight font-semibold">{notif.title}</span>
-                                  {notif.message && (
-                                    <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{notif.message}</span>
-                                  )}
+                                  {notif.message && <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" dangerouslySetInnerHTML={{ __html: notif.message }} />}
                                   {notif.type === "booking" && (
                                     <span className="text-[10px] text-[#026E5F] dark:text-teal-400 font-bold mt-0.5 flex items-center gap-0.5">
                                       <Icon icon="material-symbols:arrow-forward-rounded" className="text-[10px]" />
@@ -494,9 +489,7 @@ export const Header = () => {
                         <button
                           onClick={() => setNotifFilter("all")}
                           className={`px-3 py-1.5 font-semibold rounded-full cursor-pointer transition-colors ${
-                            notifFilter === "all"
-                              ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400"
-                              : "hover:bg-gray-100 dark:hover:bg-slate-700/50 text-gray-600 dark:text-gray-300"
+                            notifFilter === "all" ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400" : "hover:bg-gray-100 dark:hover:bg-slate-700/50 text-gray-600 dark:text-gray-300"
                           }`}
                         >
                           {t("Tất cả")}
@@ -521,27 +514,24 @@ export const Header = () => {
                           </div>
                         ) : displayedNotifications.length > 0 ? (
                           <>
-                            {notifFilter === "all" && (
-                              <div className="px-4 py-2 text-xs font-bold text-gray-900 dark:text-white">
-                                {t("Hôm nay")}
-                              </div>
-                            )}
+                            {notifFilter === "all" && <div className="px-4 py-2 text-xs font-bold text-gray-900 dark:text-white">{t("Hôm nay")}</div>}
                             {displayedNotifications.map((notif) => {
                               const meta = NOTIF_META[notif.type as NotificationType] ?? DEFAULT_META;
                               const isUnread = !notif.is_read;
-                              
+
                               const timeLabel = new Date(notif.created_at).toLocaleString("vi-VN", {
-                                day: "2-digit", month: "2-digit", year: "numeric",
-                                hour: "2-digit", minute: "2-digit",
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
                               });
                               return (
                                 <div
                                   key={notif.id}
                                   onClick={() => handleNotificationClick(notif)}
                                   className={`group/item flex items-start gap-3 px-4 py-2.5 cursor-pointer transition-all duration-200 ${
-                                    isUnread
-                                      ? "bg-teal-50/40 dark:bg-teal-950/10 hover:bg-teal-50 dark:hover:bg-teal-950/20"
-                                      : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                                    isUnread ? "bg-teal-50/40 dark:bg-teal-950/10 hover:bg-teal-50 dark:hover:bg-teal-950/20" : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
                                   }`}
                                 >
                                   {/* Avatar / Type icon */}
@@ -554,29 +544,24 @@ export const Header = () => {
                                     <p className={`text-sm leading-snug break-words ${isUnread ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-700 dark:text-gray-300"}`}>
                                       {notif.title}
                                     </p>
-                                    {notif.message && (
-                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug line-clamp-2">
-                                        {notif.message}
-                                      </p>
-                                    )}
+                                    {notif.message && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug line-clamp-2" dangerouslySetInnerHTML={{ __html: notif.message }} />}
                                     {notif.type === "booking" && (
                                       <span className="inline-flex items-center gap-1 text-xs text-[#026E5F] dark:text-teal-400 font-bold mt-1.5 hover:underline">
                                         <Icon icon="material-symbols:arrow-forward-rounded" className="text-xs" />
                                         {t("Xem chi tiết")}
                                       </span>
                                     )}
-                                    <span className={`text-xs mt-1 block ${isUnread ? "text-teal-600 dark:text-teal-400 font-semibold" : "text-gray-400"}`}>
-                                      {timeLabel}
-                                    </span>
+                                    <span className={`text-xs mt-1 block ${isUnread ? "text-teal-600 dark:text-teal-400 font-semibold" : "text-gray-400"}`}>{timeLabel}</span>
                                   </div>
 
                                   {/* Actions */}
                                   <div className="flex flex-col items-center gap-1 shrink-0">
-                                    {isUnread && (
-                                      <div className="w-2.5 h-2.5 rounded-full bg-teal-600 dark:bg-teal-400 mt-1" />
-                                    )}
+                                    {isUnread && <div className="w-2.5 h-2.5 rounded-full bg-teal-600 dark:bg-teal-400 mt-1" />}
                                     <button
-                                      onClick={(e) => { e.stopPropagation(); removeNotification(notif.id); }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeNotification(notif.id);
+                                      }}
                                       className="opacity-0 group-hover/item:opacity-100 p-1 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 rounded-full transition-all cursor-pointer"
                                       title={t("Xoá")}
                                     >
@@ -594,9 +579,7 @@ export const Header = () => {
                                 disabled={notifLoading}
                                 className="mx-4 my-2 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1"
                               >
-                                {notifLoading
-                                  ? <Icon icon="lucide:loader-2" className="text-sm animate-spin" />
-                                  : t("Xem thêm")}
+                                {notifLoading ? <Icon icon="lucide:loader-2" className="text-sm animate-spin" /> : t("Xem thêm")}
                               </button>
                             )}
                           </>
@@ -785,14 +768,7 @@ export const Header = () => {
           <span className="text-white font-bold text-2xl md:text-3xl invisible">Gia Đình Việt</span>
         </div>
       </div>
-      {toast && (
-        <Toast
-          type={toast.type as any}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast type={toast.type as any} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </>
   );
 };
