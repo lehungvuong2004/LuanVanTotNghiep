@@ -81,6 +81,31 @@ export interface HelperStats {
   rejected: number;
   pending_verifications: number;
 }
+export interface PublicGetHelpersParams {
+  city?: string;
+  district?: string;
+  service_id?: number | string;
+  gender?: string;
+  rating_min?: number;
+  limit?: number;
+  page?: number;
+}
+
+export interface PublicPaginatedHelpersResponse {
+  data: {
+    current_page: number;
+    data: HelperProfile[];
+    from: number;
+    last_page: number;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+  };
+}
+
 
 export const getHelpersAdmin = async (params: GetHelpersParams): Promise<PaginatedHelpersResponse> => {
   const response = await axiosInstance.get<PaginatedHelpersResponse>("/providers/admin/helpers", { params });
@@ -114,5 +139,37 @@ export const deleteHelperAdmin = async (id: number): Promise<{ message: string }
 
 export const bulkDeleteHelpersAdmin = async (ids: number[]): Promise<{ message: string }> => {
   const response = await axiosInstance.post<{ message: string }>("/providers/admin/helpers/bulk-delete", { ids });
+  return response.data;
+};
+
+// ============================================================
+//  PUBLIC — Tìm kiếm nhân viên (không cần đăng nhập)
+// ============================================================
+
+
+/**
+ * Tìm kiếm danh sách helper công khai.
+ * Endpoint: GET /providers/helpers
+ */
+export const getHelpersPublic = async (
+  params?: PublicGetHelpersParams
+): Promise<PublicPaginatedHelpersResponse> => {
+  const response = await axiosInstance.get<PublicPaginatedHelpersResponse>(
+    "/providers/helpers",
+    { params }
+  );
+  return response.data;
+};
+
+/**
+ * Xem hồ sơ chi tiết của một helper công khai.
+ * Endpoint: GET /providers/helpers/:id
+ */
+export const getHelperPublic = async (
+  id: number
+): Promise<{ data: HelperProfile }> => {
+  const response = await axiosInstance.get<{ data: HelperProfile }>(
+    `/providers/helpers/${id}`
+  );
   return response.data;
 };

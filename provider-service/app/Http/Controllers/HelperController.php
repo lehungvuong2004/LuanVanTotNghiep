@@ -55,6 +55,25 @@ class HelperController extends Controller
                          ->orderByDesc('total_reviews')
                          ->paginate($limit);
 
+        // Fetch user info for each helper in the page from identity-service internally
+        $userIds = $helpers->pluck('user_id')->filter()->unique()->toArray();
+        if (!empty($userIds)) {
+            try {
+                $userResponse = Http::timeout(3)
+                    ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => $userIds]);
+
+                if ($userResponse->successful()) {
+                    $users = $userResponse->json('data') ?? [];
+                    $userMap = collect($users)->keyBy('id');
+                    foreach ($helpers->items() as $helper) {
+                        $helper->user = $userMap->get($helper->user_id);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to fetch user details for public helper list: ' . $e->getMessage());
+            }
+        }
+
         return response()->json(['data' => $helpers], 200);
     }
 

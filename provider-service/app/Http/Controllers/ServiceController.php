@@ -72,6 +72,22 @@ class ServiceController extends Controller
             $query->where('base_price', '<=', (float) $request->query('max_price'));
         }
 
+        if ($request->filled('city')) {
+            $city = $request->query('city');
+            $query->whereHas('helperSkills.helperProfile', function($q) use ($city) {
+                $q->where('status', 'active')
+                  ->whereHas('workingAreas', fn($w) => $w->where('city', $city));
+            });
+        }
+
+        if ($request->filled('district')) {
+            $district = $request->query('district');
+            $query->whereHas('helperSkills.helperProfile', function($q) use ($district) {
+                $q->where('status', 'active')
+                  ->whereHas('workingAreas', fn($w) => $w->where('district', $district));
+            });
+        }
+
         $limit    = (int) $request->query('limit', 50);
         $services = $query->orderBy('name')->paginate($limit);
 
