@@ -1,5 +1,6 @@
 import { usePostAJobHook } from "./useHook";
 import { Icon } from "@iconify/react";
+import { Toast } from "../../components/Toast";
 import { useTranslation } from "react-i18next";
 import { formatMoneyInput } from "../../utils";
 import { Link } from "react-router-dom";
@@ -16,7 +17,7 @@ const formatWorkingTime = (timeStr: string | null) => {
 };
 
 export default function PostAJob() {
-  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency } = usePostAJobHook();
+  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency, toast, setToast } = usePostAJobHook();
   const { t } = useTranslation();
 
   const renderAddressForm = () => (
@@ -388,6 +389,15 @@ export default function PostAJob() {
         <div className="col-span-5">{renderInformationForm()}</div>
         {/* Preview Section */}
       </div>
+
+      {toast && (
+        <Toast
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

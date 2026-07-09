@@ -136,6 +136,12 @@ export const respondToSelectionApi = async (applicationId: number, action: "acce
   return response.data;
 };
 
+// Helper: rút hồ sơ ứng tuyển
+export const withdrawApplicationApi = async (applicationId: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.patch<{ message: string }>(`/orders/helper/applications/${applicationId}/withdraw`);
+  return response.data;
+};
+
 // Admin/Operator: lấy toàn bộ danh sách bài đăng
 export const adminGetJobPostsApi = async (params?: {
   status?: string;
@@ -159,7 +165,7 @@ export const adminGetJobPostDetailApi = async (id: number): Promise<{ data: JobP
 // Admin/Operator: cập nhật trạng thái bài đăng
 export const adminUpdateJobPostStatusApi = async (
   id: number,
-  status: "open" | "closed" | "pending",
+  status: "open" | "closed" | "pending" | "rejected",
   note?: string
 ): Promise<{ message: string; data: JobPost }> => {
   const response = await axiosInstance.patch<{ message: string; data: JobPost }>(`/orders/admin/job-posts/${id}/status`, {

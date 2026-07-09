@@ -4,12 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { getNewsList } from "../../api/news";
 import type { NewsItem as ApiNewsItem } from "../../api/news";
-import {
-  getNotifications,
-  markNotificationRead,
-  markAllNotificationsRead,
-  deleteNotification,
-} from "../../api/notifications";
+import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from "../../api/notifications";
 import type { Notification } from "../../api/notifications";
 
 export interface Category {
@@ -79,25 +74,22 @@ export const useHeader = () => {
   const [toast, setToast] = useState<{ type: string; title: string; message: string } | null>(null);
 
   /** Tải trang đầu hoặc tải thêm (infinite scroll) */
-  const fetchNotifications = useCallback(
-    async (page = 1, replace = true) => {
-      if (!localStorage.getItem("access_token")) return;
-      setNotifLoading(true);
-      try {
-        const res = await getNotifications(undefined, 20, page);
-        const items = res.data.data;
-        setNotifications((prev) => (replace ? items : [...prev, ...items]));
-        setUnreadCount(res.unread_count);
-        setNotifPage(res.data.current_page);
-        setNotifLastPage(res.data.last_page);
-      } catch {
-        // không toast — lỗi im lặng trong dropdown
-      } finally {
-        setNotifLoading(false);
-      }
-    },
-    []
-  );
+  const fetchNotifications = useCallback(async (page = 1, replace = true) => {
+    if (!localStorage.getItem("access_token")) return;
+    setNotifLoading(true);
+    try {
+      const res = await getNotifications(undefined, 20, page);
+      const items = res.data.data;
+      setNotifications((prev) => (replace ? items : [...prev, ...items]));
+      setUnreadCount(res.unread_count);
+      setNotifPage(res.data.current_page);
+      setNotifLastPage(res.data.last_page);
+    } catch {
+      // không toast — lỗi im lặng trong dropdown
+    } finally {
+      setNotifLoading(false);
+    }
+  }, []);
 
   /** Load thêm trang tiếp theo */
   const loadMoreNotifications = useCallback(() => {
@@ -135,7 +127,7 @@ export const useHeader = () => {
         setToast({
           type: "info",
           title: notif.title || t("Thông báo mới"),
-          message: notif.message || ""
+          message: notif.message || "",
         });
       });
 
@@ -148,17 +140,13 @@ export const useHeader = () => {
 
   /** Đánh dấu 1 thông báo đã đọc */
   const toggleRead = useCallback(async (id: number) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)));
     setUnreadCount((c) => Math.max(0, c - 1));
     try {
       await markNotificationRead(id);
     } catch {
       // revert on error
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: 0 } : n))
-      );
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: 0 } : n)));
       setUnreadCount((c) => c + 1);
     }
   }, []);
@@ -176,25 +164,27 @@ export const useHeader = () => {
   }, [fetchNotifications]);
 
   /** Xoá 1 thông báo */
-  const removeNotification = useCallback(async (id: number) => {
-    const removed = notifications.find((n) => n.id === id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    if (removed && !removed.is_read) setUnreadCount((c) => Math.max(0, c - 1));
-    try {
-      await deleteNotification(id);
-    } catch {
-      // revert
-      if (removed) {
-        setNotifications((prev) => [removed, ...prev]);
-        if (!removed.is_read) setUnreadCount((c) => c + 1);
+  const removeNotification = useCallback(
+    async (id: number) => {
+      const removed = notifications.find((n) => n.id === id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      if (removed && !removed.is_read) setUnreadCount((c) => Math.max(0, c - 1));
+      try {
+        await deleteNotification(id);
+      } catch {
+        // revert
+        if (removed) {
+          setNotifications((prev) => [removed, ...prev]);
+          if (!removed.is_read) setUnreadCount((c) => c + 1);
+        }
       }
-    }
-  }, [notifications]);
+    },
+    [notifications],
+  );
 
   // ─── End Notifications ──────────────────────────────────────────────────────
 
   const [activeCategory, setActiveCategory] = useState("Giúp việc theo giờ");
-
 
   const navLinks = [
     { name: "Trang Chủ", to: "/" },
@@ -322,7 +312,6 @@ export const useHeader = () => {
       ],
     },
   };
-
 
   useEffect(() => {
     const handleScroll = () => {

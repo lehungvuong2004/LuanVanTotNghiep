@@ -44,9 +44,6 @@ export const Recruitment = () => {
   const isCustomer = currentUser?.role_id === 4;
 
   const renderSidebarFilter = () => {
-    const handleCategoryChange = (catId: number | string) => {
-      setSelectedCategories((prev) => (prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId]));
-    };
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm sticky top-24 flex flex-col divide-y divide-slate-100 dark:divide-slate-700/50 overflow-hidden">
         {/* Header */}
@@ -63,40 +60,28 @@ export const Recruitment = () => {
         <div className="px-5 py-4 flex flex-col gap-2.5">
           <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t("Loại công việc")}</p>
           {categories.length > 0 ? (
-            <>
+            <select
+              value={selectedCategories[0] || "all"}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "all") {
+                  setSelectedCategories([]);
+                } else if (val === "other") {
+                  setSelectedCategories(["other"]);
+                } else {
+                  setSelectedCategories([Number(val)]);
+                }
+              }}
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-750 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#026E5F]/20 focus:border-[#026E5F] transition-all cursor-pointer font-medium"
+            >
+              <option value="all">{t("Tất cả")}</option>
               {categories.map((cat) => (
-                <label key={cat.id} className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(cat.id)}
-                    onChange={() => handleCategoryChange(cat.id)}
-                    className="rounded border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
-                  />
-                  <span
-                    className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors font-medium ${
-                      selectedCategories.includes(cat.id) ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-600 dark:text-slate-300"
-                    }`}
-                  >
-                    {t(cat.name)}
-                  </span>
-                </label>
+                <option key={cat.id} value={cat.id}>
+                  {t(cat.name)}
+                </option>
               ))}
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes("other" as never)}
-                  onChange={() => handleCategoryChange("other")}
-                  className="rounded border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
-                />
-                <span
-                  className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors font-medium ${
-                    selectedCategories.includes("other" as never) ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-600 dark:text-slate-300"
-                  }`}
-                >
-                  {t("Khác")}
-                </span>
-              </label>
-            </>
+              <option value="other">{t("Khác")}</option>
+            </select>
           ) : (
             <p className="text-xs text-gray-400 italic">{t("Đang tải danh mục...")}</p>
           )}

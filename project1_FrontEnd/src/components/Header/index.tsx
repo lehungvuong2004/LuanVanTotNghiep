@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useHeader } from "./useHook";
 import type { NotificationType, Notification } from "../../api/notifications";
 import { Toast } from "../Toast";
+import { formatVietnamDateTime } from "../../utils";
 
 // Icon & colour mapping per notification type
 const NOTIF_META: Record<NotificationType, { icon: string; bg: string; fg: string }> = {
@@ -292,13 +293,7 @@ export const Header = () => {
                         {notifications.length > 0 ? (
                           notifications.map((notif) => {
                             const isUnread = !notif.is_read;
-                            const timeLabel = new Date(notif.created_at).toLocaleString("vi-VN", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            });
+                            const timeLabel = formatVietnamDateTime(notif.created_at);
                             return (
                               <div
                                 key={notif.id}
@@ -357,7 +352,7 @@ export const Header = () => {
                       <div className="flex flex-col gap-1 py-3">
                         {user && user.role_id !== 4 && (
                           <Link
-                            to="/admin"
+                            to={user.role_id === 1 ? "/admin" : user.role_id === 2 ? "/operator" : "/helper"}
                             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                           >
                             <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />
@@ -519,13 +514,7 @@ export const Header = () => {
                               const meta = NOTIF_META[notif.type as NotificationType] ?? DEFAULT_META;
                               const isUnread = !notif.is_read;
 
-                              const timeLabel = new Date(notif.created_at).toLocaleString("vi-VN", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              });
+                              const timeLabel = formatVietnamDateTime(notif.created_at);
                               return (
                                 <div
                                   key={notif.id}
@@ -622,7 +611,7 @@ export const Header = () => {
                         <div className="flex flex-col gap-1 py-3">
                           {user && user.role_id !== 4 && (
                             <Link
-                              to="/admin"
+                              to={user.role_id === 1 ? "/admin" : user.role_id === 2 ? "/operator" : "/helper"}
                               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                             >
                               <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />

@@ -1,4 +1,4 @@
-import axiosInstance from "./axios";
+import { apiGet, apiPost, apiPatch, apiDelete } from "./constantAPI";
 import type { User } from "./users";
 
 export interface HelperSkill {
@@ -42,7 +42,7 @@ export interface HelperProfile {
   rating_avg: number;
   total_reviews: number;
   skills?: HelperSkill[];
-  workingAreas?: HelperWorkingArea[]; // matches workingAreas relation
+  workingAreas?: HelperWorkingArea[]; 
   verifications?: HelperVerification[];
   user?: User; // Joined user record
 }
@@ -108,38 +108,31 @@ export interface PublicPaginatedHelpersResponse {
 
 
 export const getHelpersAdmin = async (params: GetHelpersParams): Promise<PaginatedHelpersResponse> => {
-  const response = await axiosInstance.get<PaginatedHelpersResponse>("/providers/admin/helpers", { params });
-  return response.data;
+  return apiGet<PaginatedHelpersResponse>("/providers/admin/helpers", params);
 };
 
 export const getHelperStatsAdmin = async (): Promise<{ data: HelperStats }> => {
-  const response = await axiosInstance.get<{ data: HelperStats }>("/providers/admin/helpers/stats");
-  return response.data;
+  return apiGet<{ data: HelperStats }>("/providers/admin/helpers/stats");
 };
 
 export const getHelperDetailAdmin = async (id: number): Promise<{ data: HelperProfile }> => {
-  const response = await axiosInstance.get<{ data: HelperProfile }>(`/providers/admin/helpers/${id}`);
-  return response.data;
+  return apiGet<{ data: HelperProfile }>(`/providers/admin/helpers/${id}`);
 };
 
 export const verifyHelperAdmin = async (id: number, data: { status: "approved" | "rejected"; note?: string }): Promise<{ message: string; data: any }> => {
-  const response = await axiosInstance.patch<{ message: string; data: any }>(`/providers/admin/helpers/${id}/verify`, data);
-  return response.data;
+  return apiPatch<{ message: string; data: any }>(`/providers/admin/helpers/${id}/verify`, data);
 };
 
 export const toggleHelperStatusAdmin = async (id: number, data: { status: "active" | "suspended"; reason?: string }): Promise<{ message: string; data: HelperProfile }> => {
-  const response = await axiosInstance.patch<{ message: string; data: HelperProfile }>(`/providers/admin/helpers/${id}/status`, data);
-  return response.data;
+  return apiPatch<{ message: string; data: HelperProfile }>(`/providers/admin/helpers/${id}/status`, data);
 };
 
 export const deleteHelperAdmin = async (id: number): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(`/providers/admin/helpers/${id}`);
-  return response.data;
+  return apiDelete<{ message: string }>(`/providers/admin/helpers/${id}`);
 };
 
 export const bulkDeleteHelpersAdmin = async (ids: number[]): Promise<{ message: string }> => {
-  const response = await axiosInstance.post<{ message: string }>("/providers/admin/helpers/bulk-delete", { ids });
-  return response.data;
+  return apiPost<{ message: string }>("/providers/admin/helpers/bulk-delete", { ids });
 };
 
 // ============================================================
@@ -154,11 +147,7 @@ export const bulkDeleteHelpersAdmin = async (ids: number[]): Promise<{ message: 
 export const getHelpersPublic = async (
   params?: PublicGetHelpersParams
 ): Promise<PublicPaginatedHelpersResponse> => {
-  const response = await axiosInstance.get<PublicPaginatedHelpersResponse>(
-    "/providers/helpers",
-    { params }
-  );
-  return response.data;
+  return apiGet<PublicPaginatedHelpersResponse>("/providers/helpers", params);
 };
 
 /**
@@ -168,8 +157,13 @@ export const getHelpersPublic = async (
 export const getHelperPublic = async (
   id: number
 ): Promise<{ data: HelperProfile }> => {
-  const response = await axiosInstance.get<{ data: HelperProfile }>(
-    `/providers/helpers/${id}`
-  );
-  return response.data;
+  return apiGet<{ data: HelperProfile }>(`/providers/helpers/${id}`);
+};
+
+/**
+ * Lấy thống kê bảng điều khiển cho Helper.
+ * Endpoint: GET /providers/helper/dashboard-stats
+ */
+export const getHelperDashboardStats = async (): Promise<any> => {
+  return apiGet<any>("/providers/helper/dashboard-stats");
 };

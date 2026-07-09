@@ -34,11 +34,15 @@ import { Account } from "./DashBoard/Admin/Users";
 import { Helpers } from "./DashBoard/Admin/Helper";
 import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
+import { Role as RolePage } from "./DashBoard/Admin/Role";
 import { StaffReviews } from "./DashBoard/Operator/Reviews";
 import { DashboardStaff } from "./layouts/DashboardStaff";
 import { FollowingOrder } from "./DashBoard/Operator/FollowingOrder";
 import { ApplicationReview } from "./DashBoard/Operator/ApplicationReview";
 import { HelperReview } from "./DashBoard/Operator/HelperReview";
+import { DashboardHelper } from "./layouts/DashboardHelper";
+import { StaffRecruitmentDashboard } from "./DashBoard/Staff";
+import { HelperOverview } from "./DashBoard/Helper/Overview";
 
 
 function App() {
@@ -80,8 +84,7 @@ function App() {
           <Route path="/ho-so" element={<Profile />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
-          {/* [NOTE] Route thanh toán độc lập đã loại bỏ — tích hợp vào /lich-su-dat-lich */}
-          {/* <Route path="/thanh-toan" element={<Payment />} /> */}
+          {/* <Route path="/thanh-toan" element={<Payment />} />   Todo: Route thanh toán độc lập đã loại bỏ */}
         </Route>
         <Route element={<LoginLayout />}>
           <Route path="/dang-nhap" element={<Login />} />
@@ -89,8 +92,8 @@ function App() {
           <Route path="/quen-mat-khau" element={<ForgetPassword />} />
         </Route>
         <Route path="/admin" element={<DashboardManager />}>
-          <Route index  element={<DashboardOverview />} />
-          <Route path="dashboard"  element={<DashboardOverview />} />
+          <Route index element={<DashboardOverview />} />
+          <Route path="dashboard" element={<DashboardOverview />} />
           <Route path="users" element={<Account />} />
           <Route path="helpers" element={<Helpers />} />
           <Route path="categories" element={<ServiceCategories />} />
@@ -102,6 +105,8 @@ function App() {
           <Route path="payments" element={<PaymentsRefunds defaultTab="payments" />} />
           <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
           <Route path="reviews" element={<Reviews />} />
+          <Route path="roles" element={<RolePage />} />
+          <Route path="job-posts" element={<ApplicationReview />} />
         </Route>
         <Route path="/operator" element={<DashboardStaff />}>
           <Route index element={<StaffReviews />} />
@@ -111,6 +116,11 @@ function App() {
           <Route path="job-posts" element={<ApplicationReview />} />
           <Route path="helpers" element={<HelperReview />} />
         </Route>
+        <Route path="/helper" element={<DashboardHelper />}>
+          <Route index element={<HelperOverview />} />
+          <Route path="dashboard" element={<StaffRecruitmentDashboard />} />
+        </Route>
+        
         <Route path="*" element={<Errors404 />} />
       </Routes>
     </HashRouter>

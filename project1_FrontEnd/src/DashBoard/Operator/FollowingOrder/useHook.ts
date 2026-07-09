@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { getBookingsAdminApi, getBookingDetailAdminApi } from "../../../api/bookings";
+import { getBookingsAdminApi, getBookingDetailAdminApi, updateBookingStatusAdminApi } from "../../../api/bookings";
 import { getUsersAdmin, type User } from "../../../api/users";
 import type { ToastProps } from "../../../types/Toast";
 
@@ -165,6 +165,28 @@ export const useFollowingOrder = () => {
     setIsDetailOpen(false);
   };
 
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const handleUpdateBookingStatus = async (bookingId: number, newStatus: string, note?: string) => {
+    setActionLoading(true);
+    try {
+      await updateBookingStatusAdminApi(bookingId, { new_status: newStatus, note });
+      showToast("success", "Cập nhật thành công", `Đã cập nhật trạng thái đơn đặt lịch thành công.`);
+      
+      // Refresh details if currently open
+      if (selectedBooking && selectedBooking.id === bookingId) {
+        const response = await getBookingDetailAdminApi(bookingId);
+        setSelectedBooking(response.data?.data || selectedBooking);
+      }
+      
+      await fetchBookings();
+    } catch (error: any) {
+      showToast("error", "Lỗi cập nhật", error.response?.data?.message || "Không thể cập nhật trạng thái đặt lịch.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Metrics calculation
   const metrics = useMemo(() => {
     const total = totalItems;
@@ -200,8 +222,10 @@ export const useFollowingOrder = () => {
     selectedBooking,
     isDetailOpen,
     detailLoading,
+    actionLoading,
     handleOpenDetail,
     handleCloseDetail,
+    handleUpdateBookingStatus,
     metrics,
     toast,
     setToast,

@@ -1,0 +1,153 @@
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import type { Role } from "../../../api/roles";
+import type { ToastProps } from "../../../types/Toast";
+import {
+  getRolesAdmin,
+  createRoleAdmin,
+  updateRoleAdmin,
+  deleteRoleAdmin,
+} from "../../../api/roles";
+
+export const useRolesAdmin = () => {
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [currentRole, setCurrentRole] = useState<Role | null>(null);
+
+  const [toast, setToast] = useState<ToastProps | null>(null);
+  const timerRef = useRef<any>(null);
+
+  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setToast({ type, title, message });
+    timerRef.current = setTimeout(() => {
+      setToast(null);
+      timerRef.current = null;
+    }, 4000);
+  }, []);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+
+  const fetchRoles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await getRolesAdmin();
+      setRoles(res);
+    } catch (err: any) {
+      showToast("error", "Lỗi tải dữ liệu", err.response?.data?.message || "Không thể tải danh sách vai trò");
+    } finally {
+      setLoading(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
+
+  const filteredRoles = roles.filter((r) =>
+    r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (r.description && r.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCurrentRole(null);
+    formik.resetForm();
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      description: "",
+    },
+    validationSchema: Yup.object().shape({
+      name: Yup.string().required("Vui lòng nhập tên vai trò").max(50, "Không quá 50 ký tự"),
+      description: Yup.string().max(191, "Không quá 191 ký tự").nullable(),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        if (modalMode === "edit" && currentRole) {
+          await updateRoleAdmin(currentRole.id, {
+            name: values.name,
+            description: values.description || undefined,
+          });
+          showToast("success", "Thành công", "Cập nhật vai trò thành công!");
+        } else {
+          await createRoleAdmin({
+            name: values.name,
+            description: values.description || undefined,
+          });
+          showToast("success", "Thành công", "Thêm vai trò mới thành công!");
+        }
+        closeModal();
+        fetchRoles();
+      } catch (err: any) {
+        showToast("error", "Lỗi lưu dữ liệu", err.response?.data?.message || "Có lỗi xảy ra");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
+  const openAddModal = () => {
+    setModalMode("add");
+    setCurrentRole(null);
+    formik.resetForm({ values: { name: "", description: "" } });
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (item: Role) => {
+    setModalMode("edit");
+    setCurrentRole(item);
+    formik.resetForm({
+      values: {
+        name: item.name,
+        description: item.description || "",
+      },
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: number, skipConfirm = false) => {
+    if ([1, 2, 3, 4].includes(id)) {
+      showToast("error", "Không cho phép", "Không thể xóa vai trò mặc định của hệ thống");
+      return;
+    }
+    if (!skipConfirm && !window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn vai trò này?")) return;
+    setLoading(true);
+    try {
+      await deleteRoleAdmin(id);
+      showToast("success", "Thành công", "Xóa vai trò thành công!");
+      fetchRoles();
+    } catch (err: any) {
+      showToast("error", "Lỗi xóa", err.response?.data?.message || "Không thể xóa vai trò này");
+      setLoading(false);
+    }
+  };
+
+  return {
+    roles: filteredRoles,
+    totalItems: roles.length,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    isModalOpen,
+    modalMode,
+    toast,
+    setToast,
+    openAddModal,
+    openEditModal,
+    closeModal,
+    formik,
+    handleDelete,
+    currentRole,
+  };
+};

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { adminGetJobPostsApi, adminGetJobPostDetailApi, adminUpdateJobPostStatusApi, type JobPost } from "../../../api/jobPostsApi/jobPosts";
+import { adminGetJobPostsApi, adminGetJobPostDetailApi, adminUpdateJobPostStatusApi, adminDeleteJobPostApi, type JobPost } from "../../../api/jobPostsApi/jobPosts";
 import { getUsersAdmin, type User } from "../../../api/users";
 import type { ToastProps } from "../../../types/Toast";
 
@@ -9,13 +9,13 @@ export const useApplicationReview = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [itemsPerPage] = useState(10);
-
   // Job post detail modal state
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -63,6 +63,7 @@ export const useApplicationReview = () => {
   // Fetch job posts
   const fetchJobPosts = useCallback(async () => {
     setLoading(true);
+    setSelectedIds([]);
     try {
       const statusParam = selectedStatus !== "All Statuses" ? selectedStatus.toLowerCase() : undefined;
       const response = await adminGetJobPostsApi({
@@ -133,11 +134,18 @@ export const useApplicationReview = () => {
   };
 
   // Update status (approve, reject/pending, close)
-  const handleUpdateStatus = async (postId: number, newStatus: "open" | "closed" | "pending") => {
+  const handleUpdateStatus = async (postId: number, newStatus: "open" | "closed" | "pending" | "rejected", note?: string) => {
     setActionLoading(true);
     try {
-      await adminUpdateJobPostStatusApi(postId, newStatus);
-      showToast("success", "Cập nhật thành công", `Đã chuyển trạng thái bài đăng sang: ${newStatus === "open" ? "Hoạt động (Open)" : newStatus === "closed" ? "Đã đóng (Closed)" : "Đang chờ duyệt (Pending)"}`);
+      await adminUpdateJobPostStatusApi(postId, newStatus, note);
+      
+      let statusLabel = "";
+      if (newStatus === "open") statusLabel = "Hoạt động (Open)";
+      else if (newStatus === "closed") statusLabel = "Đã đóng (Closed)";
+      else if (newStatus === "pending") statusLabel = "Đang chờ duyệt (Pending)";
+      else if (newStatus === "rejected") statusLabel = "Từ chối (Rejected)";
+
+      showToast("success", "Cập nhật thành công", `Đã chuyển trạng thái bài đăng sang: ${statusLabel}`);
       
       // Refresh details if currently open
       if (selectedPost && selectedPost.id === postId) {
@@ -151,6 +159,51 @@ export const useApplicationReview = () => {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const toggleSelectOne = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds((prev) =>
+      prev.length === filteredJobPosts.length ? [] : filteredJobPosts.map((p) => p.id)
+    );
+  };
+
+  const clearSelection = () => {
+    setSelectedIds([]);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedIds.length} bài tuyển dụng đã chọn?`)) return;
+
+    setActionLoading(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedIds) {
+      try {
+        await adminDeleteJobPostApi(id);
+        successCount++;
+      } catch (err) {
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      showToast("success", "Xóa thành công", `Đã xóa vĩnh viễn ${successCount} bài tuyển dụng.`);
+    }
+    if (failCount > 0) {
+      showToast("error", "Lỗi xóa", `Thất bại khi xóa ${failCount} bài tuyển dụng.`);
+    }
+
+    setSelectedIds([]);
+    await fetchJobPosts();
+    setActionLoading(false);
   };
 
   // Metrics calculation
@@ -194,5 +247,10 @@ export const useApplicationReview = () => {
     toast,
     setToast,
     itemsPerPage,
+    selectedIds,
+    toggleSelectOne,
+    toggleSelectAll,
+    clearSelection,
+    handleBulkDelete,
   };
 };

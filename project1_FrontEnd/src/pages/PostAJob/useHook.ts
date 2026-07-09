@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profileApi/profile";
 import { createJobPostApi } from "../../api/jobPostsApi/jobPosts";
 import { getPostJobSchema } from "../../api/jobPostsApi/validation";
@@ -40,13 +39,13 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
 
 export const usePostAJobHook = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
   const [isNewAddress, setIsNewAddress] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState<number | string>("new");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [toast, setToast] = useState<{ type: "success" | "error" | "warning" | "info"; title: string; message?: string } | null>(null);
 
   const validationSchema = getPostJobSchema(t);
 
@@ -131,7 +130,13 @@ export const usePostAJobHook = () => {
           service_ids: isCustom ? [] : values.requiredServices.map(Number),
         });
 
-        navigate("/tuyen-dung");
+        setToast({
+          type: "success",
+          title: t("Đăng bài thành công"),
+          message: t("Bài tuyển dụng của bạn đã được đăng thành công và đang chờ duyệt."),
+        });
+
+        formik.resetForm();
       } catch (err: any) {
         console.error("Error creating job post:", err);
         setErrorMsg(
@@ -206,5 +211,7 @@ export const usePostAJobHook = () => {
     isLoading,
     errorMsg,
     computedUrgency,
+    toast,
+    setToast,
   };
 };
