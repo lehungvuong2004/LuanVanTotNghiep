@@ -12,6 +12,7 @@ Route::prefix('orders')->group(function () {
   Route::get('job-posts/{id}',        [JobPostController::class, 'show']);
   Route::get('reviews/helper/{helperId}', [ReviewController::class, 'helperReviews']);
   Route::post('internal/bookings/update-payment-status', [BookingController::class, 'updatePaymentStatus']);
+  Route::post('internal/job-posts/update-payment-status', [JobPostController::class, 'updatePaymentStatus']);
 
   // Internal APIs cho cross-service calls
   Route::post('internal/service-review-stats', [ReviewController::class, 'serviceReviewStats']);
@@ -30,6 +31,7 @@ Route::prefix('orders')->group(function () {
     Route::delete('reviews/{id}',                [ReviewController::class, 'customerDestroy']);
 
     // Helper
+    Route::get('helper/stats',                   [BookingController::class, 'helperStats']);
     Route::get('helper/bookings',                [BookingController::class, 'helperBookings']);
     Route::patch('helper/bookings/{id}/accept',  [BookingController::class, 'accept']);
     Route::patch('helper/bookings/{id}/reject',  [BookingController::class, 'reject']);

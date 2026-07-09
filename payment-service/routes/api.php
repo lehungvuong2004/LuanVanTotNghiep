@@ -36,6 +36,7 @@ Route::prefix('payments')->group(function () {
         Route::post('/vnpay/create',    [PaymentController::class, 'createVnpayUrl']);
 
         // ---- PAYMENTS ----
+        Route::post('/helper/earnings-stats', [PaymentController::class, 'helperEarningsStats']);
         // Customer
         Route::get('/',                 [PaymentController::class, 'index']);
         Route::post('/',                [PaymentController::class, 'store']);

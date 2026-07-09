@@ -546,4 +546,100 @@ class HelperController extends Controller
 
     return response()->json(['data' => $verifications], Response::HTTP_OK);
   }
+
+  public function dashboardStats(Request $request)
+  {
+    if ($request->authUser['role_id'] !== Role::HELPER) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    }
+
+    $userId = $request->authUser['id'];
+    $profile = HelperProfile::where('user_id', $userId)->first();
+    if (!$profile) {
+      return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    }
+
+    $token = $request->header('Authorization');
+
+    $orderStats = [
+      'booking_ids' => [],
+      'job_post_ids' => [],
+      'metrics' => [
+        'completed_jobs' => 0,
+        'in_progress_jobs' => 0,
+        'waiting_confirmation_jobs' => 0,
+        'acceptance_rate' => 100.0,
+        'cancel_rate' => 0.0,
+      ],
+      'reviews_stats' => [
+        'rating_avg' => 0,
+        'total_reviews' => 0,
+        'recent_reviews' => [],
+      ]
+    ];
+
+    try {
+      $orderResponse = Http::timeout(5)
+        ->withHeaders(['Authorization' => $token])
+        ->get('http://order-service:8000/api/orders/helper/stats');
+
+      if ($orderResponse->successful()) {
+        $orderStats = $orderResponse->json();
+      }
+    } catch (\Exception $e) {
+      Log::error('Failed to fetch stats from order-service: ' . $e->getMessage());
+    }
+
+    $paymentStats = [
+      'total_income' => 0.0,
+      'booking_income' => 0.0,
+      'job_post_income' => 0.0,
+      'monthly_income' => [],
+    ];
+
+    $bookingIds = $orderStats['booking_ids'] ?? [];
+    $jobPostIds = $orderStats['job_post_ids'] ?? [];
+
+    if (!empty($bookingIds) || !empty($jobPostIds)) {
+      try {
+        $paymentResponse = Http::timeout(5)
+          ->withHeaders(['Authorization' => $token])
+          ->post('http://payment-service:8000/api/payments/helper/earnings-stats', [
+            'booking_ids' => $bookingIds,
+            'job_post_ids' => $jobPostIds,
+          ]);
+
+        if ($paymentResponse->successful()) {
+          $paymentStats = $paymentResponse->json();
+        }
+      } catch (\Exception $e) {
+        Log::error('Failed to fetch stats from payment-service: ' . $e->getMessage());
+      }
+    }
+
+    $startOfWeek = now()->startOfWeek()->toDateString();
+    $endOfWeek = now()->endOfWeek()->toDateString();
+    
+    $availabilitiesCount = HelperAvailability::where('helper_id', $profile->id)
+      ->whereBetween('available_date', [$startOfWeek, $endOfWeek])
+      ->count();
+
+    $workingAreasCount = HelperWorkingArea::where('helper_id', $profile->id)->count();
+
+    $latestVerification = HelperVerification::where('helper_id', $profile->id)
+      ->orderByDesc('created_at')
+      ->first();
+    $verificationStatus = $latestVerification ? $latestVerification->status : 'unsubmitted';
+
+    return response()->json([
+      'earnings' => $paymentStats,
+      'jobs' => $orderStats['metrics'] ?? [],
+      'reviews' => $orderStats['reviews_stats'] ?? [],
+      'operations' => [
+        'availabilities_this_week' => $availabilitiesCount,
+        'active_working_areas' => $workingAreasCount,
+        'verification_status' => $verificationStatus,
+      ]
+    ], Response::HTTP_OK);
+  }
 }

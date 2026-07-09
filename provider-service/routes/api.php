@@ -36,6 +36,7 @@ Route::prefix('providers')->group(function () {
 
     // -- Helper: quản lý hồ sơ của mình (role: helper) --
     Route::prefix('helper')->group(function () {
+      Route::get('dashboard-stats',      [HelperController::class, 'dashboardStats']);
       Route::get('profile',              [HelperController::class, 'myProfile']);
       Route::post('profile',             [HelperController::class, 'createProfile']);
       Route::put('profile',              [HelperController::class, 'updateProfile']);

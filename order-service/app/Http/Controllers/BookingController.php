@@ -383,6 +383,7 @@ class BookingController extends Controller
         $old = $booking->status;
         $booking->update(['status' => 'on_the_way']);
         $this->recordStatusHistory($booking->id, $old, 'on_the_way', $request->authUser['id'], 'Helper started moving.');
+        $this->syncJobApplicationStatus($booking, 'in_progress');
 
         // Notify Customer
         try {
@@ -425,6 +426,7 @@ class BookingController extends Controller
         $old = $booking->status;
         $booking->update(['status' => 'in_progress']);
         $this->recordStatusHistory($booking->id, $old, 'in_progress', $request->authUser['id'], 'Helper checked in.');
+        $this->syncJobApplicationStatus($booking, 'in_progress');
 
         // Notify Customer
         try {
@@ -474,6 +476,7 @@ class BookingController extends Controller
         $booking->update(['status' => 'completed']);
         $this->recordStatusHistory($booking->id, $old, 'completed', $request->authUser['id'],
             $request->input('note', 'Helper checked out.'));
+        $this->syncJobApplicationStatus($booking, 'completed');
 
         // Notify Customer
         try {
@@ -545,8 +548,8 @@ class BookingController extends Controller
      */
     public function adminUpdateStatus(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== Role::ADMIN) {
-            return response()->json(['message' => 'Only administrators can override booking status.'], Response::HTTP_FORBIDDEN);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::find($id);
@@ -892,5 +895,99 @@ class BookingController extends Controller
             'changed_by' => $changedBy,
             'note'       => $note,
         ]);
+    }
+
+    private function syncJobApplicationStatus($booking, string $status): void
+    {
+        try {
+            $post = \App\Models\JobPost::where('customer_id', $booking->customer_id)
+                                      ->where('selected_helper_id', $booking->helper_id)
+                                      ->first();
+            if ($post) {
+                $application = \App\Models\JobApplication::where('job_post_id', $post->id)
+                                                         ->where('helper_id', $booking->helper_id)
+                                                         ->first();
+                if ($application) {
+                    $application->update(['status' => $status]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to sync job application status: ' . $e->getMessage());
+        }
+    }
+
+    public function helperStats(Request $request)
+    {
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $helperId = $request->authUser['id'];
+
+        $bookingIds = \App\Models\Booking::where('helper_id', $helperId)->pluck('id')->toArray();
+        $jobPostIds = \App\Models\JobPost::where('selected_helper_id', $helperId)->pluck('id')->toArray();
+
+        $completedBookingsCount = \App\Models\Booking::where('helper_id', $helperId)->where('status', 'completed')->count();
+        $inProgressJobsCount = \App\Models\Booking::where('helper_id', $helperId)->where('status', 'in_progress')->count();
+
+        $pendingBookingsCount = \App\Models\Booking::where('helper_id', $helperId)->whereIn('status', ['pending', 'confirmed'])->count();
+        $pendingApplicationsCount = \App\Models\JobApplication::where('helper_id', $helperId)->where('status', 'pending')->count();
+        $waitingConfirmationCount = $pendingBookingsCount + $pendingApplicationsCount;
+
+        $confirmedApps = \App\Models\JobApplication::where('helper_id', $helperId)->where('status', 'confirmed')->count();
+        $rejectedApps = \App\Models\JobApplication::where('helper_id', $helperId)->where('status', 'rejected')->count();
+        $totalApps = $confirmedApps + $rejectedApps;
+        $acceptanceRate = $totalApps > 0 ? round(($confirmedApps / $totalApps) * 100, 2) : 100.00;
+
+        $cancelledByHelper = \App\Models\Booking::where('helper_id', $helperId)->where('status', 'cancelled')->where('cancel_by', $helperId)->count();
+        $totalBookings = \App\Models\Booking::where('helper_id', $helperId)->count();
+        $cancelRate = $totalBookings > 0 ? round(($cancelledByHelper / $totalBookings) * 100, 2) : 0.00;
+
+        $ratingAvg = \App\Models\Review::where('helper_id', $helperId)->avg('rating') ?? 0;
+        $totalReviews = \App\Models\Review::where('helper_id', $helperId)->count();
+
+        $reviews = \App\Models\Review::where('helper_id', $helperId)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        $customerIds = $reviews->pluck('customer_id')->filter()->unique()->toArray();
+        $userMap = [];
+        if (!empty($customerIds)) {
+            try {
+                $response = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $customerIds]);
+
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    foreach ($users as $u) {
+                        $userMap[$u['id']] = $u;
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to fetch user details for helperStats reviews: ' . $e->getMessage());
+            }
+        }
+
+        foreach ($reviews as $rev) {
+            $rev->customer = $userMap[$rev->customer_id] ?? null;
+        }
+
+        return response()->json([
+            'booking_ids' => $bookingIds,
+            'job_post_ids' => $jobPostIds,
+            'metrics' => [
+                'completed_jobs' => $completedBookingsCount,
+                'in_progress_jobs' => $inProgressJobsCount,
+                'waiting_confirmation_jobs' => $waitingConfirmationCount,
+                'acceptance_rate' => $acceptanceRate,
+                'cancel_rate' => $cancelRate,
+            ],
+            'reviews_stats' => [
+                'rating_avg' => round((float)$ratingAvg, 2),
+                'total_reviews' => $totalReviews,
+                'recent_reviews' => $reviews,
+            ]
+        ], Response::HTTP_OK);
     }
 }

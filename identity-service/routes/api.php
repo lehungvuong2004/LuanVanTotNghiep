@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\RoleController;
 
 // ============================================================
 //  PUBLIC — Không cần token
@@ -91,5 +92,12 @@ Route::middleware('auth:api')->group(function () {
     Route::put('news/{id}',               [NewsController::class, 'update']);
     Route::patch('news/{id}/status',       [NewsController::class, 'toggleStatus']);
     Route::delete('news/{id}',             [NewsController::class, 'destroy']);
+
+    // Roles — Admin CRUD
+    Route::get('roles',                    [RoleController::class, 'index']);
+    Route::post('roles',                   [RoleController::class, 'store']);
+    Route::get('roles/{id}',               [RoleController::class, 'show']);
+    Route::put('roles/{id}',               [RoleController::class, 'update']);
+    Route::delete('roles/{id}',            [RoleController::class, 'destroy']);
   });
 });

@@ -685,19 +685,100 @@ class PaymentController extends Controller
 
   private function syncPaymentStatusWithOrderService($payment)
   {
-    if (!$payment->booking_id) {
-      return;
+    $orderUrl = env('ORDER_SERVICE_URL', 'http://lv-order:8000');
+
+    if ($payment->booking_id) {
+      try {
+        Http::timeout(3)
+          ->post($orderUrl . '/api/orders/internal/bookings/update-payment-status', [
+            'booking_id' => $payment->booking_id,
+            'status'     => $payment->status,
+          ]);
+      } catch (\Exception $e) {
+        Log::error('Failed to sync booking payment status: ' . $e->getMessage());
+      }
     }
 
-    try {
-      $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
-      Http::timeout(3)
-        ->post($orderUrl . '/api/orders/internal/bookings/update-payment-status', [
-          'booking_id' => $payment->booking_id,
-          'status'     => $payment->status,
-        ]);
-    } catch (\Exception $e) {
-      Log::error('Failed to sync payment status with order service: ' . $e->getMessage());
+    if ($payment->job_post_id) {
+      try {
+        Http::timeout(3)
+          ->post($orderUrl . '/api/orders/internal/job-posts/update-payment-status', [
+            'job_post_id' => $payment->job_post_id,
+            'status'      => $payment->status,
+          ]);
+      } catch (\Exception $e) {
+        Log::error('Failed to sync job post payment status: ' . $e->getMessage());
+      }
     }
+  }
+
+  public function helperEarningsStats(Request $request)
+  {
+    if ($request->authUser['role_id'] !== Role::HELPER) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    }
+
+    $bookingIds = $request->input('booking_ids', []);
+    $jobPostIds = $request->input('job_post_ids', []);
+
+    if (empty($bookingIds) && empty($jobPostIds)) {
+      return response()->json([
+        'total_income' => 0.0,
+        'booking_income' => 0.0,
+        'job_post_income' => 0.0,
+        'monthly_income' => [],
+      ], Response::HTTP_OK);
+    }
+
+    $totalIncome = Payment::where('status', 'completed')
+      ->where(function($q) use ($bookingIds, $jobPostIds) {
+        if (!empty($bookingIds)) {
+          $q->whereIn('booking_id', $bookingIds);
+        }
+        if (!empty($jobPostIds)) {
+          $q->orWhereIn('job_post_id', $jobPostIds);
+        }
+      })
+      ->sum('amount');
+
+    $bookingIncome = 0;
+    if (!empty($bookingIds)) {
+      $bookingIncome = Payment::where('status', 'completed')
+        ->whereIn('booking_id', $bookingIds)
+        ->sum('amount');
+    }
+
+    $jobPostIncome = 0;
+    if (!empty($jobPostIds)) {
+      $jobPostIncome = Payment::where('status', 'completed')
+        ->whereIn('job_post_id', $jobPostIds)
+        ->sum('amount');
+    }
+
+    $monthlyQuery = Payment::where('status', 'completed')
+      ->where(function($q) use ($bookingIds, $jobPostIds) {
+        if (!empty($bookingIds)) {
+          $q->whereIn('booking_id', $bookingIds);
+        }
+        if (!empty($jobPostIds)) {
+          $q->orWhereIn('job_post_id', $jobPostIds);
+        }
+      })
+      ->selectRaw("DATE_FORMAT(COALESCE(paid_at, created_at), '%Y-%m') as month, SUM(amount) as total")
+      ->groupBy('month')
+      ->orderBy('month', 'asc')
+      ->get();
+
+    $monthlyIncome = [];
+    foreach ($monthlyQuery as $m) {
+      $monthlyIncome[$m->month] = (float)$m->total;
+    }
+
+    return response()->json([
+      'total_income' => (float)$totalIncome,
+      'booking_income' => (float)$bookingIncome,
+      'job_post_income' => (float)$jobPostIncome,
+      'monthly_income' => $monthlyIncome,
+    ], Response::HTTP_OK);
   }
 }
