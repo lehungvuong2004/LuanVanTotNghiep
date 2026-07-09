@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Payment;
 use App\Models\Refund;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use App\Services\VnpayService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -19,7 +21,7 @@ class PaymentController extends Controller
   {
     $token = $request->header('Authorization');
     if (!$token) {
-      return response()->json(['message' => 'Unauthorized.'], 401);
+      return response()->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
@@ -29,7 +31,7 @@ class PaymentController extends Controller
 
     // 1. Fetch customer's or helper's booking IDs
     try {
-      $bookingsEndpoint = ($roleId === 3) ? '/api/orders/helper/bookings' : '/api/orders/bookings';
+      $bookingsEndpoint = ($roleId === Role::HELPER) ? '/api/orders/helper/bookings' : '/api/orders/bookings';
       $response = Http::timeout(3)
         ->withHeaders(['Authorization' => $token])
         ->get($orderUrl . $bookingsEndpoint, ['limit' => 1000]);
@@ -43,7 +45,7 @@ class PaymentController extends Controller
     }
 
     // 2. Fetch customer's job post IDs (only for customers/admins)
-    if ($roleId !== 3) {
+    if ($roleId !== Role::HELPER) {
       try {
         $response = Http::timeout(3)
           ->withHeaders(['Authorization' => $token])
@@ -68,7 +70,7 @@ class PaymentController extends Controller
           'last_page' => 1,
           'per_page' => 20,
         ]
-      ], 200);
+      ], Response::HTTP_OK);
     }
 
     $limit = (int) $request->query('limit', 20);
@@ -90,7 +92,7 @@ class PaymentController extends Controller
       $payment->user = $request->authUser;
     }
 
-    return response()->json(['data' => $payments], 200);
+    return response()->json(['data' => $payments], Response::HTTP_OK);
   }
 
   /**
@@ -98,8 +100,8 @@ class PaymentController extends Controller
    */
   public function store(Request $request)
   {
-    if ($request->authUser['role_id'] !== 4) {
-      return response()->json(['message' => 'Only customers can initiate payments.'], 403);
+    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Only customers can initiate payments.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -121,7 +123,7 @@ class PaymentController extends Controller
     if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
       return response()->json([
         'message' => 'Payment must be associated with a booking or a job post.'
-      ], 422);
+      ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     $payment = Payment::create([
@@ -137,7 +139,7 @@ class PaymentController extends Controller
     return response()->json([
       'message' => 'Payment initiated successfully.',
       'data'    => $payment,
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**
@@ -148,13 +150,13 @@ class PaymentController extends Controller
     $payment = Payment::with('refunds')->find($id);
 
     if (!$payment) {
-      return response()->json(['message' => 'Payment not found.'], 404);
+      return response()->json(['message' => 'Payment not found.'], Response::HTTP_NOT_FOUND);
     }
 
     // Ideally, check if the customer owns the booking/job_post here (requires calling order-service or passing ownership data).
     // For simplicity, we allow Admin/Operator (1, 2) and Customer (4) to view.
-    if (!in_array($request->authUser['role_id'], [1, 2, 4])) {
-      return response()->json(['message' => 'Forbidden.'], 403);
+    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR, Role::CUSTOMER])) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
     $customerId = $this->getCustomerIdFromOrderService($request, $payment->booking_id, $payment->job_post_id);
@@ -174,7 +176,7 @@ class PaymentController extends Controller
       }
     }
 
-    return response()->json(['data' => $payment], 200);
+    return response()->json(['data' => $payment], Response::HTTP_OK);
   }
 
   /**
@@ -185,11 +187,11 @@ class PaymentController extends Controller
     $payment = Payment::find($id);
 
     if (!$payment) {
-      return response()->json(['message' => 'Payment not found.'], 404);
+      return response()->json(['message' => 'Payment not found.'], Response::HTTP_NOT_FOUND);
     }
 
     if ($payment->status === 'completed') {
-      return response()->json(['message' => 'Payment already completed.'], 422);
+      return response()->json(['message' => 'Payment already completed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     $payment->update([
@@ -202,7 +204,7 @@ class PaymentController extends Controller
     return response()->json([
       'message' => 'Payment marked as completed.',
       'data'    => $payment,
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -210,8 +212,8 @@ class PaymentController extends Controller
    */
   public function adminIndex(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [1, 2])) {
-      return response()->json(['message' => 'Forbidden.'], 403);
+    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
     $query = Payment::orderByDesc('created_at');
@@ -237,7 +239,7 @@ class PaymentController extends Controller
 
     $this->enrichPaymentsWithUsers($payments, $request);
 
-    return response()->json(['data' => $payments], 200);
+    return response()->json(['data' => $payments], Response::HTTP_OK);
   }
 
   /**
@@ -245,14 +247,14 @@ class PaymentController extends Controller
    */
   public function adminUpdateStatus(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== 1) {
-      return response()->json(['message' => 'Only administrators can update payment status.'], 403);
+    if ($request->authUser['role_id'] !== Role::ADMIN) {
+      return response()->json(['message' => 'Only administrators can update payment status.'], Response::HTTP_FORBIDDEN);
     }
 
     $payment = Payment::find($id);
 
     if (!$payment) {
-      return response()->json(['message' => 'Payment not found.'], 404);
+      return response()->json(['message' => 'Payment not found.'], Response::HTTP_NOT_FOUND);
     }
 
     $fields = $request->validate([
@@ -269,7 +271,7 @@ class PaymentController extends Controller
     return response()->json([
       'message' => 'Payment status updated.',
       'data'    => $payment->fresh(),
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -277,8 +279,8 @@ class PaymentController extends Controller
    */
   public function stats(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [1, 2])) {
-      return response()->json(['message' => 'Forbidden.'], 403);
+    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
     $totalRevenue = Payment::where('status', 'completed')->sum('amount');
@@ -309,7 +311,7 @@ class PaymentController extends Controller
         'last_month_revenue' => (float) $lastMonthRevenue,
         'change_percent' => round($changePercent, 1)
       ]
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
     // =========================================================
@@ -324,8 +326,8 @@ class PaymentController extends Controller
    */
   public function createVnpayUrl(Request $request)
   {
-    if ($request->authUser['role_id'] !== 4) {
-      return response()->json(['message' => 'Only customers can initiate payments.'], 403);
+    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Only customers can initiate payments.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -342,7 +344,7 @@ class PaymentController extends Controller
     if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
       return response()->json([
         'message' => 'Payment must be associated with a booking or a job post.'
-      ], 422);
+      ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     // 1. Create a pending payment record
@@ -409,7 +411,7 @@ class PaymentController extends Controller
       'message'     => 'VNPay URL generated.',
       'payment_id'  => $payment->id,
       'payment_url' => $paymentUrl,
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**
@@ -426,7 +428,7 @@ class PaymentController extends Controller
 
     if (!$vnpay->verifySignature($data)) {
       Log::warning('VNPay return: invalid signature', $data);
-      return response()->json(['message' => 'Chữ ký không hợp lệ.', 'code' => '97'], 400);
+      return response()->json(['message' => 'Chữ ký không hợp lệ.', 'code' => '97'], Response::HTTP_BAD_REQUEST);
     }
 
     $responseCode = $data['vnp_ResponseCode'] ?? '';
@@ -434,12 +436,12 @@ class PaymentController extends Controller
     $paymentId    = $vnpay->extractPaymentId($txnRef);
 
     if (!$paymentId) {
-      return response()->json(['message' => 'Mã giao dịch không hợp lệ.'], 400);
+      return response()->json(['message' => 'Mã giao dịch không hợp lệ.'], Response::HTTP_BAD_REQUEST);
     }
 
     $payment = Payment::find($paymentId);
     if (!$payment) {
-      return response()->json(['message' => 'Không tìm thấy thanh toán.'], 404);
+      return response()->json(['message' => 'Không tìm thấy thanh toán.'], Response::HTTP_NOT_FOUND);
     }
 
     // Only update if still pending (guard against duplicate callbacks)
@@ -466,7 +468,7 @@ class PaymentController extends Controller
       'order_info'   => $data['vnp_OrderInfo'] ?? null,
       'bank_code'    => $data['vnp_BankCode']  ?? null,
       'txn_ref'      => $txnRef,
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -482,7 +484,7 @@ class PaymentController extends Controller
     $vnpay = new VnpayService();
 
     if (!$vnpay->verifySignature($data)) {
-      return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature'], 200);
+      return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature'], Response::HTTP_OK);
     }
 
     $responseCode = $data['vnp_ResponseCode'] ?? '';
@@ -490,22 +492,22 @@ class PaymentController extends Controller
     $paymentId    = $vnpay->extractPaymentId($txnRef);
 
     if (!$paymentId) {
-      return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], 200);
+      return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], Response::HTTP_OK);
     }
 
     $payment = Payment::find($paymentId);
     if (!$payment) {
-      return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], 200);
+      return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], Response::HTTP_OK);
     }
 
     // Check amount matches
     $vnpAmount = (int) ($data['vnp_Amount'] ?? 0);
     if ($vnpAmount !== (int) ($payment->amount * 100)) {
-      return response()->json(['RspCode' => '04', 'Message' => 'Invalid amount'], 200);
+      return response()->json(['RspCode' => '04', 'Message' => 'Invalid amount'], Response::HTTP_OK);
     }
 
     if ($payment->status !== 'pending') {
-      return response()->json(['RspCode' => '02', 'Message' => 'Order already confirmed'], 200);
+      return response()->json(['RspCode' => '02', 'Message' => 'Order already confirmed'], Response::HTTP_OK);
     }
 
     if ($responseCode === '00') {
@@ -519,7 +521,7 @@ class PaymentController extends Controller
       $payment->update(['status' => 'failed']);
     }
 
-    return response()->json(['RspCode' => '00', 'Message' => 'Confirm success'], 200);
+    return response()->json(['RspCode' => '00', 'Message' => 'Confirm success'], Response::HTTP_OK);
   }
 
   private function enrichPaymentsWithUsers($payments, Request $request)

@@ -20,7 +20,8 @@ import {
   removeHelperSkillApi,
   getHelperWorkingAreasApi,
   addHelperWorkingAreaApi,
-  removeHelperWorkingAreaApi
+  removeHelperWorkingAreaApi,
+  submitHelperVerificationApi
 } from "../../api/profileApi/profile";
 
 import type {
@@ -458,6 +459,21 @@ export const useProfile = () => {
     }
   };
 
+  const handleSubmitVerification = async () => {
+    setUpdating(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const res = await submitHelperVerificationApi();
+      setSuccessMessage(res.message || t("Nộp hồ sơ xét duyệt thành công."));
+      await fetchAllData();
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || t("Nộp hồ sơ xét duyệt thất bại."));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return {
     t,
     activeTab,
@@ -488,6 +504,7 @@ export const useProfile = () => {
     handleAddSkill,
     handleRemoveSkill,
     handleAddWorkingArea,
-    handleRemoveWorkingArea
+    handleRemoveWorkingArea,
+    handleSubmitVerification
   };
 };

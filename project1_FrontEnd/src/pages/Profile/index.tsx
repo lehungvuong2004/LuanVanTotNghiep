@@ -32,6 +32,7 @@ export const Profile = () => {
     handleRemoveSkill,
     handleAddWorkingArea,
     handleRemoveWorkingArea,
+    handleSubmitVerification,
   } = useProfile();
 
   if (loading) {
@@ -133,10 +134,38 @@ export const Profile = () => {
           <span className="text-xs text-slate-400 dark:text-slate-500 uppercase font-semibold tracking-wider">
             {t("Trạng thái tài khoản")}
           </span>
-          <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 capitalize mt-1 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            {t("Hoạt động")}
-          </span>
+          {userProfile?.role_id === 3 ? (
+            (() => {
+              const status = helperProfile?.status || "pending";
+              let text = t("Chờ xét duyệt");
+              let colorClass = "text-amber-600 dark:text-amber-400";
+              let bgDot = "bg-amber-500";
+              if (status === "active") {
+                text = t("Hoạt động");
+                colorClass = "text-emerald-600 dark:text-emerald-400";
+                bgDot = "bg-emerald-500";
+              } else if (status === "rejected") {
+                text = t("Bị từ chối");
+                colorClass = "text-rose-600 dark:text-rose-455";
+                bgDot = "bg-rose-500";
+              } else if (status === "suspended") {
+                text = t("Tạm khóa");
+                colorClass = "text-red-600 dark:text-red-500";
+                bgDot = "bg-red-500";
+              }
+              return (
+                <span className={`text-sm font-bold capitalize mt-1 flex items-center gap-1.5 ${colorClass}`}>
+                  <span className={`w-2 h-2 rounded-full animate-pulse ${bgDot}`}></span>
+                  {text}
+                </span>
+              );
+            })()
+          ) : (
+            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 capitalize mt-1 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              {t("Hoạt động")}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -1113,6 +1142,204 @@ export const Profile = () => {
     );
   };
 
+  // Render Helper verification status & submission card
+  const renderHelperVerificationWidget = () => {
+    const status = helperProfile?.status || "pending";
+    
+    // Check missing items
+    const missingItems = [];
+    if (!helperProfile?.bio || helperProfile.bio.trim() === "") {
+      missingItems.push(t("Giới thiệu bản thân"));
+    }
+    if (!helperProfile?.gender) {
+      missingItems.push(t("Giới tính"));
+    }
+    if (!helperProfile?.birthday) {
+      missingItems.push(t("Ngày sinh"));
+    }
+    if (!helperProfile?.address || helperProfile.address.trim() === "") {
+      missingItems.push(t("Địa chỉ cư trú"));
+    }
+    if (helperSkills.length === 0) {
+      missingItems.push(t("Kỹ năng chuyên môn"));
+    }
+    if (helperWorkingAreas.length === 0) {
+      missingItems.push(t("Khu vực hoạt động"));
+    }
+
+    const isComplete = missingItems.length === 0;
+
+    // Get latest verification note
+    const latestVerification = helperProfile?.verifications && helperProfile.verifications.length > 0
+      ? [...helperProfile.verifications].sort((a: any, b: any) => b.id - a.id)[0]
+      : null;
+
+    if (status === "active") {
+      return (
+        <div className="bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-200 dark:border-emerald-900 rounded-3xl p-6 flex flex-col sm:flex-row items-start gap-4 shadow-xs">
+          <div className="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+            <Icon icon="solar:verified-check-bold-duotone" className="text-3xl" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
+              {t("Hồ sơ đã hoạt động")}
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              {t("Hồ sơ người giúp việc của bạn đã được duyệt và kích hoạt thành công. Bạn đã có thể nhận các lịch đặt dịch vụ từ khách hàng trên hệ thống.")}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (status === "pending") {
+      return (
+        <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900 rounded-3xl p-6 flex flex-col sm:flex-row items-start gap-4 shadow-xs">
+          <div className="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl shrink-0">
+            <Icon icon="solar:hourglass-line-dynamic-bold-duotone" className="text-3xl animate-pulse" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
+              {t("Hồ sơ đang chờ xét duyệt")}
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              {t("Thông tin hồ sơ và kỹ năng của bạn đang được nhân viên vận hành (Operator) kiểm tra. Vui lòng chờ phản hồi trong vòng 24h làm việc.")}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (status === "suspended") {
+      return (
+        <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900 rounded-3xl p-6 flex flex-col sm:flex-row items-start gap-4 shadow-xs">
+          <div className="p-3 bg-red-500/10 text-red-650 dark:text-red-400 rounded-2xl shrink-0">
+            <Icon icon="solar:shield-close-bold-duotone" className="text-3xl" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-850 dark:text-white mb-1">
+              {t("Tài khoản đang bị tạm ngưng")}
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
+              {t("Hồ sơ của bạn đã bị khóa tạm thời bởi ban quản lý. Vui lòng liên hệ Operator để giải quyết thắc mắc.")}
+            </p>
+            {latestVerification?.note && (
+              <div className="bg-white/40 dark:bg-slate-900/40 border border-red-200/50 dark:border-red-950/50 p-3 rounded-xl text-xs text-red-650 dark:text-red-400 italic">
+                <strong>{t("Ghi chú vận hành:")} </strong>"{latestVerification.note}"
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // rejected or inactive/pending-submit
+    return (
+      <div className="bg-slate-50/50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-6 flex flex-col gap-5 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className={`p-3 rounded-2xl shrink-0 ${
+            status === "rejected" 
+              ? "bg-rose-500/10 text-rose-600 dark:text-rose-450" 
+              : "bg-teal-500/10 text-teal-600 dark:text-teal-400"
+          }`}>
+            <Icon 
+              icon={status === "rejected" ? "solar:shield-warning-bold-duotone" : "solar:cloud-upload-bold-duotone"} 
+              className="text-3xl" 
+            />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
+              {status === "rejected" ? t("Hồ sơ bị từ chối xét duyệt") : t("Nộp hồ sơ xét duyệt")}
+            </h4>
+            <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed">
+              {status === "rejected" 
+                ? t("Hồ sơ của bạn đã bị từ chối phê duyệt. Vui lòng cập nhật các thông tin thiếu sót dưới đây và gửi lại yêu cầu xét duyệt.")
+                : t("Bạn cần gửi hồ sơ thông tin và kỹ năng của mình cho nhân viên vận hành (Operator) phê duyệt trước khi có thể hiển thị trên ứng dụng và nhận lịch đặt.")
+              }
+            </p>
+            
+            {status === "rejected" && latestVerification?.note && (
+              <div className="mt-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 p-3 rounded-xl text-xs text-rose-700 dark:text-rose-400 italic">
+                <strong>{t("Lý do từ chối:")} </strong>"{latestVerification.note}"
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Requirements status checklist */}
+        <div className="bg-white dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4">
+          <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">
+            {t("Danh sách điều kiện cần hoàn thiện:")}
+          </h5>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="flex items-center gap-2 text-xs">
+              <Icon 
+                icon={helperProfile?.bio ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
+                className={helperProfile?.bio ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              />
+              <span className={helperProfile?.bio ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
+                {t("Giới thiệu bản thân")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Icon 
+                icon={(helperProfile?.gender && helperProfile?.birthday) ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
+                className={(helperProfile?.gender && helperProfile?.birthday) ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              />
+              <span className={(helperProfile?.gender && helperProfile?.birthday) ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
+                {t("Giới tính & Ngày sinh")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Icon 
+                icon={helperProfile?.address ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
+                className={helperProfile?.address ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              />
+              <span className={helperProfile?.address ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
+                {t("Địa chỉ cư trú")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Icon 
+                icon={helperSkills.length > 0 ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
+                className={helperSkills.length > 0 ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              />
+              <span className={helperSkills.length > 0 ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
+                {t("Kỹ năng chuyên môn ({count})", { count: helperSkills.length })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs sm:col-span-2">
+              <Icon 
+                icon={helperWorkingAreas.length > 0 ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
+                className={helperWorkingAreas.length > 0 ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              />
+              <span className={helperWorkingAreas.length > 0 ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
+                {t("Khu vực hoạt động ({count})", { count: helperWorkingAreas.length })}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleSubmitVerification}
+            disabled={updating || !isComplete}
+            className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 dark:bg-teal-50 dark:hover:bg-teal-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-xl text-xs transition-all duration-300 shadow-sm hover:shadow-teal-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {updating ? (
+              <Icon icon="line-md:loading-twotone-loop" className="text-sm" />
+            ) : (
+              <Icon icon="solar:shield-check-bold" className="text-sm" />
+            )}
+            {status === "rejected" ? t("Gửi lại hồ sơ xét duyệt") : t("Nộp hồ sơ xét duyệt")}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // MAIN PAGE LAYOUT (GRID STRUCTURE)
   return (
     <div className="w-full min-h-screen transition-colors duration-300 py-8 md:px-16">
@@ -1134,7 +1361,8 @@ export const Profile = () => {
           </div>
 
           {/* Right Main Content (8 Columns) */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            {userProfile?.role_id === 3 && renderHelperVerificationWidget()}
             {activeTab === "info" && renderProfileInfoTab()}
             {activeTab === "address" && userProfile?.role_id === 4 && renderAddressTab()}
             {activeTab === "working_areas" && userProfile?.role_id === 3 && renderWorkingAreasTab()}

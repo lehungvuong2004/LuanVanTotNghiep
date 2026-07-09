@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Banner;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 
 class BannerController extends Controller
@@ -23,7 +25,7 @@ class BannerController extends Controller
 
         return response()->json([
             'data' => $banners
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -36,8 +38,8 @@ class BannerController extends Controller
     public function adminIndex(Request $request)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = Banner::with('creator:id,full_name,email');
@@ -58,7 +60,7 @@ class BannerController extends Controller
 
         return response()->json([
             'data' => $banners
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -67,18 +69,18 @@ class BannerController extends Controller
     public function show($id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $banner = Banner::with('creator:id,full_name,email')->find($id);
         if (!$banner) {
-            return response()->json(['message' => 'Không tìm thấy banner.'], 404);
+            return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'data' => $banner
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -87,8 +89,8 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $fields = $request->validate([
@@ -114,7 +116,7 @@ class BannerController extends Controller
         return response()->json([
             'message' => 'Tạo banner thành công.',
             'data'    => $banner
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -123,13 +125,13 @@ class BannerController extends Controller
     public function update(Request $request, $id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $banner = Banner::find($id);
         if (!$banner) {
-            return response()->json(['message' => 'Không tìm thấy banner.'], 404);
+            return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
         }
 
         $fields = $request->validate([
@@ -148,7 +150,7 @@ class BannerController extends Controller
         return response()->json([
             'message' => 'Cập nhật banner thành công.',
             'data'    => $banner
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -157,13 +159,13 @@ class BannerController extends Controller
     public function toggleStatus(Request $request, $id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $banner = Banner::find($id);
         if (!$banner) {
-            return response()->json(['message' => 'Không tìm thấy banner.'], 404);
+            return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
         }
 
         $request->validate([
@@ -177,7 +179,7 @@ class BannerController extends Controller
         return response()->json([
             'message' => 'Cập nhật trạng thái banner thành công.',
             'data'    => $banner
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -186,19 +188,19 @@ class BannerController extends Controller
     public function destroy($id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $banner = Banner::find($id);
         if (!$banner) {
-            return response()->json(['message' => 'Không tìm thấy banner.'], 404);
+            return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
         }
 
         $banner->delete();
 
         return response()->json([
             'message' => 'Xóa banner thành công.'
-        ], 200);
+        ], Response::HTTP_OK);
     }
 }

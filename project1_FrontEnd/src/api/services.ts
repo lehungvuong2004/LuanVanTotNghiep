@@ -19,7 +19,11 @@ export interface Service {
   base_price: number | string;
   price_type: "hourly" | "fixed" | "daily";
   status: "active" | "inactive";
+  image: string | null;
   category?: ServiceCategory;
+  helpers_count?: number;
+  total_reviews?: number;
+  avg_rating?: number;
 }
 
 export interface AdminServicesResponse {
@@ -45,12 +49,7 @@ export interface AdminCategoriesResponse {
 }
 
 // Service API endpoints
-export const getServicesAdmin = async (params?: {
-  category_id?: number | string;
-  status?: string;
-  page?: number;
-  limit?: number;
-}): Promise<AdminServicesResponse> => {
+export const getServicesAdmin = async (params?: { category_id?: number | string; status?: string; page?: number; limit?: number }): Promise<AdminServicesResponse> => {
   const response = await axiosInstance.get<AdminServicesResponse>("/providers/admin/services", {
     params,
   });
@@ -65,10 +64,7 @@ export const createServiceAdmin = async (data: {
   price_type: "hourly" | "fixed" | "daily";
   status?: "active" | "inactive";
 }): Promise<{ message: string; data: Service }> => {
-  const response = await axiosInstance.post<{ message: string; data: Service }>(
-    "/providers/admin/services",
-    data
-  );
+  const response = await axiosInstance.post<{ message: string; data: Service }>("/providers/admin/services", data);
   return response.data;
 };
 
@@ -81,32 +77,24 @@ export const updateServiceAdmin = async (
     base_price?: number;
     price_type?: "hourly" | "fixed" | "daily";
     status?: "active" | "inactive";
-  }
+  },
 ): Promise<{ message: string; data: Service }> => {
-  const response = await axiosInstance.put<{ message: string; data: Service }>(
-    `/providers/admin/services/${id}`,
-    data
-  );
+  const response = await axiosInstance.put<{ message: string; data: Service }>(`/providers/admin/services/${id}`, data);
   return response.data;
 };
 
 export const deleteServiceAdmin = async (id: number): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(
-    `/providers/admin/services/${id}`
-  );
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/admin/services/${id}`);
   return response.data;
 };
 
 // Category API endpoints
-export const getCategoriesAdmin = async (params?: {
-  status?: string;
-}): Promise<AdminCategoriesResponse> => {
+export const getCategoriesAdmin = async (params?: { status?: string }): Promise<AdminCategoriesResponse> => {
   const response = await axiosInstance.get<AdminCategoriesResponse>("/providers/admin/service-categories", {
     params,
   });
   return response.data;
 };
-
 
 export const createCategoryAdmin = async (data: {
   name: string;
@@ -115,10 +103,7 @@ export const createCategoryAdmin = async (data: {
   type?: "booking" | "job" | "both";
   status?: "active" | "inactive";
 }): Promise<{ message: string; data: ServiceCategory }> => {
-  const response = await axiosInstance.post<{ message: string; data: ServiceCategory }>(
-    "/providers/admin/service-categories",
-    data
-  );
+  const response = await axiosInstance.post<{ message: string; data: ServiceCategory }>("/providers/admin/service-categories", data);
   return response.data;
 };
 
@@ -130,26 +115,19 @@ export const updateCategoryAdmin = async (
     icon?: string | null;
     type?: "booking" | "job" | "both";
     status?: "active" | "inactive";
-  }
+  },
 ): Promise<{ message: string; data: ServiceCategory }> => {
-  const response = await axiosInstance.put<{ message: string; data: ServiceCategory }>(
-    `/providers/admin/service-categories/${id}`,
-    data
-  );
+  const response = await axiosInstance.put<{ message: string; data: ServiceCategory }>(`/providers/admin/service-categories/${id}`, data);
   return response.data;
 };
 
 export const deleteCategoryAdmin = async (id: number): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(
-    `/providers/admin/service-categories/${id}`
-  );
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/admin/service-categories/${id}`);
   return response.data;
 };
 
 // Public Category & Service API endpoints
-export const getCategoriesApi = async (params?: {
-  type?: string;
-}): Promise<{ data: ServiceCategory[] }> => {
+export const getCategoriesApi = async (params?: { type?: string }): Promise<{ data: ServiceCategory[] }> => {
   const response = await axiosInstance.get<{ data: ServiceCategory[] }>("/providers/service-categories", {
     params,
   });
@@ -170,3 +148,56 @@ export const getServicesApi = async (params?: {
   return response.data;
 };
 
+// ================================================================
+//  PUBLIC — Enriched service listing (with helpers_count & ratings)
+// ================================================================
+
+export const getServicesEnrichedApi = async (params?: {
+  category_id?: number | string;
+  price_type?: string;
+  min_price?: number;
+  max_price?: number;
+  limit?: number;
+  page?: number;
+}): Promise<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }> => {
+  const response = await axiosInstance.get<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }>("/providers/services/enriched", {
+    params,
+  });
+  return response.data;
+};
+
+// ================================================================
+//  PUBLIC — Service Detail (with helpers, rating stats)
+// ================================================================
+
+export interface RatingStats {
+  total_reviews: number;
+  avg_rating: number;
+  rating_distribution: Record<number, number>;
+}
+
+export interface ServiceDetailResponse {
+  data: Service;
+  helpers_count: number;
+  helpers: any[];
+  rating_stats: RatingStats | null;
+}
+
+export const getServiceDetailApi = async (id: number): Promise<ServiceDetailResponse> => {
+  const response = await axiosInstance.get<ServiceDetailResponse>(`/providers/services/${id}`);
+  return response.data;
+};
+
+export const getServiceHelpersApi = async (
+  id: number,
+  params?: {
+    city?: string;
+    district?: string;
+    rating_min?: number;
+    limit?: number;
+    page?: number;
+  },
+): Promise<{ data: any }> => {
+  const response = await axiosInstance.get(`/providers/services/${id}/helpers`, { params });
+  return response.data;
+};

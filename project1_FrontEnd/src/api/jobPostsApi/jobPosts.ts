@@ -135,3 +135,42 @@ export const respondToSelectionApi = async (applicationId: number, action: "acce
   const response = await axiosInstance.patch<{ message: string; booking_id?: number }>(`/orders/helper/applications/${applicationId}/respond`, { action });
   return response.data;
 };
+
+// Admin/Operator: lấy toàn bộ danh sách bài đăng
+export const adminGetJobPostsApi = async (params?: {
+  status?: string;
+  city?: string;
+  customer_id?: number | string;
+  limit?: number;
+  page?: number;
+}): Promise<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }> => {
+  const response = await axiosInstance.get<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }>("/orders/admin/job-posts", {
+    params,
+  });
+  return response.data;
+};
+
+// Admin/Operator: lấy chi tiết bài đăng
+export const adminGetJobPostDetailApi = async (id: number): Promise<{ data: JobPost & { applications?: any[]; reviews?: any[]; reports?: any[] } }> => {
+  const response = await axiosInstance.get<{ data: any }>(`/orders/admin/job-posts/${id}`);
+  return response.data;
+};
+
+// Admin/Operator: cập nhật trạng thái bài đăng
+export const adminUpdateJobPostStatusApi = async (
+  id: number,
+  status: "open" | "closed" | "pending",
+  note?: string
+): Promise<{ message: string; data: JobPost }> => {
+  const response = await axiosInstance.patch<{ message: string; data: JobPost }>(`/orders/admin/job-posts/${id}/status`, {
+    status,
+    note,
+  });
+  return response.data;
+};
+
+// Admin: xóa bài đăng (chỉ dành cho admin)
+export const adminDeleteJobPostApi = async (id: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(`/orders/admin/job-posts/${id}`);
+  return response.data;
+};

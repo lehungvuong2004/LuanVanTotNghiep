@@ -129,6 +129,7 @@ export interface HelperProfile {
   status?: string;
   skills?: any[];
   workingAreas?: any[];
+  verifications?: any[];
 }
 
 export interface UpdateHelperProfileRequest {
@@ -184,5 +185,16 @@ export const addHelperWorkingAreaApi = async (data: { district: string; city: st
 
 export const removeHelperWorkingAreaApi = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/working-areas/${id}`);
+  return response.data;
+};
+
+// 12. Helper Verification APIs
+export const submitHelperVerificationApi = async (): Promise<{ message: string; data: any }> => {
+  const response = await axiosInstance.post<{ message: string; data: any }>("/providers/helper/verification");
+  return response.data;
+};
+
+export const getHelperVerificationStatusApi = async (): Promise<{ data: any[] }> => {
+  const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/verification");
   return response.data;
 };

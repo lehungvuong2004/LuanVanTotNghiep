@@ -10,6 +10,8 @@ import ForgetPassword from "./pages/ForgetPassword";
 import PostAJob from "./pages/PostAJob";
 import { Home } from "./pages/Home";
 import { Service } from "./pages/Service";
+import { ServiceDetail } from "./pages/ServiceDetail";
+import { HelperDetail } from "./pages/HelperDetail";
 import { Recruitment } from "./pages/Recruitment";
 import { HistoryPage } from "./pages/History";
 import { News } from "./pages/News";
@@ -32,8 +34,13 @@ import { Account } from "./DashBoard/Admin/Users";
 import { Helpers } from "./DashBoard/Admin/Helper";
 import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
-import { StaffReviews } from "./DashBoard/Staff/Reviews";
+import { StaffReviews } from "./DashBoard/Operator/Reviews";
 import { DashboardStaff } from "./layouts/DashboardStaff";
+import { FollowingOrder } from "./DashBoard/Operator/FollowingOrder";
+import { ApplicationReview } from "./DashBoard/Operator/ApplicationReview";
+import { HelperReview } from "./DashBoard/Operator/HelperReview";
+
+
 function App() {
   useEffect(() => {
     // VNPay strips hashes from returnUrl, resulting in query parameters before hash.
@@ -63,6 +70,8 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/lien-he" element={<Contact />} />
           <Route path="/dich-vu" element={<Service />} />
+          <Route path="/dich-vu/:id" element={<ServiceDetail />} />
+          <Route path="/nguoi-giup-viec/:id" element={<HelperDetail />} />
           <Route path="/tuyen-dung" element={<Recruitment />} />
           <Route path="/dang-bai-tuyen" element={<PostAJob />} />
           <Route path="/lich-su-dat-lich" element={<HistoryPage />} />
@@ -98,6 +107,9 @@ function App() {
           <Route index element={<StaffReviews />} />
           <Route path="dashboard" element={<StaffReviews />} />
           <Route path="reviews" element={<StaffReviews />} />
+          <Route path="bookings" element={<FollowingOrder />} />
+          <Route path="job-posts" element={<ApplicationReview />} />
+          <Route path="helpers" element={<HelperReview />} />
         </Route>
         <Route path="*" element={<Errors404 />} />
       </Routes>

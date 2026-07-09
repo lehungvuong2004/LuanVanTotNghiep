@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\News;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
@@ -24,7 +26,7 @@ class NewsController extends Controller
         $limit = (int) $request->query('limit', 9);
         $news  = $query->paginate($limit);
 
-        return response()->json(['data' => $news], 200);
+        return response()->json(['data' => $news], Response::HTTP_OK);
     }
 
     /**
@@ -38,10 +40,10 @@ class NewsController extends Controller
             ->first();
 
         if (!$article) {
-            return response()->json(['message' => 'Bài viết không tồn tại hoặc chưa được xuất bản.'], 404);
+            return response()->json(['message' => 'Bài viết không tồn tại hoặc chưa được xuất bản.'], Response::HTTP_NOT_FOUND);
         }
 
-        return response()->json(['data' => $article], 200);
+        return response()->json(['data' => $article], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -54,8 +56,8 @@ class NewsController extends Controller
     public function adminIndex(Request $request)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = News::with('creator:id,full_name,avatar');
@@ -72,7 +74,7 @@ class NewsController extends Controller
         $limit = (int) $request->query('limit', 15);
         $news  = $query->orderBy('created_at', 'desc')->paginate($limit);
 
-        return response()->json(['data' => $news], 200);
+        return response()->json(['data' => $news], Response::HTTP_OK);
     }
 
     /**
@@ -81,8 +83,8 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $fields = $request->validate([
@@ -112,7 +114,7 @@ class NewsController extends Controller
         return response()->json([
             'message' => 'Tạo bài viết thành công.',
             'data'    => $article,
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -121,13 +123,13 @@ class NewsController extends Controller
     public function update(Request $request, $id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $article = News::find($id);
         if (!$article) {
-            return response()->json(['message' => 'Không tìm thấy bài viết.'], 404);
+            return response()->json(['message' => 'Không tìm thấy bài viết.'], Response::HTTP_NOT_FOUND);
         }
 
         $fields = $request->validate([
@@ -145,7 +147,7 @@ class NewsController extends Controller
         return response()->json([
             'message' => 'Cập nhật bài viết thành công.',
             'data'    => $article,
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -154,13 +156,13 @@ class NewsController extends Controller
     public function toggleStatus(Request $request, $id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $article = News::find($id);
         if (!$article) {
-            return response()->json(['message' => 'Không tìm thấy bài viết.'], 404);
+            return response()->json(['message' => 'Không tìm thấy bài viết.'], Response::HTTP_NOT_FOUND);
         }
 
         $request->validate([
@@ -172,7 +174,7 @@ class NewsController extends Controller
         return response()->json([
             'message' => 'Cập nhật trạng thái bài viết thành công.',
             'data'    => $article,
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -181,17 +183,17 @@ class NewsController extends Controller
     public function destroy($id)
     {
         $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $article = News::find($id);
         if (!$article) {
-            return response()->json(['message' => 'Không tìm thấy bài viết.'], 404);
+            return response()->json(['message' => 'Không tìm thấy bài viết.'], Response::HTTP_NOT_FOUND);
         }
 
         $article->delete();
 
-        return response()->json(['message' => 'Xóa bài viết thành công.'], 200);
+        return response()->json(['message' => 'Xóa bài viết thành công.'], Response::HTTP_OK);
     }
 }

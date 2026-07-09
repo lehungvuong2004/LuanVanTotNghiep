@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\UserToken;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +35,7 @@ class AuthController extends Controller
     if (!$token = $auth->attempt($credentials)) {
       return response()->json([
         'message' => 'Sai email hoặc mật khẩu.'
-      ], 401);
+      ], Response::HTTP_UNAUTHORIZED);
     }
 
     $user = auth('api')->user();
@@ -41,7 +43,7 @@ class AuthController extends Controller
       $auth->logout();
       return response()->json([
         'message' => 'Tài khoản của bạn đã bị khoá. Vui lòng liên hệ hỗ trợ.'
-      ], 403);
+      ], Response::HTTP_FORBIDDEN);
     }
 
     return $this->responseWithToken($token, $user);
@@ -82,7 +84,7 @@ class AuthController extends Controller
     ]);
 
     $user = User::create([
-      'role_id'  => 4, // Customer
+      'role_id'  => Role::CUSTOMER,
       'full_name' => $fields['full_name'],
       'email'    => $fields['email'],
       'phone'    => $fields['phone'],
@@ -104,7 +106,7 @@ class AuthController extends Controller
     $action = $request->input('action', 'login');
 
     if (!$token) {
-      return response()->json(['error' => 'Token is required'], 400);
+      return response()->json(['error' => 'Token is required'], Response::HTTP_BAD_REQUEST);
     }
 
     try {
@@ -113,7 +115,7 @@ class AuthController extends Controller
       ])->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
       if ($response->failed()) {
-        return response()->json(['error' => 'Invalid Google token'], 401);
+        return response()->json(['error' => 'Invalid Google token'], Response::HTTP_UNAUTHORIZED);
       }
 
       $googleUser = $response->json();
@@ -126,7 +128,7 @@ class AuthController extends Controller
         if (!$user) {
           return response()->json([
             'message' => 'Tài khoản Google này chưa được đăng ký trên hệ thống. Vui lòng đăng ký trước.'
-          ], 400);
+          ], Response::HTTP_BAD_REQUEST);
         }
 
         $user->update([
@@ -139,11 +141,11 @@ class AuthController extends Controller
         if ($user) {
           return response()->json([
             'message' => 'Tài khoản Google này đã được đăng ký. Vui lòng đăng nhập.'
-          ], 400);
+          ], Response::HTTP_BAD_REQUEST);
         }
 
         $user = User::create([
-          'role_id'   => 4, // Customer
+          'role_id'   => Role::CUSTOMER,
           'full_name' => $googleUser['name'] ?? (($googleUser['given_name'] ?? '') . ' ' . ($googleUser['family_name'] ?? '')),
           'email'     => $googleUser['email'],
           'google_id' => $googleUser['sub'],
@@ -157,7 +159,7 @@ class AuthController extends Controller
       $jwtToken = auth('api')->login($user);
       return $this->responseWithToken($jwtToken, $user);
     } catch (\Exception $e) {
-      return response()->json(['error' => 'Xác thực Google thất bại: ' . $e->getMessage()], 500);
+      return response()->json(['error' => 'Xác thực Google thất bại: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -188,10 +190,10 @@ class AuthController extends Controller
       Log::info("Không thể gửi email OTP tới {$email}. Mã OTP test là: {$otp}. Chi tiết: " . $e->getMessage());
       return response()->json([
         'message' => 'Mã OTP đã được tạo. Vì chưa cấu hình SMTP nên bạn hãy kiểm tra mã OTP tại file log: storage/logs/laravel.log. Mã OTP test là: ' . $otp
-      ], 200);
+      ], Response::HTTP_OK);
     }
 
-    return response()->json(['message' => 'Mã OTP đã được gửi đến email của bạn.'], 200);
+    return response()->json(['message' => 'Mã OTP đã được gửi đến email của bạn.'], Response::HTTP_OK);
   }
 
   /**
@@ -211,14 +213,14 @@ class AuthController extends Controller
     $cachedOtp = Cache::get('password_reset_otp_' . $email);
 
     if (!$cachedOtp) {
-      return response()->json(['message' => 'Mã OTP đã hết hạn hoặc không tồn tại. Vui lòng gửi lại yêu cầu.'], 400);
+      return response()->json(['message' => 'Mã OTP đã hết hạn hoặc không tồn tại. Vui lòng gửi lại yêu cầu.'], Response::HTTP_BAD_REQUEST);
     }
 
     if ($cachedOtp !== $otp) {
-      return response()->json(['message' => 'Mã OTP không chính xác.'], 400);
+      return response()->json(['message' => 'Mã OTP không chính xác.'], Response::HTTP_BAD_REQUEST);
     }
 
-    return response()->json(['message' => 'Xác thực OTP thành công.'], 200);
+    return response()->json(['message' => 'Xác thực OTP thành công.'], Response::HTTP_OK);
   }
 
   /**
@@ -240,7 +242,7 @@ class AuthController extends Controller
     $cachedOtp = Cache::get('password_reset_otp_' . $email);
 
     if (!$cachedOtp || $cachedOtp !== $otp) {
-      return response()->json(['message' => 'Xác thực mã OTP không hợp lệ hoặc đã hết hạn.'], 400);
+      return response()->json(['message' => 'Xác thực mã OTP không hợp lệ hoặc đã hết hạn.'], Response::HTTP_BAD_REQUEST);
     }
 
     $user = User::where('email', $email)->first();
@@ -250,7 +252,7 @@ class AuthController extends Controller
 
     Cache::forget('password_reset_otp_' . $email);
 
-    return response()->json(['message' => 'Đặt lại mật khẩu thành công.'], 200);
+    return response()->json(['message' => 'Đặt lại mật khẩu thành công.'], Response::HTTP_OK);
   }
 
     // =====================================================================
@@ -271,12 +273,12 @@ class AuthController extends Controller
       ->first();
 
     if (!$tokenRecord) {
-      return response()->json(['message' => 'Refresh token không hợp lệ hoặc đã hết hạn.'], 401);
+      return response()->json(['message' => 'Refresh token không hợp lệ hoặc đã hết hạn.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $user = User::find($tokenRecord->user_id);
     if (!$user || $user->status !== 'active') {
-      return response()->json(['message' => 'Tài khoản không tồn tại hoặc đã bị khoá.'], 403);
+      return response()->json(['message' => 'Tài khoản không tồn tại hoặc đã bị khoá.'], Response::HTTP_FORBIDDEN);
     }
 
     // Xoá refresh token cũ
@@ -294,7 +296,7 @@ class AuthController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     // Xoá refresh token liên quan nếu client truyền lên
@@ -306,7 +308,7 @@ class AuthController extends Controller
 
     auth('api')->logout();
 
-    return response()->json(['message' => 'Đăng xuất thành công.'], 200);
+    return response()->json(['message' => 'Đăng xuất thành công.'], Response::HTTP_OK);
   }
 
     // =====================================================================
@@ -320,11 +322,11 @@ class AuthController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $user->load('role');
-    return response()->json(['data' => $user], 200);
+    return response()->json(['data' => $user], Response::HTTP_OK);
   }
 
   /**
@@ -334,7 +336,7 @@ class AuthController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $fields = $request->validate([
@@ -368,7 +370,7 @@ class AuthController extends Controller
     return response()->json([
       'message' => 'Cập nhật thông tin cá nhân thành công.',
       'data'    => $user
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -378,7 +380,7 @@ class AuthController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $request->validate([
@@ -411,10 +413,10 @@ class AuthController extends Controller
         'message' => 'Tải ảnh đại diện lên thành công.',
         'url'     => $url,
         'data'    => $user
-      ], 200);
+      ], Response::HTTP_OK);
     }
 
-    return response()->json(['message' => 'Không tìm thấy file tải lên.'], 400);
+    return response()->json(['message' => 'Không tìm thấy file tải lên.'], Response::HTTP_BAD_REQUEST);
   }
 
     // =====================================================================
@@ -429,14 +431,14 @@ class AuthController extends Controller
   {
     $currentUser = auth('api')->user();
     if (!$currentUser) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     // Chỉ Admin mới được phép xem danh sách toàn bộ users
-    if ($currentUser->role_id !== 1) {
+    if ($currentUser->role_id !== Role::ADMIN) {
       return response()->json([
         'message' => 'Bạn không có quyền truy cập danh sách người dùng.'
-      ], 403);
+      ], Response::HTTP_FORBIDDEN);
     }
 
     // Gọi nội bộ lấy danh sách user_id đã có profile helper
@@ -453,7 +455,7 @@ class AuthController extends Controller
 
     $query = User::with('role')
       ->whereNotIn('id', $helperUserIds)
-      ->where('role_id', 4);
+      ->where('role_id', Role::CUSTOMER);
 
     // Filter theo status (active | inactive | banned)
     if ($request->filled('status')) {
@@ -482,13 +484,13 @@ class AuthController extends Controller
       'type' => 'all',
       'data' => $users,
       'role_counts' => [
-          'admin' => $roleCounts[1] ?? 0,
-          'operator' => $roleCounts[2] ?? 0,
-          'helper' => $roleCounts[3] ?? 0,
-          'customer' => $roleCounts[4] ?? 0,
+          'admin' => $roleCounts[Role::ADMIN] ?? 0,
+          'operator' => $roleCounts[Role::OPERATOR] ?? 0,
+          'helper' => $roleCounts[Role::HELPER] ?? 0,
+          'customer' => $roleCounts[Role::CUSTOMER] ?? 0,
           'total' => array_sum($roleCounts),
       ]
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -498,17 +500,17 @@ class AuthController extends Controller
   {
     $currentUser = auth('api')->user();
     if (!$currentUser) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
-    if ($currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if ($currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
     $user = User::with('role')->find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
+      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
     }
 
-    return response()->json(['data' => $user], 200);
+    return response()->json(['data' => $user], Response::HTTP_OK);
   }
 
   /**
@@ -517,8 +519,8 @@ class AuthController extends Controller
   public function createUser(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -549,7 +551,7 @@ class AuthController extends Controller
     return response()->json([
       'message' => 'Tạo người dùng thành công.',
       'data'    => $user
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**
@@ -558,13 +560,13 @@ class AuthController extends Controller
   public function updateUser(Request $request, $id)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     $user = User::find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
+      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
     }
 
     $fields = $request->validate([
@@ -582,7 +584,7 @@ class AuthController extends Controller
     return response()->json([
       'message' => 'Cập nhật thông tin người dùng thành công.',
       'data'    => $user
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -592,17 +594,17 @@ class AuthController extends Controller
   public function toggleUserStatus(Request $request, $id)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     if ($currentUser->id == $id) {
-      return response()->json(['message' => 'Bạn không thể tự thay đổi trạng thái tài khoản của chính mình.'], 400);
+      return response()->json(['message' => 'Bạn không thể tự thay đổi trạng thái tài khoản của chính mình.'], Response::HTTP_BAD_REQUEST);
     }
 
     $user = User::find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
+      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
     }
 
     $request->validate([
@@ -622,7 +624,7 @@ class AuthController extends Controller
     return response()->json([
       'message' => 'Cập nhật trạng thái tài khoản thành công.',
       'data'    => $user
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -631,23 +633,23 @@ class AuthController extends Controller
   public function deleteUser($id)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     if ($currentUser->id == $id) {
-      return response()->json(['message' => 'Bạn không thể tự xóa tài khoản của chính mình.'], 400);
+      return response()->json(['message' => 'Bạn không thể tự xóa tài khoản của chính mình.'], Response::HTTP_BAD_REQUEST);
     }
 
     $user = User::find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
+      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
     }
 
     DB::table('user_tokens')->where('user_id', $id)->delete();
     $user->delete();
 
-    return response()->json(['message' => 'Xóa người dùng thành công.'], 200);
+    return response()->json(['message' => 'Xóa người dùng thành công.'], Response::HTTP_OK);
   }
 
   /**
@@ -656,8 +658,8 @@ class AuthController extends Controller
   public function bulkDeleteUsers(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     $request->validate([
@@ -668,7 +670,7 @@ class AuthController extends Controller
     $ids = $request->input('ids');
 
     if (in_array($currentUser->id, $ids)) {
-      return response()->json(['message' => 'Bạn không thể tự xóa tài khoản của chính mình trong danh sách chọn.'], 400);
+      return response()->json(['message' => 'Bạn không thể tự xóa tài khoản của chính mình trong danh sách chọn.'], Response::HTTP_BAD_REQUEST);
     }
 
     DB::transaction(function () use ($ids) {
@@ -676,7 +678,7 @@ class AuthController extends Controller
       User::whereIn('id', $ids)->delete();
     });
 
-    return response()->json(['message' => 'Xóa danh sách người dùng thành công.'], 200);
+    return response()->json(['message' => 'Xóa danh sách người dùng thành công.'], Response::HTTP_OK);
   }
 
     // =====================================================================
@@ -714,8 +716,8 @@ class AuthController extends Controller
   public function getUsersByIds(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || !in_array($currentUser->role_id, [1, 2])) {
-      return response()->json(['message' => 'Forbidden.'], 403);
+    if (!$currentUser || !in_array($currentUser->role_id, [Role::ADMIN, Role::OPERATOR])) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
     $request->validate([
@@ -726,7 +728,7 @@ class AuthController extends Controller
     $ids = $request->input('ids');
     $users = User::with('role')->whereIn('id', $ids)->get();
 
-    return response()->json(['data' => $users], 200);
+    return response()->json(['data' => $users], Response::HTTP_OK);
   }
 
   /**
@@ -735,13 +737,13 @@ class AuthController extends Controller
   public function searchUserIds(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || !in_array($currentUser->role_id, [1, 2])) {
-      return response()->json(['message' => 'Forbidden.'], 403);
+    if (!$currentUser || !in_array($currentUser->role_id, [Role::ADMIN, Role::OPERATOR])) {
+      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
     $queryStr = $request->query('query');
     if (empty($queryStr)) {
-      return response()->json([], 200);
+      return response()->json([], Response::HTTP_OK);
     }
 
     $userIds = User::where('full_name', 'like', "%{$queryStr}%")
@@ -750,7 +752,7 @@ class AuthController extends Controller
       ->pluck('id')
       ->toArray();
 
-    return response()->json($userIds, 200);
+    return response()->json($userIds, Response::HTTP_OK);
   }
 
   /**
@@ -766,6 +768,6 @@ class AuthController extends Controller
     $ids = $request->input('ids');
     $users = User::whereIn('id', $ids)->get(['id', 'full_name', 'phone', 'avatar', 'email', 'role_id']);
 
-    return response()->json(['data' => $users], 200);
+    return response()->json(['data' => $users], Response::HTTP_OK);
   }
 }

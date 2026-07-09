@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CustomerProfile;
 use App\Models\CustomerAddress;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 
 class CustomerProfileController extends Controller
@@ -21,12 +23,12 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     // Customer lấy chính mình; Admin có thể dùng endpoint admin riêng
-    if (!in_array($user->role_id, [1, 4])) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if (!in_array($user->role_id, [Role::ADMIN, Role::CUSTOMER])) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $profile = CustomerProfile::with('addresses')
@@ -40,7 +42,7 @@ class CustomerProfileController extends Controller
 
     $profile->load('addresses');
 
-    return response()->json(['data' => $profile], 200);
+    return response()->json(['data' => $profile], Response::HTTP_OK);
   }
 
   /**
@@ -51,11 +53,11 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    if ($user->role_id !== 4) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if ($user->role_id !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -72,7 +74,7 @@ class CustomerProfileController extends Controller
     return response()->json([
       'message' => 'Cập nhật profile thành công.',
       'data'    => $profile
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
     // =====================================================================
@@ -86,23 +88,23 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    if ($user->role_id !== 4) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if ($user->role_id !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['data' => []], 200);
+      return response()->json(['data' => []], Response::HTTP_OK);
     }
 
     $addresses = CustomerAddress::where('customer_id', $profile->id)
       ->orderByDesc('is_default')
       ->get();
 
-    return response()->json(['data' => $addresses], 200);
+    return response()->json(['data' => $addresses], Response::HTTP_OK);
   }
 
   /**
@@ -112,11 +114,11 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    if ($user->role_id !== 4) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if ($user->role_id !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -148,7 +150,7 @@ class CustomerProfileController extends Controller
     return response()->json([
       'message' => 'Thêm địa chỉ thành công.',
       'data'    => $address
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**
@@ -158,23 +160,23 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    if ($user->role_id !== 4) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if ($user->role_id !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Không tìm thấy profile.'], 404);
+      return response()->json(['message' => 'Không tìm thấy profile.'], Response::HTTP_NOT_FOUND);
     }
 
     $address = CustomerAddress::where('id', $id)
       ->where('customer_id', $profile->id)
       ->first();
     if (!$address) {
-      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], 404);
+      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], Response::HTTP_NOT_FOUND);
     }
 
     $fields = $request->validate([
@@ -188,7 +190,7 @@ class CustomerProfileController extends Controller
     return response()->json([
       'message' => 'Cập nhật địa chỉ thành công.',
       'data'    => $address
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -198,23 +200,23 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    if ($user->role_id !== 4) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if ($user->role_id !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Không tìm thấy profile.'], 404);
+      return response()->json(['message' => 'Không tìm thấy profile.'], Response::HTTP_NOT_FOUND);
     }
 
     $address = CustomerAddress::where('id', $id)
       ->where('customer_id', $profile->id)
       ->first();
     if (!$address) {
-      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], 404);
+      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], Response::HTTP_NOT_FOUND);
     }
 
     $wasDefault = $address->is_default;
@@ -228,7 +230,7 @@ class CustomerProfileController extends Controller
       }
     }
 
-    return response()->json(['message' => 'Xóa địa chỉ thành công.'], 200);
+    return response()->json(['message' => 'Xóa địa chỉ thành công.'], Response::HTTP_OK);
   }
 
   /**
@@ -238,23 +240,23 @@ class CustomerProfileController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    if ($user->role_id !== 4) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], 403);
+    if ($user->role_id !== Role::CUSTOMER) {
+      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
     }
 
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Không tìm thấy profile.'], 404);
+      return response()->json(['message' => 'Không tìm thấy profile.'], Response::HTTP_NOT_FOUND);
     }
 
     $address = CustomerAddress::where('id', $id)
       ->where('customer_id', $profile->id)
       ->first();
     if (!$address) {
-      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], 404);
+      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], Response::HTTP_NOT_FOUND);
     }
 
     // Bỏ mặc định tất cả → đặt mặc định cho địa chỉ được chọn
@@ -264,7 +266,7 @@ class CustomerProfileController extends Controller
     return response()->json([
       'message' => 'Đã đặt làm địa chỉ mặc định.',
       'data'    => $address->fresh()
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -280,23 +282,23 @@ class CustomerProfileController extends Controller
       
       $user = \App\Models\User::find($userId);
       if (!$user) {
-          return response()->json(['is_complete' => false, 'message' => 'Người dùng không tồn tại.'], 404);
+          return response()->json(['is_complete' => false, 'message' => 'Người dùng không tồn tại.'], Response::HTTP_NOT_FOUND);
       }
       
       if (empty($user->phone)) {
-          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật số điện thoại liên hệ.'], 200);
+          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật số điện thoại liên hệ.'], Response::HTTP_OK);
       }
       
       $profile = CustomerProfile::where('user_id', $userId)->first();
       if (!$profile || empty($profile->gender) || empty($profile->birthday)) {
-          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật giới tính và ngày sinh.'], 200);
+          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật giới tính và ngày sinh.'], Response::HTTP_OK);
       }
       
       $hasAddress = CustomerAddress::where('customer_id', $profile->id)->exists();
       if (!$hasAddress) {
-          return response()->json(['is_complete' => false, 'message' => 'Vui lòng thêm ít nhất một địa chỉ liên hệ.'], 200);
+          return response()->json(['is_complete' => false, 'message' => 'Vui lòng thêm ít nhất một địa chỉ liên hệ.'], Response::HTTP_OK);
       }
       
-      return response()->json(['is_complete' => true], 200);
+      return response()->json(['is_complete' => true], Response::HTTP_OK);
   }
 }

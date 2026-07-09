@@ -49,7 +49,7 @@ export const useLogin = () => {
         } else if (response.user.role_id === 2) {
           navigate("/operator");
         } else if (response.user.role_id === 3) {
-          navigate("/helper");
+          navigate("/");
         } else {
           navigate("/");
         }
@@ -82,7 +82,7 @@ export const useLogin = () => {
         } else if (response.user.role_id === 2) {
           navigate("/operator");
         } else if (response.user.role_id === 3) {
-          navigate("/helper");
+          navigate("/");
         } else {
           navigate("/");
         }

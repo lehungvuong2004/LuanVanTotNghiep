@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useService } from "./useHook";
 import type { ServiceItem, HelperItem, ServiceFilterParams } from "./useHook";
 import type { ServiceCategory } from "../../api/services";
+import { formatNumberVI } from "../../utils";
+import { Pagination } from "../../components/Pagination";
 
 // ─── 1. Sidebar Filter ──────────────────────────────────────────────────────
 interface SidebarFilterProps {
@@ -15,19 +18,7 @@ interface SidebarFilterProps {
 }
 
 const CITIES = ["TP.HCM"];
-const DISTRICTS_HCMC = [
-  "Tất cả",
-  "Quận 1",
-  "Quận 3",
-  "Quận 10",
-  "Bình Thạnh",
-  "Phú Nhuận",
-];
-const GENDERS = [
-  { value: "", label: "Tất cả" },
-  { value: "female", label: "Nữ" },
-  { value: "male", label: "Nam" },
-];
+const DISTRICTS_HCMC = ["Tất cả", "Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
 const RATINGS = [
   { value: 0, label: "Tất cả" },
   { value: 4.5, label: "4.5+" },
@@ -35,13 +26,7 @@ const RATINGS = [
   { value: 3.5, label: "3.5+" },
 ];
 
-const SidebarFilter = ({
-  t,
-  filterParams,
-  onFilterChange,
-  onReset,
-  categories,
-}: SidebarFilterProps) => {
+const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }: SidebarFilterProps) => {
   const handleDistrictChange = (district: string) => {
     onFilterChange({ district: district === "Tất cả" ? undefined : district });
   };
@@ -79,19 +64,14 @@ const SidebarFilter = ({
           <Icon icon="material-symbols:filter-list" className="text-xl text-teal-600" />
           {t("Bộ lọc dịch vụ")}
         </h3>
-        <button
-          onClick={onReset}
-          className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline cursor-pointer"
-        >
+        <button onClick={onReset} className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline cursor-pointer">
           {t("Xóa bộ lọc")}
         </button>
       </div>
 
       {/* Giao diện lọc Thành phố */}
       <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">
-          {t("Thành phố")}
-        </h4>
+        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
         <select
           value={filterParams.city ?? "TP.HCM"}
           onChange={(e) => handleCityChange(e.target.value)}
@@ -107,9 +87,7 @@ const SidebarFilter = ({
 
       {/* Quận / Huyện */}
       <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">
-          {t("Quận / Huyện")}
-        </h4>
+        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Quận / Huyện")}</h4>
         <select
           value={filterParams.district ?? "Tất cả"}
           onChange={(e) => handleDistrictChange(e.target.value)}
@@ -125,9 +103,7 @@ const SidebarFilter = ({
 
       {/* Danh mục dịch vụ */}
       <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">
-          {t("Danh mục dịch vụ")}
-        </h4>
+        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Danh mục dịch vụ")}</h4>
         <select
           value={filterParams.category_id ?? "Tất cả"}
           onChange={(e) => handleCategoryChange(e.target.value)}
@@ -144,9 +120,7 @@ const SidebarFilter = ({
 
       {/* Loại hình giá */}
       <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">
-          {t("Loại hình giá")}
-        </h4>
+        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Loại hình giá")}</h4>
         <select
           value={filterParams.price_type ?? "Tất cả"}
           onChange={(e) => handlePriceTypeChange(e.target.value)}
@@ -161,9 +135,7 @@ const SidebarFilter = ({
 
       {/* Đánh giá tối thiểu */}
       <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">
-          {t("Đánh giá tối thiểu")}
-        </h4>
+        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Đánh giá tối thiểu")}</h4>
         <div className="flex flex-col gap-2">
           {RATINGS.map((r) => (
             <label key={r.value} className="flex items-center gap-3 cursor-pointer group">
@@ -185,9 +157,7 @@ const SidebarFilter = ({
 
       {/* Khoảng giá */}
       <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">
-          {t("Khoảng giá (VNĐ)")}
-        </h4>
+        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Khoảng giá (VNĐ)")}</h4>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -215,21 +185,12 @@ interface ServiceListProps {
   t: (key: string, options?: any) => string;
   services: ServiceItem[];
   loading: boolean;
-  selectedServiceId?: number | string;
-  onSelectService: (serviceId?: number) => void;
   sortBy: string;
   onSortChange: (sort: string) => void;
+  onNavigateService: (id: number) => void;
 }
 
-const ServiceList = ({
-  t,
-  services,
-  loading,
-  selectedServiceId,
-  onSelectService,
-  sortBy,
-  onSortChange,
-}: ServiceListProps) => {
+const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateService }: ServiceListProps) => {
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
@@ -270,9 +231,7 @@ const ServiceList = ({
       {/* Sort bar */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
         <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0">
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            {t("Hiển thị {{count}} dịch vụ", { count: services.length })}
-          </span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">{t("Hiển thị {{count}} dịch vụ", { count: services.length })}</span>
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
@@ -292,46 +251,20 @@ const ServiceList = ({
             {services.slice(0, visibleCount).map((service) => (
               <article
                 key={service.id}
-                onClick={() => {
-                  if (selectedServiceId === service.id) {
-                    onSelectService(undefined);
-                  } else {
-                    onSelectService(service.id);
-                  }
-                }}
-                className={`bg-white dark:bg-slate-800 rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group relative cursor-pointer ${
-                  selectedServiceId === service.id
-                    ? "border-teal-500 ring-2 ring-teal-500/20 dark:border-teal-400 dark:ring-teal-400/20 shadow-md"
-                    : "border-slate-100 dark:border-slate-700/50"
-                }`}
+                onClick={() => onNavigateService(service.id)}
+                className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group relative cursor-pointer"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-900 relative">
-                  {renderServiceImage(service.image, service.title)}
-                  {selectedServiceId === service.id && (
-                    <div className="absolute top-3 right-3 bg-teal-600 dark:bg-teal-500 text-white rounded-full p-1.5 shadow-md flex items-center justify-center z-10">
-                      <Icon icon="material-symbols:check-circle" className="text-xl" />
-                    </div>
-                  )}
-                </div>
+                <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-900 relative">{renderServiceImage(service.image, service.title)}</div>
                 <div className="p-6 flex flex-col grow">
                   <div className="flex items-center justify-between mb-2.5">
-                    <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
-                      {service.category}
-                    </span>
+                    <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{service.category}</span>
                     <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300">
                       <Icon icon="material-symbols:star" className="text-amber-400 text-base" />
-                      {service.rating.toFixed(1)}{" "}
-                      <span className="text-slate-400 dark:text-slate-500 font-normal">
-                        ({service.reviewsCount})
-                      </span>
+                      {service.rating.toFixed(1)} <span className="text-slate-400 dark:text-slate-500 font-normal">({service.reviewsCount})</span>
                     </div>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                    {service.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 leading-relaxed">
-                    {service.description}
-                  </p>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{service.title}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 leading-relaxed">{service.description}</p>
                   <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6">
                     <Icon icon="material-symbols:group-outline" className="text-base" />
                     <span>
@@ -340,19 +273,19 @@ const ServiceList = ({
                   </div>
                   <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xs text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">
-                        {t("Giá từ")}
-                      </span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{t("Giá từ")}</span>
                       <div className="flex items-baseline gap-0.5">
-                        <span className="text-xl font-bold text-teal-600 dark:text-teal-400">
-                          {service.price.toLocaleString("vi-VN")}đ
-                        </span>
-                        <span className="text-xs text-slate-400 dark:text-slate-500">
-                          /{service.priceType.split(" ").pop()}
-                        </span>
+                        <span className="text-xl font-bold text-teal-600 dark:text-teal-400">{formatNumberVI(service.price)}đ</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">/{service.priceType.split(" ").pop()}</span>
                       </div>
                     </div>
-                    <button className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-teal-600/10 active:scale-95 transition-all cursor-pointer">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigateService(service.id);
+                      }}
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-teal-600/10 active:scale-95 transition-all cursor-pointer"
+                    >
                       {t("Đặt ngay")}
                     </button>
                   </div>
@@ -392,36 +325,24 @@ interface FeaturedHelpersProps {
   totalHelpers: number;
   helperPage: number;
   helperLastPage: number;
+  itemsPerPage: number;
   onPageChange: (page: number) => void;
+  onNavigateHelper: (userId: number) => void;
 }
 
-const FeaturedHelpers = ({
-  t,
-  helpers,
-  loading,
-  totalHelpers,
-  helperPage,
-  helperLastPage,
-  onPageChange,
-}: FeaturedHelpersProps) => {
+const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helperLastPage, itemsPerPage, onPageChange, onNavigateHelper }: FeaturedHelpersProps) => {
   const renderHelperAvatar = (url?: string, name?: string) => {
     if (url) {
       return <img src={url} alt={name} className="w-full h-full object-cover" />;
     }
-    return (
-      <div className="w-full h-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg">
-        {name ? name.charAt(0).toUpperCase() : "H"}
-      </div>
-    );
+    return <div className="w-full h-full bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg">{name ? name.charAt(0).toUpperCase() : "H"}</div>;
   };
 
   return (
     <section className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 p-8 shadow-sm mt-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mb-1">
-            {t("Người giúp việc tiêu biểu")}
-          </h2>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mb-1">{t("Người giúp việc tiêu biểu")}</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {t("Đội ngũ xuất sắc nhất, nhận được đánh giá cao nhất từ các gia đình.")}
             {totalHelpers > 0 && (
@@ -456,6 +377,7 @@ const FeaturedHelpers = ({
           {helpers.map((helper) => (
             <div
               key={helper.id}
+              onClick={() => onNavigateHelper(helper.userId)}
               className="border border-slate-100 dark:border-slate-700/50 hover:border-teal-500 dark:hover:border-teal-500 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg relative group cursor-pointer"
             >
               {helper.isOnline && (
@@ -488,11 +410,7 @@ const FeaturedHelpers = ({
                   </span>
                 ))}
               </div>
-              {helper.bio && (
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 line-clamp-2 leading-relaxed">
-                  {helper.bio}
-                </p>
-              )}
+              {helper.bio && <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 line-clamp-2 leading-relaxed">{helper.bio}</p>}
             </div>
           ))}
         </div>
@@ -509,35 +427,12 @@ const FeaturedHelpers = ({
 
       {/* Pagination */}
       {!loading && helperLastPage > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          <button
-            onClick={() => onPageChange(helperPage - 1)}
-            disabled={helperPage <= 1}
-            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-teal-500 hover:text-teal-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-          >
-            <Icon icon="material-symbols:chevron-left" className="text-lg" />
-          </button>
-          {[...Array(helperLastPage)].map((_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => onPageChange(i + 1)}
-              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all cursor-pointer ${
-                helperPage === i + 1
-                  ? "bg-teal-600 text-white shadow-md"
-                  : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-teal-500 hover:text-teal-500"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => onPageChange(helperPage + 1)}
-            disabled={helperPage >= helperLastPage}
-            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-teal-500 hover:text-teal-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-          >
-            <Icon icon="material-symbols:chevron-right" className="text-lg" />
-          </button>
-        </div>
+        <Pagination
+          currentPage={helperPage}
+          totalItems={totalHelpers}
+          itemsPerPage={itemsPerPage}
+          onPageChange={onPageChange}
+        />
       )}
     </section>
   );
@@ -546,21 +441,8 @@ const FeaturedHelpers = ({
 // ─── 4. Main Export Component ─────────────────────────────────────────────────
 export const Service = () => {
   const { t } = useTranslation();
-  const {
-    services,
-    helpers,
-    categories,
-    loading,
-    helperLoading,
-    totalHelpers,
-    helperPage,
-    helperLastPage,
-    filterParams,
-    updateHelperFilter,
-    goToHelperPage,
-    sortBy,
-    setSortBy,
-  } = useService();
+  const navigate = useNavigate();
+  const { services, helpers, categories, loading, helperLoading, totalHelpers, helperPage, helperLastPage, filterParams, updateHelperFilter, goToHelperPage, sortBy, setSortBy } = useService();
 
   const handleReset = () => {
     updateHelperFilter({
@@ -578,24 +460,10 @@ export const Service = () => {
     <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 gap-6 pt-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
         <aside className="lg:col-span-3 lg:sticky lg:top-24 lg:h-fit lg:self-start z-10">
-          <SidebarFilter
-            t={t}
-            filterParams={filterParams}
-            onFilterChange={updateHelperFilter}
-            onReset={handleReset}
-            categories={categories}
-          />
+          <SidebarFilter t={t} filterParams={filterParams} onFilterChange={updateHelperFilter} onReset={handleReset} categories={categories} />
         </aside>
         <div className="lg:col-span-9 flex flex-col gap-6">
-          <ServiceList
-            t={t}
-            services={services}
-            loading={loading}
-            selectedServiceId={filterParams.service_id}
-            onSelectService={(id) => updateHelperFilter({ service_id: id })}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-          />
+          <ServiceList t={t} services={services} loading={loading} sortBy={sortBy} onSortChange={setSortBy} onNavigateService={(id) => navigate(`/dich-vu/${id}`)} />
           <FeaturedHelpers
             t={t}
             helpers={helpers}
@@ -603,7 +471,9 @@ export const Service = () => {
             totalHelpers={totalHelpers}
             helperPage={helperPage}
             helperLastPage={helperLastPage}
+            itemsPerPage={filterParams.limit ?? 8}
             onPageChange={goToHelperPage}
+            onNavigateHelper={(userId) => navigate(`/nguoi-giup-viec/${userId}`)}
           />
         </div>
       </div>

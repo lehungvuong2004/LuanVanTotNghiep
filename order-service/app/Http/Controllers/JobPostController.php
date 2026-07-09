@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\JobPost;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\JobPostService;
 use App\Models\JobApplication;
 use App\Models\Review;
@@ -40,7 +42,7 @@ class JobPostController extends Controller
         $limit = (int) $request->query('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], 200);
+        return response()->json(['data' => $posts], Response::HTTP_OK);
     }
 
     /**
@@ -52,9 +54,9 @@ class JobPostController extends Controller
                        ->where('status', 'open')
                        ->find($id);
 
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
-        return response()->json(['data' => $post], 200);
+        return response()->json(['data' => $post], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -66,8 +68,8 @@ class JobPostController extends Controller
      */
     public function myPosts(Request $request)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Only customers can manage job posts.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Only customers can manage job posts.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = JobPost::with(['services'])
@@ -78,13 +80,13 @@ class JobPostController extends Controller
         $limit = (int) $request->query('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], 200);
+        return response()->json(['data' => $posts], Response::HTTP_OK);
     }
 
     public function store(Request $request)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Only customers can post jobs.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Only customers can post jobs.'], Response::HTTP_FORBIDDEN);
         }
 
         // Bắt buộc khách hàng hoàn thiện thông tin trước khi đăng bài
@@ -99,7 +101,7 @@ class JobPostController extends Controller
                 if (isset($statusData['is_complete']) && !$statusData['is_complete']) {
                     return response()->json([
                         'message' => 'Vui lòng hoàn thiện hồ sơ trước khi đăng bài tuyển dụng: ' . $statusData['message']
-                    ], 400);
+                    ], Response::HTTP_BAD_REQUEST);
                 }
             }
         } catch (\Exception $e) {
@@ -128,7 +130,7 @@ class JobPostController extends Controller
             if (preg_match('/^\d+$/', $cleaned)) {
                 return response()->json([
                     'message' => 'Tiêu đề không được chỉ chứa chữ số.'
-                ], 422);
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         }
 
@@ -139,7 +141,7 @@ class JobPostController extends Controller
                 if (preg_match('/^\d+$/', $cleaned)) {
                     return response()->json([
                         'message' => 'Tên danh mục không được chỉ chứa chữ số.'
-                    ], 422);
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
 
@@ -149,7 +151,7 @@ class JobPostController extends Controller
                 if (preg_match('/^\d+$/', $cleaned)) {
                     return response()->json([
                         'message' => 'Tên dịch vụ không được chỉ chứa chữ số.'
-                    ], 422);
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
         }
@@ -191,7 +193,7 @@ class JobPostController extends Controller
         return response()->json([
             'message' => 'Job post created successfully.',
             'data'    => $post->load('services'),
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -199,15 +201,15 @@ class JobPostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         if ($post->status !== 'open') {
-            return response()->json(['message' => 'Only open job posts can be edited.'], 422);
+            return response()->json(['message' => 'Only open job posts can be edited.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $fields = $request->validate([
@@ -230,7 +232,7 @@ class JobPostController extends Controller
             if (preg_match('/^\d+$/', $cleaned)) {
                 return response()->json([
                     'message' => 'Tiêu đề không được chỉ chứa chữ số.'
-                ], 422);
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         }
 
@@ -241,7 +243,7 @@ class JobPostController extends Controller
                 if (preg_match('/^\d+$/', $cleaned)) {
                     return response()->json([
                         'message' => 'Tên danh mục không được chỉ chứa chữ số.'
-                    ], 422);
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
 
@@ -251,7 +253,7 @@ class JobPostController extends Controller
                 if (preg_match('/^\d+$/', $cleaned)) {
                     return response()->json([
                         'message' => 'Tên dịch vụ không được chỉ chứa chữ số.'
-                    ], 422);
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
         }
@@ -261,7 +263,7 @@ class JobPostController extends Controller
         return response()->json([
             'message' => 'Job post updated successfully.',
             'data'    => $post->fresh(['services']),
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -269,16 +271,16 @@ class JobPostController extends Controller
      */
     public function close(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         $post->update(['status' => 'closed']);
 
-        return response()->json(['message' => 'Job post closed.', 'data' => $post->fresh()], 200);
+        return response()->json(['message' => 'Job post closed.', 'data' => $post->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -286,16 +288,16 @@ class JobPostController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         $post->delete();
 
-        return response()->json(['message' => 'Job post deleted.'], 200);
+        return response()->json(['message' => 'Job post deleted.'], Response::HTTP_OK);
     }
 
     /**
@@ -303,12 +305,12 @@ class JobPostController extends Controller
      */
     public function applications(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         $apps = JobApplication::where('job_post_id', $id)
                               ->orderByDesc('created_at')
@@ -342,7 +344,7 @@ class JobPostController extends Controller
             }
         }
 
-        return response()->json(['data' => $apps], 200);
+        return response()->json(['data' => $apps], Response::HTTP_OK);
     }
 
     /**
@@ -351,15 +353,15 @@ class JobPostController extends Controller
      */
     public function selectHelper(Request $request, $id, $helperId)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         if ($post->status !== 'open') {
-            return response()->json(['message' => 'Can only select a helper for open job posts.'], 422);
+            return response()->json(['message' => 'Can only select a helper for open job posts.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $application = JobApplication::where('job_post_id', $id)
@@ -368,7 +370,7 @@ class JobPostController extends Controller
                                      ->first();
 
         if (!$application) {
-            return response()->json(['message' => 'No pending application from this helper.'], 404);
+            return response()->json(['message' => 'No pending application from this helper.'], Response::HTTP_NOT_FOUND);
         }
 
         if ($post->working_time) {
@@ -382,7 +384,7 @@ class JobPostController extends Controller
                 if (Booking::hasConflict((int) $helperId, $bookingDate, $startTime, (float) $durationHours)) {
                     return response()->json([
                         'message' => 'Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.'
-                    ], 400);
+                    ], Response::HTTP_BAD_REQUEST);
                 }
             }
         }
@@ -411,7 +413,7 @@ class JobPostController extends Controller
         return response()->json([
             'message' => 'Helper selected. Waiting for helper approval.',
             'data'    => $application,
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -419,8 +421,8 @@ class JobPostController extends Controller
      */
     public function respondToSelection(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $fields = $request->validate([
@@ -433,12 +435,12 @@ class JobPostController extends Controller
                                      ->first();
 
         if (!$application) {
-            return response()->json(['message' => 'No selected application found to respond to.'], 404);
+            return response()->json(['message' => 'No selected application found to respond to.'], Response::HTTP_NOT_FOUND);
         }
 
         $post = JobPost::find($application->job_post_id);
         if (!$post) {
-            return response()->json(['message' => 'Job post not found.'], 404);
+            return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
         }
 
         if ($fields['action'] === 'accept') {
@@ -453,7 +455,7 @@ class JobPostController extends Controller
                     if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
                         return response()->json([
                             'message' => 'Bạn không thể đồng ý nhận việc này do trùng lịch với một công việc khác đang chờ hoặc đang làm.'
-                        ], 400);
+                        ], Response::HTTP_BAD_REQUEST);
                     }
                 }
             }
@@ -523,7 +525,7 @@ class JobPostController extends Controller
                 'message'    => 'Invitation accepted. Booking created in pending payment status.',
                 'data'       => $application,
                 'booking_id' => $booking->id,
-            ], 200);
+            ], Response::HTTP_OK);
 
         } else {
             // Reject invitation
@@ -551,7 +553,7 @@ class JobPostController extends Controller
             return response()->json([
                 'message' => 'Invitation declined. Job post reopened.',
                 'data'    => $application,
-            ], 200);
+            ], Response::HTTP_OK);
         }
     }
 
@@ -560,15 +562,15 @@ class JobPostController extends Controller
      */
     public function rejectHelper(Request $request, $id, $helperId)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         if ($post->status !== 'open') {
-            return response()->json(['message' => 'Can only manage helper applications for open job posts.'], 422);
+            return response()->json(['message' => 'Can only manage helper applications for open job posts.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $application = JobApplication::where('job_post_id', $id)
@@ -577,7 +579,7 @@ class JobPostController extends Controller
                                      ->first();
 
         if (!$application) {
-            return response()->json(['message' => 'No pending application from this helper.'], 404);
+            return response()->json(['message' => 'No pending application from this helper.'], Response::HTTP_NOT_FOUND);
         }
 
         $application->update(['status' => 'rejected']);
@@ -597,7 +599,7 @@ class JobPostController extends Controller
         return response()->json([
             'message' => 'Helper rejected successfully.',
             'data'    => $post->fresh(),
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -605,8 +607,8 @@ class JobPostController extends Controller
      */
     public function review(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Only customers can submit reviews.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Only customers can submit reviews.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::where('id', $id)
@@ -615,10 +617,10 @@ class JobPostController extends Controller
                        ->whereNotNull('selected_helper_id')
                        ->first();
 
-        if (!$post) return response()->json(['message' => 'Job post not found or not closed yet.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found or not closed yet.'], Response::HTTP_NOT_FOUND);
 
         if (Review::where('job_post_id', $id)->where('customer_id', $request->authUser['id'])->exists()) {
-            return response()->json(['message' => 'You have already reviewed this job post.'], 409);
+            return response()->json(['message' => 'You have already reviewed this job post.'], Response::HTTP_CONFLICT);
         }
 
         $fields = $request->validate([
@@ -634,7 +636,7 @@ class JobPostController extends Controller
             'comment'     => $fields['comment'] ?? null,
         ]);
 
-        return response()->json(['message' => 'Review submitted.', 'data' => $review], 201);
+        return response()->json(['message' => 'Review submitted.', 'data' => $review], Response::HTTP_CREATED);
     }
 
     // =====================================================================
@@ -646,8 +648,8 @@ class JobPostController extends Controller
      */
     public function helperBrowse(Request $request)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = JobPost::with(['services'])
@@ -663,7 +665,7 @@ class JobPostController extends Controller
         $limit = (int) $request->query('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], 200);
+        return response()->json(['data' => $posts], Response::HTTP_OK);
     }
 
     /**
@@ -671,8 +673,8 @@ class JobPostController extends Controller
      */
     public function apply(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Only helpers can apply to job posts.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Only helpers can apply to job posts.'], Response::HTTP_FORBIDDEN);
         }
 
         // Bắt buộc thợ giúp việc hoàn thiện thông tin trước khi ứng tuyển
@@ -688,7 +690,7 @@ class JobPostController extends Controller
                 if (empty($users) || empty($users[0]['phone'])) {
                     return response()->json([
                         'message' => 'Vui lòng cập nhật số điện thoại liên hệ trước khi ứng tuyển.'
-                    ], 400);
+                    ], Response::HTTP_BAD_REQUEST);
                 }
             }
         } catch (\Exception $e) {
@@ -705,7 +707,7 @@ class JobPostController extends Controller
                 if (isset($statusData['is_complete']) && !$statusData['is_complete']) {
                     return response()->json([
                         'message' => 'Vui lòng hoàn thiện hồ sơ trước khi ứng tuyển: ' . $statusData['message']
-                    ], 400);
+                    ], Response::HTTP_BAD_REQUEST);
                 }
             }
         } catch (\Exception $e) {
@@ -713,7 +715,7 @@ class JobPostController extends Controller
         }
 
         $post = JobPost::where('id', $id)->where('status', 'open')->first();
-        if (!$post) return response()->json(['message' => 'Job post not found or already closed.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found or already closed.'], Response::HTTP_NOT_FOUND);
 
         if ($post->working_time) {
             $parsedTime = strtotime($post->working_time);
@@ -726,13 +728,13 @@ class JobPostController extends Controller
                 if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
                     return response()->json([
                         'message' => 'Bạn không thể ứng tuyển do trùng ngày giờ hoặc đang trong lịch làm việc ca khác.'
-                    ], 400);
+                    ], Response::HTTP_BAD_REQUEST);
                 }
             }
         }
 
         if (JobApplication::where('job_post_id', $id)->where('helper_id', $request->authUser['id'])->exists()) {
-            return response()->json(['message' => 'You have already applied for this job post.'], 409);
+            return response()->json(['message' => 'You have already applied for this job post.'], Response::HTTP_CONFLICT);
         }
 
         $fields = $request->validate([
@@ -760,7 +762,7 @@ class JobPostController extends Controller
             Log::error('Failed to send apply notification: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Application submitted.', 'data' => $application], 201);
+        return response()->json(['message' => 'Application submitted.', 'data' => $application], Response::HTTP_CREATED);
     }
 
     /**
@@ -768,8 +770,8 @@ class JobPostController extends Controller
      */
     public function myApplications(Request $request)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = JobApplication::with(['jobPost'])
@@ -780,7 +782,7 @@ class JobPostController extends Controller
         $limit = (int) $request->query('limit', 20);
         $apps  = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $apps], 200);
+        return response()->json(['data' => $apps], Response::HTTP_OK);
     }
 
     /**
@@ -788,8 +790,8 @@ class JobPostController extends Controller
      */
     public function withdraw(Request $request, $applicationId)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $application = JobApplication::where('id', $applicationId)
@@ -797,11 +799,11 @@ class JobPostController extends Controller
                                      ->where('status', 'pending')
                                      ->first();
 
-        if (!$application) return response()->json(['message' => 'Application not found or cannot be withdrawn.'], 404);
+        if (!$application) return response()->json(['message' => 'Application not found or cannot be withdrawn.'], Response::HTTP_NOT_FOUND);
 
         $application->update(['status' => 'withdrawn']);
 
-        return response()->json(['message' => 'Application withdrawn.'], 200);
+        return response()->json(['message' => 'Application withdrawn.'], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -813,8 +815,8 @@ class JobPostController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = JobPost::with(['services']);
@@ -831,7 +833,7 @@ class JobPostController extends Controller
         $limit = (int) $request->query('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], 200);
+        return response()->json(['data' => $posts], Response::HTTP_OK);
     }
 
     /**
@@ -839,14 +841,14 @@ class JobPostController extends Controller
      */
     public function adminShow(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::with(['services', 'applications', 'reviews', 'reports'])->find($id);
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
-        return response()->json(['data' => $post], 200);
+        return response()->json(['data' => $post], Response::HTTP_OK);
     }
 
     /**
@@ -854,12 +856,12 @@ class JobPostController extends Controller
      */
     public function adminUpdateStatus(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::find($id);
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         $fields = $request->validate([
             'status' => 'required|string|in:open,closed,pending',
@@ -868,7 +870,7 @@ class JobPostController extends Controller
 
         $post->update(['status' => $fields['status']]);
 
-        return response()->json(['message' => 'Job post status updated.', 'data' => $post->fresh()], 200);
+        return response()->json(['message' => 'Job post status updated.', 'data' => $post->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -877,15 +879,15 @@ class JobPostController extends Controller
      */
     public function adminDestroy(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 1) {
-            return response()->json(['message' => 'Only administrators can delete job posts.'], 403);
+        if ($request->authUser['role_id'] !== Role::ADMIN) {
+            return response()->json(['message' => 'Only administrators can delete job posts.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::find($id);
-        if (!$post) return response()->json(['message' => 'Job post not found.'], 404);
+        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
 
         $post->delete();
 
-        return response()->json(['message' => 'Job post deleted.'], 200);
+        return response()->json(['message' => 'Job post deleted.'], Response::HTTP_OK);
     }
 }

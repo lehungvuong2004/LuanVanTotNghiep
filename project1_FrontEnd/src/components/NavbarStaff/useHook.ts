@@ -8,6 +8,8 @@ export interface NavbarStaffProps {
 export const navItems= [
   { name: "Dashboard", path: "/operator/dashboard", icon: "material-symbols:grid-view-outline-rounded" },
   { name: "Bookings", path: "/operator/bookings", icon: "material-symbols:calendar-today-outline-rounded" },
+  { name: "Job Posts", path: "/operator/job-posts", icon: "material-symbols:post-add-rounded" },
+  { name: "Helpers", path: "/operator/helpers", icon: "material-symbols:engineering-outline" },
   { name: "Reviews", path: "/operator/reviews", icon: "material-symbols:rate-review-outline-rounded" },
   { name: "Reports", path: "/operator/reports", icon: "material-symbols:bar-chart-outline-rounded" },
   { name: "Support", path: "/operator/contacts", icon: "material-symbols:contact-phone-outline-rounded" },

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Report;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 
 class ReportController extends Controller
 {
@@ -26,8 +28,8 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         // All authenticated roles may submit a report (customer=4, helper=3)
-        if (!in_array($request->authUser['role_id'], [4, 3])) {
-            return response()->json(['message' => 'Only customers and helpers can submit reports.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::HELPER])) {
+            return response()->json(['message' => 'Only customers and helpers can submit reports.'], Response::HTTP_FORBIDDEN);
         }
 
         $fields = $request->validate([
@@ -40,12 +42,12 @@ class ReportController extends Controller
         if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
             return response()->json([
                 'message' => 'A report must be linked to a booking or a job post.'
-            ], 422);
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Prevent self-reporting
         if (isset($fields['reported_user_id']) && $fields['reported_user_id'] == $request->authUser['id']) {
-            return response()->json(['message' => 'You cannot report yourself.'], 422);
+            return response()->json(['message' => 'You cannot report yourself.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $report = Report::create([
@@ -60,7 +62,7 @@ class ReportController extends Controller
         return response()->json([
             'message' => 'Report submitted. Our team will review it shortly.',
             'data'    => $report,
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     // =====================================================================
@@ -74,8 +76,8 @@ class ReportController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = Report::orderByDesc('created_at');
@@ -88,19 +90,19 @@ class ReportController extends Controller
         $limit   = (int) $request->query('limit', 20);
         $reports = $query->paginate($limit);
 
-        return response()->json(['data' => $reports], 200);
+        return response()->json(['data' => $reports], Response::HTTP_OK);
     }
 
     public function adminShow(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $report = Report::with(['booking', 'jobPost'])->find($id);
-        if (!$report) return response()->json(['message' => 'Report not found.'], 404);
+        if (!$report) return response()->json(['message' => 'Report not found.'], Response::HTTP_NOT_FOUND);
 
-        return response()->json(['data' => $report], 200);
+        return response()->json(['data' => $report], Response::HTTP_OK);
     }
 
     /**
@@ -111,15 +113,15 @@ class ReportController extends Controller
      */
     public function process(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $report = Report::find($id);
-        if (!$report) return response()->json(['message' => 'Report not found.'], 404);
+        if (!$report) return response()->json(['message' => 'Report not found.'], Response::HTTP_NOT_FOUND);
 
         if ($report->status !== 'pending') {
-            return response()->json(['message' => "Report is already '{$report->status}'."], 422);
+            return response()->json(['message' => "Report is already '{$report->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $fields = $request->validate([
@@ -132,6 +134,6 @@ class ReportController extends Controller
         return response()->json([
             'message' => 'Report processed.',
             'data'    => $report->fresh(),
-        ], 200);
+        ], Response::HTTP_OK);
     }
 }

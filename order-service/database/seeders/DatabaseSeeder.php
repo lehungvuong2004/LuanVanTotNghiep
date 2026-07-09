@@ -8,16 +8,17 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+  use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
-    {
-        $this->call([
-            ReviewSeeder::class,
-            JobPostSeeder::class,
-        ]);
-    }
+  /**
+   * Seed the application's database.
+   */
+  public function run(): void
+  {
+    $this->call([
+      BookingSeeder::class,
+      ReviewSeeder::class,
+      JobPostSeeder::class,
+    ]);
+  }
 }

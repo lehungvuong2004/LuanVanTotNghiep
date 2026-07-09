@@ -14,259 +14,263 @@ use App\Models\Favorite;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
-    {
-        // 1. Seed Service Categories (3 records: Cleaning, Repair, Care)
-        $cleaning = ServiceCategory::updateOrCreate(
-            ['name' => 'Cleaning'],
-            [
-                'description' => 'Professional home cleaning services',
-                'icon'        => 'material-symbols:cleaning-services-outline',
-                'type'        => 'both',
-                'status'      => 'active',
-            ]
-        );
+  /**
+   * Seed the application's database.
+   */
+  public function run(): void
+  {
+    // 1. Seed Service Categories (3 records: Cleaning, Repair, Care)
+    $cleaning = ServiceCategory::updateOrCreate(
+      ['name' => 'Cleaning'],
+      [
+        'description' => 'Professional home cleaning services',
+        'icon'        => 'material-symbols:cleaning-services-outline',
+        'type'        => 'both',
+        'status'      => 'active',
+      ]
+    );
 
-        $repair = ServiceCategory::updateOrCreate(
-            ['name' => 'Repair'],
-            [
-                'description' => 'Fixing home appliances and hardware',
-                'icon'        => 'material-symbols:handyman-outline-rounded',
-                'type'        => 'both',
-                'status'      => 'active',
-            ]
-        );
+    $repair = ServiceCategory::updateOrCreate(
+      ['name' => 'Repair'],
+      [
+        'description' => 'Fixing home appliances and hardware',
+        'icon'        => 'material-symbols:handyman-outline-rounded',
+        'type'        => 'both',
+        'status'      => 'active',
+      ]
+    );
 
-        $care = ServiceCategory::updateOrCreate(
-            ['name' => 'Care'],
-            [
-                'description' => 'Elderly and child care services',
-                'icon'        => 'material-symbols:elderly-outline',
-                'type'        => 'both',
-                'status'      => 'active',
-            ]
-        );
+    $care = ServiceCategory::updateOrCreate(
+      ['name' => 'Care'],
+      [
+        'description' => 'Elderly and child care services',
+        'icon'        => 'material-symbols:elderly-outline',
+        'type'        => 'both',
+        'status'      => 'active',
+      ]
+    );
 
-        // 2. Seed Services (4 records)
-        $deepCleaning = Service::updateOrCreate(
-            ['name' => 'Deep Home Cleaning'],
-            [
-                'category_id' => $cleaning->id,
-                'description' => 'Detailed and thorough cleaning of your entire house.',
-                'base_price'  => 500000,
-                'price_type'  => 'fixed',
-                'status'      => 'active',
-            ]
-        );
+    // 2. Seed Services (4 records)
+    $deepCleaning = Service::updateOrCreate(
+      ['name' => 'Deep Home Cleaning'],
+      [
+        'category_id' => $cleaning->id,
+        'description' => 'Detailed and thorough cleaning of your entire house.',
+        'base_price'  => 500000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
 
-        $sofaCleaning = Service::updateOrCreate(
-            ['name' => 'Standard Sofa Cleaning'],
-            [
-                'category_id' => $cleaning->id,
-                'description' => 'Remove stains and dirt from sofas and armchairs.',
-                'base_price'  => 350000,
-                'price_type'  => 'fixed',
-                'status'      => 'active',
-            ]
-        );
+    $sofaCleaning = Service::updateOrCreate(
+      ['name' => 'Standard Sofa Cleaning'],
+      [
+        'category_id' => $cleaning->id,
+        'description' => 'Remove stains and dirt from sofas and armchairs.',
+        'base_price'  => 350000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
 
-        $acRepair = Service::updateOrCreate(
-            ['name' => 'Air Conditioner Repair'],
-            [
-                'category_id' => $repair->id,
-                'description' => 'Maintenance and quick repair of AC units.',
-                'base_price'  => 250000,
-                'price_type'  => 'hourly',
-                'status'      => 'active',
-            ]
-        );
+    $acRepair = Service::updateOrCreate(
+      ['name' => 'Air Conditioner Repair'],
+      [
+        'category_id' => $repair->id,
+        'description' => 'Maintenance and quick repair of AC units.',
+        'base_price'  => 250000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
 
-        $elderlyCare = Service::updateOrCreate(
-            ['name' => 'Elderly Care (Basic)'],
-            [
-                'category_id' => $care->id,
-                'description' => 'Basic care and companionship for elderly people.',
-                'base_price'  => 150000,
-                'price_type'  => 'hourly',
-                'status'      => 'active',
-            ]
-        );
+    $elderlyCare = Service::updateOrCreate(
+      ['name' => 'Elderly Care (Basic)'],
+      [
+        'category_id' => $care->id,
+        'description' => 'Basic care and companionship for elderly people.',
+        'base_price'  => 150000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
 
-        // 3. Seed Helper Profiles (5 records)
-        // helper1: user_id=3  (helper@gmail.com — Người giúp việc B)
-        $helper1 = HelperProfile::updateOrCreate(
-            ['user_id' => 3],
-            [
-                'bio'             => 'Chuyên gia dọn dẹp nhà cửa với 5 năm kinh nghiệm tại các căn hộ cao cấp. Tỉ mỉ, cẩn thận và đáng tin cậy.',
-                'experience_year' => 5,
-                'gender'          => 'female',
-                'birthday'        => '1995-05-12',
-                'address'         => '123 Nguyễn Huệ, Quận 1, TP.HCM',
-                'status'          => 'active',
-                'rating_avg'      => 4.80,
-                'total_reviews'   => 15,
-            ]
-        );
+    // 3. Seed Helper Profiles (5 records)
+    // helper1: user_id=3  (helper@gmail.com — Người giúp việc B)
+    $helper1 = HelperProfile::updateOrCreate(
+      ['user_id' => 3],
+      [
+        'bio'             => 'Chuyên gia dọn dẹp nhà cửa với 5 năm kinh nghiệm tại các căn hộ cao cấp. Tỉ mỉ, cẩn thận và đáng tin cậy.',
+        'experience_year' => 5,
+        'gender'          => 'female',
+        'birthday'        => '1995-05-12',
+        'address'         => '123 Nguyễn Huệ, Quận 1, TP.HCM',
+        'status'          => 'active',
+        'rating_avg'      => 4.80,
+        'total_reviews'   => 15,
+      ]
+    );
 
-        // helper2: user_id=10 (helper2@gmail.com — Nguyễn Thị Hoa)
-        $helper2 = HelperProfile::updateOrCreate(
-            ['user_id' => 10],
-            [
-                'bio'             => 'Kỹ thuật viên điều hòa và sửa chữa điện gia dụng 8 năm kinh nghiệm. Làm việc nhanh, uy tín, bảo hành công trình.',
-                'experience_year' => 8,
-                'gender'          => 'male',
-                'birthday'        => '1990-08-22',
-                'address'         => '456 Lê Lợi, Quận 3, TP.HCM',
-                'status'          => 'active',
-                'rating_avg'      => 4.90,
-                'total_reviews'   => 22,
-            ]
-        );
+    // helper2: user_id=10 (helper2@gmail.com — Nguyễn Thị Hoa)
+    $helper2 = HelperProfile::updateOrCreate(
+      ['user_id' => 10],
+      [
+        'bio'             => 'Kỹ thuật viên điều hòa và sửa chữa điện gia dụng 8 năm kinh nghiệm. Làm việc nhanh, uy tín, bảo hành công trình.',
+        'experience_year' => 8,
+        'gender'          => 'male',
+        'birthday'        => '1990-08-22',
+        'address'         => '456 Lê Lợi, Quận 3, TP.HCM',
+        'status'          => 'active',
+        'rating_avg'      => 4.90,
+        'total_reviews'   => 22,
+      ]
+    );
 
-        // helper3: user_id=11 (helper3@gmail.com — Trần Văn Hùng)
-        $helper3 = HelperProfile::updateOrCreate(
-            ['user_id' => 11],
-            [
-                'bio'             => 'Nhân viên chăm sóc người cao tuổi, chuyên phục hồi sức khỏe tại nhà. Tốt nghiệp ngành điều dưỡng, kinh nghiệm 6 năm.',
-                'experience_year' => 6,
-                'gender'          => 'male',
-                'birthday'        => '1992-03-15',
-                'address'         => '789 Cách Mạng Tháng 8, Quận 10, TP.HCM',
-                'status'          => 'active',
-                'rating_avg'      => 4.70,
-                'total_reviews'   => 18,
-            ]
-        );
+    // helper3: user_id=11 (helper3@gmail.com — Trần Văn Hùng)
+    $helper3 = HelperProfile::updateOrCreate(
+      ['user_id' => 11],
+      [
+        'bio'             => 'Nhân viên chăm sóc người cao tuổi, chuyên phục hồi sức khỏe tại nhà. Tốt nghiệp ngành điều dưỡng, kinh nghiệm 6 năm.',
+        'experience_year' => 6,
+        'gender'          => 'male',
+        'birthday'        => '1992-03-15',
+        'address'         => '789 Cách Mạng Tháng 8, Quận 10, TP.HCM',
+        'status'          => 'active',
+        'rating_avg'      => 4.70,
+        'total_reviews'   => 18,
+      ]
+    );
 
-        // helper4: user_id=12 (helper4@gmail.com — Phạm Thanh Sơn)
-        $helper4 = HelperProfile::updateOrCreate(
-            ['user_id' => 12],
-            [
-                'bio'             => 'Chuyên dọn dẹp vệ sinh công nghiệp, nhà mới, văn phòng. Làm việc theo nhóm, trang bị đầy đủ máy móc hiện đại.',
-                'experience_year' => 4,
-                'gender'          => 'male',
-                'birthday'        => '1997-11-08',
-                'address'         => '55 Phan Xích Long, Phú Nhuận, TP.HCM',
-                'status'          => 'active',
-                'rating_avg'      => 4.60,
-                'total_reviews'   => 10,
-            ]
-        );
+    // helper4: user_id=12 (helper4@gmail.com — Phạm Thanh Sơn)
+    $helper4 = HelperProfile::updateOrCreate(
+      ['user_id' => 12],
+      [
+        'bio'             => 'Chuyên dọn dẹp vệ sinh công nghiệp, nhà mới, văn phòng. Làm việc theo nhóm, trang bị đầy đủ máy móc hiện đại.',
+        'experience_year' => 4,
+        'gender'          => 'male',
+        'birthday'        => '1997-11-08',
+        'address'         => '55 Phan Xích Long, Phú Nhuận, TP.HCM',
+        'status'          => 'active',
+        'rating_avg'      => 4.60,
+        'total_reviews'   => 10,
+      ]
+    );
 
-        // helper5: user_id=13 (helper5@gmail.com — Lê Thị Mai)
-        $helper5 = HelperProfile::updateOrCreate(
-            ['user_id' => 13],
-            [
-                'bio'             => 'Giúp việc nhà toàn thời gian: nấu ăn, giặt ủi, chăm trẻ. Tận tụy, yêu trẻ, có chứng chỉ sơ cấp cứu.',
-                'experience_year' => 3,
-                'gender'          => 'female',
-                'birthday'        => '1999-06-20',
-                'address'         => '12 Nguyễn Đình Chiểu, Bình Thạnh, TP.HCM',
-                'status'          => 'active',
-                'rating_avg'      => 4.50,
-                'total_reviews'   => 8,
-            ]
-        );
+    // helper5: user_id=13 (helper5@gmail.com — Lê Thị Mai)
+    $helper5 = HelperProfile::updateOrCreate(
+      ['user_id' => 13],
+      [
+        'bio'             => 'Giúp việc nhà toàn thời gian: nấu ăn, giặt ủi, chăm trẻ. Tận tụy, yêu trẻ, có chứng chỉ sơ cấp cứu.',
+        'experience_year' => 3,
+        'gender'          => 'female',
+        'birthday'        => '1999-06-20',
+        'address'         => '12 Nguyễn Đình Chiểu, Bình Thạnh, TP.HCM',
+        'status'          => 'active',
+        'rating_avg'      => 4.50,
+        'total_reviews'   => 8,
+      ]
+    );
 
-        // 4. Seed Helper Working Areas (TP.HCM districts)
-        // helper1 — Quận 1, Quận 3
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'district' => 'Quận 1',   'city' => 'TP.HCM'], []);
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'district' => 'Quận 3',   'city' => 'TP.HCM'], []);
+    // 4. Seed Helper Working Areas (TP.HCM districts)
+    // helper1 — Quận 1, Quận 3
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'district' => 'Quận 1',   'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'district' => 'Quận 3',   'city' => 'TP.HCM'], []);
 
-        // helper2 — Quận 3, Bình Thạnh
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'district' => 'Quận 3',   'city' => 'TP.HCM'], []);
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'district' => 'Bình Thạnh','city' => 'TP.HCM'], []);
+    // helper2 — Quận 3, Bình Thạnh
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'district' => 'Quận 3',   'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'district' => 'Bình Thạnh', 'city' => 'TP.HCM'], []);
 
-        // helper3 — Quận 10, Phú Nhuận
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'district' => 'Quận 10',  'city' => 'TP.HCM'], []);
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'district' => 'Phú Nhuận','city' => 'TP.HCM'], []);
+    // helper3 — Quận 10, Phú Nhuận
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'district' => 'Quận 10',  'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'district' => 'Phú Nhuận', 'city' => 'TP.HCM'], []);
 
-        // helper4 — Phú Nhuận, Quận 1
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'district' => 'Phú Nhuận','city' => 'TP.HCM'], []);
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'district' => 'Quận 1',   'city' => 'TP.HCM'], []);
+    // helper4 — Phú Nhuận, Quận 1
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'district' => 'Phú Nhuận', 'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'district' => 'Quận 1',   'city' => 'TP.HCM'], []);
 
-        // helper5 — Bình Thạnh, Quận 10
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'district' => 'Bình Thạnh','city' => 'TP.HCM'], []);
-        HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'district' => 'Quận 10',  'city' => 'TP.HCM'], []);
+    // helper5 — Bình Thạnh, Quận 10
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'district' => 'Bình Thạnh', 'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'district' => 'Quận 10',  'city' => 'TP.HCM'], []);
 
-        // 5. Seed Helper Verifications (all approved)
-        HelperVerification::updateOrCreate(
-            ['helper_id' => $helper1->id],
-            ['admin_id' => 1, 'status' => 'approved', 'note' => 'Đã xác minh đầy đủ giấy tờ và kinh nghiệm.']
-        );
-        HelperVerification::updateOrCreate(
-            ['helper_id' => $helper2->id],
-            ['admin_id' => 1, 'status' => 'approved', 'note' => 'Kinh nghiệm và chứng chỉ kỹ thuật đã được xác nhận.']
-        );
-        HelperVerification::updateOrCreate(
-            ['helper_id' => $helper3->id],
-            ['admin_id' => 1, 'status' => 'approved', 'note' => 'Bằng điều dưỡng và giấy tờ cá nhân hợp lệ.']
-        );
-        HelperVerification::updateOrCreate(
-            ['helper_id' => $helper4->id],
-            ['admin_id' => 1, 'status' => 'approved', 'note' => 'Hồ sơ và kinh nghiệm thực tế đã được kiểm tra.']
-        );
-        HelperVerification::updateOrCreate(
-            ['helper_id' => $helper5->id],
-            ['admin_id' => 1, 'status' => 'approved', 'note' => 'Chứng chỉ sơ cấp cứu và hồ sơ đã xác minh.']
-        );
+    // 5. Seed Helper Verifications (all approved)
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $helper1->id],
+      ['admin_id' => 1, 'status' => 'approved', 'note' => 'Đã xác minh đầy đủ giấy tờ và kinh nghiệm.']
+    );
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $helper2->id],
+      ['admin_id' => 1, 'status' => 'approved', 'note' => 'Kinh nghiệm và chứng chỉ kỹ thuật đã được xác nhận.']
+    );
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $helper3->id],
+      ['admin_id' => 1, 'status' => 'approved', 'note' => 'Bằng điều dưỡng và giấy tờ cá nhân hợp lệ.']
+    );
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $helper4->id],
+      ['admin_id' => 1, 'status' => 'approved', 'note' => 'Hồ sơ và kinh nghiệm thực tế đã được kiểm tra.']
+    );
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $helper5->id],
+      ['admin_id' => 1, 'status' => 'approved', 'note' => 'Chứng chỉ sơ cấp cứu và hồ sơ đã xác minh.']
+    );
 
-        // 6. Seed Helper Skills
-        // helper1: Dọn nhà sâu, Sofa
-        HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $deepCleaning->id], []);
-        HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $sofaCleaning->id], []);
+    // 6. Seed Helper Skills
+    // helper1: Dọn nhà sâu, Sofa
+    HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $deepCleaning->id], []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $sofaCleaning->id], []);
 
-        // helper2: Điều hòa, Chăm sóc người già
-        HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $acRepair->id],    []);
-        HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $elderlyCare->id], []);
+    // helper2: Điều hòa, Chăm sóc người già
+    HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $acRepair->id],    []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $elderlyCare->id], []);
 
-        // helper3: Chăm sóc người già, Dọn nhà sâu
-        HelperSkill::updateOrCreate(['helper_id' => $helper3->id, 'service_id' => $elderlyCare->id], []);
-        HelperSkill::updateOrCreate(['helper_id' => $helper3->id, 'service_id' => $deepCleaning->id],[]);
+    // helper3: Chăm sóc người già, Dọn nhà sâu
+    HelperSkill::updateOrCreate(['helper_id' => $helper3->id, 'service_id' => $elderlyCare->id], []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper3->id, 'service_id' => $deepCleaning->id], []);
 
-        // helper4: Dọn nhà sâu, Sofa, Điều hòa
-        HelperSkill::updateOrCreate(['helper_id' => $helper4->id, 'service_id' => $deepCleaning->id],[]);
-        HelperSkill::updateOrCreate(['helper_id' => $helper4->id, 'service_id' => $sofaCleaning->id],[]);
-        HelperSkill::updateOrCreate(['helper_id' => $helper4->id, 'service_id' => $acRepair->id],    []);
+    // helper4: Dọn nhà sâu, Sofa, Điều hòa
+    HelperSkill::updateOrCreate(['helper_id' => $helper4->id, 'service_id' => $deepCleaning->id], []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper4->id, 'service_id' => $sofaCleaning->id], []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper4->id, 'service_id' => $acRepair->id],    []);
 
-        // helper5: Chăm sóc người già, Dọn nhà sâu
-        HelperSkill::updateOrCreate(['helper_id' => $helper5->id, 'service_id' => $elderlyCare->id], []);
-        HelperSkill::updateOrCreate(['helper_id' => $helper5->id, 'service_id' => $deepCleaning->id],[]);
+    // helper5: Chăm sóc người già, Dọn nhà sâu
+    HelperSkill::updateOrCreate(['helper_id' => $helper5->id, 'service_id' => $elderlyCare->id], []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper5->id, 'service_id' => $deepCleaning->id], []);
 
-        // 7. Seed Helper Availabilities (ngày trong tương lai)
-        $day1 = date('Y-m-d', strtotime('+1 day'));
-        $day2 = date('Y-m-d', strtotime('+2 days'));
-        $day3 = date('Y-m-d', strtotime('+3 days'));
-        $day4 = date('Y-m-d', strtotime('+4 days'));
-        $day5 = date('Y-m-d', strtotime('+5 days'));
+    // 7. Seed Helper Availabilities (ngày trong tương lai)
+    $day1 = date('Y-m-d', strtotime('+1 day'));
+    $day2 = date('Y-m-d', strtotime('+2 days'));
+    $day3 = date('Y-m-d', strtotime('+3 days'));
+    $day4 = date('Y-m-d', strtotime('+4 days'));
+    $day5 = date('Y-m-d', strtotime('+5 days'));
 
-        // helper1
-        HelperAvailability::updateOrCreate(['helper_id' => $helper1->id, 'available_date' => $day1, 'start_time' => '08:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper1->id, 'available_date' => $day1, 'start_time' => '13:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper1->id, 'available_date' => $day3, 'start_time' => '08:00:00'], ['status' => 'available']);
+    // helper1
+    HelperAvailability::updateOrCreate(['helper_id' => $helper1->id, 'available_date' => $day1, 'start_time' => '08:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper1->id, 'available_date' => $day1, 'start_time' => '13:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper1->id, 'available_date' => $day3, 'start_time' => '08:00:00'], ['status' => 'available']);
 
-        // helper2
-        HelperAvailability::updateOrCreate(['helper_id' => $helper2->id, 'available_date' => $day2, 'start_time' => '09:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper2->id, 'available_date' => $day2, 'start_time' => '14:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper2->id, 'available_date' => $day4, 'start_time' => '09:00:00'], ['status' => 'available']);
+    // helper2
+    HelperAvailability::updateOrCreate(['helper_id' => $helper2->id, 'available_date' => $day2, 'start_time' => '09:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper2->id, 'available_date' => $day2, 'start_time' => '14:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper2->id, 'available_date' => $day4, 'start_time' => '09:00:00'], ['status' => 'available']);
 
-        // helper3
-        HelperAvailability::updateOrCreate(['helper_id' => $helper3->id, 'available_date' => $day1, 'start_time' => '07:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper3->id, 'available_date' => $day3, 'start_time' => '13:00:00'], ['status' => 'available']);
+    // helper3
+    HelperAvailability::updateOrCreate(['helper_id' => $helper3->id, 'available_date' => $day1, 'start_time' => '07:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper3->id, 'available_date' => $day3, 'start_time' => '13:00:00'], ['status' => 'available']);
 
-        // helper4
-        HelperAvailability::updateOrCreate(['helper_id' => $helper4->id, 'available_date' => $day2, 'start_time' => '08:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper4->id, 'available_date' => $day5, 'start_time' => '10:00:00'], ['status' => 'available']);
+    // helper4
+    HelperAvailability::updateOrCreate(['helper_id' => $helper4->id, 'available_date' => $day2, 'start_time' => '08:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper4->id, 'available_date' => $day5, 'start_time' => '10:00:00'], ['status' => 'available']);
 
-        // helper5
-        HelperAvailability::updateOrCreate(['helper_id' => $helper5->id, 'available_date' => $day3, 'start_time' => '08:00:00'], ['status' => 'available']);
-        HelperAvailability::updateOrCreate(['helper_id' => $helper5->id, 'available_date' => $day5, 'start_time' => '13:00:00'], ['status' => 'available']);
+    // helper5
+    HelperAvailability::updateOrCreate(['helper_id' => $helper5->id, 'available_date' => $day3, 'start_time' => '08:00:00'], ['status' => 'available']);
+    HelperAvailability::updateOrCreate(['helper_id' => $helper5->id, 'available_date' => $day5, 'start_time' => '13:00:00'], ['status' => 'available']);
 
-        // 8. Seed Favorites (customer_id=4 yêu thích helper1 và helper2)
-        Favorite::updateOrCreate(['customer_id' => 4, 'helper_id' => $helper1->id], []);
-        Favorite::updateOrCreate(['customer_id' => 4, 'helper_id' => $helper2->id], []);
-    }
+    // 8. Seed Favorites (customer_id=4 yêu thích helper1 và helper2)
+    Favorite::updateOrCreate(['customer_id' => 4, 'helper_id' => $helper1->id], []);
+    Favorite::updateOrCreate(['customer_id' => 4, 'helper_id' => $helper2->id], []);
+  }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HelperProfile;
 use App\Models\HelperVerification;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Http;
 
 class AdminProviderController extends Controller
@@ -15,7 +17,7 @@ class AdminProviderController extends Controller
     private function requireAdminOrOperator(Request $request): ?array
     {
         $roleId = $request->authUser['role_id'] ?? null;
-        if (!in_array($roleId, [1, 2])) {
+        if (!in_array($roleId, [Role::ADMIN, Role::OPERATOR])) {
             return null;
         }
         return $request->authUser;
@@ -32,7 +34,7 @@ class AdminProviderController extends Controller
     public function listHelpers(Request $request)
     {
         if (!$this->requireAdminOrOperator($request)) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = HelperProfile::with(['skills.service', 'workingAreas', 'verifications']);
@@ -97,7 +99,7 @@ class AdminProviderController extends Controller
             $helper->user = $userMap[$helper->user_id] ?? null;
         }
 
-        return response()->json(['data' => $helpers], 200);
+        return response()->json(['data' => $helpers], Response::HTTP_OK);
     }
 
     /**
@@ -106,14 +108,14 @@ class AdminProviderController extends Controller
     public function showHelper(Request $request, $id)
     {
         if (!$this->requireAdminOrOperator($request)) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $helper = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities', 'verifications'])
                                ->find($id);
 
         if (!$helper) {
-            return response()->json(['message' => 'Không tìm thấy helper.'], 404);
+            return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
         }
 
         // Lấy thông tin chi tiết user
@@ -133,7 +135,7 @@ class AdminProviderController extends Controller
             // ignore
         }
 
-        return response()->json(['data' => $helper], 200);
+        return response()->json(['data' => $helper], Response::HTTP_OK);
     }
 
     /**
@@ -147,12 +149,12 @@ class AdminProviderController extends Controller
     {
         $reviewer = $this->requireAdminOrOperator($request);
         if (!$reviewer) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $helper = HelperProfile::find($id);
         if (!$helper) {
-            return response()->json(['message' => 'Không tìm thấy helper.'], 404);
+            return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
         }
 
         $fields = $request->validate([
@@ -186,7 +188,7 @@ class AdminProviderController extends Controller
                 ? 'Đã phê duyệt hồ sơ helper thành công.'
                 : 'Đã từ chối hồ sơ helper.',
             'data'    => $verification,
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -196,12 +198,12 @@ class AdminProviderController extends Controller
     public function toggleHelperStatus(Request $request, $id)
     {
         if (!$this->requireAdminOrOperator($request)) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $helper = HelperProfile::find($id);
         if (!$helper) {
-            return response()->json(['message' => 'Không tìm thấy helper.'], 404);
+            return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
         }
 
         $fields = $request->validate([
@@ -218,7 +220,7 @@ class AdminProviderController extends Controller
         return response()->json([
             'message' => $msg,
             'data'    => $helper->fresh(),
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -230,8 +232,8 @@ class AdminProviderController extends Controller
      */
     public function stats(Request $request)
     {
-        if ($request->authUser['role_id'] !== 1) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!$this->requireAdminOrOperator($request)) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $stats = [
@@ -243,7 +245,7 @@ class AdminProviderController extends Controller
             'pending_verifications' => HelperVerification::where('status', 'pending')->count(),
         ];
 
-        return response()->json(['data' => $stats], 200);
+        return response()->json(['data' => $stats], Response::HTTP_OK);
     }
 
     /**
@@ -252,13 +254,13 @@ class AdminProviderController extends Controller
     public function deleteHelper(Request $request, $id)
     {
         // Phải là Admin (role_id = 1)
-        if ($request->authUser['role_id'] !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if ($request->authUser['role_id'] !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $helper = HelperProfile::find($id);
         if (!$helper) {
-            return response()->json(['message' => 'Không tìm thấy helper.'], 404);
+            return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
         }
 
         // Gọi identity-service để xóa account user tương ứng
@@ -271,7 +273,7 @@ class AdminProviderController extends Controller
             // Nếu xóa user thành công hoặc user không tồn tại thì ta tiếp tục xóa helper profile
             if ($userResponse->successful() || $userResponse->status() === 404) {
                 $helper->delete(); // Sẽ cascade delete working areas, verifications, skills, availability...
-                return response()->json(['message' => 'Xóa người giúp việc và tài khoản liên kết thành công.'], 200);
+                return response()->json(['message' => 'Xóa người giúp việc và tài khoản liên kết thành công.'], Response::HTTP_OK);
             }
 
             return response()->json([
@@ -283,7 +285,7 @@ class AdminProviderController extends Controller
             return response()->json([
                 'message' => 'Lỗi kết nối liên dịch vụ khi xóa tài khoản helper.',
                 'error' => $e->getMessage()
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -293,8 +295,8 @@ class AdminProviderController extends Controller
     public function bulkDeleteHelpers(Request $request)
     {
         // Phải là Admin (role_id = 1)
-        if ($request->authUser['role_id'] !== 1) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+        if ($request->authUser['role_id'] !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
         $request->validate([
@@ -306,7 +308,7 @@ class AdminProviderController extends Controller
         $helpers = HelperProfile::whereIn('id', $ids)->get();
 
         if ($helpers->isEmpty()) {
-            return response()->json(['message' => 'Không tìm thấy người giúp việc nào để xóa.'], 404);
+            return response()->json(['message' => 'Không tìm thấy người giúp việc nào để xóa.'], Response::HTTP_NOT_FOUND);
         }
 
         $userIds = $helpers->pluck('user_id')->toArray();
@@ -321,7 +323,7 @@ class AdminProviderController extends Controller
             if ($userResponse->successful()) {
                 // Xóa các helper profile tương ứng
                 HelperProfile::whereIn('id', $ids)->delete();
-                return response()->json(['message' => 'Xóa hàng loạt người giúp việc và tài khoản liên kết thành công.'], 200);
+                return response()->json(['message' => 'Xóa hàng loạt người giúp việc và tài khoản liên kết thành công.'], Response::HTTP_OK);
             }
 
             return response()->json([
@@ -333,7 +335,7 @@ class AdminProviderController extends Controller
             return response()->json([
                 'message' => 'Lỗi kết nối liên dịch vụ khi xóa hàng loạt helper.',
                 'error' => $e->getMessage()
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

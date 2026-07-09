@@ -3,7 +3,7 @@ import {
   getHelpersPublic,
   type HelperProfile,
 } from "../../api/helpers";
-import { getServicesApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/services";
+import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/services";
 
 // Shape dùng trong UI cho Service Card
 export interface ServiceItem {
@@ -97,30 +97,20 @@ function mapHelperProfile(profile: HelperProfile): HelperItem {
   };
 }
 
-// Chuyển Service từ API → ServiceItem cho UI
-function mapService(service: Service, index: number): ServiceItem {
-  const UNSPLASH_IMAGES = [
-    "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1545130853-a5c0f13d7449?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=600&auto=format&fit=crop",
-  ];
-
+// Chuyển Service từ API → ServiceItem cho UI (sử dụng dữ liệu thực từ enriched API)
+function mapService(service: Service): ServiceItem {
   return {
     id: service.id,
     title: service.name,
     category: service.category?.name ?? "Dịch vụ",
-    rating: Number((3.5 + Math.random() * 1.5).toFixed(1)), // sinh số thực ngẫu nhiên từ 3.5 đến 5.0
-    reviewsCount: Math.floor(Math.random() * 100) + 10,
+    rating: Number((service as any).avg_rating) || 0,
+    reviewsCount: Number((service as any).total_reviews) || 0,
     price: Number(service.base_price) || 0,
     priceType: priceTypeLabel(service.price_type),
     area: "TP.HCM",
-    helpersCount: Math.floor(Math.random() * 15) + 3,
+    helpersCount: Number((service as any).helpers_count) || 0,
     description: service.description ?? "Dịch vụ chuyên nghiệp, chất lượng cao.",
-    image: UNSPLASH_IMAGES[index % UNSPLASH_IMAGES.length],
+    image: service.image || undefined,
     isFavorite: false,
   };
 }
@@ -154,21 +144,19 @@ export const useService = () => {
     fetchCategories();
   }, []);
 
-  // Fetch services từ API theo bộ lọc
+  // Fetch services từ API (enriched — dữ liệu thực)
   const fetchServices = useCallback(async (params: ServiceFilterParams) => {
     setLoading(true);
     try {
-      const res = await getServicesApi({
+      const res = await getServicesEnrichedApi({
         limit: 50,
         category_id: params.category_id,
         price_type: params.price_type,
         min_price: params.min_price,
         max_price: params.max_price,
-        city: params.city === "Tất cả" ? undefined : params.city,
-        district: params.district === "Tất cả" ? undefined : params.district,
       });
       const rawServices = res?.data?.data ?? [];
-      setServices(rawServices.map((s, i) => mapService(s, i)));
+      setServices(rawServices.map((s) => mapService(s)));
     } catch (err) {
       console.error("[useService] fetchServices failed:", err);
       setServices([]);

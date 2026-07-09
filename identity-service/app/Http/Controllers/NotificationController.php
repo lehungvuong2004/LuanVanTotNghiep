@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Notification;
 use App\Models\User;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +25,7 @@ class NotificationController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $query = Notification::where('user_id', $user->id)
@@ -40,7 +42,7 @@ class NotificationController extends Controller
     return response()->json([
       'unread_count' => $unreadCount,
       'data'         => $notifications,
-    ], 200);
+    ], Response::HTTP_OK);
   }
 
   /**
@@ -50,7 +52,7 @@ class NotificationController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $notification = Notification::where('id', $id)
@@ -58,12 +60,12 @@ class NotificationController extends Controller
       ->first();
 
     if (!$notification) {
-      return response()->json(['message' => 'Không tìm thấy thông báo.'], 404);
+      return response()->json(['message' => 'Không tìm thấy thông báo.'], Response::HTTP_NOT_FOUND);
     }
 
     $notification->update(['is_read' => 1]);
 
-    return response()->json(['message' => 'Đã đánh dấu đọc.'], 200);
+    return response()->json(['message' => 'Đã đánh dấu đọc.'], Response::HTTP_OK);
   }
 
   /**
@@ -73,13 +75,13 @@ class NotificationController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     Notification::where('user_id', $user->id)
       ->where('is_read', 0)
       ->update(['is_read' => 1]);
-    return response()->json(['message' => 'Đã đánh dấu tất cả thông báo là đã đọc.'], 200);
+    return response()->json(['message' => 'Đã đánh dấu tất cả thông báo là đã đọc.'], Response::HTTP_OK);
   }
 
   /**
@@ -89,7 +91,7 @@ class NotificationController extends Controller
   {
     $user = auth('api')->user();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], 401);
+      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
     $notification = Notification::where('id', $id)
@@ -97,12 +99,12 @@ class NotificationController extends Controller
       ->first();
 
     if (!$notification) {
-      return response()->json(['message' => 'Không tìm thấy thông báo.'], 404);
+      return response()->json(['message' => 'Không tìm thấy thông báo.'], Response::HTTP_NOT_FOUND);
     }
 
     $notification->delete();
 
-    return response()->json(['message' => 'Xóa thông báo thành công.'], 200);
+    return response()->json(['message' => 'Xóa thông báo thành công.'], Response::HTTP_OK);
   }
 
     // =====================================================================
@@ -116,8 +118,8 @@ class NotificationController extends Controller
   public function adminIndex(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     $query = Notification::orderByDesc('created_at');
@@ -137,7 +139,7 @@ class NotificationController extends Controller
     $limit         = (int) $request->query('limit', 20);
     $notifications = $query->paginate($limit);
 
-    return response()->json(['data' => $notifications], 200);
+    return response()->json(['data' => $notifications], Response::HTTP_OK);
   }
 
   /**
@@ -148,8 +150,8 @@ class NotificationController extends Controller
   public function send(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -183,7 +185,7 @@ class NotificationController extends Controller
 
     return response()->json([
       'message' => 'Gửi thông báo thành công đến ' . count($fields['user_ids']) . ' người dùng.',
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**
@@ -194,8 +196,8 @@ class NotificationController extends Controller
   public function broadcast(Request $request)
   {
     $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== 1) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], 403);
+    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
 
     $fields = $request->validate([
@@ -205,7 +207,7 @@ class NotificationController extends Controller
       'type'    => 'sometimes|string|in:system,booking,payment,promotion,report',
     ]);
 
-    $roleMap = ['admin' => 1, 'customer' => 4, 'helper' => 3, 'operator' => 2];
+    $roleMap = ['admin' => Role::ADMIN, 'customer' => Role::CUSTOMER, 'helper' => Role::HELPER, 'operator' => Role::OPERATOR];
     $roleId  = $roleMap[$fields['role']];
 
     $userIds = User::where('role_id', $roleId)
@@ -213,7 +215,7 @@ class NotificationController extends Controller
       ->pluck('id');
 
     if ($userIds->isEmpty()) {
-      return response()->json(['message' => 'Không có user nào thuộc role này.'], 404);
+      return response()->json(['message' => 'Không có user nào thuộc role này.'], Response::HTTP_NOT_FOUND);
     }
 
     $insertedNotifications = [];
@@ -239,7 +241,7 @@ class NotificationController extends Controller
 
     return response()->json([
       'message' => "Broadcast thành công đến {$userIds->count()} người dùng role [{$fields['role']}].",
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**
@@ -257,7 +259,7 @@ class NotificationController extends Controller
     ]);
 
     if (isset($fields['role'])) {
-      $roleMap = ['admin' => 1, 'customer' => 4, 'helper' => 3, 'operator' => 2];
+      $roleMap = ['admin' => Role::ADMIN, 'customer' => Role::CUSTOMER, 'helper' => Role::HELPER, 'operator' => Role::OPERATOR];
       $roleId  = $roleMap[$fields['role']];
 
       $userIds = User::where('role_id', $roleId)
@@ -290,7 +292,7 @@ class NotificationController extends Controller
       return response()->json([
         'message' => 'Tạo thông báo nội bộ cho nhóm role thành công.',
         'data'    => $insertedNotifications
-      ], 201);
+      ], Response::HTTP_CREATED);
     }
 
     $notification = Notification::create([
@@ -310,7 +312,7 @@ class NotificationController extends Controller
     return response()->json([
       'message' => 'Tạo thông báo nội bộ thành công.',
       'data'    => $notification
-    ], 201);
+    ], Response::HTTP_CREATED);
   }
 
   /**

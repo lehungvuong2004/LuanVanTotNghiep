@@ -3,6 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\CustomerProfile;
+use App\Models\CustomerAddress;
+use App\Models\Banner;
+use App\Models\ActivityLog;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -176,6 +180,118 @@ class DatabaseSeeder extends Seeder
         'password' => Hash::make($customerPass),
         'status' => 'active',
       ]
+    );
+
+    // ================================================================
+    //  SEED CUSTOMER PROFILES & ADDRESSES
+    // ================================================================
+
+    $cp1 = CustomerProfile::updateOrCreate(
+      ['user_id' => 4],
+      ['gender' => 'male', 'birthday' => '1990-03-15', 'note' => 'Khách hàng thường xuyên sử dụng dịch vụ dọn nhà.']
+    );
+
+    $cp2 = CustomerProfile::updateOrCreate(
+      ['user_id' => 14],
+      ['gender' => 'male', 'birthday' => '1988-07-22', 'note' => 'Cần chăm sóc người già tại nhà.']
+    );
+
+    $cp3 = CustomerProfile::updateOrCreate(
+      ['user_id' => 15],
+      ['gender' => 'female', 'birthday' => '1995-11-08', 'note' => 'Tìm bảo mẫu cho em bé.']
+    );
+
+    $cp4 = CustomerProfile::updateOrCreate(
+      ['user_id' => 16],
+      ['gender' => 'male', 'birthday' => '1992-01-30', 'note' => null]
+    );
+
+    $cp5 = CustomerProfile::updateOrCreate(
+      ['user_id' => 17],
+      ['gender' => 'female', 'birthday' => '1998-05-12', 'note' => 'Thuê dọn dẹp định kỳ hàng tuần.']
+    );
+
+    // Customer Addresses
+    CustomerAddress::updateOrCreate(
+      ['customer_id' => $cp1->id, 'address' => '123 Nguyễn Trãi, Phường Bến Thành'],
+      ['district' => 'Quận 1', 'city' => 'TP.HCM', 'is_default' => 1]
+    );
+    CustomerAddress::updateOrCreate(
+      ['customer_id' => $cp1->id, 'address' => '456 Lê Văn Sỹ, Phường 14'],
+      ['district' => 'Quận 3', 'city' => 'TP.HCM', 'is_default' => 0]
+    );
+
+    CustomerAddress::updateOrCreate(
+      ['customer_id' => $cp2->id, 'address' => '789 Cách Mạng Tháng 8, Phường 5'],
+      ['district' => 'Quận 10', 'city' => 'TP.HCM', 'is_default' => 1]
+    );
+
+    CustomerAddress::updateOrCreate(
+      ['customer_id' => $cp3->id, 'address' => '55 Phan Đăng Lưu, Phường 6'],
+      ['district' => 'Bình Thạnh', 'city' => 'TP.HCM', 'is_default' => 1]
+    );
+
+    CustomerAddress::updateOrCreate(
+      ['customer_id' => $cp4->id, 'address' => '101 Hoàng Văn Thụ, Phường 8'],
+      ['district' => 'Phú Nhuận', 'city' => 'TP.HCM', 'is_default' => 1]
+    );
+
+    CustomerAddress::updateOrCreate(
+      ['customer_id' => $cp5->id, 'address' => '200 Lý Thường Kiệt, Phường 14'],
+      ['district' => 'Quận 10', 'city' => 'TP.HCM', 'is_default' => 1]
+    );
+
+    // ================================================================
+    //  SEED BANNERS
+    // ================================================================
+
+    Banner::updateOrCreate(
+      ['title' => 'Giảm 20% dịch vụ dọn nhà'],
+      [
+        'image' => 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
+        'link' => '/#/dich-vu',
+        'status' => 'active',
+        'created_by' => 1,
+      ]
+    );
+
+    Banner::updateOrCreate(
+      ['title' => 'Chăm sóc người thân yêu'],
+      [
+        'image' => 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=1200&auto=format&fit=crop',
+        'link' => '/#/dich-vu',
+        'status' => 'active',
+        'created_by' => 1,
+      ]
+    );
+
+    Banner::updateOrCreate(
+      ['title' => 'Sửa chữa tại nhà nhanh chóng'],
+      [
+        'image' => 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1200&auto=format&fit=crop',
+        'link' => '/#/dich-vu',
+        'status' => 'active',
+        'created_by' => 1,
+      ]
+    );
+
+    // ================================================================
+    //  SEED ACTIVITY LOGS
+    // ================================================================
+
+    ActivityLog::updateOrCreate(
+      ['user_id' => 1, 'action' => 'seed_init'],
+      ['description' => 'Hệ thống khởi tạo dữ liệu mẫu cho tất cả các microservice.']
+    );
+
+    ActivityLog::updateOrCreate(
+      ['user_id' => 4, 'action' => 'booking_created'],
+      ['description' => 'Khách hàng A đặt dịch vụ dọn nhà sâu tại Quận 1.']
+    );
+
+    ActivityLog::updateOrCreate(
+      ['user_id' => 14, 'action' => 'job_post_created'],
+      ['description' => 'Nguyễn Văn Nam đăng bài tuyển người chăm sóc bà cụ.']
     );
 
     // Seed News Articles

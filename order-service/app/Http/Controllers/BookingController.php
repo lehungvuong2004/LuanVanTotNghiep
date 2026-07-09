@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Booking;
+use App\Constants\Role;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\BookingService;
 use App\Models\BookingStatusHistory;
 use App\Models\BookingWorkLog;
@@ -48,8 +50,8 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Only customers can create bookings.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Only customers can create bookings.'], Response::HTTP_FORBIDDEN);
         }
 
         $fields = $request->validate([
@@ -74,7 +76,7 @@ class BookingController extends Controller
             if (Booking::hasConflict((int) $fields['helper_id'], $fields['booking_date'], $fields['start_time'], (float) $durationHours)) {
                 return response()->json([
                     'message' => 'Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.'
-                ], 400);
+                ], Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -107,7 +109,7 @@ class BookingController extends Controller
         return response()->json([
             'message' => 'Booking created successfully.',
             'data'    => $booking->load('services'),
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -116,8 +118,8 @@ class BookingController extends Controller
      */
     public function myBookings(Request $request)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = Booking::with(['services'])
@@ -154,7 +156,7 @@ class BookingController extends Controller
             $booking->helper = $userMap[$booking->helper_id] ?? null;
         }
 
-        return response()->json(['data' => $bookings], 200);
+        return response()->json(['data' => $bookings], Response::HTTP_OK);
     }
 
     /**
@@ -165,7 +167,7 @@ class BookingController extends Controller
         $booking = Booking::with(['services', 'statusHistories', 'workLogs', 'reviews'])->find($id);
 
         if (!$booking) {
-            return response()->json(['message' => 'Booking not found.'], 404);
+            return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
         }
 
         $userId  = $request->authUser['id'];
@@ -177,10 +179,10 @@ class BookingController extends Controller
             || $booking->helper_id  == $userId;
 
         if (!$allowed) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
-        return response()->json(['data' => $booking], 200);
+        return response()->json(['data' => $booking], Response::HTTP_OK);
     }
 
     /**
@@ -189,20 +191,20 @@ class BookingController extends Controller
      */
     public function cancel(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Only customers can cancel bookings.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Only customers can cancel bookings.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)
                           ->where('customer_id', $request->authUser['id'])
                           ->first();
 
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if (!in_array($booking->status, self::CUSTOMER_CANCEL_ALLOWED)) {
             return response()->json([
                 'message' => "Cannot cancel a booking with status '{$booking->status}'."
-            ], 422);
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $request->validate(['reason' => 'nullable|string|max:500']);
@@ -216,7 +218,7 @@ class BookingController extends Controller
 
         $this->recordStatusHistory($booking->id, $old, 'cancelled', $request->authUser['id'], $request->input('reason'));
 
-        return response()->json(['message' => 'Booking cancelled successfully.', 'data' => $booking->fresh()], 200);
+        return response()->json(['message' => 'Booking cancelled successfully.', 'data' => $booking->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -225,22 +227,22 @@ class BookingController extends Controller
      */
     public function review(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 4) {
-            return response()->json(['message' => 'Only customers can submit reviews.'], 403);
+        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
+            return response()->json(['message' => 'Only customers can submit reviews.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)
                           ->where('customer_id', $request->authUser['id'])
                           ->first();
 
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if ($booking->status !== 'completed') {
-            return response()->json(['message' => 'You can only review completed bookings.'], 422);
+            return response()->json(['message' => 'You can only review completed bookings.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         if (Review::where('booking_id', $id)->where('customer_id', $request->authUser['id'])->exists()) {
-            return response()->json(['message' => 'You have already reviewed this booking.'], 409);
+            return response()->json(['message' => 'You have already reviewed this booking.'], Response::HTTP_CONFLICT);
         }
 
         $fields = $request->validate([
@@ -256,7 +258,7 @@ class BookingController extends Controller
             'comment'     => $fields['comment'] ?? null,
         ]);
 
-        return response()->json(['message' => 'Review submitted successfully.', 'data' => $review], 201);
+        return response()->json(['message' => 'Review submitted successfully.', 'data' => $review], Response::HTTP_CREATED);
     }
 
     // =====================================================================
@@ -268,8 +270,8 @@ class BookingController extends Controller
      */
     public function helperBookings(Request $request)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = Booking::with(['services'])
@@ -306,7 +308,7 @@ class BookingController extends Controller
             $booking->customer = $userMap[$booking->customer_id] ?? null;
         }
 
-        return response()->json(['data' => $bookings], 200);
+        return response()->json(['data' => $bookings], Response::HTTP_OK);
     }
 
     /**
@@ -314,22 +316,22 @@ class BookingController extends Controller
      */
     public function accept(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)->where('helper_id', $request->authUser['id'])->first();
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if (!in_array($booking->status, self::HELPER_ACCEPT_FROM)) {
-            return response()->json(['message' => "Cannot accept a booking with status '{$booking->status}'."], 422);
+            return response()->json(['message' => "Cannot accept a booking with status '{$booking->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $old = $booking->status;
         $booking->update(['status' => 'confirmed']);
         $this->recordStatusHistory($booking->id, $old, 'confirmed', $request->authUser['id'], 'Helper accepted.');
 
-        return response()->json(['message' => 'Booking accepted.', 'data' => $booking->fresh()], 200);
+        return response()->json(['message' => 'Booking accepted.', 'data' => $booking->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -337,15 +339,15 @@ class BookingController extends Controller
      */
     public function reject(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)->where('helper_id', $request->authUser['id'])->first();
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if (!in_array($booking->status, self::HELPER_REJECT_FROM)) {
-            return response()->json(['message' => "Cannot reject a booking with status '{$booking->status}'."], 422);
+            return response()->json(['message' => "Cannot reject a booking with status '{$booking->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $request->validate(['reason' => 'nullable|string|max:500']);
@@ -359,7 +361,7 @@ class BookingController extends Controller
 
         $this->recordStatusHistory($booking->id, $old, 'cancelled', $request->authUser['id'], 'Helper rejected.');
 
-        return response()->json(['message' => 'Booking rejected.', 'data' => $booking->fresh()], 200);
+        return response()->json(['message' => 'Booking rejected.', 'data' => $booking->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -367,15 +369,15 @@ class BookingController extends Controller
      */
     public function startMoving(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)->where('helper_id', $request->authUser['id'])->first();
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if (!in_array($booking->status, self::HELPER_START_MOVING_FROM)) {
-            return response()->json(['message' => "Cannot start moving for a booking with status '{$booking->status}'."], 422);
+            return response()->json(['message' => "Cannot start moving for a booking with status '{$booking->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $old = $booking->status;
@@ -394,7 +396,7 @@ class BookingController extends Controller
             Log::error('Failed to notify customer helper moving: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Started moving.', 'data' => $booking->fresh()], 200);
+        return response()->json(['message' => 'Started moving.', 'data' => $booking->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -402,15 +404,15 @@ class BookingController extends Controller
      */
     public function checkin(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)->where('helper_id', $request->authUser['id'])->first();
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if (!in_array($booking->status, self::HELPER_CHECKIN_FROM)) {
-            return response()->json(['message' => "Cannot check in for a booking with status '{$booking->status}'."], 422);
+            return response()->json(['message' => "Cannot check in for a booking with status '{$booking->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $workLog = BookingWorkLog::create([
@@ -436,7 +438,7 @@ class BookingController extends Controller
             Log::error('Failed to notify customer helper checkin: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Checked in successfully.', 'data' => $workLog], 200);
+        return response()->json(['message' => 'Checked in successfully.', 'data' => $workLog], Response::HTTP_OK);
     }
 
     /**
@@ -444,15 +446,15 @@ class BookingController extends Controller
      */
     public function checkout(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 3) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($request->authUser['role_id'] !== Role::HELPER) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::where('id', $id)->where('helper_id', $request->authUser['id'])->first();
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         if (!in_array($booking->status, self::HELPER_CHECKOUT_FROM)) {
-            return response()->json(['message' => "Cannot check out from a booking with status '{$booking->status}'."], 422);
+            return response()->json(['message' => "Cannot check out from a booking with status '{$booking->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Find the open work log
@@ -485,7 +487,7 @@ class BookingController extends Controller
             Log::error('Failed to notify customer helper checkout: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Checked out successfully. Booking completed.', 'data' => $booking->fresh()], 200);
+        return response()->json(['message' => 'Checked out successfully. Booking completed.', 'data' => $booking->fresh()], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -498,8 +500,8 @@ class BookingController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $query = Booking::with(['services']);
@@ -518,7 +520,7 @@ class BookingController extends Controller
         $limit    = (int) $request->query('limit', 20);
         $bookings = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $bookings], 200);
+        return response()->json(['data' => $bookings], Response::HTTP_OK);
     }
 
     /**
@@ -527,14 +529,14 @@ class BookingController extends Controller
      */
     public function adminShow(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::with(['services', 'statusHistories', 'workLogs', 'reviews', 'reports'])->find($id);
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
-        return response()->json(['data' => $booking], 200);
+        return response()->json(['data' => $booking], Response::HTTP_OK);
     }
 
     /**
@@ -543,12 +545,12 @@ class BookingController extends Controller
      */
     public function adminUpdateStatus(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== 1) {
-            return response()->json(['message' => 'Only administrators can override booking status.'], 403);
+        if ($request->authUser['role_id'] !== Role::ADMIN) {
+            return response()->json(['message' => 'Only administrators can override booking status.'], Response::HTTP_FORBIDDEN);
         }
 
         $booking = Booking::find($id);
-        if (!$booking) return response()->json(['message' => 'Booking not found.'], 404);
+        if (!$booking) return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
 
         $fields = $request->validate([
             'new_status' => 'required|string|in:pending,confirmed,in_progress,completed,cancelled',
@@ -560,7 +562,7 @@ class BookingController extends Controller
         $this->recordStatusHistory($booking->id, $old, $fields['new_status'], $request->authUser['id'],
             $fields['note'] ?? 'Admin override.');
 
-        return response()->json(['message' => 'Booking status updated.', 'data' => $booking->fresh()], 200);
+        return response()->json(['message' => 'Booking status updated.', 'data' => $booking->fresh()], Response::HTTP_OK);
     }
 
     /**
@@ -568,8 +570,8 @@ class BookingController extends Controller
      */
     public function dashboardOverview(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [1, 2])) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $authHeader = $request->header('Authorization');
@@ -810,7 +812,7 @@ class BookingController extends Controller
             'weeklyBookings' => $weeklyBookings,
             'serviceShares' => $serviceShares,
             'recentBookings' => $recentBookings
-        ], 200);
+        ], Response::HTTP_OK);
     }
 
     // =====================================================================
@@ -826,7 +828,7 @@ class BookingController extends Controller
 
         $booking = Booking::find($fields['booking_id']);
         if (!$booking) {
-            return response()->json(['message' => 'Booking not found.'], 404);
+            return response()->json(['message' => 'Booking not found.'], Response::HTTP_NOT_FOUND);
         }
 
         $oldStatus = $booking->status;
@@ -878,7 +880,7 @@ class BookingController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Payment status processed.'], 200);
+        return response()->json(['message' => 'Payment status processed.'], Response::HTTP_OK);
     }
 
     private function recordStatusHistory(int $bookingId, ?string $old, string $new, int $changedBy, ?string $note): void
