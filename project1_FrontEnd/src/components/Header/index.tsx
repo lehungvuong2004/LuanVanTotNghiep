@@ -85,6 +85,23 @@ export const Header = () => {
 
   const displayedNotifications = notifFilter === "all" ? notifications : notifications.filter((notif) => !notif.is_read);
 
+  const handlePostJobClick = () => {
+    if (isLoggedIn) {
+      navigate("/dang-bai-tuyen");
+    } else {
+      navigate("/dang-nhap");
+    }
+  };
+
+  const handlePostJobClickMobile = () => {
+    toggleMobileMenu();
+    if (isLoggedIn) {
+      navigate("/dang-bai-tuyen");
+    } else {
+      navigate("/dang-nhap");
+    }
+  };
+
   return (
     <>
       <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-[#066d72] dark:bg-slate-800 ${isScrolled ? "shadow-md" : ""}`}>
@@ -657,11 +674,12 @@ export const Header = () => {
                 )}
               </div>
 
-              <Link to="/dang-bai-tuyen">
-                <button className="bg-white dark:bg-teal-500 text-teal-700 dark:text-white dark:hover:bg-teal-400 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base">
-                  {t("Đăng bài tuyển")}
-                </button>
-              </Link>
+              <button
+                onClick={handlePostJobClick}
+                className="bg-white dark:bg-teal-500 text-teal-700 dark:text-white dark:hover:bg-teal-400 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base"
+              >
+                {t("Đăng bài tuyển")}
+              </button>
             </div>
           </div>
         </div>
@@ -742,8 +760,8 @@ export const Header = () => {
 
                 <div className="mt-auto pt-6 pb-4">
                   <button
-                    className="w-full bg-[#026E5F] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5"
-                    onClick={toggleMobileMenu}
+                    className="w-full bg-[#026E5F] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium px-6 py-3.5 rounded-xl text-center transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5 cursor-pointer"
+                    onClick={handlePostJobClickMobile}
                   >
                     {t("Đăng bài tuyển")}
                   </button>
