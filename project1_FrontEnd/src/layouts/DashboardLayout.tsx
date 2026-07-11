@@ -1,23 +1,42 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { NavBarAdmin } from "../components/NavBarAdmin";
+import { Sidebar } from "../components/Sidebar";
 import { Icon } from "@iconify/react";
+import { useAuth } from "../hooks/useAuth";
+import { ROLES } from "../constants";
 
-export const DashboardManager: React.FC = () => {
+interface DashboardLayoutProps {
+  allowedRole: number;
+}
+
+export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
+  const { token, user } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const userString = localStorage.getItem("user");
-    const user = userString ? JSON.parse(userString) : null;
-
-    if (!token || !user || user.role_id !== 1) {
+    if (!token || !user || user.role_id !== allowedRole) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
       navigate("/dang-nhap");
     }
-  }, [navigate]);
+  }, [token, user, allowedRole, navigate]);
+
+  if (!token || !user || user.role_id !== allowedRole) {
+    return null;
+  }
+
+  const getHoverClass = () => {
+    switch (user.role_id) {
+      case ROLES.ADMIN:
+        return "hover:text-blue-600 dark:hover:text-blue-400";
+      case ROLES.OPERATOR:
+      case ROLES.HELPER:
+        return "hover:text-[#026E5F] dark:hover:text-emerald-450";
+      default:
+        return "hover:text-[#026E5F]";
+    }
+  };
 
   return (
     <div className="h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col overflow-hidden">
@@ -25,11 +44,11 @@ export const DashboardManager: React.FC = () => {
         <div
           className={`${isCollapsed ? "col-span-1" : "col-span-2"} bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 h-screen sticky top-0 transition-all duration-300 relative`}
         >
-          <NavBarAdmin isCollapsed={isCollapsed} />
+          <Sidebar isCollapsed={isCollapsed} />
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="absolute top-1/2 -right-3 -translate-y-1/2 z-50 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-750 hover:scale-110 active:scale-95 transition-all text-slate-500"
+            className={`absolute top-1/2 -right-3 -translate-y-1/2 z-50 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 hover:scale-110 active:scale-95 transition-all text-slate-500 ${getHoverClass()}`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             <Icon icon={isCollapsed ? "material-symbols:chevron-right-rounded" : "material-symbols:chevron-left-rounded"} className="text-base" />

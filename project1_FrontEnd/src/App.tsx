@@ -22,7 +22,8 @@ import { Pricing } from "./pages/Pricing";
 // Chức năng thanh toán được tích hợp trực tiếp vào trang Lịch sử đặt lịch (/lich-su-dat-lich).
 // import { Payment } from "./pages/Payment";
 import { PaymentReturn } from "./pages/PaymentReturn";
-import { DashboardManager } from "./layouts/DashboardManager";
+import { DashboardLayout } from "./layouts/DashboardLayout";
+import { ROLES } from "./constants";
 import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
 import { ServiceCategories } from "./DashBoard/Admin/Service_Categories";
@@ -36,11 +37,9 @@ import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
 import { Role as RolePage } from "./DashBoard/Admin/Role";
 import { StaffReviews } from "./DashBoard/Operator/Reviews";
-import { DashboardStaff } from "./layouts/DashboardStaff";
 import { FollowingOrder } from "./DashBoard/Operator/FollowingOrder";
 import { ApplicationReview } from "./DashBoard/Operator/ApplicationReview";
 import { HelperReview } from "./DashBoard/Operator/HelperReview";
-import { DashboardHelper } from "./layouts/DashboardHelper";
 import { StaffRecruitmentDashboard } from "./DashBoard/Staff";
 import { HelperOverview } from "./DashBoard/Helper/Overview";
 
@@ -91,7 +90,7 @@ function App() {
           <Route path="/dang-ky" element={<Register />} />
           <Route path="/quen-mat-khau" element={<ForgetPassword />} />
         </Route>
-        <Route path="/admin" element={<DashboardManager />}>
+        <Route path="/admin" element={<DashboardLayout allowedRole={ROLES.ADMIN} />}>
           <Route index element={<DashboardOverview />} />
           <Route path="dashboard" element={<DashboardOverview />} />
           <Route path="users" element={<Account />} />
@@ -108,7 +107,7 @@ function App() {
           <Route path="roles" element={<RolePage />} />
           <Route path="job-posts" element={<ApplicationReview />} />
         </Route>
-        <Route path="/operator" element={<DashboardStaff />}>
+        <Route path="/operator" element={<DashboardLayout allowedRole={ROLES.OPERATOR} />}>
           <Route index element={<StaffReviews />} />
           <Route path="dashboard" element={<StaffReviews />} />
           <Route path="reviews" element={<StaffReviews />} />
@@ -116,7 +115,7 @@ function App() {
           <Route path="job-posts" element={<ApplicationReview />} />
           <Route path="helpers" element={<HelperReview />} />
         </Route>
-        <Route path="/helper" element={<DashboardHelper />}>
+        <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>
           <Route index element={<HelperOverview />} />
           <Route path="dashboard" element={<StaffRecruitmentDashboard />} />
         </Route>

@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useProfile } from "./useHook";
+import { useGeolocation } from "../../hooks/useGeolocation";
 
 export const Profile = () => {
   const {
@@ -34,6 +36,56 @@ export const Profile = () => {
     handleRemoveWorkingArea,
     handleSubmitVerification,
   } = useProfile();
+
+  const [workingDistrict, setWorkingDistrict] = useState("");
+  const [workingCity, setWorkingCity] = useState("");
+  const [geoTarget, setGeoTarget] = useState<"address" | "workingArea" | "residential" | null>(null);
+
+  const { getCurrentLocation, addressDetails, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
+
+  useEffect(() => {
+    if (addressDetails && geoTarget) {
+      const houseNumber = addressDetails.house_number || "";
+      const road = addressDetails.road || addressDetails.highway || "";
+      const suburb = addressDetails.suburb || addressDetails.neighbourhood || addressDetails.quarter || "";
+      const cityDistrict = addressDetails.city_district || addressDetails.county || "";
+      const cityName = addressDetails.city || addressDetails.town || addressDetails.village || addressDetails.state || "";
+
+      if (geoTarget === "address") {
+        let streetVal = "";
+        if (houseNumber && road) {
+          streetVal = `${houseNumber} ${road}`;
+        } else if (road) {
+          streetVal = road;
+        }
+
+        const districtVal = cityDistrict || suburb || "";
+        addressForm.setFieldValue("address", streetVal);
+        addressForm.setFieldValue("district", districtVal);
+        addressForm.setFieldValue("city", cityName);
+      } else if (geoTarget === "workingArea") {
+        const districtVal = cityDistrict || suburb || "";
+        setWorkingDistrict(districtVal);
+        setWorkingCity(cityName);
+      } else if (geoTarget === "residential") {
+        let streetVal = "";
+        if (houseNumber && road) {
+          streetVal = `${houseNumber} ${road}`;
+        } else if (road) {
+          streetVal = road;
+        }
+
+        const districtVal = cityDistrict || suburb || "";
+        const fullAddr = [streetVal, districtVal, cityName]
+          .filter((val) => val && val.trim() !== "")
+          .join(", ");
+        profileForm.setFieldValue("address", fullAddr);
+      }
+      setGeoTarget(null);
+      clearLocation();
+    }
+  }, [addressDetails, geoTarget, addressForm, profileForm, clearLocation]);
+
 
   if (loading) {
     return (
@@ -572,9 +624,30 @@ export const Profile = () => {
 
               {/* Address */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  {t("Địa chỉ cư trú hiện tại")} <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    {t("Địa chỉ cư trú hiện tại")} <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGeoTarget("residential");
+                      getCurrentLocation();
+                    }}
+                    disabled={geoLoading}
+                    className="flex items-center gap-1.5 bg-teal-50 text-teal-605 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1 px-2.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
+                  >
+                    {geoLoading && geoTarget === "residential" ? (
+                      <Icon icon="line-md:loading-twotone-loop" className="text-[11px] animate-spin" />
+                    ) : (
+                      <Icon icon="solar:gps-bold" className="text-[11px]" />
+                    )}
+                    {t("Định vị")}
+                  </button>
+                </div>
+                {geoError && geoTarget === "residential" && (
+                  <p className="text-red-500 text-[10px] font-semibold mb-2 text-right">{geoError}</p>
+                )}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:map-point-bold" className="text-lg" />
@@ -926,6 +999,29 @@ export const Profile = () => {
 
           <form onSubmit={addressForm.handleSubmit}>
             <div className="p-6 space-y-4">
+              {/* Geolocation Autocomplete Button */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGeoTarget("address");
+                    getCurrentLocation();
+                  }}
+                  disabled={geoLoading}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
+                >
+                  {geoLoading && geoTarget === "address" ? (
+                    <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" />
+                  ) : (
+                    <Icon icon="solar:gps-bold" className="text-sm" />
+                  )}
+                  {t("Định vị vị trí hiện tại của tôi")}
+                </button>
+                {geoError && geoTarget === "address" && (
+                  <p className="text-red-500 text-[10px] font-semibold mt-1 text-center">{geoError}</p>
+                )}
+              </div>
+
               {/* Address detail */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -1082,17 +1178,36 @@ export const Profile = () => {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
-            {t("Thêm khu vực hoạt động mới")}
-          </h4>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t("Thêm khu vực hoạt động mới")}
+            </h4>
+            <button
+              type="button"
+              onClick={() => {
+                setGeoTarget("workingArea");
+                getCurrentLocation();
+              }}
+              disabled={geoLoading}
+              className="flex items-center gap-1.5 bg-teal-50 text-teal-650 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
+            >
+              {geoLoading && geoTarget === "workingArea" ? (
+                <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" />
+              ) : (
+                <Icon icon="solar:gps-bold" className="text-sm" />
+              )}
+              {t("Định vị vị trí")}
+            </button>
+          </div>
+          {geoError && geoTarget === "workingArea" && (
+            <p className="text-red-500 text-[10px] font-semibold mb-2">{geoError}</p>
+          )}
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              const form = e.currentTarget;
-              const district = (form.elements.namedItem("district") as HTMLInputElement).value;
-              const city = (form.elements.namedItem("city") as HTMLInputElement).value;
-              handleAddWorkingArea(district, city);
-              form.reset();
+              handleAddWorkingArea(workingDistrict, workingCity);
+              setWorkingDistrict("");
+              setWorkingCity("");
             }}
             className="space-y-4 max-w-md"
           >
@@ -1106,6 +1221,8 @@ export const Profile = () => {
                   name="district"
                   placeholder={t("Ví dụ: Quận 1")}
                   required
+                  value={workingDistrict}
+                  onChange={(e) => setWorkingDistrict(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 dark:text-white outline-none text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
@@ -1118,6 +1235,8 @@ export const Profile = () => {
                   name="city"
                   placeholder={t("Ví dụ: TP. Hồ Chí Minh")}
                   required
+                  value={workingCity}
+                  onChange={(e) => setWorkingCity(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 dark:text-white outline-none text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
