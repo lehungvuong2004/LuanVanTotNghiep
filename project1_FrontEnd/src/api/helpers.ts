@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPatch, apiDelete } from "./constantAPI";
+import axiosInstance from "./axios";
 import type { User } from "./users";
 
 export interface HelperSkill {
@@ -108,31 +108,38 @@ export interface PublicPaginatedHelpersResponse {
 
 
 export const getHelpersAdmin = async (params: GetHelpersParams): Promise<PaginatedHelpersResponse> => {
-  return apiGet<PaginatedHelpersResponse>("/providers/admin/helpers", params);
+  const response = await axiosInstance.get<PaginatedHelpersResponse>("/providers/admin/helpers", { params });
+  return response.data;
 };
 
 export const getHelperStatsAdmin = async (): Promise<{ data: HelperStats }> => {
-  return apiGet<{ data: HelperStats }>("/providers/admin/helpers/stats");
+  const response = await axiosInstance.get<{ data: HelperStats }>("/providers/admin/helpers/stats");
+  return response.data;
 };
 
 export const getHelperDetailAdmin = async (id: number): Promise<{ data: HelperProfile }> => {
-  return apiGet<{ data: HelperProfile }>(`/providers/admin/helpers/${id}`);
+  const response = await axiosInstance.get<{ data: HelperProfile }>(`/providers/admin/helpers/${id}`);
+  return response.data;
 };
 
 export const verifyHelperAdmin = async (id: number, data: { status: "approved" | "rejected"; note?: string }): Promise<{ message: string; data: any }> => {
-  return apiPatch<{ message: string; data: any }>(`/providers/admin/helpers/${id}/verify`, data);
+  const response = await axiosInstance.patch<{ message: string; data: any }>(`/providers/admin/helpers/${id}/verify`, data);
+  return response.data;
 };
 
 export const toggleHelperStatusAdmin = async (id: number, data: { status: "active" | "suspended"; reason?: string }): Promise<{ message: string; data: HelperProfile }> => {
-  return apiPatch<{ message: string; data: HelperProfile }>(`/providers/admin/helpers/${id}/status`, data);
+  const response = await axiosInstance.patch<{ message: string; data: HelperProfile }>(`/providers/admin/helpers/${id}/status`, data);
+  return response.data;
 };
 
 export const deleteHelperAdmin = async (id: number): Promise<{ message: string }> => {
-  return apiDelete<{ message: string }>(`/providers/admin/helpers/${id}`);
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/admin/helpers/${id}`);
+  return response.data;
 };
 
 export const bulkDeleteHelpersAdmin = async (ids: number[]): Promise<{ message: string }> => {
-  return apiPost<{ message: string }>("/providers/admin/helpers/bulk-delete", { ids });
+  const response = await axiosInstance.post<{ message: string }>("/providers/admin/helpers/bulk-delete", { ids });
+  return response.data;
 };
 
 // ============================================================
@@ -147,7 +154,8 @@ export const bulkDeleteHelpersAdmin = async (ids: number[]): Promise<{ message: 
 export const getHelpersPublic = async (
   params?: PublicGetHelpersParams
 ): Promise<PublicPaginatedHelpersResponse> => {
-  return apiGet<PublicPaginatedHelpersResponse>("/providers/helpers", params);
+  const response = await axiosInstance.get<PublicPaginatedHelpersResponse>("/providers/helpers", { params });
+  return response.data;
 };
 
 /**
@@ -157,7 +165,8 @@ export const getHelpersPublic = async (
 export const getHelperPublic = async (
   id: number
 ): Promise<{ data: HelperProfile }> => {
-  return apiGet<{ data: HelperProfile }>(`/providers/helpers/${id}`);
+  const response = await axiosInstance.get<{ data: HelperProfile }>(`/providers/helpers/${id}`);
+  return response.data;
 };
 
 /**
@@ -165,5 +174,6 @@ export const getHelperPublic = async (
  * Endpoint: GET /providers/helper/dashboard-stats
  */
 export const getHelperDashboardStats = async (): Promise<any> => {
-  return apiGet<any>("/providers/helper/dashboard-stats");
+  const response = await axiosInstance.get<any>("/providers/helper/dashboard-stats");
+  return response.data;
 };
