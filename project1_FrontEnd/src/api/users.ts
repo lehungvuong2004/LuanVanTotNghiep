@@ -81,3 +81,15 @@ export const bulkDeleteUsersAdmin = async (ids: number[]): Promise<{ message: st
   const response = await axiosInstance.post<{ message: string }>("/admin/users/bulk-delete", { ids });
   return response.data;
 };
+
+export const uploadUserAvatarAdmin = async (file: File): Promise<{ message: string; path: string; url: string }> => {
+  const formData = new FormData();
+  formData.append("image", file);
+  const response = await axiosInstance.post<{ message: string; path: string; url: string }>("/admin/users/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+

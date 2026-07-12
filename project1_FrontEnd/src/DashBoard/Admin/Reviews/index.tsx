@@ -52,6 +52,7 @@ export const Reviews = () => {
   const customersList = Object.values(usersMap).filter((u) => u.role_id === 4);
   const helpersList = Object.values(usersMap).filter((u) => u.role_id === 3);
 
+  // chưa tối ưu 
   const getInitials = (name: string) => {
     if (!name) return "U";
     return name
@@ -70,7 +71,7 @@ export const Reviews = () => {
           key={i}
           icon={i <= rating ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
           className={`text-lg ${i <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-650"}`}
-        />
+        />,
       );
     }
     return <div className="flex items-center gap-0.5">{stars}</div>;
@@ -127,9 +128,7 @@ export const Reviews = () => {
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Giám Sát Đánh Giá (Reviews)</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc. (Quyền đọc & Ghi)
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc. (Quyền đọc & Ghi)</p>
       </div>
       <button
         onClick={() => setIsCreateOpen(true)}
@@ -142,9 +141,7 @@ export const Reviews = () => {
   );
 
   const renderKPIs = () => {
-    const avgRating = reviews.length
-      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
-      : "5.0";
+    const avgRating = reviews.length ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "5.0";
     const total5Star = reviews.filter((r) => r.rating === 5).length;
     const totalBad = reviews.filter((r) => r.rating <= 2).length;
 
@@ -303,29 +300,15 @@ export const Reviews = () => {
                 const isSelected = selectedIds.includes(r.id);
 
                 return (
-                  <tr
-                    key={r.id}
-                    className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-750/30 ${
-                      isSelected ? "bg-red-50/20 dark:bg-red-950/10" : ""
-                    }`}
-                  >
+                  <tr key={r.id} className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-750/30 ${isSelected ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
                     <td className="py-3 px-5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleSelectOne(r.id)}
-                        className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                      />
+                      <input type="checkbox" checked={isSelected} onChange={() => toggleSelectOne(r.id)} className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600" />
                     </td>
                     {/* Customer */}
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
                         {customer?.avatar ? (
-                          <img
-                            src={customer.avatar}
-                            alt={customer.full_name}
-                            className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                          />
+                          <img src={customer.avatar} alt={customer.full_name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                         ) : (
                           <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-slate-100 dark:border-slate-700">
                             {getInitials(customer?.full_name || "Customer")}
@@ -342,11 +325,7 @@ export const Reviews = () => {
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
                         {helper?.avatar ? (
-                          <img
-                            src={helper.avatar}
-                            alt={helper.full_name}
-                            className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                          />
+                          <img src={helper.avatar} alt={helper.full_name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                         ) : (
                           <div className="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center border border-slate-100 dark:border-slate-700">
                             {getInitials(helper?.full_name || "Helper")}
@@ -360,15 +339,11 @@ export const Reviews = () => {
                     </td>
 
                     {/* Rating */}
-                    <td className="py-3 px-5">
-                      {renderStars(r.rating)}
-                    </td>
+                    <td className="py-3 px-5">{renderStars(r.rating)}</td>
 
                     {/* Comment */}
                     <td className="py-3 px-5 max-w-xs truncate">
-                      <span className={r.comment ? "text-slate-700 dark:text-slate-200" : "italic text-slate-400 dark:text-slate-500"}>
-                        {r.comment || "Không có nhận xét bằng văn bản"}
-                      </span>
+                      <span className={r.comment ? "text-slate-700 dark:text-slate-200" : "italic text-slate-400 dark:text-slate-500"}>{r.comment || "Không có nhận xét bằng văn bản"}</span>
                     </td>
 
                     {/* Created At */}
@@ -415,12 +390,7 @@ export const Reviews = () => {
 
         {/* Pagination footer */}
         <div className="px-5 pb-4">
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
+          <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
         </div>
       </div>
     );
@@ -626,14 +596,7 @@ export const Reviews = () => {
       {renderFilters()}
       {selectedIds.length > 0 && (
         <div className="mb-4">
-          <BulkDeleteBar
-            selectedIds={selectedIds}
-            totalCount={reviews.length}
-            onToggleAll={toggleSelectAll}
-            onDeleteSelected={handleBulkDelete}
-            onClear={clearSelection}
-            loading={loading}
-          />
+          <BulkDeleteBar selectedIds={selectedIds} totalCount={reviews.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} loading={loading} />
         </div>
       )}
       {renderTable()}

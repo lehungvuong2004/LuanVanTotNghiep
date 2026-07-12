@@ -220,3 +220,73 @@ html.dark body {
     compact-lc-t: 13; /* Compact t */
   }
 }
+
+/* Custom Swiper style for Hero section */
+.hero-swiper {
+  --swiper-navigation-size: 14px !important;
+}
+.hero-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+}
+.hero-swiper .swiper-pagination-bullet-active {
+  background: #008080 !important;
+  width: 28px !important;
+  border-radius: 5px !important;
+}
+.hero-swiper .swiper-button-next {
+  right: 24px !important;
+}
+.hero-swiper .swiper-button-prev {
+  left: 24px !important;
+}
+.hero-swiper .swiper-button-next,
+.hero-swiper .swiper-button-prev {
+  color: #ffffff !important;
+  background: rgba(0, 128, 128, 0.55) !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  backdrop-filter: blur(4px) !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.hero-swiper .swiper-button-next:hover,
+.hero-swiper .swiper-button-prev:hover {
+  background: rgba(0, 128, 128, 0.85) !important;
+  transform: scale(1.05) !important;
+}
+.hero-swiper .swiper-button-next::after,
+.hero-swiper .swiper-button-prev::after {
+  display: none !important;
+}
+.hero-swiper .swiper-button-next svg,
+.hero-swiper .swiper-button-prev svg {
+  width: 12px !important;
+  height: 12px !important;
+  object-fit: contain !important;
+}
+
+/* Custom Sidebar scrollbar styling */
+.custom-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}
+.custom-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+.dark .custom-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}

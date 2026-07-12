@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { getNewsDetail, getNewsList } from "../../api/news";
 import type { NewsItem } from "../../api/news";
+import { getImageUrl } from "../../utils/images";
 
 const formatDate = (dateStr: string) => {
   const d = new Date(dateStr);
@@ -15,6 +16,8 @@ export const NewsDetail = () => {
   const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     const load = async () => {
@@ -85,10 +88,10 @@ export const NewsDetail = () => {
               <Icon icon="material-symbols:calendar-today-outline" className="text-base" />
               {formatDate(article.created_at)}
             </span>
-            {article.author && (
+            {article.creator && (
               <span className="flex items-center gap-1.5">
                 <Icon icon="material-symbols:person-outline" className="text-base" />
-                {article.author.full_name}
+                {article.creator.full_name}
               </span>
             )}
             <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
@@ -100,7 +103,7 @@ export const NewsDetail = () => {
           {article.thumbnail && (
             <div className="rounded-2xl overflow-hidden mb-8 shadow-md">
               <img
-                src={article.thumbnail}
+                src={getImageUrl(article.thumbnail)}
                 alt={article.title}
                 className="w-full h-80 object-cover"
               />
@@ -151,7 +154,7 @@ export const NewsDetail = () => {
                   >
                     <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-900">
                       {item.thumbnail ? (
-                        <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img src={getImageUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center">
                           <Icon icon="material-symbols:newspaper" className="text-xl text-white/70" />

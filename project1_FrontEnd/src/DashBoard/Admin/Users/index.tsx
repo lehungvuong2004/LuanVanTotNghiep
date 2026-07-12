@@ -1,11 +1,11 @@
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { Icon } from "@iconify/react";
 import ReactECharts from "echarts-for-react";
 import { useAccount } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
+import { getImageUrl } from "../../../utils/images";
+import { ROLES } from "../../../constants";
 
 export const Account = () => {
   const {
@@ -13,6 +13,8 @@ export const Account = () => {
     setSearchQuery,
     selectedStatus,
     setSelectedStatus,
+    selectedRole,
+    setSelectedRole,
     currentPage,
     setCurrentPage,
     itemsPerPage,
@@ -26,8 +28,8 @@ export const Account = () => {
     currentUser,
     openAddModal,
     openEditModal,
+    openViewModal,
     closeModal,
-    handleSaveUser,
     isStatusModalOpen,
     statusUser,
     newStatus,
@@ -46,77 +48,61 @@ export const Account = () => {
     handleToggleSelectUser,
     handleToggleSelectAll,
     handleBulkDeleteUsers,
+    uploadingImage,
+    handleUploadAvatar,
+    formik,
   } = useAccount();
-
-  // 1. Validation Schemas for Formik (Customers only)
-  const addValidationSchema = Yup.object().shape({
-    full_name: Yup.string()
-      .min(2, "Họ tên phải có ít nhất 2 ký tự")
-      .max(100, "Họ tên không được vượt quá 100 ký tự")
-      .required("Vui lòng nhập họ tên"),
-    email: Yup.string()
-      .email("Định dạng email không hợp lệ")
-      .required("Vui lòng nhập email"),
-    phone: Yup.string()
-      .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")
-      .nullable(),
-    password: Yup.string()
-      .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
-      .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
-      .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
-      .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
-      .required("Vui lòng nhập mật khẩu"),
-    status: Yup.string().oneOf(["active", "inactive", "banned"]).required(),
-  });
-
-  const editValidationSchema = Yup.object().shape({
-    full_name: Yup.string()
-      .min(2, "Họ tên phải có ít nhất 2 ký tự")
-      .max(100, "Họ tên không được vượt quá 100 ký tự")
-      .required("Vui lòng nhập họ tên"),
-    phone: Yup.string()
-      .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ")
-      .nullable(),
-    avatar: Yup.string().url("Định dạng URL ảnh không hợp lệ").nullable(),
-  });
-
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      full_name: currentUser?.full_name || "",
-      email: currentUser?.email || "",
-      phone: currentUser?.phone || "",
-      password: "",
-      status: currentUser?.status || "active",
-      avatar: currentUser?.avatar || "",
-    },
-    validationSchema: modalMode === "add" ? addValidationSchema : editValidationSchema,
-    onSubmit: (values) => {
-      handleSaveUser(values);
-    },
-  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
         return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1.5 w-fit whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
             Hoạt động
           </span>
         );
       case "inactive":
         return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 flex items-center gap-1.5 w-fit whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
             Tạm khóa
           </span>
         );
       default:
         return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 flex items-center gap-1.5 w-fit whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
             Bị khóa
+          </span>
+        );
+    }
+  };
+
+  const getRoleBadge = (roleId: number) => {
+    switch (roleId) {
+      case ROLES.ADMIN:
+        return (
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">
+            Admin
+          </span>
+        );
+      case ROLES.OPERATOR:
+        return (
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 whitespace-nowrap">
+            Vận Hành
+          </span>
+        );
+      case ROLES.HELPER:
+        return (
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 whitespace-nowrap">
+            Người Làm
+          </span>
+        );
+      default:
+        return (
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-teal-50 dark:bg-teal-950/20 text-[#026E5F] dark:text-[#52c1b2] border border-teal-100 dark:border-teal-900/30 whitespace-nowrap">
+            Khách Hàng
           </span>
         );
     }
@@ -132,23 +118,17 @@ export const Account = () => {
       .toUpperCase();
   };
 
-  const isValidAvatarUrl = (url: string | null) => {
-    if (!url) return false;
-    return (
-      url.startsWith("http://") ||
-      url.startsWith("https://") ||
-      url.startsWith("/") ||
-      url.startsWith("data:image/")
-    );
+  const isValidAvatarUrl = (url) => {
+    return !!url;
   };
 
   // Render header section
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Khách Hàng</h2>
+        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Người Dùng</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý thông tin cá nhân và trạng thái hoạt động của khách hàng hệ thống Gia Đình Việt.
+          Quản lý tài khoản, thay đổi vai trò hệ thống, khóa/mở khóa, cập nhật email/SDT hoặc reset mật khẩu của thành viên.
         </p>
       </div>
       <button
@@ -156,7 +136,7 @@ export const Account = () => {
         className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
       >
         <Icon icon="material-symbols:person-add-rounded" className="text-xl" />
-        Thêm Khách Hàng Mới
+        Thêm Người Dùng Mới
       </button>
     </div>
   );
@@ -167,7 +147,7 @@ export const Account = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng tài khoản hệ thống</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Tổng tài khoản hệ thống</p>
             <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.total}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl">
@@ -175,9 +155,9 @@ export const Account = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between col-span-1 sm:col-span-1 lg:col-span-2">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tài khoản Khách Hàng (Customers)</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Khách Hàng (Customer)</p>
             <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.customer}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] flex items-center justify-center text-2xl">
@@ -187,10 +167,20 @@ export const Account = () => {
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Vai trò khác (QTV, VH, GV)</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.total - roleCounts.customer}</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Người Làm (Helper)</p>
+            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.helper}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-650 dark:text-rose-400 flex items-center justify-center text-2xl">
+          <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl">
+            <Icon icon="material-symbols:engineering-outline-rounded" />
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Vận Hành & Admin (Other)</p>
+            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.admin + roleCounts.operator}</p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 dark:text-purple-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:admin-panel-settings-outline-rounded" />
           </div>
         </div>
@@ -217,9 +207,41 @@ export const Account = () => {
       </div>
 
       <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+        {/* Role filter tab */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-400 dark:text-slate-555 uppercase tracking-wider shrink-0">Vai trò:</label>
+          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700">
+            {["All", "Admin", "Operator", "Helper", "Customer"].map((roleOption) => (
+              <button
+                key={roleOption}
+                type="button"
+                onClick={() => {
+                  setSelectedRole(roleOption);
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  selectedRole === roleOption
+                    ? "bg-white dark:bg-slate-800 text-[#026E5F] dark:text-[#52c1b2] shadow-xs"
+                    : "text-slate-555 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                {roleOption === "All"
+                  ? "Tất Cả"
+                  : roleOption === "Admin"
+                  ? "QTV"
+                  : roleOption === "Operator"
+                  ? "VH"
+                  : roleOption === "Helper"
+                  ? "GV"
+                  : "Khách"}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Status filter tab */}
         <div className="flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider shrink-0">Trạng thái:</label>
+          <label className="text-xs font-bold text-slate-400 dark:text-slate-555 uppercase tracking-wider shrink-0">Trạng thái:</label>
           <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700">
             {["All", "Active", "Inactive", "Banned"].map((statusOption) => (
               <button
@@ -232,7 +254,7 @@ export const Account = () => {
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedStatus === statusOption
                     ? "bg-white dark:bg-slate-800 text-blue-650 dark:text-blue-400 shadow-xs"
-                    : "text-slate-550 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                    : "text-slate-555 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
                 {statusOption === "All"
@@ -256,7 +278,7 @@ export const Account = () => {
       return (
         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs">
           <div className="w-12 h-12 border-4 border-[#026E5F] border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Đang tải danh sách khách hàng...</p>
+          <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Đang tải danh sách người dùng...</p>
         </div>
       );
     }
@@ -267,8 +289,8 @@ export const Account = () => {
           <div className="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-900/60 flex items-center justify-center text-slate-400 text-4xl mb-4">
             <Icon icon="material-symbols:sentiment-dissatisfied-outline" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy khách hàng nào</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Hãy kiểm tra bộ lọc hoặc tạo tài khoản khách hàng mới.</p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy tài khoản nào</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Hãy kiểm tra bộ lọc hoặc tạo tài khoản người dùng mới.</p>
         </div>
       );
     }
@@ -292,7 +314,8 @@ export const Account = () => {
                     className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
                   />
                 </th>
-                <th className="py-3 px-5">Khách Hàng</th>
+                <th className="py-3 px-5">Thành Viên</th>
+                <th className="py-3 px-5">Vai Trò</th>
                 <th className="py-3 px-5">Email</th>
                 <th className="py-3 px-5">Số Điện Thoại</th>
                 <th className="py-3 px-5">Nguồn Đăng Nhập</th>
@@ -317,7 +340,7 @@ export const Account = () => {
                     <div className="flex items-center gap-3">
                       {user.avatar && isValidAvatarUrl(user.avatar) ? (
                         <img
-                          src={user.avatar}
+                          src={getImageUrl(user.avatar)}
                           alt={user.full_name}
                           className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700"
                         />
@@ -330,6 +353,11 @@ export const Account = () => {
                         <h4 className="font-bold text-slate-800 dark:text-slate-100">{user.full_name}</h4>
                       </div>
                     </div>
+                  </td>
+
+                  {/* Role column */}
+                  <td className="py-3 px-5">
+                    {getRoleBadge(user.role_id)}
                   </td>
 
                   {/* Email column */}
@@ -354,7 +382,7 @@ export const Account = () => {
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
                         <Icon icon="material-symbols:lock-open-outline" />
-                        Hệ thống (Local)
+                        Hệ thống
                       </span>
                     )}
                   </td>
@@ -363,17 +391,21 @@ export const Account = () => {
                   <td className="py-3 px-5">{getStatusBadge(user.status)}</td>
 
                   {/* Created At column */}
-                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400">
-                    {new Date(user.created_at).toLocaleDateString("vi-VN", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400 whitespace-nowrap">
+                    {new Date(user.created_at).toLocaleDateString("vi-VN")}
                   </td>
 
                   {/* Actions column */}
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => openViewModal(user)}
+                        className="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-950/30 transition-all cursor-pointer"
+                        title="Xem chi tiết"
+                      >
+                        <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
+                      </button>
+
                       <button
                         onClick={() => openEditModal(user)}
                         className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
@@ -416,9 +448,11 @@ export const Account = () => {
     );
   };
 
-  // 6. Dialog Modal renderer for Add / Edit Account
+  // 6. Dialog Modal renderer for Add / Edit / View Account
   const renderModal = () => {
     if (!isModalOpen) return null;
+
+    const isViewMode = modalMode === "view";
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -428,10 +462,16 @@ export const Account = () => {
           {/* Modal Header */}
           <div className="p-5 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
             <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${modalMode === "add" ? "bg-blue-100 text-blue-600" : "bg-indigo-100 text-indigo-600"}`}>
-                <Icon icon={modalMode === "add" ? "material-symbols:person-add-rounded" : "material-symbols:edit-note"} />
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
+                modalMode === "add" ? "bg-blue-100 text-blue-600" : modalMode === "edit" ? "bg-indigo-100 text-indigo-600" : "bg-emerald-100 text-emerald-600"
+              }`}>
+                <Icon icon={
+                  modalMode === "add" ? "material-symbols:person-add-rounded" : modalMode === "edit" ? "material-symbols:edit-note" : "material-symbols:visibility-outline-rounded"
+                } />
               </div>
-              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Khách Hàng Mới" : "Chỉnh Sửa Khách Hàng"}</h3>
+              <h3 className="font-extrabold text-base">
+                {modalMode === "add" ? "Thêm Người Dùng Mới" : modalMode === "edit" ? "Chỉnh Sửa Người Dùng" : "Chi Tiết Người Dùng"}
+              </h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -440,6 +480,17 @@ export const Account = () => {
 
           {/* Modal Form */}
           <form onSubmit={formik.handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* Avatar Preview (if avatar is set) */}
+            {formik.values.avatar && isValidAvatarUrl(formik.values.avatar) && (
+              <div className="flex justify-center pb-2">
+                <img
+                  src={getImageUrl(formik.values.avatar)}
+                  alt={formik.values.full_name}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-[#026E5F] shadow-xs"
+                />
+              </div>
+            )}
+
             {/* Full Name input */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Họ và Tên *</label>
@@ -450,31 +501,31 @@ export const Account = () => {
                 value={formik.values.full_name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                disabled={isViewMode}
                 className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
                   formik.touched.full_name && formik.errors.full_name ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                }`}
+                } disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:text-slate-400`}
               />
               {formik.touched.full_name && formik.errors.full_name && <p className="text-red-500 text-xs mt-1">{String(formik.errors.full_name)}</p>}
             </div>
 
-            {/* Email input (Add mode only) */}
-            {modalMode === "add" && (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email (Địa chỉ thư điện tử) *</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="name@example.com"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
-                    formik.touched.email && formik.errors.email ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                  }`}
-                />
-                {formik.touched.email && formik.errors.email && <p className="text-red-500 text-xs mt-1">{String(formik.errors.email)}</p>}
-              </div>
-            )}
+            {/* Email input */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email (Địa chỉ thư điện tử) *</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="name@example.com"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={isViewMode}
+                className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
+                  formik.touched.email && formik.errors.email ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
+                } disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:text-slate-400`}
+              />
+              {formik.touched.email && formik.errors.email && <p className="text-red-500 text-xs mt-1">{String(formik.errors.email)}</p>}
+            </div>
 
             {/* Phone input */}
             <div className="space-y-1">
@@ -486,21 +537,43 @@ export const Account = () => {
                 value={formik.values.phone}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                disabled={isViewMode}
                 className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
                   formik.touched.phone && formik.errors.phone ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                }`}
+                } disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:text-slate-400`}
               />
               {formik.touched.phone && formik.errors.phone && <p className="text-red-500 text-xs mt-1">{String(formik.errors.phone)}</p>}
             </div>
 
-            {/* Password input (Add mode only) */}
-            {modalMode === "add" && (
+            {/* Role Select (manual role changing) */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vai Trò Hệ Thống *</label>
+              <select
+                name="role_id"
+                value={formik.values.role_id}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={isViewMode}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:text-slate-400"
+              >
+                <option value={ROLES.CUSTOMER}>Khách hàng (Customer)</option>
+                <option value={ROLES.HELPER}>Người giúp việc (Helper)</option>
+                <option value={ROLES.OPERATOR}>Nhân viên vận hành (Operator)</option>
+                <option value={ROLES.ADMIN}>Quản trị viên (Admin)</option>
+              </select>
+              {formik.touched.role_id && formik.errors.role_id && <p className="text-red-500 text-xs mt-1">{String(formik.errors.role_id)}</p>}
+            </div>
+
+            {/* Password input */}
+            {!isViewMode && (
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mật Khẩu *</label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  {modalMode === "add" ? "Mật Khẩu *" : "Mật Khẩu Mới (Để trống nếu giữ nguyên)"}
+                </label>
                 <input
                   type="password"
                   name="password"
-                  placeholder="Nhập mật khẩu cho tài khoản..."
+                  placeholder={modalMode === "add" ? "Nhập mật khẩu cho tài khoản..." : "Nhập mật khẩu mới nếu muốn reset..."}
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -512,21 +585,82 @@ export const Account = () => {
               </div>
             )}
 
-            {/* Avatar input (Edit mode only) */}
-            {modalMode === "edit" && (
+            {/* Status & Provider info for View Mode */}
+            {isViewMode && currentUser && (
+              <div className="grid grid-cols-2 gap-4 pt-1">
+                <div>
+                  <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Trạng Thái</label>
+                  <div className="mt-1">{getStatusBadge(currentUser.status)}</div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Nguồn Đăng Ký</label>
+                  <span className="inline-block mt-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 capitalize">
+                    {currentUser.provider === "google" ? "Google OAuth" : "Hệ thống"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Created At for View Mode */}
+            {isViewMode && currentUser && (
+              <div>
+                <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Ngày Tham Gia</label>
+                <span className="inline-block mt-1 text-sm font-medium text-slate-750 dark:text-slate-250">
+                  {new Date(currentUser.created_at).toLocaleString("vi-VN", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </span>
+              </div>
+            )}
+
+            {/* Avatar input */}
+            {!isViewMode && (
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Đường Dẫn Ảnh Đại Diện (Avatar URL)</label>
-                <input
-                  type="text"
-                  name="avatar"
-                  placeholder="https://example.com/avatar.jpg"
-                  value={formik.values.avatar}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
-                    formik.touched.avatar && formik.errors.avatar ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                  }`}
-                />
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hình Ảnh Đại Diện</label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      name="avatar"
+                      placeholder="Nhập link ảnh hoặc tải lên từ máy..."
+                      value={formik.values.avatar}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`w-full pl-4 pr-10 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
+                        formik.touched.avatar && formik.errors.avatar ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
+                      }`}
+                    />
+                    {uploadingImage && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin block"></span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* File Upload Button */}
+                  <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
+                    <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.currentTarget.files?.[0];
+                        if (file) {
+                          handleUploadAvatar(file).then((path) => {
+                            if (path) {
+                              formik.setFieldValue("avatar", path);
+                            }
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
                 {formik.touched.avatar && formik.errors.avatar && <p className="text-red-500 text-xs mt-1">{String(formik.errors.avatar)}</p>}
               </div>
             )}
@@ -538,14 +672,17 @@ export const Account = () => {
                 onClick={closeModal}
                 className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold transition-all cursor-pointer text-slate-700 dark:text-slate-350"
               >
-                Hủy bỏ
+                Hủy
               </button>
-              <button
-                type="submit"
-                className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md active:scale-98 transition-all cursor-pointer"
-              >
-                Lưu lại
-              </button>
+              {!isViewMode && (
+                <button
+                  type="submit"
+                  disabled={loading || uploadingImage}
+                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                >
+                  Lưu lại
+                </button>
+              )}
             </div>
           </form>
         </div>

@@ -3,11 +3,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { NewsItem } from "../../../api/news";
 import type { ToastProps } from "../../../types/Toast";
-import { getNewsAdmin, createNewsAdmin, updateNewsAdmin, toggleNewsStatusAdmin, deleteNewsAdmin } from "../../../api/news";
+import { getNewsAdmin, createNewsAdmin, updateNewsAdmin, toggleNewsStatusAdmin, deleteNewsAdmin, uploadNewsImage } from "../../../api/news";
 
 export const useNewsAdmin = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -97,7 +98,26 @@ export const useNewsAdmin = () => {
     },
     validationSchema: Yup.object().shape({
       title: Yup.string().required("Vui lòng nhập tiêu đề").max(150, "Tiêu đề không quá 150 ký tự"),
-      thumbnail: Yup.string().url("Hình thu nhỏ phải là một URL hợp lệ").nullable(),
+      thumbnail: Yup.string()
+        .required("Vui lòng nhập đường dẫn hoặc tải lên hình thu nhỏ")
+        .max(255, "Đường dẫn không quá 255 ký tự")
+        .test(
+          "is-valid-image",
+          "Hình ảnh phải là URL hoặc đường dẫn tải lên hợp lệ và có đuôi định dạng ảnh (.jpg, .jpeg, .png, .webp)",
+          (value) => {
+            if (!value) return false;
+            const hasValidExtension = /\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(value);
+            if (!hasValidExtension) return false;
+
+            if (value.startsWith("uploads/")) return true;
+            try {
+              new URL(value);
+              return true;
+            } catch {
+              return false;
+            }
+          }
+        ),
       summary: Yup.string().max(500, "Tóm tắt không quá 500 ký tự").nullable(),
       content: Yup.string().required("Vui lòng nhập nội dung bài viết"),
       status: Yup.string().oneOf(["draft", "published"]).required("Vui lòng chọn trạng thái"),
@@ -191,6 +211,19 @@ export const useNewsAdmin = () => {
     }
   };
 
+  const handleUploadImage = async (file: File) => {
+    setUploadingImage(true);
+    try {
+      const response = await uploadNewsImage(file);
+      formik.setFieldValue("thumbnail", response.path);
+      showToast("success", "Tải ảnh lên thành công");
+    } catch (err: any) {
+      showToast("error", "Lỗi tải ảnh lên", err.response?.data?.message || "Không thể tải hình ảnh lên");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   return {
     news,
     loading,
@@ -212,5 +245,7 @@ export const useNewsAdmin = () => {
     formik,
     handleDeleteNews,
     handleToggleStatus,
+    uploadingImage,
+    handleUploadImage,
   };
 };

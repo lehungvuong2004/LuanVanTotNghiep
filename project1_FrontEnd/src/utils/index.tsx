@@ -57,12 +57,12 @@ export function formatMoneyShortVI(value: number | string | null | undefined): s
   return `${num} ₫`;
 }
 
-export const formatDate = (dateStr: string) => {
+export const formatDate = (dateStr) => {
   const d = new Date(dateStr);
   return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 };
 
-export function formatMoneyInput(value: string | number | null | undefined): string {
+export function formatMoneyInput(value: string | number | null | undefined){
   if (value === undefined || value === null) return "";
   const cleanVal = value.toString().replace(/\D/g, "");
   if (!cleanVal) return "";
@@ -74,7 +74,7 @@ export const sortBookingsByDate = (items: any[]) => {
   return [...items].sort((a, b) => b.id - a.id);
 };
 
-export const formatVietnamDateTime = (dateStr: string | null | undefined): string => {
+export const formatVietnamDateTime = (dateStr: string | null | undefined)=> {
   if (!dateStr) return "";
   const d = parseUtcDate(dateStr);
   if (isNaN(d.getTime())) return "";
@@ -86,7 +86,7 @@ export const formatVietnamDateTime = (dateStr: string | null | undefined): strin
   return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
 };
 
-export const getRatingNote = (rating: number): string => {
+export const getRatingNote = (rating)=> {
   switch (rating) {
     case 5:
       return "Xuất sắc (5/5)";
@@ -103,7 +103,7 @@ export const getRatingNote = (rating: number): string => {
   }
 };
 
-export const getRatingBadgeClass = (rating: number): string => {
+export const getRatingBadgeClass = (rating) => {
   switch (rating) {
     case 5:
       return "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400";

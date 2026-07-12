@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin } from "../../../api/users";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin, uploadUserAvatarAdmin } from "../../../api/users";
 import type { User } from "../../../api/users";
 import { getRootFontSizePx } from "../../../utils";
+import { ROLES } from "../../../constants";
 
 export const useAccount = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedRole, setSelectedRole] = useState("All");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
@@ -26,7 +31,7 @@ export const useAccount = () => {
 
   // CRUD Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [currentUser, setCurrentUser] = useState<User | undefined>(undefined);
 
   // Status Toggle Modal state
@@ -53,17 +58,19 @@ export const useAccount = () => {
     }, 4000);
   }, []);
 
-  // Fetch users (customers) from API
+  // Fetch users from API
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const statusParam = selectedStatus !== "All" ? selectedStatus.toLowerCase() : undefined;
+      const roleParam =
+        selectedRole === "All" ? undefined : selectedRole === "Admin" ? ROLES.ADMIN : selectedRole === "Operator" ? ROLES.OPERATOR : selectedRole === "Helper" ? ROLES.HELPER : ROLES.CUSTOMER;
 
       const response = await getUsersAdmin({
         page: currentPage,
         limit: itemsPerPage,
         status: statusParam,
-        role_id: 4, // Exclusively Customers
+        role_id: roleParam,
         search: searchQuery || undefined,
       });
 
@@ -73,11 +80,11 @@ export const useAccount = () => {
         setRoleCounts(response.role_counts);
       }
     } catch (error: any) {
-      showToast("error", "Lỗi tải dữ liệu", error.response?.data?.message || "Không thể tải danh sách khách hàng");
+      showToast("error", "Lỗi tải dữ liệu", error.response?.data?.message || "Không thể tải danh sách tài khoản");
     } finally {
       setLoading(false);
     }
-  }, [currentPage, selectedStatus, searchQuery, itemsPerPage, showToast]);
+  }, [currentPage, selectedStatus, selectedRole, searchQuery, itemsPerPage, showToast]);
 
   // Fetch users when page or filters change
   useEffect(() => {
@@ -94,10 +101,10 @@ export const useAccount = () => {
     };
   }, [fetchUsers]);
 
-  // Reset checkboxes on page/filter change
+  // Reset checkboxes on page/filter/role change
   useEffect(() => {
     setSelectedUserIds([]);
-  }, [currentPage, selectedStatus, searchQuery]);
+  }, [currentPage, selectedStatus, selectedRole, searchQuery]);
 
   const openAddModal = () => {
     setModalMode("add");
@@ -111,6 +118,12 @@ export const useAccount = () => {
     setIsModalOpen(true);
   };
 
+  const openViewModal = (user: User) => {
+    setModalMode("view");
+    setCurrentUser(user);
+    setIsModalOpen(true);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentUser(undefined);
@@ -118,17 +131,36 @@ export const useAccount = () => {
 
   const handleSaveUser = async (userData: any) => {
     try {
+      const cleanedData = { ...userData };
       if (modalMode === "edit" && currentUser) {
-        await updateUserAdmin(currentUser.id, userData);
-        showToast("success", "Thành công", "Cập nhật thông tin khách hàng thành công");
+        if (!cleanedData.password) {
+          delete cleanedData.password;
+        }
+        await updateUserAdmin(currentUser.id, cleanedData);
+        showToast("success", "Thành công", "Cập nhật thông tin tài khoản thành công");
       } else {
-        await createUserAdmin({ ...userData, role_id: 4 }); // Always Customer role
-        showToast("success", "Thành công", "Tạo tài khoản khách hàng mới thành công");
+        await createUserAdmin(cleanedData);
+        showToast("success", "Thành công", "Tạo tài khoản người dùng mới thành công");
       }
       closeModal();
       fetchUsers();
     } catch (error: any) {
       showToast("error", "Lỗi lưu thông tin", error.response?.data?.message || "Không thể lưu thông tin tài khoản");
+    }
+  };
+
+  const handleUploadAvatar = async (file: File): Promise<string | null> => {
+    setUploadingImage(true);
+    try {
+      const res = await uploadUserAvatarAdmin(file);
+      showToast("success", "Thành công", "Tải ảnh đại diện lên thành công!");
+      return res.path;
+    } catch (err: any) {
+      console.error(err);
+      showToast("error", "Lỗi tải ảnh", err.response?.data?.message || "Không thể tải ảnh lên server");
+      return null;
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -160,10 +192,10 @@ export const useAccount = () => {
   };
 
   const handleDeleteUser = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn khách hàng này không?")) return;
+    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này không?")) return;
     try {
       await deleteUserAdmin(id);
-      showToast("success", "Thành công", "Xóa tài khoản khách hàng thành công");
+      showToast("success", "Thành công", "Xóa tài khoản thành công");
       fetchUsers();
     } catch (error: any) {
       showToast("error", "Lỗi xóa tài khoản", error.response?.data?.message || "Không thể xóa tài khoản");
@@ -171,9 +203,7 @@ export const useAccount = () => {
   };
 
   const handleToggleSelectUser = useCallback((userId: number) => {
-    setSelectedUserIds((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-    );
+    setSelectedUserIds((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]));
   }, []);
 
   const handleToggleSelectAll = useCallback(() => {
@@ -186,12 +216,12 @@ export const useAccount = () => {
 
   const handleBulkDeleteUsers = async () => {
     if (selectedUserIds.length === 0) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedUserIds.length} tài khoản khách hàng đã chọn không?`)) return;
-    
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedUserIds.length} tài khoản đã chọn không?`)) return;
+
     setLoading(true);
     try {
       await bulkDeleteUsersAdmin(selectedUserIds);
-      showToast("success", "Thành công", `Đã xóa thành công ${selectedUserIds.length} tài khoản khách hàng`);
+      showToast("success", "Thành công", `Đã xóa thành công ${selectedUserIds.length} tài khoản`);
       setSelectedUserIds([]);
       fetchUsers();
     } catch (error: any) {
@@ -233,6 +263,11 @@ export const useAccount = () => {
         itemWidth: 0.5 * rem,
         itemHeight: 0.5 * rem,
         textStyle: { color: "#64748b", fontSize: 0.75 * rem },
+        formatter: (name: string) => {
+          if (name === "Đăng ký thường") return `Đăng ký thường (${localCount})`;
+          if (name === "Đăng ký Google") return `Đăng ký Google (${googleCount})`;
+          return name;
+        },
       },
       series: [
         {
@@ -318,11 +353,77 @@ export const useAccount = () => {
     };
   }, [users, rem]);
 
+  // 1. Validation Schemas for Formik (All Roles)
+  const addValidationSchema = Yup.object().shape({
+    full_name: Yup.string()
+      .min(2, "Họ tên phải có ít nhất 2 ký tự")
+      .max(100, "Họ tên không được vượt quá 100 ký tự")
+      .required("Vui lòng nhập họ tên"),
+    email: Yup.string()
+      .email("Định dạng email không hợp lệ")
+      .required("Vui lòng nhập email"),
+    phone: Yup.string()
+      .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")
+      .nullable(),
+    role_id: Yup.number()
+      .oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ")
+      .required("Vui lòng chọn vai trò"),
+    password: Yup.string()
+      .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
+      .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
+      .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+      .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+      .required("Vui lòng nhập mật khẩu"),
+    status: Yup.string().oneOf(["active", "inactive", "banned"]).required(),
+  });
+
+  const editValidationSchema = Yup.object().shape({
+    full_name: Yup.string()
+      .min(2, "Họ tên phải có ít nhất 2 ký tự")
+      .max(100, "Họ tên không được vượt quá 100 ký tự")
+      .required("Vui lòng nhập họ tên"),
+    email: Yup.string()
+      .email("Định dạng email không hợp lệ")
+      .required("Vui lòng nhập email"),
+    phone: Yup.string()
+      .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ")
+      .nullable(),
+    role_id: Yup.number()
+      .oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ")
+      .required("Vui lòng chọn vai trò"),
+    password: Yup.string()
+      .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
+      .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
+      .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+      .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+      .nullable(),
+    avatar: Yup.string().nullable(),
+  });
+
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      full_name: currentUser?.full_name || "",
+      email: currentUser?.email || "",
+      phone: currentUser?.phone || "",
+      password: "",
+      status: currentUser?.status || "active",
+      avatar: currentUser?.avatar || "",
+      role_id: currentUser?.role_id || ROLES.CUSTOMER,
+    },
+    validationSchema: modalMode === "add" ? addValidationSchema : editValidationSchema,
+    onSubmit: (values) => {
+      handleSaveUser(values);
+    },
+  });
+
   return {
     searchQuery,
     setSearchQuery,
     selectedStatus,
     setSelectedStatus,
+    selectedRole,
+    setSelectedRole,
     currentPage,
     setCurrentPage,
     itemsPerPage,
@@ -336,6 +437,7 @@ export const useAccount = () => {
     currentUser,
     openAddModal,
     openEditModal,
+    openViewModal,
     closeModal,
     handleSaveUser,
     isStatusModalOpen,
@@ -356,5 +458,8 @@ export const useAccount = () => {
     handleToggleSelectUser,
     handleToggleSelectAll,
     handleBulkDeleteUsers,
+    uploadingImage,
+    handleUploadAvatar,
+    formik,
   };
 };

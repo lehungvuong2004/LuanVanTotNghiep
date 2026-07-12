@@ -1,6 +1,7 @@
 import { useNewsAdmin } from "./useHook";
 import { Icon } from "@iconify/react";
 import { Toast } from "../../../components/Toast";
+import { getImageUrl } from "../../../utils/images";
 
 export const NewsAdmin = () => {
   const {
@@ -8,8 +9,6 @@ export const NewsAdmin = () => {
     loading,
     searchQuery,
     setSearchQuery,
-    statusFilter,
-    setStatusFilter,
     currentPage,
     setCurrentPage,
     totalPages,
@@ -24,7 +23,11 @@ export const NewsAdmin = () => {
     formik,
     handleDeleteNews,
     handleToggleStatus,
+    uploadingImage,
+    handleUploadImage,
   } = useNewsAdmin();
+
+
 
   const renderToast = () => {
     if (!toast) return null;
@@ -101,43 +104,6 @@ export const NewsAdmin = () => {
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/35 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
           />
         </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái:</label>
-          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700">
-            <button
-              type="button"
-              onClick={() => setStatusFilter("all")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === "all" ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              Tất Cả
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("published")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === "published"
-                  ? "bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              Đã Xuất Bản
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("draft")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === "draft"
-                  ? "bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-xs"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              Bản Nháp
-            </button>
-          </div>
-        </div>
       </div>
     );
   };
@@ -182,7 +148,7 @@ export const NewsAdmin = () => {
               <div className="relative aspect-[16/9] bg-slate-100 dark:bg-slate-900 overflow-hidden shrink-0">
                 {item.thumbnail ? (
                   <img
-                    src={item.thumbnail}
+                    src={getImageUrl(item.thumbnail)}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     onError={(e) => {
@@ -208,7 +174,9 @@ export const NewsAdmin = () => {
 
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <h3 className="font-bold text-base text-slate-850 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-cyan-900 dark:group-hover:text-blue-400 transition-colors">{item.title}</h3>
+                  <h3 className="font-bold text-base text-slate-850 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-cyan-900 dark:group-hover:text-blue-400 transition-colors">
+                    {item.title}
+                  </h3>
                   <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
                     <div className="flex items-center gap-1.5">
                       <Icon icon="material-symbols:calendar-today-outline" className="text-base text-slate-400 shrink-0" />
@@ -216,7 +184,9 @@ export const NewsAdmin = () => {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Icon icon="material-symbols:person-outline-rounded" className="text-base text-slate-400 shrink-0" />
-                      <span>Người tạo: <span className="font-medium text-slate-700 dark:text-slate-300">{item.author?.full_name || "Admin"}</span></span>
+                      <span>
+                        Người tạo: <span className="font-medium text-slate-700 dark:text-slate-300">{item.creator?.full_name || "Quản trị viên"}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -226,7 +196,9 @@ export const NewsAdmin = () => {
                     type="button"
                     onClick={() => handleToggleStatus(item)}
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      item.status === "published" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70" : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
+                      item.status === "published"
+                        ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70"
+                        : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
                     }`}
                   >
                     <Icon icon={item.status === "published" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
@@ -342,19 +314,61 @@ export const NewsAdmin = () => {
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hình Ảnh Thu Nhỏ (URL)</label>
-              <input
-                type="text"
-                name="thumbnail"
-                placeholder="https://example.com/image.jpg"
-                value={formik.values.thumbnail}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
-                  formik.touched.thumbnail && formik.errors.thumbnail ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                }`}
-              />
+              <div className="flex gap-3 items-center">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    name="thumbnail"
+                    placeholder="https://example.com/image.jpg hoặc tải lên từ máy..."
+                    value={formik.values.thumbnail}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
+                      formik.touched.thumbnail && formik.errors.thumbnail ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
+                    }`}
+                  />
+                  {uploadingImage && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin block"></span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* File Upload Button */}
+                <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
+                  <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.currentTarget.files?.[0];
+                      if (file) {
+                        handleUploadImage(file);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
               {formik.touched.thumbnail && formik.errors.thumbnail && <p className="text-red-500 text-xs mt-1">{formik.errors.thumbnail}</p>}
             </div>
+
+            {/* Live Preview section */}
+            {formik.values.thumbnail && !formik.errors.thumbnail && (
+              <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hình Ảnh Xem Trước</span>
+                <div className="aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 relative bg-slate-100 dark:bg-slate-900">
+                  <img
+                    src={getImageUrl(formik.values.thumbnail)}
+                    alt="News Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://placehold.co/800x450/e2e8f0/64748b?text=Đường+dẫn+ảnh+không+hợp+lệ";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mô Tả Ngắn (Summary)</label>

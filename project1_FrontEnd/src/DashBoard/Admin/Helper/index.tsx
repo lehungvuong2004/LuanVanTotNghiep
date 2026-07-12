@@ -677,7 +677,7 @@ export const Helpers = () => {
                     : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-655"
                 }`}
               >
-                <Icon icon="material-symbols:block-rounded" className="text-xl" />
+                <Icon icon="material-symbols:close" className="text-xl" />
                 <span className="text-xs font-bold mt-1">Tạm ngưng (Suspended)</span>
               </div>
             </div>
