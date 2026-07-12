@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { loginApi, googleLoginApi } from "../../api/authApi/auth";
 import { getLoginSchema } from "../../api/authApi/validation";
+import { getRoleDashboard } from "../../constants";
 
 export const useLogin = () => {
   const { t } = useTranslation();
@@ -42,17 +43,10 @@ export const useLogin = () => {
         });
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        sessionStorage.setItem("show_login_toast", "true");
 
         // Redirect based on role
-        if (response.user.role_id === 1) {
-          navigate("/admin");
-        } else if (response.user.role_id === 2) {
-          navigate("/operator");
-        } else if (response.user.role_id === 3) {
-          navigate("/");
-        } else {
-          navigate("/");
-        }
+        navigate(getRoleDashboard(response.user.role_id));
       } catch (error: any) {
         console.error("Login failed:", error);
         const serverError = error?.response?.data?.message || t("Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.");
@@ -75,17 +69,10 @@ export const useLogin = () => {
         localStorage.setItem("remember_me", "true");
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        sessionStorage.setItem("show_login_toast", "true");
 
         // Redirect to Home (or specific role route if desired)
-        if (response.user.role_id === 1) {
-          navigate("/admin");
-        } else if (response.user.role_id === 2) {
-          navigate("/operator");
-        } else if (response.user.role_id === 3) {
-          navigate("/");
-        } else {
-          navigate("/");
-        }
+        navigate(getRoleDashboard(response.user.role_id));
       } catch (error: any) {
         console.error("Google Login fail:", error);
         setErrorMessage(error?.response?.data?.message || t("Đăng nhập bằng Google thất bại. Tài khoản chưa đăng ký."));

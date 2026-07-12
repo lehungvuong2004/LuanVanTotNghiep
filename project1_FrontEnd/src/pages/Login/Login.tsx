@@ -34,7 +34,7 @@ export const Login = () => {
 
         {errorMessage && (
           <div className="mb-5 p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">
-            <Icon icon="mdi:alert-circle-outline" className="w-5 h-5 flex-shrink-0" />
+            <Icon icon="mdi:alert-circle-outline" className="w-5 h-5 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}

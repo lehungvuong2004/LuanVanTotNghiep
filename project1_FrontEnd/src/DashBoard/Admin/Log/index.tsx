@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react";
 import { Toast } from "../../../components/Toast";
 import { Pagination } from "../../../components/Pagination";
 import { useActivityLogsAdmin } from "./useHook";
-import { ROLES } from "../../../constants";
+import { getInitials, getRoleBadge, formatDateTimeLong } from "../../../utils";
 
 export const ActivityLogs = () => {
   const {
@@ -60,62 +60,8 @@ export const ActivityLogs = () => {
       </span>
     );
   };
-// chưa tối ưu
-  const getRoleBadge = (roleId?: number) => {
-    if (!roleId) return null;
-    switch (roleId) {
-      case ROLES.ADMIN:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-650 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">
-            Admin
-          </span>
-        );
-      case ROLES.OPERATOR:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 whitespace-nowrap">
-            Vận Hành
-          </span>
-        );
-      case ROLES.HELPER:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 whitespace-nowrap">
-            Người Giúp Việc
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-teal-50 dark:bg-teal-950/20 text-[#026E5F] dark:text-[#52c1b2] border border-teal-100 dark:border-teal-900/30 whitespace-nowrap">
-            Khách Hàng
-          </span>
-        );
-    }
-  };
-  // chưa tối ưu
-  const getInitials = (name: string) => {
-    if (!name) return "KH";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
 
-  const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleString("vi-VN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    } catch {
-      return dateStr;
-    }
-  };
+
 
   const renderToast = () => {
     if (!toast) return null;
@@ -243,7 +189,7 @@ export const ActivityLogs = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 border border-cyan-100 dark:border-cyan-900/40">
-                            {user ? getInitials(user.full_name) : "HT"}
+                            {user ? getInitials(user.full_name, "KH") : "HT"}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
@@ -263,7 +209,7 @@ export const ActivityLogs = () => {
                         {item.description}
                       </td>
                       <td className="px-5 py-4 text-xs text-slate-500 dark:text-slate-400">
-                        {formatDate(item.created_at)}
+                        {formatDateTimeLong(item.created_at)}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end">

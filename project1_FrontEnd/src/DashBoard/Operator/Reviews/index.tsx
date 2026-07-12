@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { useStaffReviews } from "./useHook";
 import { Toast } from "../../../components/Toast";
 import { Pagination } from "../../../components/Pagination";
+import { getInitials } from "../../../utils";
 
 export const StaffReviews: React.FC = () => {
   const {
@@ -32,15 +33,7 @@ export const StaffReviews: React.FC = () => {
     itemsPerPage,
   } = useStaffReviews();
 
-  const getInitials = (name: string) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
+
 
   const renderStars = (rating: number) => {
     const stars = [];

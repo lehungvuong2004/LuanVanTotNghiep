@@ -5,6 +5,7 @@ import { useAdminReviews } from "./useHook";
 import { Toast } from "../../../components/Toast";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
+import { getInitials } from "../../../utils";
 
 export const Reviews = () => {
   const {
@@ -52,16 +53,7 @@ export const Reviews = () => {
   const customersList = Object.values(usersMap).filter((u) => u.role_id === 4);
   const helpersList = Object.values(usersMap).filter((u) => u.role_id === 3);
 
-  // chưa tối ưu 
-  const getInitials = (name: string) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
+
 
   const renderStars = (rating: number) => {
     const stars = [];

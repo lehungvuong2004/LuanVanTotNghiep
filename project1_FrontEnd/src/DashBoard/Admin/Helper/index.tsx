@@ -4,6 +4,7 @@ import { useHelperManagement } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
+import { getInitials } from "../../../utils";
 
 export const Helpers = () => {
   const {
@@ -81,15 +82,7 @@ export const Helpers = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return "GV";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
+
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">

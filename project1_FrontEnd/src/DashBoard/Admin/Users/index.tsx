@@ -6,6 +6,7 @@ import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
 import { ROLES } from "../../../constants";
+import { getInitials, getRoleBadge } from "../../../utils";
 
 export const Account = () => {
   const {
@@ -77,45 +78,6 @@ export const Account = () => {
           </span>
         );
     }
-  };
-
-  const getRoleBadge = (roleId: number) => {
-    switch (roleId) {
-      case ROLES.ADMIN:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">
-            Admin
-          </span>
-        );
-      case ROLES.OPERATOR:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 whitespace-nowrap">
-            Vận Hành
-          </span>
-        );
-      case ROLES.HELPER:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 whitespace-nowrap">
-            Người Làm
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-teal-50 dark:bg-teal-950/20 text-[#026E5F] dark:text-[#52c1b2] border border-teal-100 dark:border-teal-900/30 whitespace-nowrap">
-            Khách Hàng
-          </span>
-        );
-    }
-  };
-
-  const getInitials = (name: string) => {
-    if (!name) return "KH";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
   };
 
   const isValidAvatarUrl = (url) => {
