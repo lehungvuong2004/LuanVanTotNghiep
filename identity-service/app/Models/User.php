@@ -42,6 +42,16 @@ class User extends Authenticatable implements JWTSubject
     ];
   }
 
+  protected $appends = ['permissions'];
+
+  public function getPermissionsAttribute()
+  {
+    if ($this->relationLoaded('role') && $this->role) {
+      return $this->role->permissions->pluck('name')->toArray();
+    }
+    return $this->role ? $this->role->permissions()->pluck('name')->toArray() : [];
+  }
+
   public function role()
   {
     return $this->belongsTo(Role::class);

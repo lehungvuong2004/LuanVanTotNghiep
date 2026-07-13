@@ -8,6 +8,7 @@ use App\Http\Controllers\BannerController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\PermissionController;
 
 // ============================================================
 //  PUBLIC — Không cần token
@@ -36,77 +37,87 @@ Route::post('internal/customer/profile-status', [CustomerProfileController::clas
 
 Route::middleware('auth:api')->group(function () {
   Route::post('auth/logout',    [AuthController::class, 'logout']);
+  Route::get('me',              [AuthController::class, 'me']);
   Route::get('profile',         [AuthController::class, 'getProfile']);
   Route::put('profile',         [AuthController::class, 'updateProfile']);
   Route::post('profile/avatar', [AuthController::class, 'uploadAvatar']);
 
   // -- Customer Profile & Addresses (role: customer) --
   Route::prefix('customer')->group(function () {
-    Route::get('profile',                      [CustomerProfileController::class, 'getProfile']);
-    Route::put('profile',                      [CustomerProfileController::class, 'updateProfile']);
-    Route::get('addresses',                    [CustomerProfileController::class, 'listAddresses']);
-    Route::post('addresses',                   [CustomerProfileController::class, 'addAddress']);
-    Route::put('addresses/{id}',               [CustomerProfileController::class, 'updateAddress']);
-    Route::delete('addresses/{id}',            [CustomerProfileController::class, 'deleteAddress']);
-    Route::patch('addresses/{id}/default',     [CustomerProfileController::class, 'setDefaultAddress']);
+    Route::get('profile',                      [CustomerProfileController::class, 'getProfile'])->middleware('permission:customer_profile.view');
+    Route::put('profile',                      [CustomerProfileController::class, 'updateProfile'])->middleware('permission:customer_profile.update');
+    Route::get('addresses',                    [CustomerProfileController::class, 'listAddresses'])->middleware('permission:customer_addresses.view');
+    Route::post('addresses',                   [CustomerProfileController::class, 'addAddress'])->middleware('permission:customer_addresses.create');
+    Route::put('addresses/{id}',               [CustomerProfileController::class, 'updateAddress'])->middleware('permission:customer_addresses.update');
+    Route::delete('addresses/{id}',            [CustomerProfileController::class, 'deleteAddress'])->middleware('permission:customer_addresses.delete');
+    Route::patch('addresses/{id}/default',     [CustomerProfileController::class, 'setDefaultAddress'])->middleware('permission:customer_addresses.update');
   });
 
   // -- Notifications (Customer & Helper xem của mình) --
   Route::prefix('notifications')->group(function () {
-    Route::get('/',                  [NotificationController::class, 'index']);
-    Route::patch('{id}/read',        [NotificationController::class, 'markRead']);
-    Route::patch('read-all',         [NotificationController::class, 'markAllRead']);
-    Route::delete('{id}',            [NotificationController::class, 'destroy']);
+    Route::get('/',                  [NotificationController::class, 'index'])->middleware('permission:notifications.view');
+    Route::patch('{id}/read',        [NotificationController::class, 'markRead'])->middleware('permission:notifications.view');
+    Route::patch('read-all',         [NotificationController::class, 'markAllRead'])->middleware('permission:notifications.view');
+    Route::delete('{id}',            [NotificationController::class, 'destroy'])->middleware('permission:notifications.view');
   });
 
-  //  ADMIN — Chỉ Admin (role_id = 1) — phân quyền trong controller
+
+
+
+
+  //  ADMIN — Quản trị viên & Nhân viên (áp dụng kiểm tra Permission)
   Route::prefix('admin')->group(function () {
-    // Users
-    Route::get('users',              [AuthController::class, 'getUsers']);
-    Route::post('users/by-ids',      [AuthController::class, 'getUsersByIds']);
-    Route::get('users/search-ids',   [AuthController::class, 'searchUserIds']);
-    Route::post('users/upload',      [AuthController::class, 'uploadUserAvatar']);
-    Route::post('users',             [AuthController::class, 'createUser']);
-    Route::get('users/{id}',         [AuthController::class, 'getUser']);
-    Route::put('users/{id}',         [AuthController::class, 'updateUser']);
-    Route::patch('users/{id}/status', [AuthController::class, 'toggleUserStatus']);
-    Route::delete('users/{id}',      [AuthController::class, 'deleteUser']);
-    // dasboard
-    Route::post('users/bulk-delete', [AuthController::class, 'bulkDeleteUsers']);
+    // Users Management
+    Route::get('users',              [AuthController::class, 'getUsers'])->middleware('permission:users.view');
+    Route::post('users/by-ids',      [AuthController::class, 'getUsersByIds'])->middleware('permission:users.view');
+    Route::get('users/search-ids',   [AuthController::class, 'searchUserIds'])->middleware('permission:users.view');
+    Route::get('users/{id}',         [AuthController::class, 'getUser'])->middleware('permission:users.view');
+    Route::post('users',             [AuthController::class, 'createUser'])->middleware('permission:users.create');
+    Route::post('users/upload',      [AuthController::class, 'uploadUserAvatar'])->middleware('permission:users.update');
+    Route::put('users/{id}',         [AuthController::class, 'updateUser'])->middleware('permission:users.update');
+    Route::patch('users/{id}/status', [AuthController::class, 'toggleUserStatus'])->middleware('permission:users.lock');
+    Route::delete('users/{id}',      [AuthController::class, 'deleteUser'])->middleware('permission:users.delete');
+    Route::post('users/bulk-delete', [AuthController::class, 'bulkDeleteUsers'])->middleware('permission:users.delete');
 
+    // Notifications Management
+    Route::get('notifications',            [NotificationController::class, 'adminIndex'])->middleware('permission:notifications.view');
+    Route::post('notifications/send',      [NotificationController::class, 'send'])->middleware('permission:notifications.send');
+    Route::post('notifications/broadcast', [NotificationController::class, 'broadcast'])->middleware('permission:notifications.send');
 
-    // Notifications — Admin broadcast & manage
-    Route::get('notifications',            [NotificationController::class, 'adminIndex']);
-    Route::post('notifications/send',      [NotificationController::class, 'send']);
-    Route::post('notifications/broadcast', [NotificationController::class, 'broadcast']);
+    // Banners Management
+    Route::get('banners',                  [BannerController::class, 'adminIndex'])->middleware('permission:banners.view');
+    Route::get('banners/{id}',             [BannerController::class, 'show'])->middleware('permission:banners.view');
+    Route::post('banners',                 [BannerController::class, 'store'])->middleware('permission:banners.create');
+    Route::post('banners/upload',          [BannerController::class, 'uploadImage'])->middleware('permission:banners.update');
+    Route::put('banners/{id}',             [BannerController::class, 'update'])->middleware('permission:banners.update');
+    Route::patch('banners/{id}/status',     [BannerController::class, 'toggleStatus'])->middleware('permission:banners.update');
+    Route::delete('banners/{id}',          [BannerController::class, 'destroy'])->middleware('permission:banners.delete');
 
-    // Banners — Admin CRUD & Toggle Status
-    Route::get('banners',                  [BannerController::class, 'adminIndex']);
-    Route::post('banners/upload',          [BannerController::class, 'uploadImage']);
-    Route::post('banners',                 [BannerController::class, 'store']);
-    Route::get('banners/{id}',             [BannerController::class, 'show']);
-    Route::put('banners/{id}',             [BannerController::class, 'update']);
-    Route::patch('banners/{id}/status',     [BannerController::class, 'toggleStatus']);
-    Route::delete('banners/{id}',          [BannerController::class, 'destroy']);
+    // News Management
+    Route::get('news',                     [NewsController::class, 'adminIndex'])->middleware('permission:news.view');
+    Route::post('news',                    [NewsController::class, 'store'])->middleware('permission:news.create');
+    Route::post('news/upload',             [NewsController::class, 'uploadImage'])->middleware('permission:news.update');
+    Route::put('news/{id}',               [NewsController::class, 'update'])->middleware('permission:news.update');
+    Route::patch('news/{id}/status',       [NewsController::class, 'toggleStatus'])->middleware('permission:news.update');
+    Route::delete('news/{id}',             [NewsController::class, 'destroy'])->middleware('permission:news.delete');
 
-     // News — Admin CRUD & Toggle Status
-     Route::get('news',                     [NewsController::class, 'adminIndex']);
-     Route::post('news/upload',             [NewsController::class, 'uploadImage']);
-     Route::post('news',                    [NewsController::class, 'store']);
-    Route::put('news/{id}',               [NewsController::class, 'update']);
-    Route::patch('news/{id}/status',       [NewsController::class, 'toggleStatus']);
-    Route::delete('news/{id}',             [NewsController::class, 'destroy']);
+    // Roles Management
+    Route::get('roles',                    [RoleController::class, 'index'])->middleware('permission:roles.view');
+    Route::get('roles/{id}',               [RoleController::class, 'show'])->middleware('permission:roles.view');
+    Route::post('roles',                   [RoleController::class, 'store'])->middleware('permission:roles.create');
+    Route::put('roles/{id}',               [RoleController::class, 'update'])->middleware('permission:roles.update');
+    Route::delete('roles/{id}',            [RoleController::class, 'destroy'])->middleware('permission:roles.delete');
 
-    // Roles — Admin CRUD
-    Route::get('roles',                    [RoleController::class, 'index']);
-    Route::post('roles',                   [RoleController::class, 'store']);
-    Route::get('roles/{id}',               [RoleController::class, 'show']);
-    Route::put('roles/{id}',               [RoleController::class, 'update']);
-    Route::delete('roles/{id}',            [RoleController::class, 'destroy']);
+    // Permissions Management
+    Route::get('permissions',              [PermissionController::class, 'index'])->middleware('permission:permissions.view');
+    Route::get('permissions/{id}',         [PermissionController::class, 'show'])->middleware('permission:permissions.view');
+    Route::post('permissions',             [PermissionController::class, 'store'])->middleware('permission:permissions.create');
+    Route::put('permissions/{id}',         [PermissionController::class, 'update'])->middleware('permission:permissions.update');
+    Route::delete('permissions/{id}',      [PermissionController::class, 'destroy'])->middleware('permission:permissions.delete');
 
-    // Activity Logs — Admin View & Manage
-    Route::get('activity-logs',            [ActivityLogController::class, 'index']);
-    Route::delete('activity-logs/{id}',    [ActivityLogController::class, 'destroy']);
-    Route::delete('activity-logs-clear',   [ActivityLogController::class, 'clear']);
+    // Activity Logs Management
+    Route::get('activity-logs',            [ActivityLogController::class, 'index'])->middleware('permission:activity_logs.view');
+    Route::delete('activity-logs/{id}',    [ActivityLogController::class, 'destroy'])->middleware('permission:activity_logs.view');
+    Route::delete('activity-logs-clear',   [ActivityLogController::class, 'clear'])->middleware('permission:activity_logs.view');
   });
 });

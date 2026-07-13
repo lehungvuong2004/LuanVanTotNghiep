@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin, uploadUserAvatarAdmin } from "../../../api/users";
 import type { User } from "../../../api/users";
 import { getRootFontSizePx } from "../../../utils";
-import { ROLES } from "../../../constants";
+import { ROLES } from "../../../constants/roles";
 
 export const useAccount = () => {
   const [users, setUsers] = useState<User[]>([]);

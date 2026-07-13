@@ -326,6 +326,33 @@ class AuthController extends Controller
     // =====================================================================
 
   /**
+   * Lấy thông tin chi tiết người dùng hiện tại (GET /api/me).
+   */
+  public function me()
+  {
+    $user = auth('api')->user();
+    if (!$user) {
+      return response()->json([
+        'message' => 'Unauthorized.'
+      ], Response::HTTP_UNAUTHORIZED);
+    }
+
+    // Eager loading Role và Permissions của Role đó
+    $user->load('role.permissions');
+
+    return response()->json([
+      'id'          => $user->id,
+      'full_name'   => $user->full_name,
+      'email'       => $user->email,
+      'role'        => [
+        'id'   => $user->role->id ?? null,
+        'name' => $user->role->name ?? null,
+      ],
+      'permissions' => $user->permissions,
+    ], Response::HTTP_OK);
+  }
+
+  /**
    * Lấy thông tin cá nhân của chính mình.
    */
   public function getProfile()
@@ -335,7 +362,7 @@ class AuthController extends Controller
       return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
     }
 
-    $user->load('role');
+    $user->load('role.permissions');
     return response()->json(['data' => $user], Response::HTTP_OK);
   }
 
@@ -375,7 +402,7 @@ class AuthController extends Controller
     }
 
     $user->update($fields);
-    $user->load('role');
+    $user->load('role.permissions');
 
     return response()->json([
       'message' => 'Cập nhật thông tin cá nhân thành công.',
@@ -417,7 +444,7 @@ class AuthController extends Controller
       $url = url('uploads/avatars/' . $filename);
 
       $user->update(['avatar' => $url]);
-      $user->load('role');
+      $user->load('role.permissions');
 
       return response()->json([
         'message' => 'Tải ảnh đại diện lên thành công.',
@@ -429,9 +456,9 @@ class AuthController extends Controller
     return response()->json(['message' => 'Không tìm thấy file tải lên.'], Response::HTTP_BAD_REQUEST);
   }
 
-    // =====================================================================
-    //  ADMIN — Quản lý Users (Chỉ Admin role_id = 1)
-    // =====================================================================
+  // =====================================================================
+  //  ADMIN — Quản lý Users (Chỉ Admin role_id = 1)
+  // =====================================================================
 
   public function getUsers(Request $request)
   {
@@ -484,19 +511,19 @@ class AuthController extends Controller
     $users = $query->orderBy('id', 'desc')->paginate($limit);
 
     $roleCounts = User::select('role_id', DB::raw('count(*) as count'))
-        ->groupBy('role_id')
-        ->pluck('count', 'role_id')
-        ->toArray();
+      ->groupBy('role_id')
+      ->pluck('count', 'role_id')
+      ->toArray();
 
     return response()->json([
       'type' => 'all',
       'data' => $users,
       'role_counts' => [
-          'admin' => $roleCounts[Role::ADMIN] ?? 0,
-          'operator' => $roleCounts[Role::OPERATOR] ?? 0,
-          'helper' => $roleCounts[Role::HELPER] ?? 0,
-          'customer' => $roleCounts[Role::CUSTOMER] ?? 0,
-          'total' => array_sum($roleCounts),
+        'admin' => $roleCounts[Role::ADMIN] ?? 0,
+        'operator' => $roleCounts[Role::OPERATOR] ?? 0,
+        'helper' => $roleCounts[Role::HELPER] ?? 0,
+        'customer' => $roleCounts[Role::CUSTOMER] ?? 0,
+        'total' => array_sum($roleCounts),
       ]
     ], Response::HTTP_OK);
   }
@@ -760,7 +787,7 @@ class AuthController extends Controller
       'created_at'               => now(),
     ]);
 
-    $user->load('role');
+    $user->load('role.permissions');
 
     return response()->json([
       'access_token'  => $token,

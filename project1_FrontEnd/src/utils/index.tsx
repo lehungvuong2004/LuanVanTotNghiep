@@ -1,4 +1,4 @@
-import { ROLES } from "../constants";
+import { ROLES, getUserRole } from "../constants/roles";
 
 // NOTE: Hiện tại không được sử dụng trong codebase
 // export const waitFor = (ms: number) => {
@@ -83,7 +83,7 @@ export const formatDate = (dateStr): any => {
   return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 };
 
-export function formatMoneyInput(value: string | number | null | undefined){
+export function formatMoneyInput(value: string | number | null | undefined) {
   if (value === undefined || value === null) return "";
   const cleanVal = value.toString().replace(/\D/g, "");
   if (!cleanVal) return "";
@@ -95,7 +95,7 @@ export const sortBookingsByDate = (items: any[]) => {
   return [...items].sort((a, b) => b.id - a.id);
 };
 
-export const formatVietnamDateTime = (dateStr: string | null | undefined)=> {
+export const formatVietnamDateTime = (dateStr: string | null | undefined) => {
   if (!dateStr) return "";
   const d = parseUtcDate(dateStr);
   if (isNaN(d.getTime())) return "";
@@ -107,7 +107,7 @@ export const formatVietnamDateTime = (dateStr: string | null | undefined)=> {
   return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
 };
 
-export const getRatingNote = (rating)=> {
+export const getRatingNote = (rating) => {
   switch (rating) {
     case 5:
       return "Xuất sắc (5/5)";
@@ -152,9 +152,18 @@ export const getInitials = (name?: string | null, fallback: string = "U"): strin
     .toUpperCase();
 };
 
-export const getRoleBadge = (roleId?: number) => {
-  if (!roleId) return null;
-  switch (roleId) {
+export const getRoleBadge = (role?: number | string | any) => {
+  if (!role) return null;
+  let roleNum: number;
+  if (typeof role === "object") {
+    roleNum = getUserRole(role) || ROLES.CUSTOMER;
+  } else if (typeof role === "string") {
+    roleNum = getUserRole({ role: { name: role } }) || ROLES.CUSTOMER;
+  } else {
+    roleNum = Number(role);
+  }
+
+  switch (roleNum) {
     case ROLES.ADMIN:
       return (
         <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-650 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">

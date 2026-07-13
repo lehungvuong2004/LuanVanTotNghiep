@@ -5,8 +5,7 @@ import { useHeader } from "./useHook";
 import type { NotificationType, Notification } from "../../api/notifications";
 import { Toast } from "../Toast";
 import { formatVietnamDateTime } from "../../utils";
-import { ROLES, getRoleName, getRoleDashboard } from "../../constants";
-
+import { ROLES, getRoleName, getRoleDashboard, getUserRole } from "../../constants/roles";
 
 // Icon & colour mapping per notification type
 const NOTIF_META: Record<NotificationType, { icon: string; bg: string; fg: string }> = {
@@ -62,14 +61,14 @@ export const Header = () => {
       const isRecruitment = notif.type === "recruitment" || titleLower.includes("ứng tuyển") || msgLower.includes("ứng tuyển") || msgLower.includes("tuyển dụng");
 
       if (isRecruitment) {
-        if (user?.role_id === ROLES.CUSTOMER) {
+        if (getUserRole(user) === ROLES.CUSTOMER) {
           const match = notif.message?.match(/mã:\s*#(\d+)/i);
           if (match && match[1]) {
             navigate(`/lich-su-dat-lich?tab=job-posts&post_id=${match[1]}`);
           } else {
             navigate("/lich-su-dat-lich?tab=job-posts");
           }
-        } else if (user?.role_id === ROLES.HELPER) {
+        } else if (getUserRole(user) === ROLES.HELPER) {
           navigate("/lich-su-dat-lich?tab=helper-applications");
         } else {
           navigate("/lich-su-dat-lich");
@@ -362,16 +361,14 @@ export const Header = () => {
                         />
                         <div className="flex flex-col">
                           <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">{user?.full_name || "Nguyễn Văn A"}</span>
-                          <span className="text-xs text-gray-500 mt-0.5">
-                            {t(getRoleName(user?.role_id))}
-                          </span>
+                          <span className="text-xs text-gray-500 mt-0.5">{t(getRoleName(getUserRole(user)))}</span>
                         </div>
                       </div>
 
                       <div className="flex flex-col gap-1 py-3">
-                        {user && user.role_id !== ROLES.CUSTOMER && (
+                        {user && getUserRole(user) !== ROLES.CUSTOMER && (
                           <Link
-                            to={getRoleDashboard(user.role_id)}
+                            to={getRoleDashboard(getUserRole(user))}
                             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                           >
                             <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />
@@ -621,16 +618,14 @@ export const Header = () => {
                           />
                           <div className="flex flex-col">
                             <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">{user?.full_name || "Nguyễn Văn A"}</span>
-                            <span className="text-xs text-gray-500 mt-0.5">
-                              {t(getRoleName(user?.role_id))}
-                            </span>
+                            <span className="text-xs text-gray-500 mt-0.5">{t(getRoleName(getUserRole(user)))}</span>
                           </div>
                         </div>
 
                         <div className="flex flex-col gap-1 py-3">
-                          {user && user.role_id !== ROLES.CUSTOMER && (
+                          {user && getUserRole(user) !== ROLES.CUSTOMER && (
                             <Link
-                              to={getRoleDashboard(user.role_id)}
+                              to={getRoleDashboard(getUserRole(user))}
                               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
                             >
                               <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />

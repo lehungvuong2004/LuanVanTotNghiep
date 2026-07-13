@@ -3,15 +3,11 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../hooks/useAuth";
-import { ROLES } from "../constants";
+import { ROLES, getUserRole } from "../constants/roles";
 import { useTranslation } from "react-i18next";
 import { Toast } from "../components/Toast";
 
-interface DashboardLayoutProps {
-  allowedRole: number;
-}
-
-export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
+export const DashboardLayout = ({ allowedRole }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,7 +16,7 @@ export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
   const [toast, setToast] = useState<{ type: string; title: string; message: string } | null>(null);
 
   useEffect(() => {
-    if (!token || !user || user.role_id !== allowedRole) {
+    if (!token || !user || getUserRole(user) !== allowedRole) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
       navigate("/dang-nhap");
@@ -39,12 +35,12 @@ export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
     }
   }, [location, t]);
 
-  if (!token || !user || user.role_id !== allowedRole) {
+  if (!token || !user || getUserRole(user) !== allowedRole) {
     return null;
   }
 
   const getHoverClass = () => {
-    switch (user.role_id) {
+    switch (getUserRole(user)) {
       case ROLES.ADMIN:
         return "hover:text-blue-600 dark:hover:text-blue-400";
       case ROLES.OPERATOR:

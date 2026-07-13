@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { loginApi, googleLoginApi } from "../../api/authApi/auth";
 import { getLoginSchema } from "../../api/authApi/validation";
-import { getRoleDashboard } from "../../constants";
+import { getRoleDashboard, getUserRole } from "../../constants/roles";
 
 export const useLogin = () => {
   const { t } = useTranslation();
@@ -46,7 +46,7 @@ export const useLogin = () => {
         sessionStorage.setItem("show_login_toast", "true");
 
         // Redirect based on role
-        navigate(getRoleDashboard(response.user.role_id));
+        navigate(getRoleDashboard(getUserRole(response.user)));
       } catch (error: any) {
         console.error("Login failed:", error);
         const serverError = error?.response?.data?.message || t("Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.");
@@ -72,7 +72,7 @@ export const useLogin = () => {
         sessionStorage.setItem("show_login_toast", "true");
 
         // Redirect to Home (or specific role route if desired)
-        navigate(getRoleDashboard(response.user.role_id));
+        navigate(getRoleDashboard(getUserRole(response.user)));
       } catch (error: any) {
         console.error("Google Login fail:", error);
         setErrorMessage(error?.response?.data?.message || t("Đăng nhập bằng Google thất bại. Tài khoản chưa đăng ký."));

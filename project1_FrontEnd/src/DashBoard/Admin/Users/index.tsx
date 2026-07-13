@@ -5,7 +5,7 @@ import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
-import { ROLES } from "../../../constants";
+import { ROLES } from "../../../constants/roles";
 import { getInitials, getRoleBadge } from "../../../utils";
 
 export const Account = () => {

@@ -23,7 +23,7 @@ import { Pricing } from "./pages/Pricing";
 // import { Payment } from "./pages/Payment";
 import { PaymentReturn } from "./pages/PaymentReturn";
 import { DashboardLayout } from "./layouts/DashboardLayout";
-import { ROLES } from "./constants";
+import { ROLES } from "./constants/roles";
 import { Schedules } from "./DashBoard/Admin/Schedules";
 import { Services } from "./DashBoard/Admin/Services";
 import { ServiceCategories } from "./DashBoard/Admin/Service_Categories";

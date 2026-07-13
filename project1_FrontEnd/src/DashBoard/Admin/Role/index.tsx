@@ -4,36 +4,17 @@ import { Toast } from "../../../components/Toast";
 import { useRolesAdmin } from "./useHook";
 
 export const Role = () => {
-  const {
-    roles,
-    totalItems,
-    loading,
-    searchQuery,
-    setSearchQuery,
-    isModalOpen,
-    modalMode,
-    toast,
-    setToast,
-    openAddModal,
-    openEditModal,
-    closeModal,
-    formik,
-    handleDelete,
-    currentRole,
-  } = useRolesAdmin();
+  const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode, toast, setToast, openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } =
+    useRolesAdmin();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const toggleSelectOne = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds((prev) =>
-      prev.length === roles.length ? [] : roles.map((r) => r.id)
-    );
+    setSelectedIds((prev) => (prev.length === roles.length ? [] : roles.map((r) => r.id)));
   };
 
   const handleBulkDelete = async () => {
@@ -60,12 +41,8 @@ export const Role = () => {
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Quản Lý Vai Trò & Phân Quyền
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Thiết lập các vai trò người dùng trong hệ thống (Khách hàng, Nhân viên, Đối tác, Admin).
-        </p>
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Vai Trò & Phân Quyền</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Thiết lập các vai trò người dùng trong hệ thống (Khách hàng, Nhân viên, Đối tác, Admin).</p>
       </div>
       <div className="flex items-center gap-3">
         {selectedIds.length > 0 && (
@@ -116,17 +93,12 @@ export const Role = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {stats.map((s) => (
-          <div
-            key={s.label}
-            className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4"
-          >
+          <div key={s.label} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${s.color}`}>
               <Icon icon={s.icon} />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                {s.label}
-              </p>
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{s.label}</p>
               <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
             </div>
           </div>
@@ -194,6 +166,7 @@ export const Role = () => {
                 <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
                 <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vai Trò</th>
                 <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mô Tả</th>
+                <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Quyền Hạn</th>
                 <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Phân Loại</th>
                 <th className="text-right px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành Động</th>
               </tr>
@@ -202,12 +175,7 @@ export const Role = () => {
               {roles.map((item) => {
                 const isCore = [1, 2, 3, 4].includes(item.id);
                 return (
-                  <tr
-                    key={item.id}
-                    className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${
-                      selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""
-                    }`}
-                  >
+                  <tr key={item.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
                     <td className="px-4 py-4 text-center">
                       <input
                         type="checkbox"
@@ -218,21 +186,23 @@ export const Role = () => {
                       />
                     </td>
                     <td className="px-5 py-4 text-slate-400 dark:text-slate-500 font-mono text-xs">#{item.id}</td>
-                    <td className="px-5 py-4 font-semibold text-slate-800 dark:text-slate-100 font-mono uppercase text-xs">
-                      {item.name}
-                    </td>
-                    <td className="px-5 py-4 text-slate-650 dark:text-slate-300">
-                      {item.description || <span className="text-slate-400 dark:text-slate-500 italic">Chưa cấu hình mô tả</span>}
+                    <td className="px-5 py-4 font-semibold text-slate-800 dark:text-slate-100 font-mono uppercase text-xs">{item.name}</td>
+                    <td className="px-5 py-4 text-slate-650 dark:text-slate-300">{item.description || <span className="text-slate-400 dark:text-slate-500 italic">Chưa cấu hình mô tả</span>}</td>
+                    <td className="px-5 py-4">
+                      {item.permissions && item.permissions.length > 0 ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-900/30 whitespace-nowrap">
+                          <Icon icon="material-symbols:vpn-key-outline-rounded" className="text-sm" />
+                          {item.permissions.length} quyền
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 dark:text-slate-500 italic text-xs">Chưa có quyền</span>
+                      )}
                     </td>
                     <td className="px-5 py-4">
                       {isCore ? (
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400">
-                          Mặc định hệ thống
-                        </span>
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400">Mặc định hệ thống</span>
                       ) : (
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400">
-                          Tùy biến
-                        </span>
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400">Tùy biến</span>
                       )}
                     </td>
                     {/* Actions */}
@@ -278,9 +248,7 @@ export const Role = () => {
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${modalMode === "add" ? "bg-blue-100 text-blue-600" : "bg-indigo-100 text-indigo-600"}`}>
                 <Icon icon={modalMode === "add" ? "material-symbols:add" : "material-symbols:edit-note"} />
               </div>
-              <h3 className="font-extrabold text-base">
-                {modalMode === "add" ? "Thêm Vai Trò Mới" : "Chỉnh Sửa Vai Trò"}
-              </h3>
+              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Vai Trò Mới" : "Chỉnh Sửa Vai Trò"}</h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -317,13 +285,90 @@ export const Role = () => {
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mô Tả</label>
               <textarea
                 name="description"
-                rows={3}
+                rows={2}
                 placeholder="Mô tả quyền hạn của vai trò này..."
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all resize-none"
+                className="w-full px-4 py-2 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all resize-none"
               />
+            </div>
+
+            {/* Permissions */}
+            <div className="space-y-3 pt-2">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Phân Quyền Chi Tiết</label>
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/10">
+                {Object.entries(
+                  permissions.reduce(
+                    (acc, p) => {
+                      if (!acc[p.module]) acc[p.module] = [];
+                      acc[p.module].push(p);
+                      return acc;
+                    },
+                    {} as Record<string, typeof permissions>,
+                  ),
+                ).map(([module, perms]) => (
+                  <div key={module} className="space-y-2">
+                    <div className="flex items-center justify-between border-b border-slate-150 dark:border-slate-750 pb-1">
+                      <span className="text-xs font-bold text-cyan-900 dark:text-cyan-400 uppercase tracking-wider">Mô-đun {module}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const permIds = perms.map((p) => p.id);
+                          const allChecked = permIds.every((id) => formik.values.permissions.includes(id));
+                          if (allChecked) {
+                            formik.setFieldValue(
+                              "permissions",
+                              formik.values.permissions.filter((id) => !permIds.includes(id)),
+                            );
+                          } else {
+                            const uniqueIds = Array.from(new Set([...formik.values.permissions, ...permIds]));
+                            formik.setFieldValue("permissions", uniqueIds);
+                          }
+                        }}
+                        className="text-xxs font-medium text-slate-550 dark:text-slate-400 hover:text-cyan-800 dark:hover:text-cyan-300 transition-colors cursor-pointer"
+                      >
+                        {perms.map((p) => p.id).every((id) => formik.values.permissions.includes(id)) ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {perms.map((p) => {
+                        const isChecked = formik.values.permissions.includes(p.id);
+                        return (
+                          <label
+                            key={p.id}
+                            className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-all duration-150 ${
+                              isChecked
+                                ? "bg-cyan-50/30 dark:bg-cyan-950/10 border-cyan-200 dark:border-cyan-800/40 text-cyan-900 dark:text-cyan-400"
+                                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {
+                                if (isChecked) {
+                                  formik.setFieldValue(
+                                    "permissions",
+                                    formik.values.permissions.filter((id) => id !== p.id),
+                                  );
+                                } else {
+                                  formik.setFieldValue("permissions", [...formik.values.permissions, p.id]);
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700 mt-0.5"
+                            />
+                            <div>
+                              <p className="text-xs font-bold font-mono">{p.name}</p>
+                              {p.description && <p className="text-xxs text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{p.description}</p>}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="pt-4 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-end gap-3 mt-2">

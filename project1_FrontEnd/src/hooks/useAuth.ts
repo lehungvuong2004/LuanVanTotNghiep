@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ROLES } from "../constants/roles";
 
 export const useAuth = () => {
   const [token, setToken] = useState(() => localStorage.getItem("access_token"));
@@ -18,5 +19,26 @@ export const useAuth = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  return { token, user, isLoggedIn: !!token };
+  const hasPermission = (permissionName: string): boolean => {
+    if (!user) return false;
+
+    // Admin role has access to everything
+    if (user.role?.name?.toLowerCase() === "admin" || user.role_id === ROLES.ADMIN) {
+      return true;
+    }
+
+    // Check flat permissions array at user root level first
+    if (Array.isArray(user.permissions) && user.permissions.includes(permissionName)) {
+      return true;
+    }
+
+    // Check nested role.permissions as fallback
+    const permissions = user.role?.permissions || [];
+    return permissions.some((p: any) => {
+      if (typeof p === "string") return p === permissionName;
+      return p?.name === permissionName;
+    });
+  };
+
+  return { token, user, isLoggedIn: !!token, hasPermission };
 };
