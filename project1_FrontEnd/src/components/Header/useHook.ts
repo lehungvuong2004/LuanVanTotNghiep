@@ -53,7 +53,17 @@ export const useHeader = () => {
     setIsLoggedIn(!!localStorage.getItem("access_token"));
     const userStr = localStorage.getItem("user");
     setUser(userStr ? JSON.parse(userStr) : null);
-  }, [location]);
+
+    const showLoginToast = sessionStorage.getItem("show_login_toast");
+    if (showLoginToast === "true") {
+      setToast({
+        type: "success",
+        title: t("Thành công"),
+        message: t("Đăng nhập thành công!"),
+      });
+      sessionStorage.removeItem("show_login_toast");
+    }
+  }, [location, t]);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");

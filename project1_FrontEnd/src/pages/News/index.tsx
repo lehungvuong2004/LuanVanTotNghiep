@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import { useNews } from "./useHook";
 import { formatDate } from "../../utils";
 import { Pagination } from "../../components/Pagination";
+import { getImageUrl } from "../../utils/images";
 
 export const News = () => {
   const { news, loading, error, currentPage, total, searchQuery, setSearchQuery, fetchNews } = useNews();
+
+
 
   const renderHeader = () => (
     <div>
@@ -80,7 +83,7 @@ export const News = () => {
                 >
                   <div className="lg:col-span-7 h-60 lg:h-full overflow-hidden bg-slate-100 dark:bg-slate-900">
                     {item.thumbnail ? (
-                      <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={getImageUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center">
                         <Icon icon="material-symbols:newspaper" className="text-6xl text-white/70" />
@@ -115,7 +118,7 @@ export const News = () => {
               >
                 <div className="aspect-video overflow-hidden bg-slate-100 dark:bg-slate-900">
                   {item.thumbnail ? (
-                    <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={getImageUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="w-full h-full min-h-48 bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center">
                       <Icon icon="material-symbols:newspaper" className="text-5xl text-white/70" />

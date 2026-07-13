@@ -103,3 +103,18 @@ export const deleteBannerAdmin = async (
   );
   return response.data;
 };
+
+export const uploadBannerImage = async (file: File): Promise<{ message: string; url: string; path: string }> => {
+  const formData = new FormData();
+  formData.append("image", file);
+  const response = await axiosInstance.post<{ message: string; url: string; path: string }>(
+    "/admin/banners/upload",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+};

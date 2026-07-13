@@ -13,57 +13,152 @@ import repairPlumber from "../../assets/images/home_service/repairPlumber.webp";
 import { useHome } from "./useHook";
 import { t } from "i18next";
 import { Link } from "react-router-dom";
+import { getImageUrl } from "../../utils/images";
 
 export const Home = () => {
-  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData } = useHome();
+  const { 
+    bannerData, 
+    serviceData, 
+    containerRef, 
+    imageRef, 
+    contentRef, 
+    cubeRef, 
+    produceData, 
+    reviewData,
+    banners,
+    loadingBanners
+  } = useHome();
 
   const swiperRef = useRef<any>(null);
+
+
+
   const renderBanner = () => {
-    return (
-      <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center" style={{ height: "85vh" }}>
-        {/* api get image */}
-        <img
-          ref={imageRef}
-          src={bannerHome}
-          alt="Home banner"
-          loading="eager"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover will-change-transform"
-          style={{ transformOrigin: "center center" }}
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/40 to-black/20" />
-
-        <div ref={contentRef} className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10">
-          <h1 className="text-white text-4xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-xl max-w-4xl">
-            {bannerData.title} <span className="text-teal-400 block md:inline">{bannerData.highlightTitle}</span>
-          </h1>
-          {/* <p className="text-white/95 text-base md:text-xl max-w-2xl mb-10 drop-shadow-md font-medium">{bannerData.description}</p> */}
-
-          <div className="w-full max-w-3xl bg-white p-3 md:p-4 rounded-none md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-3 mb-12">
-            <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-2 md:py-0">
-              <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
-              <input
-                type="text"
-                placeholder={bannerData.searchPlaceholders.service}
-                className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
-              />
-            </div>
-
-            <div className="w-full flex items-center gap-2 px-4 py-2 md:py-0">
-              <Icon icon="lucide:map-pin" className="text-gray-400 text-xl shrink-0" />
-              <input
-                type="text"
-                placeholder={bannerData.searchPlaceholders.location}
-                className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
-              />
-            </div>
-
-            <button className="w-full md:w-auto cursor-pointer bg-teal-600 hover:bg-teal-700 active:scale-95 text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-teal-600/30">
-              <Icon icon="lucide:search" className="text-lg" />
-              Tìm kiếm
-            </button>
+    if (loadingBanners) {
+      return (
+        <div className="relative w-full overflow-hidden flex items-center justify-center bg-gray-900/10" style={{ height: "85vh" }}>
+          {/* Skeleton Overlay */}
+          <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
+          <div className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10 animate-pulse">
+            {/* Title Skeleton */}
+            <div className="h-10 md:h-14 bg-white/20 rounded-lg w-11/12 max-w-2xl mb-8" />
+            {/* Search Bar Skeleton */}
+            <div className="h-14 md:h-16 bg-white/20 rounded-full w-full max-w-2xl mb-10" />
+            {/* Button Skeleton */}
+            <div className="h-10 bg-white/20 rounded-full w-40" />
           </div>
         </div>
+      );
+    }
+
+    const bannerList = banners && banners.length > 0 ? banners : [
+      {
+        id: 0,
+        title: "Bình tĩnh vì mọi việc gia đình luôn có người đồng hành.",
+        image: bannerHome,
+        link: null,
+        status: "active" as const
+      }
+    ];
+
+    return (
+      <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center hero-swiper-container" style={{ height: "85vh" }}>
+        <Swiper
+          modules={[Pagination, Autoplay, Navigation]}
+          pagination={bannerList.length > 1 ? { clickable: true } : false}
+          navigation={bannerList.length > 1}
+          autoplay={bannerList.length > 1 ? { delay: 5000, disableOnInteraction: false } : false}
+          loop={bannerList.length > 1}
+          className="w-full h-full hero-swiper"
+        >
+          {bannerList.map((banner, index) => (
+            <SwiperSlide key={banner.id || index} className="relative w-full h-full flex items-center justify-center">
+              {/* Background Image */}
+              <img
+                ref={index === 0 ? imageRef : undefined}
+                src={getImageUrl(banner.image)}
+                alt={banner.title || "Banner"}
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                style={{ transformOrigin: "center center" }}
+              />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
+
+              {/* Slide Content */}
+              <div 
+                ref={index === 0 ? contentRef : undefined}
+                className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10"
+              >
+                <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl max-w-4xl tracking-tight">
+                  {banner.title}
+                </h1>
+
+                {/* Mockup Search Form */}
+                <div className="w-full max-w-2xl bg-white p-2 md:p-2.5 rounded-none md:rounded-full shadow-xl flex flex-col md:flex-row items-center gap-2 mb-8">
+                  <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-1.5 md:py-0">
+                    <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
+                    <input
+                      type="text"
+                      placeholder={bannerData.searchPlaceholders.service}
+                      className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
+                    />
+                  </div>
+
+                  <div className="w-full flex items-center gap-2 px-4 py-1.5 md:py-0">
+                    <Icon icon="lucide:map-pin" className="text-gray-400 text-xl shrink-0" />
+                    <input
+                      type="text"
+                      placeholder={bannerData.searchPlaceholders.location}
+                      className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
+                    />
+                  </div>
+
+                  <button className="w-full md:w-auto cursor-pointer bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-md">
+                    <Icon icon="lucide:search" className="text-lg" />
+                    Tìm kiếm
+                  </button>
+                </div>
+
+                {banner.link && (() => {
+                  const getNormalizedLink = (lnk: string) => {
+                    if (!lnk) return "";
+                    if (lnk.startsWith("http")) return lnk;
+                    if (lnk.startsWith("/#/")) return lnk.substring(2);
+                    return lnk;
+                  };
+                  const normalizedLink = getNormalizedLink(banner.link);
+                  const isExternal = normalizedLink.startsWith("http");
+
+                  return (
+                    <div>
+                      {isExternal ? (
+                        <a 
+                          href={normalizedLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
+                        >
+                          <Icon icon="lucide:external-link" className="text-base" />
+                          Khám phá chi tiết
+                        </a>
+                      ) : (
+                        <Link 
+                          to={normalizedLink} 
+                          className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
+                        >
+                          <Icon icon="lucide:arrow-right" className="text-base" />
+                          Khám phá chi tiết
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     );
   };

@@ -1,16 +1,37 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import gsap from "gsap";
 import careImg from "../../assets/images/home_produce/care.webp";
 import cleaningImg from "../../assets/images/home_produce/cleaning.webp";
 import cookingImg from "../../assets/images/home_produce/cooking.webp";
 import designerImg from "../../assets/images/home_produce/designer.webp";
 import gradenImg from "../../assets/images/home_produce/graden.webp";
+import { getBannersPublic } from "../../api/banners";
+import type { Banner } from "../../api/banners";
 
 export const useHome = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const cubeRef = useRef<HTMLDivElement>(null);
+  
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loadingBanners, setLoadingBanners] = useState<boolean>(true);
+
+  const fetchBanners = useCallback(async () => {
+    setLoadingBanners(true);
+    try {
+      const res = await getBannersPublic();
+      setBanners(res.data);
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách banner công khai:", err);
+    } finally {
+      setLoadingBanners(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBanners();
+  }, [fetchBanners]);
 
   const bannerData = {
     title: "Bình tĩnh vì mọi việc gia đình luôn có người",
@@ -136,50 +157,65 @@ export const useHome = () => {
     const image = imageRef.current;
     const content = contentRef.current;
     const cube = cubeRef.current;
-    if (!container || !image || !content) return;
 
     // Entry animation for banner
-    const ctx = gsap.context(() => {
-      gsap.fromTo(image, { scale: 1.15, opacity: 0 }, { scale: 1.05, opacity: 1, duration: 1.2, ease: "power3.out" });
-      gsap.fromTo(content, { y: 45, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.2, ease: "power3.out" });
+    let ctx: any;
+    if (container) {
+      ctx = gsap.context(() => {
+        if (image) {
+          gsap.fromTo(image, { scale: 1.15, opacity: 0 }, { scale: 1.05, opacity: 1, duration: 1.2, ease: "power3.out" });
+        }
+        if (content) {
+          gsap.fromTo(content, { y: 45, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.2, ease: "power3.out" });
+        }
 
-      // 3D Carousel Y-axis infinite rotation with X-tilt
-      if (cube) {
-        gsap.set(cube, { rotationX: -16, rotationY: 0 });
+        // 3D Carousel Y-axis infinite rotation with X-tilt
+        if (cube) {
+          gsap.set(cube, { rotationX: -16, rotationY: 0 });
 
-        gsap.to(cube, {
-          rotationY: -360,
-          duration: 20,
-          ease: "none",
-          repeat: -1,
-        });
-      }
-    }, container);
+          gsap.to(cube, {
+            rotationY: -360,
+            duration: 20,
+            ease: "none",
+            repeat: -1,
+          });
+        }
+      }, container);
+    }
 
     const tick = () => {
-      gsap.to(image, {
-        x: mouseRef.current.x * -20,
-        y: mouseRef.current.y * -15,
-        duration: 1.2,
-        ease: "power2.out",
-        overwrite: "auto",
-      });
+      if (image) {
+        gsap.to(image, {
+          x: mouseRef.current.x * -20,
+          y: mouseRef.current.y * -15,
+          duration: 1.2,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
-    container.addEventListener("mousemove", handleMouseMove);
+
+    if (container) {
+      container.addEventListener("mousemove", handleMouseMove);
+    }
 
     // Reset position when mouse leaves the banner
     const handleMouseLeave = () => {
       mouseRef.current = { x: 0, y: 0 };
     };
-    container.addEventListener("mouseleave", handleMouseLeave);
+    if (container) {
+      container.addEventListener("mouseleave", handleMouseLeave);
+    }
 
     return () => {
-      ctx.revert();
+      if (ctx) ctx.revert();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      container.removeEventListener("mousemove", handleMouseMove);
-      container.removeEventListener("mouseleave", handleMouseLeave);
+      if (container) {
+        container.removeEventListener("mousemove", handleMouseMove);
+        container.removeEventListener("mouseleave", handleMouseLeave);
+      }
     };
   }, [handleMouseMove]);
 
@@ -192,5 +228,7 @@ export const useHome = () => {
     cubeRef,
     produceData,
     reviewData,
+    banners,
+    loadingBanners,
   };
 };

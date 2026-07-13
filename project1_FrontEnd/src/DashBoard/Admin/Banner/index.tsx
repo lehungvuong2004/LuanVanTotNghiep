@@ -1,6 +1,7 @@
 import { useBanner } from "./useHook";
 import { Icon } from "@iconify/react";
 import { Toast } from "../../../components/Toast";
+import { getImageUrl } from "../../../utils/images";
 
 export const Banners = () => {
   const {
@@ -24,7 +25,11 @@ export const Banners = () => {
     formik,
     handleDeleteBanner,
     handleToggleStatus,
+    uploadingImage,
+    handleUploadImage,
   } = useBanner();
+
+
 
   // 1. Toast message renderer
   const renderToast = () => {
@@ -187,7 +192,7 @@ export const Banners = () => {
               {/* Image with status badge */}
               <div className="relative aspect-video bg-slate-100 dark:bg-slate-900 overflow-hidden shrink-0">
                 <img
-                  src={banner.image}
+                  src={getImageUrl(banner.image)}
                   alt={banner.title}
                   className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   onError={(e) => {
@@ -384,18 +389,43 @@ export const Banners = () => {
 
             {/* Image Link */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Link Hình Ảnh Banner (Image URL) *</label>
-              <input
-                type="text"
-                name="image"
-                placeholder="Nhập link ảnh, VD: https://images.unsplash.com/banner.jpg"
-                value={formik.values.image}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
-                  formik.touched.image && formik.errors.image ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                }`}
-              />
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hình Ảnh Banner *</label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    name="image"
+                    placeholder="Nhập link ảnh hoặc tải lên từ máy..."
+                    value={formik.values.image}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className={`w-full pl-4 pr-10 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
+                      formik.touched.image && formik.errors.image ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
+                    }`}
+                  />
+                  {uploadingImage && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin block"></span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* File Upload Button */}
+                <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
+                  <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.currentTarget.files?.[0];
+                      if (file) {
+                        handleUploadImage(file);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
               {formik.touched.image && formik.errors.image && <p className="text-red-500 text-xs mt-1">{formik.errors.image}</p>}
             </div>
 
@@ -405,7 +435,7 @@ export const Banners = () => {
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hình Ảnh Xem Trước</span>
                 <div className="aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 relative bg-slate-100 dark:bg-slate-900">
                   <img
-                    src={formik.values.image}
+                    src={getImageUrl(formik.values.image)}
                     alt="Banner Preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {

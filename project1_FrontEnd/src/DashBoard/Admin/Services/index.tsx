@@ -413,7 +413,6 @@ export const Services = () => {
                 <input
                   type="number"
                   name="base_price"
-                  min={0}
                   placeholder="50000"
                   value={formik.values.base_price}
                   onChange={formik.handleChange}
@@ -422,8 +421,16 @@ export const Services = () => {
                     formik.touched.base_price && formik.errors.base_price ? "border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
                   }`}
                 />
-                {formik.touched.base_price && formik.errors.base_price && (
+                {formik.touched.base_price && formik.errors.base_price ? (
                   <p className="text-red-500 text-xs mt-1">{formik.errors.base_price as string}</p>
+                ) : (
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    {formik.values.price_type === "hourly"
+                      ? "Khoảng giá: 30.000đ - 1.000.000đ / giờ"
+                      : formik.values.price_type === "daily"
+                      ? "Khoảng giá: 100.000đ - 10.000.000đ / ngày"
+                      : "Khoảng giá: 10.000đ - 50.000.000đ"}
+                  </p>
                 )}
               </div>
 

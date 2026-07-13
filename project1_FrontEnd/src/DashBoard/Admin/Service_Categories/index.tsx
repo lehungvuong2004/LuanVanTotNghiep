@@ -9,6 +9,25 @@ const TYPE_LABELS: Record<string, { label: string; color: string }> = {
   job: { label: "Công việc", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400" },
 };
 
+const SUGGESTED_ICONS = [
+  { key: "material-symbols:cleaning-services-outline-rounded", label: "Dọn dẹp" },
+  { key: "ic:outline-people", label: "Người già" },
+  { key: "fa7-solid:children", label: "Chăm trẻ" },
+  { key: "material-symbols:home-repair-service-outline-rounded", label: "Sửa chữa" },
+  { key: "mdi:water", label: "Điện nước" },
+  { key: "arcticons:picture-insect", label: "Côn trùng" },
+  { key: "osmic:pet-14", label: "Thú cưng" },
+  { key: "material-symbols:local-shipping-outline-rounded", label: "Vận chuyển" },
+  { key: "material-symbols:menu-book-outline-rounded", label: "Gia sư" },
+  { key: "material-symbols:yard-outline-rounded", label: "Làm vườn" },
+  { key: "material-symbols:cooking-outline", label: "Nấu ăn" },
+  { key: "material-symbols:electric-bolt-outline-rounded", label: "Sửa điện máy" },
+  { key: "material-symbols:wash-outline", label: "Giặt là" },
+  { key: "material-symbols:directions-car-outline", label: "Thuê xe" },
+  { key: "material-symbols:health-and-safety-outline", label: "Y tế" },
+  { key: "icon-park-outline:other", label: "Khác (Mặc định)" },
+];
+
 export const ServiceCategories = () => {
   const {
     categories,
@@ -353,6 +372,29 @@ export const ServiceCategories = () => {
                     <Icon icon={formik.values.icon} />
                   </div>
                 )}
+              </div>
+              <div className="mt-2.5">
+                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block mb-1.5">
+                  Gợi ý icon dịch vụ phổ biến (Click để chọn):
+                </span>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 max-h-36 overflow-y-auto p-1.5 border border-slate-100 dark:border-slate-700/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/20">
+                  {SUGGESTED_ICONS.map((item) => (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => formik.setFieldValue("icon", item.key)}
+                      title={`${item.label} (${item.key})`}
+                      className={`p-2 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                        formik.values.icon === item.key
+                          ? "border-cyan-600 bg-cyan-50/50 text-cyan-600 dark:text-cyan-400 font-bold"
+                          : "border-slate-100 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-650 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-350"
+                      }`}
+                    >
+                      <Icon icon={item.key} className="text-xl" />
+                      <span className="text-[9px] text-center truncate w-full font-medium">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

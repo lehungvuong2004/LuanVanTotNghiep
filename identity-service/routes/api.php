@@ -7,6 +7,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ActivityLogController;
 
 // ============================================================
 //  PUBLIC — Không cần token
@@ -64,6 +65,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('users',              [AuthController::class, 'getUsers']);
     Route::post('users/by-ids',      [AuthController::class, 'getUsersByIds']);
     Route::get('users/search-ids',   [AuthController::class, 'searchUserIds']);
+    Route::post('users/upload',      [AuthController::class, 'uploadUserAvatar']);
     Route::post('users',             [AuthController::class, 'createUser']);
     Route::get('users/{id}',         [AuthController::class, 'getUser']);
     Route::put('users/{id}',         [AuthController::class, 'updateUser']);
@@ -80,15 +82,17 @@ Route::middleware('auth:api')->group(function () {
 
     // Banners — Admin CRUD & Toggle Status
     Route::get('banners',                  [BannerController::class, 'adminIndex']);
+    Route::post('banners/upload',          [BannerController::class, 'uploadImage']);
     Route::post('banners',                 [BannerController::class, 'store']);
     Route::get('banners/{id}',             [BannerController::class, 'show']);
     Route::put('banners/{id}',             [BannerController::class, 'update']);
     Route::patch('banners/{id}/status',     [BannerController::class, 'toggleStatus']);
     Route::delete('banners/{id}',          [BannerController::class, 'destroy']);
 
-    // News — Admin CRUD & Toggle Status
-    Route::get('news',                     [NewsController::class, 'adminIndex']);
-    Route::post('news',                    [NewsController::class, 'store']);
+     // News — Admin CRUD & Toggle Status
+     Route::get('news',                     [NewsController::class, 'adminIndex']);
+     Route::post('news/upload',             [NewsController::class, 'uploadImage']);
+     Route::post('news',                    [NewsController::class, 'store']);
     Route::put('news/{id}',               [NewsController::class, 'update']);
     Route::patch('news/{id}/status',       [NewsController::class, 'toggleStatus']);
     Route::delete('news/{id}',             [NewsController::class, 'destroy']);
@@ -99,5 +103,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('roles/{id}',               [RoleController::class, 'show']);
     Route::put('roles/{id}',               [RoleController::class, 'update']);
     Route::delete('roles/{id}',            [RoleController::class, 'destroy']);
+
+    // Activity Logs — Admin View & Manage
+    Route::get('activity-logs',            [ActivityLogController::class, 'index']);
+    Route::delete('activity-logs/{id}',    [ActivityLogController::class, 'destroy']);
+    Route::delete('activity-logs-clear',   [ActivityLogController::class, 'clear']);
   });
 });

@@ -36,6 +36,7 @@ import { Helpers } from "./DashBoard/Admin/Helper";
 import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
 import { Role as RolePage } from "./DashBoard/Admin/Role";
+import { ActivityLogs } from "./DashBoard/Admin/Log";
 import { StaffReviews } from "./DashBoard/Operator/Reviews";
 import { FollowingOrder } from "./DashBoard/Operator/FollowingOrder";
 import { ApplicationReview } from "./DashBoard/Operator/ApplicationReview";
@@ -105,6 +106,7 @@ function App() {
           <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="roles" element={<RolePage />} />
+          <Route path="activity-logs" element={<ActivityLogs />} />
           <Route path="job-posts" element={<ApplicationReview />} />
         </Route>
         <Route path="/operator" element={<DashboardLayout allowedRole={ROLES.OPERATOR} />}>

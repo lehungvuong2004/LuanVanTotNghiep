@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
     User::updateOrCreate(
       ['email' => 'admin@gmail.com'],
       [
+        'id' => 1,
         'role_id' => 1,
         'full_name' => 'Quản trị viên',
         'phone' => $adminPhone,
@@ -52,6 +53,7 @@ class DatabaseSeeder extends Seeder
     User::updateOrCreate(
       ['email' => 'operator@gmail.com'],
       [
+        'id' => 2,
         'role_id' => 2,
         'full_name' => 'Nhân viên vận hành C',
         'phone' => $operatorPhone,

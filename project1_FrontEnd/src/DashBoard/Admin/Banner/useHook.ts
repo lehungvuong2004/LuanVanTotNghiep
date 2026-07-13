@@ -3,11 +3,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Banner } from "../../../api/banners";
 import type { ToastProps } from "../../../types/Toast";
-import { getBannersAdmin, createBannerAdmin, updateBannerAdmin, toggleBannerStatusAdmin, deleteBannerAdmin } from "../../../api/banners";
+import { getBannersAdmin, createBannerAdmin, updateBannerAdmin, toggleBannerStatusAdmin, deleteBannerAdmin, uploadBannerImage } from "../../../api/banners";
 
 export const useBanner = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -106,13 +107,28 @@ export const useBanner = () => {
       title: Yup.string().required("Vui lòng nhập tiêu đề banner").max(150, "Tiêu đề không được vượt quá 150 ký tự"),
       image: Yup.string()
         .required("Vui lòng nhập đường dẫn hình ảnh banner")
-        .url("Đường dẫn hình ảnh phải là một URL hợp lệ (ví dụ: https://example.com/banner.jpg)")
-        .matches(/\.(jpg|jpeg|png|webp|gif|svg|bmp)(\?.*)?$/i, "Hình ảnh phải thuộc định dạng hợp lệ (.jpg, .jpeg, .png, .webp, .gif, .svg, .bmp)")
-        .max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự"),
+        .max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự")
+        .test(
+          "is-valid-image",
+          "Hình ảnh phải là URL hoặc đường dẫn tải lên hợp lệ và có đuôi định dạng ảnh (.jpg, .jpeg, .png, .webp)",
+          (value) => {
+            if (!value) return false;
+            const hasValidExtension = /\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(value);
+            if (!hasValidExtension) return false;
+
+            if (value.startsWith("uploads/")) return true;
+            try {
+              new URL(value);
+              return true;
+            } catch {
+              return false;
+            }
+          }
+        ),
       link: Yup.string()
         .nullable()
         .transform((curr, orig) => (orig === "" ? null : curr))
-        .url("Đường dẫn liên kết phải là một URL hợp lệ"),
+        .max(255, "Đường dẫn liên kết không được vượt quá 255 ký tự"),
       status: Yup.string().oneOf(["active", "inactive"]).required("Vui lòng chọn trạng thái"),
     }),
     onSubmit: async (values) => {
@@ -205,6 +221,20 @@ export const useBanner = () => {
     }
   };
 
+  const handleUploadImage = async (file: File) => {
+    setUploadingImage(true);
+    try {
+      const res = await uploadBannerImage(file);
+      formik.setFieldValue("image", res.path);
+      showToast("success", "Thành công", "Tải ảnh lên thành công!");
+    } catch (err: any) {
+      console.error(err);
+      showToast("error", "Lỗi tải ảnh", err.response?.data?.message || "Không thể tải ảnh lên server");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   return {
     banners,
     loading,
@@ -226,5 +256,7 @@ export const useBanner = () => {
     formik,
     handleDeleteBanner,
     handleToggleStatus,
+    uploadingImage,
+    handleUploadImage,
   };
 };

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../hooks/useAuth";
 import { ROLES } from "../constants";
+import { useTranslation } from "react-i18next";
+import { Toast } from "../components/Toast";
 
 interface DashboardLayoutProps {
   allowedRole: number;
@@ -12,7 +14,10 @@ interface DashboardLayoutProps {
 export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useTranslation();
   const { token, user } = useAuth();
+  const [toast, setToast] = useState<{ type: string; title: string; message: string } | null>(null);
 
   useEffect(() => {
     if (!token || !user || user.role_id !== allowedRole) {
@@ -21,6 +26,18 @@ export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
       navigate("/dang-nhap");
     }
   }, [token, user, allowedRole, navigate]);
+
+  useEffect(() => {
+    const showLoginToast = sessionStorage.getItem("show_login_toast");
+    if (showLoginToast === "true") {
+      setToast({
+        type: "success",
+        title: t("Thành công"),
+        message: t("Đăng nhập thành công!"),
+      });
+      sessionStorage.removeItem("show_login_toast");
+    }
+  }, [location, t]);
 
   if (!token || !user || user.role_id !== allowedRole) {
     return null;
@@ -60,6 +77,7 @@ export const DashboardLayout = ({ allowedRole }: DashboardLayoutProps) => {
           </main>
         </div>
       </div>
+      {toast && <Toast type={toast.type as any} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 };

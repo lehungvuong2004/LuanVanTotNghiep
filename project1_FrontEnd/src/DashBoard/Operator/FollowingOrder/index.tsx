@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { useFollowingOrder } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
+import { getInitials } from "../../../utils";
 
 export const FollowingOrder: React.FC = () => {
   const {
@@ -29,15 +30,7 @@ export const FollowingOrder: React.FC = () => {
     itemsPerPage,
   } = useFollowingOrder();
 
-  const getInitials = (name: string) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
+
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {

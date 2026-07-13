@@ -11,6 +11,11 @@ export interface NewsItem {
   created_by: number | null;
   created_at: string;
   updated_at: string | null;
+  creator?: {
+    id: number;
+    full_name: string;
+    avatar: string | null;
+  };
   author?: {
     id: number;
     full_name: string;
@@ -90,3 +95,21 @@ export const deleteNewsAdmin = async (id: number): Promise<{ message: string }> 
   const response = await axiosInstance.delete<{ message: string }>(`/admin/news/${id}`);
   return response.data;
 };
+
+export interface UploadNewsImageResponse {
+  message: string;
+  path: string;
+  url: string;
+}
+
+export const uploadNewsImage = async (file: File): Promise<UploadNewsImageResponse> => {
+  const formData = new FormData();
+  formData.append("image", file);
+  const response = await axiosInstance.post<UploadNewsImageResponse>("/admin/news/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+

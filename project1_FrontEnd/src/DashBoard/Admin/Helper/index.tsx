@@ -4,6 +4,7 @@ import { useHelperManagement } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
+import { getInitials } from "../../../utils";
 
 export const Helpers = () => {
   const {
@@ -81,15 +82,7 @@ export const Helpers = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return "GV";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-  };
+
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -677,7 +670,7 @@ export const Helpers = () => {
                     : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-655"
                 }`}
               >
-                <Icon icon="material-symbols:block-rounded" className="text-xl" />
+                <Icon icon="material-symbols:close" className="text-xl" />
                 <span className="text-xs font-bold mt-1">Tạm ngưng (Suspended)</span>
               </div>
             </div>

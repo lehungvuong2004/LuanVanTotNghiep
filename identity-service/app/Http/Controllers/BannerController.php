@@ -7,6 +7,7 @@ use App\Models\Banner;
 use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
+use App\Services\ImageUploadService;
 
 class BannerController extends Controller
 {
@@ -202,5 +203,37 @@ class BannerController extends Controller
         return response()->json([
             'message' => 'Xóa banner thành công.'
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Tải ảnh banner lên server (public/uploads/banners) và trả về URL ảnh.
+     */
+    public function uploadImage(Request $request, ImageUploadService $imageUploadService)
+    {
+        $currentUser = auth('api')->user();
+        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // max 2mb
+        ], [
+            'image.required' => 'Vui lòng chọn hình ảnh banner.',
+            'image.image'    => 'File tải lên phải là hình ảnh.',
+            'image.mimes'    => 'Chấp nhận các định dạng ảnh: jpeg, png, jpg, webp.',
+            'image.max'      => 'Kích thước ảnh tối đa là 2MB.',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $result = $imageUploadService->upload($request->file('image'), 'banners');
+
+            return response()->json([
+                'message' => 'Tải ảnh banner lên thành công.',
+                'path'    => $result['path'],
+                'url'     => $result['url']
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json(['message' => 'Không tìm thấy file tải lên.'], Response::HTTP_BAD_REQUEST);
     }
 }
