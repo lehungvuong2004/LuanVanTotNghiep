@@ -1,4 +1,3 @@
-import React from "react";
 import { Icon } from "@iconify/react";
 import { useApplicationReview } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
@@ -6,7 +5,7 @@ import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { Link } from "react-router-dom";
 
-export const ApplicationReview: React.FC = () => {
+export const ApplicationReview= () => {
   const {
     jobPosts,
     usersMap,

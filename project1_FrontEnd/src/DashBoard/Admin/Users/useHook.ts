@@ -7,7 +7,7 @@ import type { User } from "../../../api/users";
 import { getRootFontSizePx } from "../../../utils";
 import { ROLES } from "../../../constants/roles";
 
-export const useAccount = () => {
+export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

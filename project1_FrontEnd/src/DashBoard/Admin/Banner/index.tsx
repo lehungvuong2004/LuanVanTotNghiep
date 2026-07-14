@@ -1,8 +1,10 @@
 import { useBanner } from "./useHook";
 import { Icon } from "@iconify/react";
 import { getImageUrl } from "../../../utils/images";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const Banners = () => {
+  const { hasPermission } = useAuth();
   const {
     banners,
     loading,
@@ -37,13 +39,7 @@ export const Banners = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Banner Quảng Cáo</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Cấu hình các slide ảnh trượt và banner chiến dịch khuyến mãi hiển thị tại trang chủ.</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-        >
-          <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-          Tạo Banner Mới
-        </button>
+        {hasPermission("banners.create") && (<button onClick={openAddModal} className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"><Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />Tạo Banner Mới</button>)}
       </div>
     );
   };
@@ -162,13 +158,7 @@ export const Banners = () => {
           </div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy banner nào</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Thử thay đổi từ khóa tìm kiếm hoặc tạo một banner quảng cáo mới.</p>
-          <button
-            onClick={openAddModal}
-            className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"
-          >
-            <Icon icon="material-symbols:add" />
-            Tạo Banner Đầu Tiên
-          </button>
+          {hasPermission("banners.create") && (<button onClick={openAddModal} className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"><Icon icon="material-symbols:add" />Tạo Banner</button>)}
         </div>
       );
     }
@@ -234,34 +224,40 @@ export const Banners = () => {
 
                 {/* Actions footer of card */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleStatus(banner)}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      banner.status === "active" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70" : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
-                    }`}
-                  >
-                    <Icon icon={banner.status === "active" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
-                    <span>{banner.status === "active" ? "Ẩn Banner" : "Hiện Banner"}</span>
-                  </button>
+                  {hasPermission("banners.update") ? (
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(banner)}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        banner.status === "active" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70" : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
+                      }`}
+                    >
+                      <Icon icon={banner.status === "active" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
+                      <span>{banner.status === "active" ? "Ẩn Banner" : "Hiện Banner"}</span>
+                    </button>
+                  ) : <div />}
 
                   <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(banner)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                      title="Chỉnh sửa"
-                    >
-                      <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteBanner(banner.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-                      title="Xóa"
-                    >
-                      <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                    </button>
+                    {hasPermission("banners.update") && (
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(banner)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                        title="Chỉnh sửa"
+                      >
+                        <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                      </button>
+                    )}
+                    {hasPermission("banners.delete") && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteBanner(banner.id)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                        title="Xóa"
+                      >
+                        <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

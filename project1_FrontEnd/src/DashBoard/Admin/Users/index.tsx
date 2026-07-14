@@ -1,13 +1,15 @@
 import { Icon } from "@iconify/react";
 import ReactECharts from "echarts-for-react";
-import { useAccount } from "./useHook";
+import { useUsers } from "./useHook";
+import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
 import { ROLES } from "../../../constants/roles";
 import { getInitials, getRoleBadge } from "../../../utils";
 
-export const Account = () => {
+export const Users = () => {
+  const { hasPermission } = useAuth();
   const {
     searchQuery,
     setSearchQuery,
@@ -50,7 +52,7 @@ export const Account = () => {
     uploadingImage,
     handleUploadAvatar,
     formik,
-  } = useAccount();
+  } = useUsers();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -89,13 +91,15 @@ export const Account = () => {
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Người Dùng</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý tài khoản, thay đổi vai trò hệ thống, khóa/mở khóa, cập nhật email/SDT hoặc reset mật khẩu của thành viên.</p>
       </div>
-      <button
-        onClick={openAddModal}
-        className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
-      >
-        <Icon icon="material-symbols:person-add-rounded" className="text-xl" />
-        Thêm Người Dùng Mới
-      </button>
+      {hasPermission("users.create") && (
+        <button
+          onClick={openAddModal}
+          className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
+        >
+          <Icon icon="material-symbols:person-add-rounded" className="text-xl" />
+          Thêm Người Dùng Mới
+        </button>
+      )}
     </div>
   );
 
@@ -246,17 +250,19 @@ export const Account = () => {
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
                 <th className="py-3 px-5 w-12 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedUserIds.length === users.length && users.length > 0}
-                    ref={(el) => {
-                      if (el) {
-                        el.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < users.length;
-                      }
-                    }}
-                    onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                  />
+                  {hasPermission("users.delete") && (
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.length === users.length && users.length > 0}
+                      ref={(el) => {
+                        if (el) {
+                          el.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < users.length;
+                        }
+                      }}
+                      onChange={handleToggleSelectAll}
+                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                    />
+                  )}
                 </th>
                 <th className="py-3 px-5">Thành Viên</th>
                 <th className="py-3 px-5">Vai Trò</th>
@@ -272,12 +278,14 @@ export const Account = () => {
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors">
                   <td className="py-3 px-5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedUserIds.includes(user.id)}
-                      onChange={() => handleToggleSelectUser(user.id)}
-                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                    />
+                    {hasPermission("users.delete") && (
+                      <input
+                        type="checkbox"
+                        checked={selectedUserIds.includes(user.id)}
+                        onChange={() => handleToggleSelectUser(user.id)}
+                        className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                      />
+                    )}
                   </td>
                   {/* User Profile column */}
                   <td className="py-3 px-5">
@@ -332,37 +340,45 @@ export const Account = () => {
                   {/* Actions column */}
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => openViewModal(user)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-950/30 transition-all cursor-pointer"
-                        title="Xem chi tiết"
-                      >
-                        <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
-                      </button>
+                      {hasPermission("users.view") && (
+                        <button
+                          onClick={() => openViewModal(user)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-950/30 transition-all cursor-pointer"
+                          title="Xem chi tiết"
+                        >
+                          <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => openEditModal(user)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
-                        title="Sửa thông tin"
-                      >
-                        <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                      </button>
+                      {hasPermission("users.update") && (
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
+                          title="Sửa thông tin"
+                        >
+                          <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => openStatusModal(user)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-950/30 transition-all cursor-pointer"
-                        title="Thay đổi trạng thái"
-                      >
-                        <Icon icon="material-symbols:shield-lock-outline-rounded" className="text-lg" />
-                      </button>
+                      {hasPermission("users.lock") && (
+                        <button
+                          onClick={() => openStatusModal(user)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-950/30 transition-all cursor-pointer"
+                          title="Thay đổi trạng thái"
+                        >
+                          <Icon icon="material-symbols:shield-lock-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-all cursor-pointer"
-                        title="Xóa tài khoản"
-                      >
-                        <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                      </button>
+                      {hasPermission("users.delete") && (
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-all cursor-pointer"
+                          title="Xóa tài khoản"
+                        >
+                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

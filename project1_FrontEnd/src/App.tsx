@@ -19,9 +19,6 @@ import { News } from "./pages/News";
 import { NewsDetail } from "./pages/NewsDetail";
 import { Profile } from "./pages/Profile";
 import { Pricing } from "./pages/Pricing";
-// [NOTE] Trang Thanh toán độc lập đã được loại bỏ.
-// Chức năng thanh toán được tích hợp trực tiếp vào trang Lịch sử đặt lịch (/lich-su-dat-lich).
-// import { Payment } from "./pages/Payment";
 import { PaymentReturn } from "./pages/PaymentReturn";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { ROLES } from "./constants/roles";
@@ -32,17 +29,14 @@ import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 import { Booking } from "./DashBoard/Admin/Booking";
 import { Banners } from "./DashBoard/Admin/Banner";
 import { PaymentsRefunds } from "./DashBoard/Admin/PayMent & Refund";
-import { Account } from "./DashBoard/Admin/Users";
+import { Users } from "./DashBoard/Admin/Users";
 import { Helpers } from "./DashBoard/Admin/Helper";
 import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
 import { Role as RolePage } from "./DashBoard/Admin/Role";
 import { PermissionsMatrix} from "./DashBoard/Admin/Permissions";
 import { ActivityLogs } from "./DashBoard/Admin/Log";
-import { StaffReviews } from "./DashBoard/Operator/Reviews";
-import { FollowingOrder } from "./DashBoard/Operator/FollowingOrder";
-import { ApplicationReview } from "./DashBoard/Operator/ApplicationReview";
-import { HelperReview } from "./DashBoard/Operator/HelperReview";
+import { ApplicationReview } from "./DashBoard/Admin/JobPosts";
 import { StaffRecruitmentDashboard } from "./DashBoard/Staff";
 import { HelperOverview } from "./DashBoard/Helper/Overview";
 
@@ -96,7 +90,7 @@ function App() {
           <Route path="/admin" element={<DashboardLayout allowedRole={ROLES.ADMIN} />}>
             <Route index element={<DashboardOverview />} />
             <Route path="dashboard" element={<DashboardOverview />} />
-            <Route path="users" element={<Account />} />
+            <Route path="users" element={<Users />} />
             <Route path="helpers" element={<Helpers />} />
             <Route path="categories" element={<ServiceCategories />} />
             <Route path="services" element={<Services />} />
@@ -113,12 +107,16 @@ function App() {
             <Route path="job-posts" element={<ApplicationReview />} />
           </Route>
           <Route path="/operator" element={<DashboardLayout allowedRole={ROLES.OPERATOR} />}>
-            <Route index element={<StaffReviews />} />
-            <Route path="dashboard" element={<StaffReviews />} />
-            <Route path="reviews" element={<StaffReviews />} />
-            <Route path="bookings" element={<FollowingOrder />} />
+            <Route index element={<Reviews />} />
+            <Route path="dashboard" element={<DashboardOverview />} />
+            <Route path="reviews" element={<Reviews />} />
+            <Route path="bookings" element={<Booking />} />
             <Route path="job-posts" element={<ApplicationReview />} />
-            <Route path="helpers" element={<HelperReview />} />
+            <Route path="helpers" element={<Helpers />} />
+            <Route path="payments" element={<PaymentsRefunds defaultTab="payments" />} />
+            <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
+            <Route path="services" element={<Services />} />
+            <Route path="activity-logs" element={<ActivityLogs />} />
           </Route>
           <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>
             <Route index element={<HelperOverview />} />

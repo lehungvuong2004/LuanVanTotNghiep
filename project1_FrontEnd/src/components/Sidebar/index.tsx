@@ -23,7 +23,6 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
     [role, user],
   );
 
-  // Resolve theme — fallback to HELPER if role is unknown
   const theme = ROLE_THEME[role ?? ROLES.HELPER] ?? ROLE_THEME[ROLES.HELPER];
 
   const fullName = user?.full_name || "";
@@ -32,7 +31,6 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
 
   return (
     <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col justify-between overflow-hidden">
-      {/* Header / Logo */}
       <div className={`px-4 mb-4 mt-4 shrink-0 ${isCollapsed ? "flex flex-col items-center" : ""}`}>
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl ${theme.brandBg} flex items-center justify-center shadow-xs shrink-0`}>

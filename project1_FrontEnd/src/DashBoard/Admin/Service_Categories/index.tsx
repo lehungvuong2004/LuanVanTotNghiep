@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useAuth } from "../../../hooks/useAuth";
 
 import { useServiceCategoriesAdmin } from "./useHook";
 
@@ -28,6 +29,7 @@ const SUGGESTED_ICONS = [
 ];
 
 export const ServiceCategories = () => {
+  const { hasPermission } = useAuth();
   const {
     categories,
     totalItems,
@@ -91,6 +93,7 @@ export const ServiceCategories = () => {
             Xóa {selectedIds.length} đã chọn
           </button>
         )}
+        {hasPermission("categories.create") && (
         <button
           onClick={openAddModal}
           className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
@@ -98,6 +101,7 @@ export const ServiceCategories = () => {
           <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
           Thêm Danh Mục
         </button>
+        )}
       </div>
     </div>
   );
@@ -267,6 +271,7 @@ export const ServiceCategories = () => {
                   {/* Actions */}
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-1">
+                      {hasPermission("categories.update") && (
                       <button
                         onClick={() => openEditModal(item)}
                         className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
@@ -274,6 +279,8 @@ export const ServiceCategories = () => {
                       >
                         <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
                       </button>
+                      )}
+                      {hasPermission("categories.delete") && (
                       <button
                         onClick={() => handleDelete(item.id)}
                         className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
@@ -281,6 +288,7 @@ export const ServiceCategories = () => {
                       >
                         <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
                       </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -365,7 +373,7 @@ export const ServiceCategories = () => {
                 )}
               </div>
               <div className="mt-2.5">
-                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block mb-1.5">
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block mb-1.5">
                   Gợi ý icon dịch vụ phổ biến (Click để chọn):
                 </span>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 max-h-36 overflow-y-auto p-1.5 border border-slate-100 dark:border-slate-700/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/20">
@@ -382,7 +390,7 @@ export const ServiceCategories = () => {
                       }`}
                     >
                       <Icon icon={item.key} className="text-xl" />
-                      <span className="text-[9px] text-center truncate w-full font-medium">{item.label}</span>
+                      <span className="text-xs text-center truncate w-full font-medium">{item.label}</span>
                     </button>
                   ))}
                 </div>

@@ -48,7 +48,7 @@ export const useDashboardOverview = () => {
         setRecentBookings(data.recentBookings);
         setError(null);
       } catch (err: any) {
-        setError(err.message || "Failed to load dashboard overview data");
+        setError(err.message || "Không thể tải dữ liệu tổng quan");
       } finally {
         setLoading(false);
       }
@@ -90,7 +90,7 @@ export const useDashboardOverview = () => {
     ],
     series: [
       {
-        name: "Bookings",
+        name: "Đặt chỗ",
         type: "bar",
         barWidth: "50%",
         data: weeklyBookings.map((item, index) => ({
@@ -118,7 +118,7 @@ export const useDashboardOverview = () => {
       } },
     series: [
       {
-        name: "Service Share",
+        name: "Tỷ trọng dịch vụ",
         type: "pie",
         radius: ["45%", "70%"],
         center: ["50%", "42%"],

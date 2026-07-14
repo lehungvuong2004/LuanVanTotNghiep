@@ -1,10 +1,9 @@
-import React from "react";
 import { Icon } from "@iconify/react";
 import { useStaffRecruitment } from "./useHook";
 
 import { Pagination } from "../../components/Pagination";
 
-export const StaffRecruitmentDashboard: React.FC = () => {
+export const StaffRecruitmentDashboard= () => {
   const {
     activeTab,
     setActiveTab,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useAuth } from "../../../hooks/useAuth";
 
 import { Pagination } from "../../../components/Pagination";
 import { useServicesAdmin } from "./useHook";
@@ -27,6 +28,7 @@ const formatPrice = (price: number | string) => {
 };
 
 export const Services = () => {
+  const { hasPermission } = useAuth();
   const {
     services,
     categories,
@@ -84,6 +86,7 @@ export const Services = () => {
             Xóa {selectedIds.length} đã chọn
           </button>
         )}
+        {hasPermission("services.create") && (
         <button
           onClick={openAddModal}
           className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
@@ -91,6 +94,7 @@ export const Services = () => {
           <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
           Thêm Dịch Vụ
         </button>
+        )}
       </div>
     </div>
   );
@@ -274,6 +278,7 @@ export const Services = () => {
                       {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1">
+                          {hasPermission("services.update") && (
                           <button
                             onClick={() => openEditModal(item)}
                             className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
@@ -281,6 +286,8 @@ export const Services = () => {
                           >
                             <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
                           </button>
+                          )}
+                          {hasPermission("services.delete") && (
                           <button
                             onClick={() => handleDelete(item.id)}
                             className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
@@ -288,6 +295,7 @@ export const Services = () => {
                           >
                             <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
                           </button>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-
+import { useAuth } from "../../../hooks/useAuth";
+import { ROLES } from "../../../constants/roles";
 import { useRolesAdmin } from "./useHook";
 
 export const Role = () => {
+  const { hasPermission } = useAuth();
   const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode,   openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } =
     useRolesAdmin();
 
@@ -42,7 +44,7 @@ export const Role = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Thiết lập các vai trò người dùng trong hệ thống (Khách hàng, Nhân viên, Đối tác, Admin).</p>
       </div>
       <div className="flex items-center gap-3">
-        {selectedIds.length > 0 && (
+        {selectedIds.length > 0 && hasPermission("roles.delete") && (
           <button
             onClick={handleBulkDelete}
             className="flex items-center justify-center gap-2 bg-red-650 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
@@ -51,13 +53,15 @@ export const Role = () => {
             Xóa {selectedIds.length} đã chọn
           </button>
         )}
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-        >
-          <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-          Thêm Vai Trò
-        </button>
+        {hasPermission("roles.create") && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+          >
+            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+            Thêm Vai Trò
+          </button>
+        )}
       </div>
     </div>
   );
@@ -202,21 +206,25 @@ export const Role = () => {
                     {/* Actions */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => openEditModal(item)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                          title="Chỉnh sửa"
-                        >
-                          <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          disabled={isCore}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                          title={isCore ? "Không thể xóa vai trò hệ thống" : "Xóa"}
-                        >
-                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                        </button>
+                        {hasPermission("roles.update") && (
+                          <button
+                            onClick={() => openEditModal(item)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                            title="Chỉnh sửa"
+                          >
+                            <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                          </button>
+                        )}
+                        {hasPermission("roles.delete") && (
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            disabled={isCore}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            title={isCore ? "Không thể xóa vai trò hệ thống" : "Xóa"}
+                          >
+                            <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -232,6 +240,7 @@ export const Role = () => {
   const renderModal = () => {
     if (!isModalOpen) return null;
     const isCore = currentRole && [1, 2, 3, 4].includes(currentRole.id);
+    const isAdminRole = currentRole?.id === ROLES.ADMIN;
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -284,14 +293,14 @@ export const Role = () => {
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-full px-4 py-2 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all resize-none"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all resize-none"
               />
             </div>
 
             {/* Permissions */}
             <div className="space-y-3 pt-2">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Phân Quyền Chi Tiết</label>
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/10">
+              <div className="space-y-4 max-h-80 overflow-y-auto pr-2 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/10">
                 {Object.entries(
                   permissions.reduce(
                     (acc, p) => {
@@ -305,7 +314,7 @@ export const Role = () => {
                   <div key={module} className="space-y-2">
                     <div className="flex items-center justify-between border-b border-slate-150 dark:border-slate-750 pb-1">
                       <span className="text-xs font-bold text-cyan-900 dark:text-cyan-400 uppercase tracking-wider">Mô-đun {module}</span>
-                      <button
+                      {!isAdminRole && (<button
                         type="button"
                         onClick={() => {
                           const permIds = perms.map((p) => p.id);
@@ -323,35 +332,21 @@ export const Role = () => {
                         className="text-xxs font-medium text-slate-550 dark:text-slate-400 hover:text-cyan-800 dark:hover:text-cyan-300 transition-colors cursor-pointer"
                       >
                         {perms.map((p) => p.id).every((id) => formik.values.permissions.includes(id)) ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                      </button>
+                      </button>)}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {perms.map((p) => {
-                        const isChecked = formik.values.permissions.includes(p.id);
+                        const isChecked = isAdminRole ? true : formik.values.permissions.includes(p.id);
                         return (
                           <label
                             key={p.id}
-                            className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-all duration-150 ${
+                            className={`flex items-start gap-2.5 p-2 rounded-lg border transition-all duration-150 ${isAdminRole ? "cursor-not-allowed opacity-75" : "cursor-pointer"} ${
                               isChecked
                                 ? "bg-cyan-50/30 dark:bg-cyan-950/10 border-cyan-200 dark:border-cyan-800/40 text-cyan-900 dark:text-cyan-400"
                                 : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850"
                             }`}
                           >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => {
-                                if (isChecked) {
-                                  formik.setFieldValue(
-                                    "permissions",
-                                    formik.values.permissions.filter((id) => id !== p.id),
-                                  );
-                                } else {
-                                  formik.setFieldValue("permissions", [...formik.values.permissions, p.id]);
-                                }
-                              }}
-                              className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700 mt-0.5"
-                            />
+                            <input type="checkbox" checked={isChecked} disabled={isAdminRole} onChange={() => { if (isAdminRole) return; if (isChecked) { formik.setFieldValue("permissions", formik.values.permissions.filter((id) => id !== p.id)); } else { formik.setFieldValue("permissions", [...formik.values.permissions, p.id]); } }} className={`w-4 h-4 rounded border-slate-300 text-cyan-700 accent-cyan-700 mt-0.5 ${isAdminRole ? "cursor-not-allowed" : "cursor-pointer"}`} />
                             <div>
                               <p className="text-xs font-bold font-mono">{p.name}</p>
                               {p.description && <p className="text-xxs text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{p.description}</p>}
