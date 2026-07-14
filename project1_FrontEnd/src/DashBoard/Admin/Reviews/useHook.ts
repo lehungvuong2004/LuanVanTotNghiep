@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import { getReviewsAdmin, createReviewAdmin, updateReviewAdmin, deleteReviewAdmin, type Review } from "../../../api/reviews";
 import { getUsersAdmin, type User } from "../../../api/users";
-import type { ToastProps } from "../../../types/Toast";
+
 import { RATING_COLORS, SEMANTIC_COLORS } from "../../../utils/colors";
 
 export const useAdminReviews = () => {
@@ -20,27 +21,7 @@ export const useAdminReviews = () => {
   const [itemsPerPage] = useState(10);
 
   // Toast state
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
+  const { showToast } = useToast();
 
   // Fetch users map for name/avatar resolving
   const fetchUsersMap = useCallback(async () => {
@@ -97,12 +78,7 @@ export const useAdminReviews = () => {
     };
   }, [fetchUsersMap, fetchReviews]);
 
-  const handleCreateReview = async (data: {
-    customer_id: number;
-    helper_id: number;
-    rating: number;
-    comment?: string | null;
-  }) => {
+  const handleCreateReview = async (data: { customer_id: number; helper_id: number; rating: number; comment?: string | null }) => {
     try {
       await createReviewAdmin(data);
       showToast("success", "Thêm đánh giá thành công", "Đã thêm đánh giá mới!");
@@ -148,15 +124,11 @@ export const useAdminReviews = () => {
   });
 
   const toggleSelectOne = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds((prev) =>
-      prev.length === filteredReviews.length ? [] : filteredReviews.map((r) => r.id)
-    );
+    setSelectedIds((prev) => (prev.length === filteredReviews.length ? [] : filteredReviews.map((r) => r.id)));
   };
 
   const clearSelection = () => {
@@ -347,8 +319,7 @@ export const useAdminReviews = () => {
     totalPages,
     totalItems,
     itemsPerPage,
-    toast,
-    setToast,
+
     handleCreateReview,
     handleUpdateReview,
     handleDeleteReview,

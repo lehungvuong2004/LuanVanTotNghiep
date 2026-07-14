@@ -1,6 +1,6 @@
 import { useNewsAdmin } from "./useHook";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+
 import { getImageUrl } from "../../../utils/images";
 
 export const NewsAdmin = () => {
@@ -15,8 +15,8 @@ export const NewsAdmin = () => {
     totalItems,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+    
+    
     openAddModal,
     openEditModal,
     closeModal,
@@ -24,15 +24,11 @@ export const NewsAdmin = () => {
     handleDeleteNews,
     handleToggleStatus,
     uploadingImage,
-    handleUploadImage,
-  } = useNewsAdmin();
+    handleUploadImage } = useNewsAdmin();
 
 
 
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
+  
 
   const renderHeader = () => {
     return (
@@ -462,7 +458,7 @@ export const NewsAdmin = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
+      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
@@ -471,3 +467,4 @@ export const NewsAdmin = () => {
     </div>
   );
 };
+

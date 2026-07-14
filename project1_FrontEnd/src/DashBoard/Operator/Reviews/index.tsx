@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@iconify/react";
 import { useStaffReviews } from "./useHook";
-import { Toast } from "../../../components/Toast";
+
 import { Pagination } from "../../../components/Pagination";
 import { getInitials } from "../../../utils";
 
@@ -17,8 +17,7 @@ export const StaffReviews: React.FC = () => {
     currentPage,
     setCurrentPage,
     totalItems,
-    toast,
-    setToast,
+
     isEditModalOpen,
     openEditModal,
     closeEditModal,
@@ -33,8 +32,6 @@ export const StaffReviews: React.FC = () => {
     itemsPerPage,
   } = useStaffReviews();
 
-
-
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -43,7 +40,7 @@ export const StaffReviews: React.FC = () => {
           key={i}
           icon={i <= rating ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
           className={`text-lg ${i <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-650"}`}
-        />
+        />,
       );
     }
     return <div className="flex items-center gap-0.5">{stars}</div>;
@@ -53,17 +50,13 @@ export const StaffReviews: React.FC = () => {
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight font-sans">Quản Lý Đánh Giá & Phản Hồi</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Kênh kiểm duyệt đánh giá dịch vụ dành cho Quản Trị Viên (QTV). Hỗ trợ kiểm duyệt nội dung vi phạm, spam hoặc khiếu nại.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Kênh kiểm duyệt đánh giá dịch vụ dành cho Quản Trị Viên (QTV). Hỗ trợ kiểm duyệt nội dung vi phạm, spam hoặc khiếu nại.</p>
       </div>
     </div>
   );
 
   const renderKPIs = () => {
-    const avgRating = reviews.length
-      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
-      : "5.0";
+    const avgRating = reviews.length ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "5.0";
     const total5Star = reviews.filter((r) => r.rating === 5).length;
     const totalBad = reviews.filter((r) => r.rating <= 2).length;
 
@@ -198,11 +191,7 @@ export const StaffReviews: React.FC = () => {
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
                         {customer?.avatar ? (
-                          <img
-                            src={customer.avatar}
-                            alt={customer.full_name}
-                            className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                          />
+                          <img src={customer.avatar} alt={customer.full_name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                         ) : (
                           <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-slate-100 dark:border-slate-700">
                             {getInitials(customer?.full_name || "Customer")}
@@ -219,11 +208,7 @@ export const StaffReviews: React.FC = () => {
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
                         {helper?.avatar ? (
-                          <img
-                            src={helper.avatar}
-                            alt={helper.full_name}
-                            className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                          />
+                          <img src={helper.avatar} alt={helper.full_name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                         ) : (
                           <div className="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center border border-slate-100 dark:border-slate-700">
                             {getInitials(helper?.full_name || "Helper")}
@@ -237,15 +222,11 @@ export const StaffReviews: React.FC = () => {
                     </td>
 
                     {/* Rating */}
-                    <td className="py-3 px-5">
-                      {renderStars(r.rating)}
-                    </td>
+                    <td className="py-3 px-5">{renderStars(r.rating)}</td>
 
                     {/* Comment */}
                     <td className="py-3 px-5 max-w-xs truncate">
-                      <span className={r.comment ? "text-slate-700 dark:text-slate-200" : "italic text-slate-400 dark:text-slate-500"}>
-                        {r.comment || "Không có nhận xét bằng văn bản"}
-                      </span>
+                      <span className={r.comment ? "text-slate-700 dark:text-slate-200" : "italic text-slate-400 dark:text-slate-500"}>{r.comment || "Không có nhận xét bằng văn bản"}</span>
                     </td>
 
                     {/* Created At */}
@@ -287,12 +268,7 @@ export const StaffReviews: React.FC = () => {
 
         {/* Pagination footer */}
         <div className="px-5 pb-4">
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
+          <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
         </div>
       </div>
     );
@@ -308,10 +284,7 @@ export const StaffReviews: React.FC = () => {
               <Icon icon="material-symbols:edit-outline-rounded" className="text-blue-600 dark:text-blue-400" />
               Kiểm Duyệt Đánh Giá
             </h3>
-            <button
-              onClick={closeEditModal}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            >
+            <button onClick={closeEditModal} className="p-1 rounded-lg text-slate-400 hover:text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
               <Icon icon="material-symbols:close-rounded" className="text-xl" />
             </button>
           </div>
@@ -322,16 +295,8 @@ export const StaffReviews: React.FC = () => {
               <label className="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Số sao đánh giá</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setEditRating(star)}
-                    className="p-1 hover:scale-110 active:scale-95 transition-all text-2xl cursor-pointer"
-                  >
-                    <Icon
-                      icon="material-symbols:star-rounded"
-                      className={star <= editRating ? "text-amber-400" : "text-slate-205 dark:text-slate-700"}
-                    />
+                  <button key={star} type="button" onClick={() => setEditRating(star)} className="p-1 hover:scale-110 active:scale-95 transition-all text-2xl cursor-pointer">
+                    <Icon icon="material-symbols:star-rounded" className={star <= editRating ? "text-amber-400" : "text-slate-205 dark:text-slate-700"} />
                   </button>
                 ))}
               </div>
@@ -347,9 +312,7 @@ export const StaffReviews: React.FC = () => {
                 rows={4}
                 className="w-full bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-650/20 focus:border-blue-600 transition-all resize-none"
               />
-              <p className="text-xxs text-slate-400 dark:text-slate-500 mt-1">
-                Lưu ý: Chỉ chỉnh sửa hoặc ẩn khi có khiếu nại xác thực hoặc vi phạm nghiêm trọng quy chuẩn cộng đồng.
-              </p>
+              <p className="text-xxs text-slate-400 dark:text-slate-500 mt-1">Lưu ý: Chỉ chỉnh sửa hoặc ẩn khi có khiếu nại xác thực hoặc vi phạm nghiêm trọng quy chuẩn cộng đồng.</p>
             </div>
           </div>
 
@@ -376,7 +339,6 @@ export const StaffReviews: React.FC = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto w-full">
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       {renderHeader()}
       {renderKPIs()}
       {renderFilters()}

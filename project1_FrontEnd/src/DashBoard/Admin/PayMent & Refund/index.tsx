@@ -2,7 +2,7 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 import { Icon } from "@iconify/react";
 import { usePaymentsRefunds, PAYMENT_METHODS_LABELS, PAYMENT_METHODS_ICONS } from "./useHook";
-import { Toast } from "../../../components/Toast";
+
 import { Pagination } from "../../../components/Pagination";
 
 interface PaymentsRefundsProps {
@@ -13,7 +13,7 @@ export const PaymentsRefunds: React.FC<PaymentsRefundsProps> = ({ defaultTab = "
   const {
     activeTab, setActiveTab,
     loading, statsLoading,
-    toast, setToast,
+    
     searchQuery, setSearchQuery,
     liveStats,
     payments, paymentsPage, setPaymentsPage, paymentsTotal,
@@ -25,8 +25,7 @@ export const PaymentsRefunds: React.FC<PaymentsRefundsProps> = ({ defaultTab = "
     handleProcessRefund,
     computedMetrics,
     revenueChartOption, statusDistributionOption, methodDistributionOption,
-    itemsPerPage,
-  } = usePaymentsRefunds(defaultTab);
+    itemsPerPage } = usePaymentsRefunds(defaultTab);
 
   const fmtVND  = (n: number) => n.toLocaleString("vi-VN") + " ₫";
   const fmtPct  = (n: number) => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
@@ -40,16 +39,14 @@ export const PaymentsRefunds: React.FC<PaymentsRefundsProps> = ({ defaultTab = "
       failed:    "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400",
       refunded:  "bg-slate-100 dark:bg-slate-800     text-slate-600  dark:text-slate-400",
       approved:  "bg-sky-50    dark:bg-sky-950/30    text-sky-600    dark:text-sky-400",
-      rejected:  "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400",
-    };
+      rejected:  "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400" };
     return map[status] ?? "bg-slate-100 text-slate-500";
   };
 
   const getStatusDotCls = (status: string) => {
     const map: Record<string, string> = {
       completed: "bg-emerald-500", pending: "bg-amber-500", failed: "bg-rose-500",
-      refunded: "bg-slate-400", approved: "bg-sky-500", rejected: "bg-rose-500",
-    };
+      refunded: "bg-slate-400", approved: "bg-sky-500", rejected: "bg-rose-500" };
     return map[status] ?? "bg-slate-400";
   };
 
@@ -390,7 +387,7 @@ export const PaymentsRefunds: React.FC<PaymentsRefundsProps> = ({ defaultTab = "
 
   return (
     <div className="space-y-6 p-6 min-h-screen bg-slate-50/50 dark:bg-slate-900/20">
-      {toast && <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
+      
 
       {renderHeader()}
 

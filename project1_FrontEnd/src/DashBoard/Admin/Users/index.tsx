@@ -2,7 +2,6 @@ import { Icon } from "@iconify/react";
 import ReactECharts from "echarts-for-react";
 import { useAccount } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
 import { ROLES } from "../../../constants/roles";
@@ -22,8 +21,7 @@ export const Account = () => {
     totalItems,
     users,
     loading,
-    toast,
-    setToast,
+
     isModalOpen,
     modalMode,
     currentUser,
@@ -89,9 +87,7 @@ export const Account = () => {
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Người Dùng</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý tài khoản, thay đổi vai trò hệ thống, khóa/mở khóa, cập nhật email/SDT hoặc reset mật khẩu của thành viên.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý tài khoản, thay đổi vai trò hệ thống, khóa/mở khóa, cập nhật email/SDT hoặc reset mật khẩu của thành viên.</p>
       </div>
       <button
         onClick={openAddModal}
@@ -187,15 +183,7 @@ export const Account = () => {
                     : "text-slate-555 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                {roleOption === "All"
-                  ? "Tất Cả"
-                  : roleOption === "Admin"
-                  ? "QTV"
-                  : roleOption === "Operator"
-                  ? "VH"
-                  : roleOption === "Helper"
-                  ? "GV"
-                  : "Khách"}
+                {roleOption === "All" ? "Tất Cả" : roleOption === "Admin" ? "QTV" : roleOption === "Operator" ? "VH" : roleOption === "Helper" ? "GV" : "Khách"}
               </button>
             ))}
           </div>
@@ -219,13 +207,7 @@ export const Account = () => {
                     : "text-slate-555 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                {statusOption === "All"
-                  ? "Tất Cả"
-                  : statusOption === "Active"
-                  ? "Hoạt Động"
-                  : statusOption === "Inactive"
-                  ? "Tạm Khóa"
-                  : "Bị Khóa"}
+                {statusOption === "All" ? "Tất Cả" : statusOption === "Active" ? "Hoạt Động" : statusOption === "Inactive" ? "Tạm Khóa" : "Bị Khóa"}
               </button>
             ))}
           </div>
@@ -301,11 +283,7 @@ export const Account = () => {
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-3">
                       {user.avatar && isValidAvatarUrl(user.avatar) ? (
-                        <img
-                          src={getImageUrl(user.avatar)}
-                          alt={user.full_name}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                        />
+                        <img src={getImageUrl(user.avatar)} alt={user.full_name} className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] font-bold text-sm flex items-center justify-center border border-slate-100 dark:border-slate-700">
                           {getInitials(user.full_name)}
@@ -318,9 +296,7 @@ export const Account = () => {
                   </td>
 
                   {/* Role column */}
-                  <td className="py-3 px-5">
-                    {getRoleBadge(user.role_id)}
-                  </td>
+                  <td className="py-3 px-5">{getRoleBadge(user.role_id)}</td>
 
                   {/* Email column */}
                   <td className="py-3 px-5">
@@ -329,9 +305,7 @@ export const Account = () => {
 
                   {/* Phone column */}
                   <td className="py-3 px-5">
-                    <span className="font-medium text-slate-650 dark:text-slate-300">
-                      {user.phone || <span className="italic text-slate-400 dark:text-slate-600 text-xs">Chưa cung cấp</span>}
-                    </span>
+                    <span className="font-medium text-slate-650 dark:text-slate-300">{user.phone || <span className="italic text-slate-400 dark:text-slate-600 text-xs">Chưa cung cấp</span>}</span>
                   </td>
 
                   {/* Provider column */}
@@ -353,9 +327,7 @@ export const Account = () => {
                   <td className="py-3 px-5">{getStatusBadge(user.status)}</td>
 
                   {/* Created At column */}
-                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400 whitespace-nowrap">
-                    {new Date(user.created_at).toLocaleDateString("vi-VN")}
-                  </td>
+                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400 whitespace-nowrap">{new Date(user.created_at).toLocaleDateString("vi-VN")}</td>
 
                   {/* Actions column */}
                   <td className="py-3 px-5 text-right">
@@ -400,12 +372,7 @@ export const Account = () => {
         </div>
 
         {/* Pagination controls */}
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={(page) => setCurrentPage(page)} />
       </div>
     );
   };
@@ -424,16 +391,14 @@ export const Account = () => {
           {/* Modal Header */}
           <div className="p-5 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
             <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
-                modalMode === "add" ? "bg-blue-100 text-blue-600" : modalMode === "edit" ? "bg-indigo-100 text-indigo-600" : "bg-emerald-100 text-emerald-600"
-              }`}>
-                <Icon icon={
-                  modalMode === "add" ? "material-symbols:person-add-rounded" : modalMode === "edit" ? "material-symbols:edit-note" : "material-symbols:visibility-outline-rounded"
-                } />
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
+                  modalMode === "add" ? "bg-blue-100 text-blue-600" : modalMode === "edit" ? "bg-indigo-100 text-indigo-600" : "bg-emerald-100 text-emerald-600"
+                }`}
+              >
+                <Icon icon={modalMode === "add" ? "material-symbols:person-add-rounded" : modalMode === "edit" ? "material-symbols:edit-note" : "material-symbols:visibility-outline-rounded"} />
               </div>
-              <h3 className="font-extrabold text-base">
-                {modalMode === "add" ? "Thêm Người Dùng Mới" : modalMode === "edit" ? "Chỉnh Sửa Người Dùng" : "Chi Tiết Người Dùng"}
-              </h3>
+              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Người Dùng Mới" : modalMode === "edit" ? "Chỉnh Sửa Người Dùng" : "Chi Tiết Người Dùng"}</h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -445,11 +410,7 @@ export const Account = () => {
             {/* Avatar Preview (if avatar is set) */}
             {formik.values.avatar && isValidAvatarUrl(formik.values.avatar) && (
               <div className="flex justify-center pb-2">
-                <img
-                  src={getImageUrl(formik.values.avatar)}
-                  alt={formik.values.full_name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-[#026E5F] shadow-xs"
-                />
+                <img src={getImageUrl(formik.values.avatar)} alt={formik.values.full_name} className="w-20 h-20 rounded-full object-cover border-2 border-[#026E5F] shadow-xs" />
               </div>
             )}
 
@@ -529,9 +490,7 @@ export const Account = () => {
             {/* Password input */}
             {!isViewMode && (
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  {modalMode === "add" ? "Mật Khẩu *" : "Mật Khẩu Mới (Để trống nếu giữ nguyên)"}
-                </label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{modalMode === "add" ? "Mật Khẩu *" : "Mật Khẩu Mới (Để trống nếu giữ nguyên)"}</label>
                 <input
                   type="password"
                   name="password"
@@ -556,9 +515,7 @@ export const Account = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Nguồn Đăng Ký</label>
-                  <span className="inline-block mt-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 capitalize">
-                    {currentUser.provider === "google" ? "Google OAuth" : "Hệ thống"}
-                  </span>
+                  <span className="inline-block mt-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 capitalize">{currentUser.provider === "google" ? "Google OAuth" : "Hệ thống"}</span>
                 </div>
               </div>
             )}
@@ -573,7 +530,7 @@ export const Account = () => {
                     month: "long",
                     day: "numeric",
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
                   })}
                 </span>
               </div>
@@ -602,7 +559,7 @@ export const Account = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* File Upload Button */}
                   <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
                     <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
@@ -793,14 +750,6 @@ export const Account = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
       {renderHeader()}
       {renderKPIs()}
       {renderCharts()}

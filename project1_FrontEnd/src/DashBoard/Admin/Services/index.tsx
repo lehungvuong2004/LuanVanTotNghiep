@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+
 import { Pagination } from "../../../components/Pagination";
 import { useServicesAdmin } from "./useHook";
 
@@ -40,8 +40,7 @@ export const Services = () => {
     fetchServices,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+
     openAddModal,
     openEditModal,
     closeModal,
@@ -52,15 +51,11 @@ export const Services = () => {
   const [selectedIds, setSelectedIds] = useState([]);
 
   const toggleSelectOne = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds((prev) =>
-      prev.length === services.length ? [] : services.map((s) => s.id)
-    );
+    setSelectedIds((prev) => (prev.length === services.length ? [] : services.map((s) => s.id)));
   };
 
   const handleBulkDelete = async () => {
@@ -73,21 +68,11 @@ export const Services = () => {
     setSelectedIds([]);
   };
 
-
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
-
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Quản Lý Dịch Vụ
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý danh sách dịch vụ, giá cả và trạng thái hoạt động.
-        </p>
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Dịch Vụ</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý danh sách dịch vụ, giá cả và trạng thái hoạt động.</p>
       </div>
       <div className="flex items-center gap-3">
         {selectedIds.length > 0 && (
@@ -166,7 +151,9 @@ export const Services = () => {
         >
           <option value="all">Tất cả danh mục</option>
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
           ))}
         </select>
       </div>
@@ -235,12 +222,7 @@ export const Services = () => {
                   const pt = PRICE_TYPE_LABELS[item.price_type];
                   const category = item.category;
                   return (
-                    <tr
-                      key={item.id}
-                      className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${
-                        selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""
-                      }`}
-                    >
+                    <tr key={item.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
                       <td className="px-4 py-4 text-center">
                         <input
                           type="checkbox"
@@ -255,17 +237,11 @@ export const Services = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-lg shrink-0">
-                            {category?.icon ? (
-                              <Icon icon={category.icon} />
-                            ) : (
-                              <Icon icon="material-symbols:home-repair-service-outline-rounded" />
-                            )}
+                            {category?.icon ? <Icon icon={category.icon} /> : <Icon icon="material-symbols:home-repair-service-outline-rounded" />}
                           </div>
                           <div>
                             <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
-                            {item.description && (
-                              <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-xs mt-0.5">{item.description}</p>
-                            )}
+                            {item.description && <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-xs mt-0.5">{item.description}</p>}
                           </div>
                         </div>
                       </td>
@@ -322,16 +298,10 @@ export const Services = () => {
           </div>
         </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={12}
-          onPageChange={(p) => fetchServices(p)}
-        />
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={12} onPageChange={(p) => fetchServices(p)} />
       </div>
     );
   };
-
 
   const renderModal = () => {
     if (!isModalOpen) return null;
@@ -344,9 +314,7 @@ export const Services = () => {
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${modalMode === "add" ? "bg-teal-100 text-teal-600" : "bg-indigo-100 text-indigo-600"}`}>
                 <Icon icon={modalMode === "add" ? "material-symbols:add" : "material-symbols:edit-note"} />
               </div>
-              <h3 className="font-extrabold text-base">
-                {modalMode === "add" ? "Thêm Dịch Vụ Mới" : "Chỉnh Sửa Dịch Vụ"}
-              </h3>
+              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Dịch Vụ Mới" : "Chỉnh Sửa Dịch Vụ"}</h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -368,12 +336,12 @@ export const Services = () => {
               >
                 <option value="">-- Chọn danh mục --</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
-              {formik.touched.category_id && formik.errors.category_id && (
-                <p className="text-red-500 text-xs mt-1">{formik.errors.category_id as string}</p>
-              )}
+              {formik.touched.category_id && formik.errors.category_id && <p className="text-red-500 text-xs mt-1">{formik.errors.category_id as string}</p>}
             </div>
 
             {/* Name */}
@@ -428,8 +396,8 @@ export const Services = () => {
                     {formik.values.price_type === "hourly"
                       ? "Khoảng giá: 30.000đ - 1.000.000đ / giờ"
                       : formik.values.price_type === "daily"
-                      ? "Khoảng giá: 100.000đ - 10.000.000đ / ngày"
-                      : "Khoảng giá: 10.000đ - 50.000.000đ"}
+                        ? "Khoảng giá: 100.000đ - 10.000.000đ / ngày"
+                        : "Khoảng giá: 10.000đ - 50.000.000đ"}
                   </p>
                 )}
               </div>
@@ -448,8 +416,6 @@ export const Services = () => {
                 </select>
               </div>
             </div>
-
-
 
             <div className="pt-4 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-end gap-3 mt-2">
               <button
@@ -476,7 +442,6 @@ export const Services = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
       {renderHeader()}
       {renderStats()}
       {renderFilters()}

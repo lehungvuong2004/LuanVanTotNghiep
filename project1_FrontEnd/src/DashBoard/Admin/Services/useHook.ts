@@ -1,15 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Service, ServiceCategory } from "../../../api/services";
-import type { ToastProps } from "../../../types/Toast";
-import {
-  getServicesAdmin,
-  createServiceAdmin,
-  updateServiceAdmin,
-  deleteServiceAdmin,
-  getCategoriesAdmin,
-} from "../../../api/services";
+
+import { getServicesAdmin, createServiceAdmin, updateServiceAdmin, deleteServiceAdmin, getCategoriesAdmin } from "../../../api/services";
 
 export const useServicesAdmin = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -28,25 +23,13 @@ export const useServicesAdmin = () => {
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [currentService, setCurrentService] = useState<Service | null>(null);
 
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
+  const { showToast } = useToast();
 
   // Fetch categories once for select options
   useEffect(() => {
-    getCategoriesAdmin().then((res) => setCategories(res.data)).catch(() => {});
+    getCategoriesAdmin()
+      .then((res) => setCategories(res.data))
+      .catch(() => {});
   }, []);
 
   const fetchServices = useCallback(
@@ -70,16 +53,14 @@ export const useServicesAdmin = () => {
         setLoading(false);
       }
     },
-    [statusFilter, categoryFilter, showToast]
+    [statusFilter, categoryFilter, showToast],
   );
 
   useEffect(() => {
     fetchServices(1);
   }, [fetchServices]);
 
-  const filteredServices = services.filter((s) =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServices = services.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -231,8 +212,7 @@ export const useServicesAdmin = () => {
     fetchServices,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+
     openAddModal,
     openEditModal,
     closeModal,

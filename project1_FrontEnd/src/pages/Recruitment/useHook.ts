@@ -1,3 +1,4 @@
+import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -13,8 +14,7 @@ import {
   selectHelperApi,
   rejectHelperApi,
   getHelperPublicProfileApi,
-  type JobPost,
-} from "../../api/jobPostsApi/jobPosts";
+  type JobPost } from "../../api/jobPostsApi/jobPosts";
 
 export const SALARY_OPTS = [
   { value: "all", label: "Tất cả" },
@@ -341,8 +341,7 @@ export const useRecruitment = () => {
       expirationDate: job.expired_at || null,
       workingTime: formatWorkingTime(job.working_time),
       services: combinedServices,
-      description: displayDescription,
-    };
+      description: displayDescription };
   });
 
   // Sorting logic
@@ -365,24 +364,16 @@ export const useRecruitment = () => {
 
   const paginatedJobs = sortedJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const [toast, setToast] = useState<{ type: "success" | "error" | "warning"; title: string; message: string } | null>(null);
+  const { showToast } = useToast();
 
   const applyJob = async (jobId: number) => {
     try {
       const res = await applyJobPostApi(jobId);
-      setToast({
-        type: "success",
-        title: "Ứng tuyển thành công",
-        message: res.message || "Hồ sơ ứng tuyển của bạn đã được gửi thành công."
-      });
+      showToast("success", "Ứng tuyển thành công", res.message || "Hồ sơ ứng tuyển của bạn đã được gửi thành công.");
       setAppliedJobIds((prev) => [...prev, jobId]);
     } catch (error: any) {
       const errMsg = error.response?.data?.message || "Đã xảy ra lỗi khi ứng tuyển.";
-      setToast({
-        type: "error",
-        title: "Ứng tuyển thất bại",
-        message: errMsg
-      });
+      showToast("error", "Ứng tuyển thất bại", errMsg);
       if (errMsg.includes("hoàn thiện hồ sơ") || errMsg.includes("số điện thoại")) {
         setTimeout(() => {
           navigate("/ho-so");
@@ -481,21 +472,13 @@ export const useRecruitment = () => {
     if (!window.confirm("Bạn có chắc chắn muốn chọn người giúp việc này? Tất cả đơn ứng tuyển khác sẽ bị từ chối.")) return;
     try {
       await selectHelperApi(jobPostId, helperId);
-      setToast({
-        type: "success",
-        title: "Chấp nhận thành công",
-        message: "Người giúp việc đã được chọn. Đang chờ người giúp việc đồng ý nhận việc.",
-      });
+      showToast("success", "Chấp nhận thành công", "Người giúp việc đã được chọn. Đang chờ người giúp việc đồng ý nhận việc.");
       if (selectedJobPost) {
         openApplications(selectedJobPost);
       }
       fetchMyJobPosts();
     } catch (err: any) {
-      setToast({
-        type: "error",
-        title: "Lỗi",
-        message: err.response?.data?.message || "Không thể chấp nhận người giúp việc.",
-      });
+      showToast("error", "Lỗi", err.response?.data?.message || "Không thể chấp nhận người giúp việc.");
     }
   }, [selectedJobPost, openApplications, fetchMyJobPosts]);
 
@@ -504,22 +487,14 @@ export const useRecruitment = () => {
     if (!window.confirm("Bạn có chắc chắn muốn từ chối người giúp việc này không?")) return;
     try {
       await rejectHelperApi(jobPostId, helperId);
-      setToast({
-        type: "success",
-        title: "Từ chối thành công",
-        message: "Người giúp việc đã bị từ chối.",
-      });
+      showToast("success", "Từ chối thành công", "Người giúp việc đã bị từ chối.");
       // Re-fetch applications list to update UI status
       if (selectedJobPost) {
         openApplications(selectedJobPost);
       }
       fetchMyJobPosts();
     } catch (err: any) {
-      setToast({
-        type: "error",
-        title: "Lỗi",
-        message: err.response?.data?.message || "Không thể từ chối người giúp việc.",
-      });
+      showToast("error", "Lỗi", err.response?.data?.message || "Không thể từ chối người giúp việc.");
     }
   }, [selectedJobPost, openApplications, fetchMyJobPosts]);
 
@@ -527,18 +502,10 @@ export const useRecruitment = () => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa bài đăng tuyển dụng này không? Hành động này không thể hoàn tác.")) return;
     try {
       await deleteJobPostApi(id);
-      setToast({
-        type: "success",
-        title: "Xóa thành công",
-        message: "Bài đăng tuyển dụng đã được xóa thành công."
-      });
+      showToast("success", "Xóa thành công", "Bài đăng tuyển dụng đã được xóa thành công.");
       fetchMyJobPosts();
     } catch (err: any) {
-      setToast({
-        type: "error",
-        title: "Xóa thất bại",
-        message: err.response?.data?.message || "Không thể xóa bài đăng tuyển dụng."
-      });
+      showToast("error", "Xóa thất bại", err.response?.data?.message || "Không thể xóa bài đăng tuyển dụng.");
     }
   }, [fetchMyJobPosts]);
 
@@ -555,22 +522,14 @@ export const useRecruitment = () => {
   const updateJobPost = useCallback(async (id: number, data: any) => {
     try {
       await updateJobPostApi(id, data);
-      setToast({
-        type: "success",
-        title: "Cập nhật thành công",
-        message: "Bài đăng tuyển dụng đã được cập nhật thành công."
-      });
+      showToast("success", "Cập nhật thành công", "Bài đăng tuyển dụng đã được cập nhật thành công.");
       closeEditJobPost();
       fetchMyJobPosts();
       // Refresh browse page jobs
       const jobRes = await getJobPostsApi({ limit: 1000 });
       setAllJobs(jobRes.data.data || []);
     } catch (err: any) {
-      setToast({
-        type: "error",
-        title: "Cập nhật thất bại",
-        message: err.response?.data?.message || "Không thể cập nhật bài đăng tuyển dụng."
-      });
+      showToast("error", "Cập nhật thất bại", err.response?.data?.message || "Không thể cập nhật bài đăng tuyển dụng.");
     }
   }, [closeEditJobPost, fetchMyJobPosts]);
 
@@ -604,8 +563,7 @@ export const useRecruitment = () => {
     clearFilters,
     categories,
     isLoading,
-    toast,
-    setToast,
+    
     applyJob,
     appliedJobIds,
     // Tab switching
@@ -636,6 +594,5 @@ export const useRecruitment = () => {
     helperProfileLoading,
     showHelperProfile,
     viewHelperProfile,
-    closeHelperProfile,
-  };
+    closeHelperProfile };
 };

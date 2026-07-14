@@ -5,7 +5,7 @@ import { useHistory } from "./useHook";
 import type { Booking, StatusFilter } from "./useHook";
 import { useRecruitment } from "../Recruitment/useHook";
 import { Pagination } from "../../components/Pagination";
-import { Toast } from "../../components/Toast";
+
 import { Link, useSearchParams } from "react-router-dom";
 import { formatDateTime } from "../../utils";
 import { PaymentReceipt } from "../../components/PaymentReceipt";
@@ -26,8 +26,8 @@ export const HistoryPage = () => {
     handleCheckin,
     handleCheckout,
     handleRespondToSelection,
-    toast,
-    setToast,
+    
+    
     isLoading,
     isHelper,
     applications,
@@ -40,8 +40,7 @@ export const HistoryPage = () => {
     isPaymentProcessing,
     openPaymentModal,
     closePaymentModal,
-    handlePayBooking,
-  } = useHistory();
+    handlePayBooking } = useHistory();
 
   // ── Recruitment hook (job postings) ──────────────────────
   const {
@@ -66,11 +65,8 @@ export const HistoryPage = () => {
     showHelperProfile,
     viewHelperProfile,
     closeHelperProfile,
-    toast: recruitmentToast,
-    setToast: setRecruitmentToast,
     setActiveTab,
-    fetchMyJobPosts,
-  } = useRecruitment();
+    fetchMyJobPosts } = useRecruitment();
 
   // ── Local state for phone reveal in applicant list ───────
   const [revealedPhones, setRevealedPhones] = useState({});
@@ -113,8 +109,7 @@ export const HistoryPage = () => {
     district: "",
     city: "",
     working_time: "",
-    expired_at: "",
-  });
+    expired_at: "" });
 
   // Keep editForm synced with currently editing job post
   useEffect(() => {
@@ -143,16 +138,14 @@ export const HistoryPage = () => {
         district: editingJobPost.district || "",
         city: editingJobPost.city || "",
         working_time: formatToDateTimeLocal(editingJobPost.working_time),
-        expired_at: formatToDateTimeLocal(editingJobPost.expired_at),
-      });
+        expired_at: formatToDateTimeLocal(editingJobPost.expired_at) });
     }
   }, [editingJobPost]);
 
   const togglePhoneReveal = (helperId: number) => {
     setRevealedPhones((prev) => ({
       ...prev,
-      [helperId]: !prev[helperId],
-    }));
+      [helperId]: !prev[helperId] }));
   };
 
   const maskPhone = (phone: string) => {
@@ -191,38 +184,32 @@ export const HistoryPage = () => {
         return {
           bg: "bg-teal-100/80 dark:bg-teal-950/45",
           text: "text-teal-800 dark:text-teal-300",
-          border: "border-teal-200 dark:border-teal-900/60",
-        };
+          border: "border-teal-200 dark:border-teal-900/60" };
       case "Nấu ăn gia đình":
         return {
           bg: "bg-amber-100/80 dark:bg-amber-950/45",
           text: "text-amber-850 dark:text-amber-300",
-          border: "border-amber-200 dark:border-amber-900/60",
-        };
+          border: "border-amber-200 dark:border-amber-900/60" };
       case "Giặt ủi":
         return {
           bg: "bg-purple-100/80 dark:bg-purple-950/45",
           text: "text-purple-850 dark:text-purple-300",
-          border: "border-purple-200 dark:border-purple-900/60",
-        };
+          border: "border-purple-200 dark:border-purple-900/60" };
       case "Chăm sóc người già":
         return {
           bg: "bg-sky-100/80 dark:bg-sky-950/45",
           text: "text-sky-850 dark:text-sky-300",
-          border: "border-sky-200 dark:border-sky-900/60",
-        };
+          border: "border-sky-200 dark:border-sky-900/60" };
       case "Trông trẻ em":
         return {
           bg: "bg-rose-100/80 dark:bg-rose-950/45",
           text: "text-rose-850 dark:text-rose-300",
-          border: "border-rose-200 dark:border-rose-900/60",
-        };
+          border: "border-rose-200 dark:border-rose-900/60" };
       default:
         return {
           bg: "bg-slate-50/70 dark:bg-slate-800/40",
           text: "text-slate-700 dark:text-slate-400",
-          border: "border-slate-100 dark:border-slate-700/50",
-        };
+          border: "border-slate-100 dark:border-slate-700/50" };
     }
   };
 
@@ -963,8 +950,7 @@ export const HistoryPage = () => {
         district: editForm.district,
         city: editForm.city,
         working_time: editForm.working_time || null,
-        expired_at: editForm.expired_at || null,
-      });
+        expired_at: editForm.expired_at || null });
     };
 
     return (
@@ -1490,8 +1476,8 @@ export const HistoryPage = () => {
         })()}
 
       {/* Toast states */}
-      {toast && <Toast type={toast.type} title={t(toast.title)} message={t(toast.message)} onClose={() => setToast(null)} />}
-      {recruitmentToast && <Toast type={recruitmentToast.type} title={t(recruitmentToast.title)} message={t(recruitmentToast.message)} onClose={() => setRecruitmentToast(null)} />}
+      
+      
     </div>
   );
 };

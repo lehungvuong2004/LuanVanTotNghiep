@@ -42,8 +42,7 @@ export const getJobPostsApi = async (params?: {
   page?: number;
 }): Promise<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }> => {
   const response = await axiosInstance.get<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }>("/orders/job-posts", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -77,8 +76,7 @@ export const getMyJobPostsApi = async (params?: {
   page?: number;
 }): Promise<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }> => {
   const response = await axiosInstance.get<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }>("/orders/my/job-posts", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -151,8 +149,7 @@ export const adminGetJobPostsApi = async (params?: {
   page?: number;
 }): Promise<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }> => {
   const response = await axiosInstance.get<{ data: { data: JobPost[]; total: number; current_page: number; last_page: number } }>("/orders/admin/job-posts", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -170,8 +167,7 @@ export const adminUpdateJobPostStatusApi = async (
 ): Promise<{ message: string; data: JobPost }> => {
   const response = await axiosInstance.patch<{ message: string; data: JobPost }>(`/orders/admin/job-posts/${id}/status`, {
     status,
-    note,
-  });
+    note });
   return response.data;
 };
 

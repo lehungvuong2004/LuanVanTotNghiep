@@ -1,6 +1,5 @@
 import { useBanner } from "./useHook";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
 import { getImageUrl } from "../../../utils/images";
 
 export const Banners = () => {
@@ -17,8 +16,8 @@ export const Banners = () => {
     totalItems,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+    
+    
     openAddModal,
     openEditModal,
     closeModal,
@@ -26,16 +25,9 @@ export const Banners = () => {
     handleDeleteBanner,
     handleToggleStatus,
     uploadingImage,
-    handleUploadImage,
-  } = useBanner();
+    handleUploadImage } = useBanner();
 
 
-
-  // 1. Toast message renderer
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
 
   // 2. Main banner system header
   const renderHeader = () => {
@@ -511,7 +503,6 @@ export const Banners = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
       {renderHeader()}
       {renderStats()}
       {renderFilters()}

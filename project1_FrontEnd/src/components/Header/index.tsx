@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useHeader } from "./useHook";
 import type { NotificationType, Notification } from "../../api/notifications";
-import { Toast } from "../Toast";
+
 import { formatVietnamDateTime } from "../../utils";
 import { ROLES, getRoleName, getRoleDashboard, getUserRole } from "../../constants/roles";
 
@@ -14,8 +14,7 @@ const NOTIF_META: Record<NotificationType, { icon: string; bg: string; fg: strin
   system: { icon: "mdi:bell-outline", bg: "bg-slate-100 dark:bg-slate-700", fg: "text-slate-500 dark:text-slate-300" },
   promotion: { icon: "mdi:tag-outline", bg: "bg-orange-100 dark:bg-orange-900/40", fg: "text-orange-500 dark:text-orange-400" },
   report: { icon: "mdi:alert-circle-outline", bg: "bg-red-100 dark:bg-red-900/40", fg: "text-red-500 dark:text-red-400" },
-  recruitment: { icon: "mdi:briefcase-outline", bg: "bg-blue-100 dark:bg-blue-900/40", fg: "text-blue-600 dark:text-blue-400" },
-};
+  recruitment: { icon: "mdi:briefcase-outline", bg: "bg-blue-100 dark:bg-blue-900/40", fg: "text-blue-600 dark:text-blue-400" } };
 const DEFAULT_META = NOTIF_META.system;
 
 export const Header = () => {
@@ -46,10 +45,7 @@ export const Header = () => {
     categories,
     bottomLinks,
     newsItems,
-    categoryDetails,
-    toast,
-    setToast,
-  } = useHeader();
+    categoryDetails } = useHeader();
 
   const navigate = useNavigate();
 
@@ -772,7 +768,6 @@ export const Header = () => {
           <span className="text-white font-bold text-2xl md:text-3xl invisible">Gia Đình Việt</span>
         </div>
       </div>
-      {toast && <Toast type={toast.type as any} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </>
   );
 };

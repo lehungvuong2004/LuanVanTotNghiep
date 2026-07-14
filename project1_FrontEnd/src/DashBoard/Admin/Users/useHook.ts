@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin, uploadUserAvatarAdmin } from "../../../api/users";
@@ -40,23 +41,7 @@ export const useAccount = () => {
   const [newStatus, setNewStatus] = useState<"active" | "inactive" | "banned">("active");
   const [statusReason, setStatusReason] = useState("");
 
-  // Toast state
-  const [toast, setToast] = useState<{
-    type: "success" | "error" | "warning" | "info";
-    title: string;
-    message?: string;
-  } | null>(null);
-  const toastTimeoutRef = useRef<any>(null);
-
-  const showToast = useCallback((type: "success" | "error" | "warning" | "info", title: string, message?: string) => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setToast({ type, title, message });
-    toastTimeoutRef.current = setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  }, []);
+  const { showToast } = useToast();
 
   // Fetch users from API
   const fetchUsers = useCallback(async () => {
@@ -231,15 +216,6 @@ export const useAccount = () => {
     }
   };
 
-  // Clean up timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const rem = getRootFontSizePx();
 
   const providerOption = useMemo(() => {
@@ -355,19 +331,12 @@ export const useAccount = () => {
 
   // 1. Validation Schemas for Formik (All Roles)
   const addValidationSchema = Yup.object().shape({
-    full_name: Yup.string()
-      .min(2, "Họ tên phải có ít nhất 2 ký tự")
-      .max(100, "Họ tên không được vượt quá 100 ký tự")
-      .required("Vui lòng nhập họ tên"),
-    email: Yup.string()
-      .email("Định dạng email không hợp lệ")
-      .required("Vui lòng nhập email"),
+    full_name: Yup.string().min(2, "Họ tên phải có ít nhất 2 ký tự").max(100, "Họ tên không được vượt quá 100 ký tự").required("Vui lòng nhập họ tên"),
+    email: Yup.string().email("Định dạng email không hợp lệ").required("Vui lòng nhập email"),
     phone: Yup.string()
       .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")
       .nullable(),
-    role_id: Yup.number()
-      .oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ")
-      .required("Vui lòng chọn vai trò"),
+    role_id: Yup.number().oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ").required("Vui lòng chọn vai trò"),
     password: Yup.string()
       .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
       .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
@@ -378,19 +347,12 @@ export const useAccount = () => {
   });
 
   const editValidationSchema = Yup.object().shape({
-    full_name: Yup.string()
-      .min(2, "Họ tên phải có ít nhất 2 ký tự")
-      .max(100, "Họ tên không được vượt quá 100 ký tự")
-      .required("Vui lòng nhập họ tên"),
-    email: Yup.string()
-      .email("Định dạng email không hợp lệ")
-      .required("Vui lòng nhập email"),
+    full_name: Yup.string().min(2, "Họ tên phải có ít nhất 2 ký tự").max(100, "Họ tên không được vượt quá 100 ký tự").required("Vui lòng nhập họ tên"),
+    email: Yup.string().email("Định dạng email không hợp lệ").required("Vui lòng nhập email"),
     phone: Yup.string()
       .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ")
       .nullable(),
-    role_id: Yup.number()
-      .oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ")
-      .required("Vui lòng chọn vai trò"),
+    role_id: Yup.number().oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ").required("Vui lòng chọn vai trò"),
     password: Yup.string()
       .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
       .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
@@ -430,8 +392,7 @@ export const useAccount = () => {
     totalItems,
     users,
     loading,
-    toast,
-    setToast,
+
     isModalOpen,
     modalMode,
     currentUser,

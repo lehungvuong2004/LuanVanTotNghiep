@@ -26,8 +26,7 @@ export const useForgetPassword = () => {
   // --- Formik Step 1: Email/Phone ---
   const formikStep1 = useFormik({
     initialValues: {
-      emailOrPhone: "",
-    },
+      emailOrPhone: "" },
     validationSchema: getForgotPasswordStep1Schema(t),
     onSubmit: async (values) => {
       setLoading(true);
@@ -44,14 +43,12 @@ export const useForgetPassword = () => {
       } finally {
         setLoading(false);
       }
-    },
-  });
+    } });
 
   // --- Formik Step 2: OTP ---
   const formikStep2 = useFormik({
     initialValues: {
-      otp: Array(6).fill(""),
-    },
+      otp: Array(6).fill("") },
     validationSchema: getForgotPasswordStep2Schema(t),
     onSubmit: async (values) => {
       setLoading(true);
@@ -68,8 +65,7 @@ export const useForgetPassword = () => {
       } finally {
         setLoading(false);
       }
-    },
-  });
+    } });
 
   const handleOtpChange = (index: number, value: string) => {
     if (isNaN(Number(value))) return;
@@ -94,8 +90,7 @@ export const useForgetPassword = () => {
   const formikStep3 = useFormik({
     initialValues: {
       password: "",
-      confirmPassword: "",
-    },
+      confirmPassword: "" },
     validationSchema: getForgotPasswordStep3Schema(t),
     onSubmit: async (values) => {
       setLoading(true);
@@ -107,8 +102,7 @@ export const useForgetPassword = () => {
           email: email,
           otp: otpString,
           password: values.password,
-          password_confirmation: values.confirmPassword,
-        });
+          password_confirmation: values.confirmPassword });
         setSuccessMessage(res.message);
         setTimeout(() => {
           navigate("/dang-nhap");
@@ -119,8 +113,7 @@ export const useForgetPassword = () => {
       } finally {
         setLoading(false);
       }
-    },
-  });
+    } });
 
   const handleResendOtp = async () => {
     if (!email) return;
@@ -154,6 +147,5 @@ export const useForgetPassword = () => {
     errorMessage,
     successMessage,
     email,
-    handleResendOtp,
-  };
+    handleResendOtp };
 };

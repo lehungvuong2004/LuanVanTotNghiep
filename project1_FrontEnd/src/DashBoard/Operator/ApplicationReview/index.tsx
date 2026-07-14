@@ -2,7 +2,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { useApplicationReview } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { Toast } from "../../../components/Toast";
+
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { Link } from "react-router-dom";
 
@@ -26,8 +26,7 @@ export const ApplicationReview: React.FC = () => {
     handleCloseDetail,
     handleUpdateStatus,
     metrics,
-    toast,
-    setToast,
+
     itemsPerPage,
     selectedIds,
     toggleSelectOne,
@@ -65,17 +64,11 @@ export const ApplicationReview: React.FC = () => {
 
   return (
     <div className="p-6 max-w-8xl mx-auto w-full">
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight font-sans">
-            Phê Duyệt Tin Tuyển Dụng
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Kênh kiểm duyệt thông tin và trạng thái hiển thị của các bài đăng tìm người giúp việc từ Khách hàng.
-          </p>
+          <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight font-sans">Phê Duyệt Tin Tuyển Dụng</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Kênh kiểm duyệt thông tin và trạng thái hiển thị của các bài đăng tìm người giúp việc từ Khách hàng.</p>
         </div>
         <Link
           to="/dang-bai-tuyen"
@@ -179,158 +172,137 @@ export const ApplicationReview: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {selectedIds.length > 0 && (
-            <BulkDeleteBar
-              selectedIds={selectedIds}
-              totalCount={jobPosts.length}
-              onToggleAll={toggleSelectAll}
-              onDeleteSelected={handleBulkDelete}
-              onClear={clearSelection}
-              loading={actionLoading}
-            />
+            <BulkDeleteBar selectedIds={selectedIds} totalCount={jobPosts.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} loading={actionLoading} />
           )}
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs overflow-hidden">
             <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse min-w-4xl">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                  <th className="py-3.5 px-5 text-center w-12">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.length === jobPosts.length && jobPosts.length > 0}
-                      ref={(el) => {
-                        if (el) {
-                          el.indeterminate = selectedIds.length > 0 && selectedIds.length < jobPosts.length;
-                        }
-                      }}
-                      onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
-                    />
-                  </th>
-                  <th className="py-3.5 px-5">Bài Tuyển Dụng</th>
-                  <th className="py-3.5 px-5">Khách Hàng</th>
-                  <th className="py-3.5 px-5">Mức Lương Đề Xuất</th>
-                  <th className="py-3.5 px-5">Khu Vực</th>
-                  <th className="py-3.5 px-5">Trạng Thái</th>
-                  <th className="py-3.5 px-5 text-right">Thao Tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-150 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-705 dark:text-slate-200">
-                {jobPosts.map((post) => {
-                  const customer = usersMap[post.customer_id];
+              <table className="w-full text-left border-collapse min-w-4xl">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th className="py-3.5 px-5 text-center w-12">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.length === jobPosts.length && jobPosts.length > 0}
+                        ref={(el) => {
+                          if (el) {
+                            el.indeterminate = selectedIds.length > 0 && selectedIds.length < jobPosts.length;
+                          }
+                        }}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+                      />
+                    </th>
+                    <th className="py-3.5 px-5">Bài Tuyển Dụng</th>
+                    <th className="py-3.5 px-5">Khách Hàng</th>
+                    <th className="py-3.5 px-5">Mức Lương Đề Xuất</th>
+                    <th className="py-3.5 px-5">Khu Vực</th>
+                    <th className="py-3.5 px-5">Trạng Thái</th>
+                    <th className="py-3.5 px-5 text-right">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-150 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-705 dark:text-slate-200">
+                  {jobPosts.map((post) => {
+                    const customer = usersMap[post.customer_id];
 
-                  return (
-                    <tr key={post.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors ${selectedIds.includes(post.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
-                      {/* Checkbox column */}
-                      <td className="py-3.5 px-5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(post.id)}
-                          onChange={() => toggleSelectOne(post.id)}
-                          className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
-                        />
-                      </td>
-                      {/* Job Title */}
-                      <td className="py-3.5 px-5 max-w-xs">
-                        <button
-                          onClick={() => handleOpenDetail(post)}
-                          className="font-extrabold text-blue-650 dark:text-blue-400 hover:underline text-left truncate block w-full cursor-pointer"
-                        >
-                          {post.title}
-                        </button>
-                        <div className="text-xxs text-slate-400 dark:text-slate-500 mt-1">
-                          Đăng ngày: {new Date(post.created_at).toLocaleDateString("vi-VN")}
-                        </div>
-                      </td>
-
-                      {/* Customer */}
-                      <td className="py-3.5 px-5">
-                        <div className="font-bold text-slate-800 dark:text-slate-100">{customer?.full_name || `Khách hàng #${post.customer_id}`}</div>
-                        <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{customer?.phone || "N/A"}</div>
-                      </td>
-
-                      {/* Salary */}
-                      <td className="py-3.5 px-5 font-bold text-slate-850 dark:text-slate-150">
-                        {formatPrice(post.salary)}
-                      </td>
-
-                      {/* Location */}
-                      <td className="py-3.5 px-5">
-                        <div className="font-semibold text-slate-800 dark:text-slate-200">{post.district || "N/A"}</div>
-                        <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{post.city || ""}</div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3.5 px-5">
-                        {renderStatusBadge(post.status)}
-                      </td>
-
-                      {/* Action buttons */}
-                      <td className="py-3.5 px-5 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Approve (Open) */}
-                          {post.status !== "open" && (
-                            <button
-                              disabled={actionLoading}
-                              onClick={() => handleUpdateStatus(post.id, "open")}
-                              className="p-2 rounded-xl text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 disabled:opacity-50 cursor-pointer"
-                              title="Phê duyệt cho hiển thị"
-                            >
-                              <Icon icon="material-symbols:check-circle-outline-rounded" className="text-lg" />
-                            </button>
-                          )}
-
-                          {/* Block / Pending */}
-                          {post.status !== "pending" && (
-                            <button
-                              disabled={actionLoading}
-                              onClick={() => handleUpdateStatus(post.id, "pending")}
-                              className="p-2 rounded-xl text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-955/20 disabled:opacity-50 cursor-pointer"
-                              title="Tạm dừng / Chờ duyệt"
-                            >
-                              <Icon icon="material-symbols:hourglass-empty-rounded" className="text-lg" />
-                            </button>
-                          )}
-
-                          {/* Close */}
-                          {post.status !== "closed" && (
-                            <button
-                              disabled={actionLoading}
-                              onClick={() => handleUpdateStatus(post.id, "closed")}
-                              className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 disabled:opacity-50 cursor-pointer"
-                              title="Đóng / Gỡ bài viết"
-                            >
-                              <Icon icon="material-symbols:block-outline-rounded" className="text-lg" />
-                            </button>
-                          )}
-
-                          {/* View Detail */}
-                          <button
-                            onClick={() => handleOpenDetail(post)}
-                            className="p-2 rounded-xl text-slate-450 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
-                            title="Xem chi tiết tuyển dụng"
-                          >
-                            <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
+                    return (
+                      <tr key={post.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors ${selectedIds.includes(post.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
+                        {/* Checkbox column */}
+                        <td className="py-3.5 px-5 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(post.id)}
+                            onChange={() => toggleSelectOne(post.id)}
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+                          />
+                        </td>
+                        {/* Job Title */}
+                        <td className="py-3.5 px-5 max-w-xs">
+                          <button onClick={() => handleOpenDetail(post)} className="font-extrabold text-blue-650 dark:text-blue-400 hover:underline text-left truncate block w-full cursor-pointer">
+                            {post.title}
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          <div className="text-xxs text-slate-400 dark:text-slate-500 mt-1">Đăng ngày: {new Date(post.created_at).toLocaleDateString("vi-VN")}</div>
+                        </td>
 
-          <div className="px-5 pb-4">
-            <Pagination
-              currentPage={currentPage}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-            />
+                        {/* Customer */}
+                        <td className="py-3.5 px-5">
+                          <div className="font-bold text-slate-800 dark:text-slate-100">{customer?.full_name || `Khách hàng #${post.customer_id}`}</div>
+                          <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{customer?.phone || "N/A"}</div>
+                        </td>
+
+                        {/* Salary */}
+                        <td className="py-3.5 px-5 font-bold text-slate-850 dark:text-slate-150">{formatPrice(post.salary)}</td>
+
+                        {/* Location */}
+                        <td className="py-3.5 px-5">
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{post.district || "N/A"}</div>
+                          <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{post.city || ""}</div>
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-3.5 px-5">{renderStatusBadge(post.status)}</td>
+
+                        {/* Action buttons */}
+                        <td className="py-3.5 px-5 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Approve (Open) */}
+                            {post.status !== "open" && (
+                              <button
+                                disabled={actionLoading}
+                                onClick={() => handleUpdateStatus(post.id, "open")}
+                                className="p-2 rounded-xl text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 disabled:opacity-50 cursor-pointer"
+                                title="Phê duyệt cho hiển thị"
+                              >
+                                <Icon icon="material-symbols:check-circle-outline-rounded" className="text-lg" />
+                              </button>
+                            )}
+
+                            {/* Block / Pending */}
+                            {post.status !== "pending" && (
+                              <button
+                                disabled={actionLoading}
+                                onClick={() => handleUpdateStatus(post.id, "pending")}
+                                className="p-2 rounded-xl text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-955/20 disabled:opacity-50 cursor-pointer"
+                                title="Tạm dừng / Chờ duyệt"
+                              >
+                                <Icon icon="material-symbols:hourglass-empty-rounded" className="text-lg" />
+                              </button>
+                            )}
+
+                            {/* Close */}
+                            {post.status !== "closed" && (
+                              <button
+                                disabled={actionLoading}
+                                onClick={() => handleUpdateStatus(post.id, "closed")}
+                                className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 disabled:opacity-50 cursor-pointer"
+                                title="Đóng / Gỡ bài viết"
+                              >
+                                <Icon icon="material-symbols:block-outline-rounded" className="text-lg" />
+                              </button>
+                            )}
+
+                            {/* View Detail */}
+                            <button
+                              onClick={() => handleOpenDetail(post)}
+                              className="p-2 rounded-xl text-slate-450 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
+                              title="Xem chi tiết tuyển dụng"
+                            >
+                              <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="px-5 pb-4">
+              <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
       {/* Detail Modal */}
       {isDetailOpen && selectedPost && (
@@ -344,10 +316,7 @@ export const ApplicationReview: React.FC = () => {
                 </h3>
                 <p className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">Kiểm duyệt các thông tin công việc</p>
               </div>
-              <button
-                onClick={handleCloseDetail}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              >
+              <button onClick={handleCloseDetail} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
               </button>
             </div>
@@ -368,9 +337,7 @@ export const ApplicationReview: React.FC = () => {
                     </div>
                     <div>
                       <span className="block text-xxs font-bold text-slate-400 dark:text-slate-550 uppercase text-right">Lương đề xuất</span>
-                      <span className="text-sm font-extrabold text-blue-650 dark:text-blue-400 block mt-1">
-                        {formatPrice(selectedPost.salary)}
-                      </span>
+                      <span className="text-sm font-extrabold text-blue-650 dark:text-blue-400 block mt-1">{formatPrice(selectedPost.salary)}</span>
                     </div>
                   </div>
 
@@ -378,7 +345,8 @@ export const ApplicationReview: React.FC = () => {
                   <div className="space-y-1">
                     <h4 className="text-base font-extrabold text-slate-800 dark:text-slate-100">{selectedPost.title}</h4>
                     <p className="text-xs text-slate-450 dark:text-slate-500">
-                      Đăng bởi: <span className="font-bold text-slate-700 dark:text-slate-350">{usersMap[selectedPost.customer_id]?.full_name || `User #${selectedPost.customer_id}`}</span> (SĐT: {usersMap[selectedPost.customer_id]?.phone || "N/A"})
+                      Đăng bởi: <span className="font-bold text-slate-700 dark:text-slate-350">{usersMap[selectedPost.customer_id]?.full_name || `User #${selectedPost.customer_id}`}</span> (SĐT:{" "}
+                      {usersMap[selectedPost.customer_id]?.phone || "N/A"})
                     </p>
                   </div>
 
@@ -387,14 +355,13 @@ export const ApplicationReview: React.FC = () => {
                     <div>
                       <span className="block text-xxs text-slate-400 dark:text-slate-500 uppercase font-bold mb-1">Địa điểm phục vụ</span>
                       <span className="font-semibold text-slate-750 dark:text-slate-200">
-                        {selectedPost.address ? `${selectedPost.address}, ` : ""}{selectedPost.district || ""}, {selectedPost.city || ""}
+                        {selectedPost.address ? `${selectedPost.address}, ` : ""}
+                        {selectedPost.district || ""}, {selectedPost.city || ""}
                       </span>
                     </div>
                     <div>
                       <span className="block text-xxs text-slate-400 dark:text-slate-500 uppercase font-bold mb-1">Thời gian làm việc</span>
-                      <span className="font-semibold text-slate-750 dark:text-slate-200">
-                        {selectedPost.working_time ? new Date(selectedPost.working_time).toLocaleString("vi-VN") : "Thỏa thuận"}
-                      </span>
+                      <span className="font-semibold text-slate-750 dark:text-slate-200">{selectedPost.working_time ? new Date(selectedPost.working_time).toLocaleString("vi-VN") : "Thỏa thuận"}</span>
                     </div>
                   </div>
 
@@ -441,16 +408,25 @@ export const ApplicationReview: React.FC = () => {
                         {selectedPost.applications.map((app: any) => {
                           const helperUser = usersMap[app.helper_id];
                           return (
-                            <div key={app.id} className="bg-slate-50/50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div
+                              key={app.id}
+                              className="bg-slate-50/50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                            >
                               <div>
                                 <div className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                                   <span>{helperUser?.full_name || `Helper #${app.helper_id}`}</span>
-                                  <span className={`px-2 py-0.5 rounded-full text-xxs font-semibold uppercase ${app.status === "accepted" ? "bg-emerald-50 text-emerald-650 border border-emerald-200" : app.status === "rejected" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-xxs font-semibold uppercase ${app.status === "accepted" ? "bg-emerald-50 text-emerald-650 border border-emerald-200" : app.status === "rejected" ? "bg-rose-50 text-rose-600 border border-rose-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
+                                  >
                                     {app.status === "accepted" ? "Đã nhận việc" : app.status === "rejected" ? "Từ chối" : "Chờ duyệt"}
                                   </span>
                                 </div>
                                 <div className="text-slate-500 mt-1">SĐT: {helperUser?.phone || "N/A"}</div>
-                                {app.message && <p className="text-slate-550 dark:text-slate-400 mt-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700/60">Tin nhắn: "{app.message}"</p>}
+                                {app.message && (
+                                  <p className="text-slate-550 dark:text-slate-400 mt-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700/60">
+                                    Tin nhắn: "{app.message}"
+                                  </p>
+                                )}
                               </div>
                               <div className="text-right shrink-0">
                                 <span className="block text-xxs text-slate-400 uppercase font-bold">Giá đề xuất của thợ</span>

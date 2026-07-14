@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useLogout } from "../hooks/useLogout";
 import { Sidebar } from "../components/Sidebar";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../hooks/useAuth";
 import { ROLES, getUserRole } from "../constants/roles";
 import { useTranslation } from "react-i18next";
-import { Toast } from "../components/Toast";
+import { useToast } from "../contexts/ToastContext";
 
 export const DashboardLayout = ({ allowedRole }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -13,12 +14,12 @@ export const DashboardLayout = ({ allowedRole }) => {
   const location = useLocation();
   const { t } = useTranslation();
   const { token, user } = useAuth();
-  const [toast, setToast] = useState<{ type: string; title: string; message: string } | null>(null);
+  const { showToast } = useToast();
+  const { logout } = useLogout();
 
   useEffect(() => {
     if (!token || !user || getUserRole(user) !== allowedRole) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
+      logout();
       navigate("/dang-nhap");
     }
   }, [token, user, allowedRole, navigate]);
@@ -26,14 +27,10 @@ export const DashboardLayout = ({ allowedRole }) => {
   useEffect(() => {
     const showLoginToast = sessionStorage.getItem("show_login_toast");
     if (showLoginToast === "true") {
-      setToast({
-        type: "success",
-        title: t("Thành công"),
-        message: t("Đăng nhập thành công!"),
-      });
+      showToast("success", t("Thành công"), t("Đăng nhập thành công!"));
       sessionStorage.removeItem("show_login_toast");
     }
-  }, [location, t]);
+  }, [location, t, showToast]);
 
   if (!token || !user || getUserRole(user) !== allowedRole) {
     return null;
@@ -73,7 +70,6 @@ export const DashboardLayout = ({ allowedRole }) => {
           </main>
         </div>
       </div>
-      {toast && <Toast type={toast.type as any} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 };

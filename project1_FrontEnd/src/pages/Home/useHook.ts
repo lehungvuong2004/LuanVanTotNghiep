@@ -38,48 +38,40 @@ export const useHome = () => {
     highlightTitle: "đồng hành.",
     searchPlaceholders: {
       service: "Bạn cần dịch vụ gì?",
-      location: "Khu vực của bạn",
-    },
-  };
+      location: "Khu vực của bạn" } };
   const produceData = [
     {
       id: 1,
       image: careImg,
       title: "Chăm Sóc Y Tế",
-      description: "Dịch vụ chăm sóc sức khỏe chuyên nghiệp",
-    },
+      description: "Dịch vụ chăm sóc sức khỏe chuyên nghiệp" },
     {
       id: 2,
       image: cleaningImg,
       title: "Vệ Sinh Nhà Cửa",
-      description: "Làm sạch không gian sống của bạn",
-    },
+      description: "Làm sạch không gian sống của bạn" },
     {
       id: 3,
       image: cookingImg,
       title: "Nấu Ăn Tận Nhà",
-      description: "Bữa ăn ngon miệng, đảm bảo dinh dưỡng",
-    },
+      description: "Bữa ăn ngon miệng, đảm bảo dinh dưỡng" },
     {
       id: 4,
       image: designerImg,
       title: "Thiết Kế Nội Thất",
-      description: "Không gian sống hiện đại, tiện nghi",
-    },
+      description: "Không gian sống hiện đại, tiện nghi" },
     {
       id: 5,
       image: gradenImg,
       title: "Chăm Sóc Sân Vườn",
-      description: "Không gian xanh mát, thư giãn",
-    },
+      description: "Không gian xanh mát, thư giãn" },
   ];
 
   const serviceData = {
     title: "Dịch vụ chuyên nghiệp, tận tâm",
     description:
       "Đội ngũ chuyên gia của chúng tôi được tuyển chọn kỹ lưỡng, đào tạo bài bản và luôn đặt sự hài lòng của khách hàng lên hàng đầu. Với HomeHelper, mọi vấn đề trong ngôi nhà của bạn đều được giải quyết một cách nhanh chóng, hiệu quả và an toàn nhất.",
-    features: ["Đội ngũ giàu kinh nghiệm và chuyên môn cao", "Phục vụ tận tâm 24/7, luôn có mặt khi bạn cần", "Chất lượng dịch vụ được đảm bảo 100%"],
-  };
+    features: ["Đội ngũ giàu kinh nghiệm và chuyên môn cao", "Phục vụ tận tâm 24/7, luôn có mặt khi bạn cần", "Chất lượng dịch vụ được đảm bảo 100%"] };
 
   const reviewData = [
     {
@@ -91,8 +83,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Dịch vụ rất chuyên nghiệp. Chị giúp việc tên Lan dọn dẹp rất kỹ các ngóc ngách, thái độ lại vô cùng nhã nhặn. Tôi sẽ tiếp tục sử dụng Gia Đình Việt cho căn hộ của mình.",
       workerName: "Giúp việc: Chị Lan",
-      date: "20/10/2023",
-    },
+      date: "20/10/2023" },
     {
       id: 2,
       name: "Trần Minh Hoàng",
@@ -102,8 +93,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Anh thợ sửa điện đến rất đúng giờ và xử lý sự cố rò rỉ điện nhanh chóng. Chi phí minh bạch, không phát sinh thêm. Rất yên tâm khi giao nhà cho đội ngũ Gia Đình Việt.",
       workerName: "Kỹ thuật: Anh Hùng",
-      date: "15/11/2023",
-    },
+      date: "15/11/2023" },
     {
       id: 3,
       name: "Lê Phương Thảo",
@@ -113,8 +103,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Món ăn rất hợp khẩu vị gia đình, chị giúp việc rất sạch sẽ và ngăn nắp. Bữa tối của gia đình tôi trở nên ấm cúng hơn rất nhiều nhờ sự hỗ trợ của các bạn.",
       workerName: "Đầu bếp: Chị Nga",
-      date: "02/12/2023",
-    },
+      date: "02/12/2023" },
     {
       id: 4,
       name: "Phạm Văn Đức",
@@ -124,8 +113,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Nhân viên nhiệt tình, tư vấn rõ ràng và làm việc rất cẩn thận. Máy lạnh nhà tôi sau khi vệ sinh hoạt động tốt và không còn tiếng ồn.",
       workerName: "Kỹ thuật: Anh Tuấn",
-      date: "10/12/2023",
-    },
+      date: "10/12/2023" },
     {
       id: 5,
       name: "Hoàng Mai Anh",
@@ -135,8 +123,7 @@ export const useHome = () => {
       rating: 5,
       comment: "Khu vườn nhà tôi được cắt tỉa rất gọn gàng và đẹp mắt. Nhân viên có kiến thức tốt về các loại cây cảnh và đã hướng dẫn tôi cách chăm sóc rất tận tình.",
       workerName: "Thợ vườn: Chú Bình",
-      date: "05/01/2024",
-    },
+      date: "05/01/2024" },
   ];
 
   const rafRef = useRef<number | null>(null);
@@ -148,8 +135,7 @@ export const useHome = () => {
     const rect = container.getBoundingClientRect();
     mouseRef.current = {
       x: ((e.clientX - rect.left) / rect.width - 0.5) * 2,
-      y: ((e.clientY - rect.top) / rect.height - 0.5) * 2,
-    };
+      y: ((e.clientY - rect.top) / rect.height - 0.5) * 2 };
   }, []);
 
   useEffect(() => {
@@ -177,8 +163,7 @@ export const useHome = () => {
             rotationY: -360,
             duration: 20,
             ease: "none",
-            repeat: -1,
-          });
+            repeat: -1 });
         }
       }, container);
     }
@@ -190,8 +175,7 @@ export const useHome = () => {
           y: mouseRef.current.y * -15,
           duration: 1.2,
           ease: "power2.out",
-          overwrite: "auto",
-        });
+          overwrite: "auto" });
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -229,6 +213,5 @@ export const useHome = () => {
     produceData,
     reviewData,
     banners,
-    loadingBanners,
-  };
+    loadingBanners };
 };

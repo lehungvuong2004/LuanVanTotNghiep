@@ -1,3 +1,4 @@
+import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -31,7 +32,7 @@ export const useServiceDetail = () => {
   // Selected helper for reviews
   const [selectedHelperId, setSelectedHelperId] = useState<number | null>(null);
   const [reviewStats, setReviewStats] = useState<any>(null);
-  const [toast, setToast] = useState<ToastState | null>(null);
+  const { showToast } = useToast();
 
   // States for the review form (create mode)
   const [formRating, setFormRating] = useState<number>(5);
@@ -79,22 +80,14 @@ export const useServiceDetail = () => {
 
   const openBookingModal = async () => {
     if (!currentUser) {
-      setToast({
-        type: "warning",
-        title: t("Đăng nhập"),
-        message: t("Vui lòng đăng nhập để đặt dịch vụ."),
-      });
+      showToast("warning", t("Đăng nhập"), t("Vui lòng đăng nhập để đặt dịch vụ."),);
       setTimeout(() => {
         navigate("/dang-nhap");
       }, 1000);
       return;
     }
     if (!isCustomer) {
-      setToast({
-        type: "error",
-        title: t("Quyền truy cập"),
-        message: t("Chỉ có tài khoản Khách hàng mới có thể đặt dịch vụ."),
-      });
+      showToast("error", t("Quyền truy cập"), t("Chỉ có tài khoản Khách hàng mới có thể đặt dịch vụ."),);
       return;
     }
     setIsBookingModalOpen(true);
@@ -111,7 +104,7 @@ export const useServiceDetail = () => {
   const handleAddNewAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAddress.trim()) {
-      setToast({ type: "error", title: t("Lỗi"), message: t("Vui lòng nhập địa chỉ cụ thể.") });
+      showToast("error", t("Lỗi"), t("Vui lòng nhập địa chỉ cụ thể."));
       return;
     }
     try {
@@ -119,34 +112,29 @@ export const useServiceDetail = () => {
         address: newAddress,
         district: newDistrict,
         city: newCity,
-        is_default: addresses.length === 0,
-      });
-      setToast({ type: "success", title: t("Thành công"), message: t("Đã thêm địa chỉ mới!") });
+        is_default: addresses.length === 0 });
+      showToast("success", t("Thành công"), t("Đã thêm địa chỉ mới!"));
       setNewAddress("");
       setIsAddingNewAddress(false);
       await fetchAddresses();
     } catch (err: any) {
       console.error("Failed to add address:", err);
-      setToast({
-        type: "error",
-        title: t("Lỗi"),
-        message: err.response?.data?.message || t("Không thể thêm địa chỉ."),
-      });
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể thêm địa chỉ."),);
     }
   };
 
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAddressId) {
-      setToast({ type: "error", title: t("Lỗi"), message: t("Vui lòng chọn hoặc thêm địa chỉ nhận việc.") });
+      showToast("error", t("Lỗi"), t("Vui lòng chọn hoặc thêm địa chỉ nhận việc."));
       return;
     }
     if (!bookingDate) {
-      setToast({ type: "error", title: t("Lỗi"), message: t("Vui lòng chọn ngày làm việc.") });
+      showToast("error", t("Lỗi"), t("Vui lòng chọn ngày làm việc."));
       return;
     }
     if (!bookingTime) {
-      setToast({ type: "error", title: t("Lỗi"), message: t("Vui lòng chọn giờ làm việc.") });
+      showToast("error", t("Lỗi"), t("Vui lòng chọn giờ làm việc."));
       return;
     }
 
@@ -166,17 +154,11 @@ export const useServiceDetail = () => {
             service_id: serviceObj.id,
             price: Number(serviceObj.base_price) || 0,
             duration_hours: durationHours,
-            quantity: 1,
-          },
-        ],
-      };
+            quantity: 1 },
+        ] };
 
       await createBookingApi(payload);
-      setToast({
-        type: "success",
-        title: t("Thành công"),
-        message: t("Đặt lịch thành công! Đang chuyển hướng sang trang thanh toán..."),
-      });
+      showToast("success", t("Thành công"), t("Đặt lịch thành công! Đang chuyển hướng sang trang thanh toán..."),);
 
       closeBookingModal();
       setTimeout(() => {
@@ -184,11 +166,7 @@ export const useServiceDetail = () => {
       }, 1500);
     } catch (err: any) {
       console.error("Failed to create booking:", err);
-      setToast({
-        type: "error",
-        title: t("Lỗi"),
-        message: err.response?.data?.message || t("Không thể tạo lịch đặt."),
-      });
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể tạo lịch đặt."),);
     } finally {
       setIsBookingSubmitting(false);
     }
@@ -239,7 +217,7 @@ export const useServiceDetail = () => {
   const handleCreateReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formHelperId) {
-      setToast({ type: "error", title: t("Lỗi"), message: t("Vui lòng chọn nhân viên để đánh giá.") });
+      showToast("error", t("Lỗi"), t("Vui lòng chọn nhân viên để đánh giá."));
       return;
     }
     setSubmitting(true);
@@ -247,9 +225,8 @@ export const useServiceDetail = () => {
       await createReviewCustomer({
         helper_id: formHelperId,
         rating: formRating,
-        comment: formComment || "",
-      });
-      setToast({ type: "success", title: t("Thành công"), message: t("Đánh giá của bạn đã được gửi!") });
+        comment: formComment || "" });
+      showToast("success", t("Thành công"), t("Đánh giá của bạn đã được gửi!"));
       setFormComment("");
       setFormRating(5);
       if (selectedHelperId) {
@@ -257,11 +234,7 @@ export const useServiceDetail = () => {
       }
     } catch (err: any) {
       console.error("Failed to create review:", err);
-      setToast({
-        type: "error",
-        title: t("Lỗi"),
-        message: err.response?.data?.message || t("Không thể gửi đánh giá."),
-      });
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể gửi đánh giá."),);
     } finally {
       setSubmitting(false);
     }
@@ -277,20 +250,15 @@ export const useServiceDetail = () => {
     try {
       await updateReviewCustomer(reviewId, {
         rating: editRating,
-        comment: editComment,
-      });
-      setToast({ type: "success", title: t("Thành công"), message: t("Cập nhật đánh giá thành công!") });
+        comment: editComment });
+      showToast("success", t("Thành công"), t("Cập nhật đánh giá thành công!"));
       setEditingReviewId(null);
       if (selectedHelperId) {
         await fetchHelperReviews(selectedHelperId);
       }
     } catch (err: any) {
       console.error("Failed to update review:", err);
-      setToast({
-        type: "error",
-        title: t("Lỗi"),
-        message: err.response?.data?.message || t("Không thể cập nhật đánh giá."),
-      });
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể cập nhật đánh giá."),);
     }
   };
 
@@ -298,17 +266,13 @@ export const useServiceDetail = () => {
     if (!window.confirm(t("Bạn có chắc chắn muốn xóa đánh giá này?"))) return;
     try {
       await deleteReviewCustomer(reviewId);
-      setToast({ type: "success", title: t("Thành công"), message: t("Xóa đánh giá thành công!") });
+      showToast("success", t("Thành công"), t("Xóa đánh giá thành công!"));
       if (selectedHelperId) {
         await fetchHelperReviews(selectedHelperId);
       }
     } catch (err: any) {
       console.error("Failed to delete review:", err);
-      setToast({
-        type: "error",
-        title: t("Lỗi"),
-        message: err.response?.data?.message || t("Không thể xóa đánh giá."),
-      });
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể xóa đánh giá."),);
     }
   };
 
@@ -326,8 +290,7 @@ export const useServiceDetail = () => {
     selectedHelperId,
     setSelectedHelperId,
     reviewStats,
-    toast,
-    setToast,
+    
     formRating,
     setFormRating,
     formComment,
@@ -376,6 +339,5 @@ export const useServiceDetail = () => {
     openBookingModal,
     closeBookingModal,
     handleAddNewAddress,
-    handleCreateBooking,
-  };
+    handleCreateBooking };
 };

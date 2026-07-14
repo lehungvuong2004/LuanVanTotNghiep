@@ -2,7 +2,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { useFollowingOrder } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { Toast } from "../../../components/Toast";
+
 import { getInitials } from "../../../utils";
 
 export const FollowingOrder: React.FC = () => {
@@ -25,12 +25,9 @@ export const FollowingOrder: React.FC = () => {
     handleCloseDetail,
     handleUpdateBookingStatus,
     metrics,
-    toast,
-    setToast,
+
     itemsPerPage,
   } = useFollowingOrder();
-
-
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -61,12 +58,8 @@ export const FollowingOrder: React.FC = () => {
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight font-sans">
-          Theo Dõi & Giám Sát Đặt Lịch
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Kênh kiểm soát lịch trình làm việc và trạng thái di chuyển của Người giúp việc theo thời gian thực.
-        </p>
+        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight font-sans">Theo Dõi & Giám Sát Đặt Lịch</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Kênh kiểm soát lịch trình làm việc và trạng thái di chuyển của Người giúp việc theo thời gian thực.</p>
       </div>
     </div>
   );
@@ -99,9 +92,7 @@ export const FollowingOrder: React.FC = () => {
         </div>
         <div>
           <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Đang Làm Việc / Đến Nơi</span>
-          <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
-            {bookings.filter(b => b.status === "on_the_way" || b.status === "in_progress").length} đơn
-          </span>
+          <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{bookings.filter((b) => b.status === "on_the_way" || b.status === "in_progress").length} đơn</span>
         </div>
       </div>
 
@@ -111,7 +102,7 @@ export const FollowingOrder: React.FC = () => {
         </div>
         <div>
           <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Đã Hoàn Thành</span>
-          <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{bookings.filter(b => b.status === "completed").length} đơn</span>
+          <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{bookings.filter((b) => b.status === "completed").length} đơn</span>
         </div>
       </div>
     </div>
@@ -199,15 +190,10 @@ export const FollowingOrder: React.FC = () => {
                   <tr key={b.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors">
                     {/* Booking Code */}
                     <td className="py-3.5 px-5">
-                      <button
-                        onClick={() => handleOpenDetail(b)}
-                        className="font-extrabold text-blue-600 dark:text-blue-400 hover:underline text-left cursor-pointer"
-                      >
+                      <button onClick={() => handleOpenDetail(b)} className="font-extrabold text-blue-600 dark:text-blue-400 hover:underline text-left cursor-pointer">
                         {b.booking_code || `#BK-${b.id}`}
                       </button>
-                      <div className="text-xxs text-slate-400 dark:text-slate-500 mt-1">
-                        {new Date(b.created_at || Date.now()).toLocaleDateString("vi-VN")}
-                      </div>
+                      <div className="text-xxs text-slate-400 dark:text-slate-500 mt-1">{new Date(b.created_at || Date.now()).toLocaleDateString("vi-VN")}</div>
                     </td>
 
                     {/* Customer */}
@@ -221,11 +207,7 @@ export const FollowingOrder: React.FC = () => {
                       {helper ? (
                         <div className="flex items-center gap-2.5">
                           {helper.avatar ? (
-                            <img
-                              src={helper.avatar}
-                              alt={helper.full_name}
-                              className="w-8 h-8 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                            />
+                            <img src={helper.avatar} alt={helper.full_name} className="w-8 h-8 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center border border-slate-100 dark:border-slate-700">
                               {getInitials(helper.full_name)}
@@ -251,14 +233,10 @@ export const FollowingOrder: React.FC = () => {
                     </td>
 
                     {/* Total Price */}
-                    <td className="py-3.5 px-5 font-bold text-slate-850 dark:text-slate-150">
-                      {formatPrice(b.total_price)}
-                    </td>
+                    <td className="py-3.5 px-5 font-bold text-slate-850 dark:text-slate-150">{formatPrice(b.total_price)}</td>
 
                     {/* Status Badge */}
-                    <td className="py-3.5 px-5">
-                      {renderStatusBadge(b.status)}
-                    </td>
+                    <td className="py-3.5 px-5">{renderStatusBadge(b.status)}</td>
 
                     {/* Detail trigger */}
                     <td className="py-3.5 px-5 text-right">
@@ -279,12 +257,7 @@ export const FollowingOrder: React.FC = () => {
 
         {/* Pagination footer */}
         <div className="px-5 pb-4">
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
+          <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
         </div>
       </div>
     );
@@ -307,10 +280,7 @@ export const FollowingOrder: React.FC = () => {
               </h3>
               <p className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">Chi tiết trạng thái, nhật ký di chuyển & làm việc</p>
             </div>
-            <button
-              onClick={handleCloseDetail}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            >
+            <button onClick={handleCloseDetail} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
               <Icon icon="material-symbols:close-rounded" className="text-xl" />
             </button>
           </div>
@@ -333,9 +303,7 @@ export const FollowingOrder: React.FC = () => {
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
                     <span className="block text-xxs font-bold text-slate-400 dark:text-slate-550 uppercase mb-1">Tổng thanh toán</span>
-                    <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                      {formatPrice(b.total_price)}
-                    </span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{formatPrice(b.total_price)}</span>
                   </div>
                 </div>
 
@@ -416,9 +384,7 @@ export const FollowingOrder: React.FC = () => {
                             <div className="font-bold text-slate-800 dark:text-slate-200">
                               Trạng thái Check-in: <span className="text-emerald-600">{log.status}</span>
                             </div>
-                            <div className="text-slate-500 mt-1">
-                              Vào lúc: {new Date(log.checkin_time).toLocaleString("vi-VN")}
-                            </div>
+                            <div className="text-slate-500 mt-1">Vào lúc: {new Date(log.checkin_time).toLocaleString("vi-VN")}</div>
                           </div>
                           {log.checkout_time && (
                             <div className="text-right">
@@ -450,14 +416,8 @@ export const FollowingOrder: React.FC = () => {
                             <span className="font-bold text-slate-800 dark:text-slate-200 capitalize">
                               {hist.old_status || "Khởi tạo"} → {hist.new_status}
                             </span>
-                            <span className="text-xxs text-slate-400 dark:text-slate-550 block mt-0.5">
-                              {new Date(hist.created_at || Date.now()).toLocaleString("vi-VN")}
-                            </span>
-                            {hist.note && (
-                              <p className="text-slate-550 dark:text-slate-450 mt-1 italic">
-                                Ghi chú: "{hist.note}"
-                              </p>
-                            )}
+                            <span className="text-xxs text-slate-400 dark:text-slate-550 block mt-0.5">{new Date(hist.created_at || Date.now()).toLocaleString("vi-VN")}</span>
+                            {hist.note && <p className="text-slate-550 dark:text-slate-450 mt-1 italic">Ghi chú: "{hist.note}"</p>}
                           </div>
                         </div>
                       ))}
@@ -475,7 +435,9 @@ export const FollowingOrder: React.FC = () => {
                       Thông tin hủy đơn
                     </div>
                     <div>Người thực hiện hủy: {b.cancel_by ? `User #${b.cancel_by}` : "Hệ thống"}</div>
-                    <div>Lý do: <span className="italic">"{b.cancel_reason || "Không nêu lý do"}"</span></div>
+                    <div>
+                      Lý do: <span className="italic">"{b.cancel_reason || "Không nêu lý do"}"</span>
+                    </div>
                   </div>
                 )}
               </>
@@ -522,7 +484,6 @@ export const FollowingOrder: React.FC = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto w-full">
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       {renderHeader()}
       {renderKPIs()}
       {renderFilters()}

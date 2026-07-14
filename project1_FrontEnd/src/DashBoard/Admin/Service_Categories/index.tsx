@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+
 import { useServiceCategoriesAdmin } from "./useHook";
 
 const TYPE_LABELS: Record<string, { label: string; color: string }> = {
   both: { label: "Tất cả", color: "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400" },
   booking: { label: "Đặt lịch", color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400" },
-  job: { label: "Công việc", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400" },
-};
+  job: { label: "Công việc", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400" } };
 
 const SUGGESTED_ICONS = [
   { key: "material-symbols:cleaning-services-outline-rounded", label: "Dọn dẹp" },
@@ -37,14 +36,13 @@ export const ServiceCategories = () => {
     setSearchQuery,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+    
+    
     openAddModal,
     openEditModal,
     closeModal,
     formik,
-    handleDelete,
-  } = useServiceCategoriesAdmin();
+    handleDelete } = useServiceCategoriesAdmin();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
@@ -71,10 +69,7 @@ export const ServiceCategories = () => {
   };
 
 
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
+  
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -117,26 +112,22 @@ export const ServiceCategories = () => {
         icon: "material-symbols:category-outline-rounded",
         label: "Tổng Danh Mục",
         value: totalItems,
-        color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
-      },
+        color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400" },
       {
         icon: "material-symbols:calendar-today-outline",
         label: "Đặt Lịch",
         value: bookingCount,
-        color: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400",
-      },
+        color: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400" },
       {
         icon: "material-symbols:work-outline",
         label: "Công Việc",
         value: jobCount,
-        color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
-      },
+        color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400" },
       {
         icon: "material-symbols:layers-outline",
         label: "Hỗ Trợ Cả Hai",
         value: bothCount,
-        color: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400",
-      },
+        color: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400" },
     ];
 
     return (
@@ -445,7 +436,7 @@ export const ServiceCategories = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
+      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}

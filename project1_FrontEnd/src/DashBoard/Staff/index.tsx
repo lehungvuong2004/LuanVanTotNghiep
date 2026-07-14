@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@iconify/react";
 import { useStaffRecruitment } from "./useHook";
-import { Toast } from "../../components/Toast";
+
 import { Pagination } from "../../components/Pagination";
 
 export const StaffRecruitmentDashboard: React.FC = () => {
@@ -37,8 +37,6 @@ export const StaffRecruitmentDashboard: React.FC = () => {
     handleApply,
     handleWithdraw,
     handleRespond,
-    toast,
-    setToast,
   } = useStaffRecruitment();
 
   const formatPrice = (price: number | string | null) => {
@@ -80,17 +78,11 @@ export const StaffRecruitmentDashboard: React.FC = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto w-full font-sans">
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-3xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">
-            Kênh Tuyển Dụng & Việc Làm
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-450 mt-1">
-            Tìm kiếm các công việc tự do đăng từ khách hàng và gửi hồ sơ ứng tuyển trực tiếp.
-          </p>
+          <h2 className="text-3xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Kênh Tuyển Dụng & Việc Làm</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-450 mt-1">Tìm kiếm các công việc tự do đăng từ khách hàng và gửi hồ sơ ứng tuyển trực tiếp.</p>
         </div>
 
         {/* Tab Controls */}
@@ -98,9 +90,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
           <button
             onClick={() => setActiveTab("browse")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-              activeTab === "browse"
-                ? "bg-white dark:bg-slate-700 text-[#026E5F] dark:text-emerald-400 shadow-sm"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+              activeTab === "browse" ? "bg-white dark:bg-slate-700 text-[#026E5F] dark:text-emerald-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
             <Icon icon="material-symbols:search-find-outline-rounded" className="text-lg" />
@@ -203,23 +193,21 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                       </span>
 
                       {/* Title */}
-                      <h3 className="font-extrabold text-slate-850 dark:text-slate-100 text-lg mt-3 line-clamp-2 leading-snug">
-                        {post.title}
-                      </h3>
+                      <h3 className="font-extrabold text-slate-850 dark:text-slate-100 text-lg mt-3 line-clamp-2 leading-snug">{post.title}</h3>
 
                       {/* Salary */}
                       <div className="flex items-center gap-2 mt-4 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-2 rounded-xl border border-emerald-100/50 dark:border-emerald-900/20 w-fit">
                         <Icon icon="material-symbols:attach-money" className="text-emerald-600 text-lg" />
-                        <span className="font-extrabold text-sm text-emerald-600 dark:text-emerald-400">
-                          {formatPrice(post.salary)}
-                        </span>
+                        <span className="font-extrabold text-sm text-emerald-600 dark:text-emerald-400">{formatPrice(post.salary)}</span>
                       </div>
 
                       {/* Detail metadata list */}
                       <ul className="space-y-2 mt-4 text-xs text-slate-550 dark:text-slate-400">
                         <li className="flex items-start gap-2">
                           <Icon icon="material-symbols:location-on-outline" className="text-slate-400 text-base shrink-0 mt-0.5" />
-                          <span className="line-clamp-2">Địa điểm: {post.address}, {post.district}, {post.city}</span>
+                          <span className="line-clamp-2">
+                            Địa điểm: {post.address}, {post.district}, {post.city}
+                          </span>
                         </li>
                         <li className="flex items-center gap-2">
                           <Icon icon="material-symbols:alarm-outline" className="text-slate-400 text-base shrink-0" />
@@ -265,12 +253,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="pt-6">
-              <Pagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-              />
+              <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
             </div>
           )}
         </div>
@@ -309,15 +292,9 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                           {app.job_post?.address}, {app.job_post?.district}, {app.job_post?.city}
                         </div>
                       </td>
-                      <td className="py-4 px-5 font-semibold text-slate-800 dark:text-slate-200">
-                        {app.proposed_price ? formatPrice(app.proposed_price) : "Theo thỏa thuận gốc"}
-                      </td>
-                      <td className="py-4 px-5">
-                        {formatDate(app.created_at)}
-                      </td>
-                      <td className="py-4 px-5">
-                        {renderStatusBadge(app.status)}
-                      </td>
+                      <td className="py-4 px-5 font-semibold text-slate-800 dark:text-slate-200">{app.proposed_price ? formatPrice(app.proposed_price) : "Theo thỏa thuận gốc"}</td>
+                      <td className="py-4 px-5">{formatDate(app.created_at)}</td>
+                      <td className="py-4 px-5">{renderStatusBadge(app.status)}</td>
                       <td className="py-4 px-5 text-right flex items-center justify-end gap-2 h-14">
                         <button
                           onClick={() => setSelectedApp(app)}
@@ -325,7 +302,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                         >
                           Chi tiết
                         </button>
-                        
+
                         {app.status === "pending" && (
                           <button
                             disabled={actionLoading}
@@ -375,10 +352,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                   Chi Tiết Tin Tuyển Dụng
                 </h3>
               </div>
-              <button
-                onClick={() => setSelectedPost(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              >
+              <button onClick={() => setSelectedPost(null)} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
               </button>
             </div>
@@ -388,9 +362,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                 <h2 className="text-xl font-extrabold text-slate-850 dark:text-slate-100 leading-snug">{selectedPost.title}</h2>
                 <div className="flex items-center gap-2 mt-3 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-2 rounded-xl border border-emerald-100/50 dark:border-emerald-900/20 w-fit">
                   <Icon icon="material-symbols:attach-money" className="text-emerald-600 text-lg" />
-                  <span className="font-extrabold text-sm text-emerald-600 dark:text-emerald-400">
-                    Lương: {formatPrice(selectedPost.salary)}
-                  </span>
+                  <span className="font-extrabold text-sm text-emerald-600 dark:text-emerald-400">Lương: {formatPrice(selectedPost.salary)}</span>
                 </div>
               </div>
 
@@ -400,7 +372,9 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                   <Icon icon="material-symbols:location-on-outline" className="text-slate-450 text-base shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold text-slate-400 block text-xxs uppercase">Địa chỉ thực hiện</span>
-                    <span className="text-slate-750 dark:text-slate-205">{selectedPost.address}, {selectedPost.district}, {selectedPost.city}</span>
+                    <span className="text-slate-750 dark:text-slate-205">
+                      {selectedPost.address}, {selectedPost.district}, {selectedPost.city}
+                    </span>
                   </div>
                 </div>
 
@@ -437,10 +411,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Yêu cầu dịch vụ</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedPost.services.map((svc) => (
-                      <span
-                        key={svc.id}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold"
-                      >
+                      <span key={svc.id} className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold">
                         <Icon icon="material-symbols:check-box-outline-blank-rounded" className="text-[#026E5F] dark:text-emerald-400" />
                         {svc.name}
                       </span>
@@ -457,10 +428,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
               >
                 Đóng
               </button>
-              <button
-                onClick={() => setIsApplyOpen(true)}
-                className="px-5 py-2.5 bg-[#026E5F] hover:bg-[#015C4F] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer"
-              >
+              <button onClick={() => setIsApplyOpen(true)} className="px-5 py-2.5 bg-[#026E5F] hover:bg-[#015C4F] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer">
                 Ứng Tuyển Ngay
               </button>
             </div>
@@ -479,10 +447,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                   Nộp Hồ Sơ Ứng Tuyển
                 </h3>
               </div>
-              <button
-                onClick={() => setIsApplyOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              >
+              <button onClick={() => setIsApplyOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
               </button>
             </div>
@@ -495,7 +460,9 @@ export const StaffRecruitmentDashboard: React.FC = () => {
 
               {/* Proposed Price Input */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase">Đề xuất mức lương (VNĐ) <span className="text-slate-400 font-normal">(Nếu khác giá gốc: {formatPrice(selectedPost.salary)})</span></label>
+                <label className="block text-xs font-bold text-slate-500 uppercase">
+                  Đề xuất mức lương (VNĐ) <span className="text-slate-400 font-normal">(Nếu khác giá gốc: {formatPrice(selectedPost.salary)})</span>
+                </label>
                 <input
                   type="number"
                   placeholder="Ví dụ: 150000"
@@ -550,10 +517,7 @@ export const StaffRecruitmentDashboard: React.FC = () => {
                   Chi Tiết Hồ Sơ Ứng Tuyển
                 </h3>
               </div>
-              <button
-                onClick={() => setSelectedApp(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              >
+              <button onClick={() => setSelectedApp(null)} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
               </button>
             </div>
@@ -563,23 +527,17 @@ export const StaffRecruitmentDashboard: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <span className="block text-xxs font-bold text-slate-400 uppercase mb-1">Công việc tuyển dụng</span>
-                  <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-base leading-snug">
-                    {selectedApp.job_post?.title || `Công việc #${selectedApp.job_post_id}`}
-                  </h3>
+                  <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-base leading-snug">{selectedApp.job_post?.title || `Công việc #${selectedApp.job_post_id}`}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="block text-xxs font-bold text-slate-400 uppercase mb-1">Lương đề xuất</span>
-                    <span className="text-sm font-bold text-[#026E5F] dark:text-emerald-400">
-                      {selectedApp.proposed_price ? formatPrice(selectedApp.proposed_price) : "Theo thỏa thuận gốc"}
-                    </span>
+                    <span className="text-sm font-bold text-[#026E5F] dark:text-emerald-400">{selectedApp.proposed_price ? formatPrice(selectedApp.proposed_price) : "Theo thỏa thuận gốc"}</span>
                   </div>
                   <div>
                     <span className="block text-xxs font-bold text-slate-400 uppercase mb-1">Ngày nộp</span>
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      {formatDate(selectedApp.created_at)}
-                    </span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{formatDate(selectedApp.created_at)}</span>
                   </div>
                 </div>
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import ReactECharts from "echarts-for-react";
 import { useAdminReviews } from "./useHook";
-import { Toast } from "../../../components/Toast";
+
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getInitials } from "../../../utils";
@@ -20,8 +20,7 @@ export const Reviews = () => {
     setCurrentPage,
     totalItems,
     itemsPerPage,
-    toast,
-    setToast,
+
     handleCreateReview,
     handleUpdateReview,
     handleDeleteReview,
@@ -52,8 +51,6 @@ export const Reviews = () => {
 
   const customersList = Object.values(usersMap).filter((u) => u.role_id === 4);
   const helpersList = Object.values(usersMap).filter((u) => u.role_id === 3);
-
-
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -581,7 +578,6 @@ export const Reviews = () => {
 
   return (
     <div className="p-6 w-full">
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       {renderHeader()}
       {renderKPIs()}
       {renderCharts()}

@@ -35,8 +35,7 @@ export interface NotificationsResponse {
  */
 export const getNotifications = async (is_read?: 0 | 1, limit?: number, page?: number): Promise<NotificationsResponse> => {
   const response = await axiosInstance.get<NotificationsResponse>("/notifications", {
-    params: { is_read, limit, page },
-  });
+    params: { is_read, limit, page } });
   return response.data;
 };
 

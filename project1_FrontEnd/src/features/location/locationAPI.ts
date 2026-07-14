@@ -9,11 +9,9 @@ export const fetchReverseGeocoding = async (lat: number, lon: number): Promise<R
         lat,
         lon,
         format: "json",
-        "accept-language": "vi,en",
-      },
+        "accept-language": "vi,en" },
       headers: {
-        "User-Agent": "GiaDinhViet-App",
-      }
+        "User-Agent": "GiaDinhViet-App" }
     }
   );
   return response.data;

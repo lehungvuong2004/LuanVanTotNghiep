@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getBookingsAdminApi, getBookingDetailAdminApi, updateBookingStatusAdminApi } from "../../../api/bookings";
 import { getUsersAdmin, type User } from "../../../api/users";
-import type { ToastProps } from "../../../types/Toast";
 
 export interface BookingService {
   id: number;
@@ -54,27 +54,7 @@ export const useFollowingOrder = () => {
   const [detailLoading, setDetailLoading] = useState(false);
 
   // Toast message
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
+  const { showToast } = useToast();
 
   // Fetch users map (to resolve customer & helper names)
   const fetchUsersMap = useCallback(async () => {
@@ -172,13 +152,13 @@ export const useFollowingOrder = () => {
     try {
       await updateBookingStatusAdminApi(bookingId, { new_status: newStatus, note });
       showToast("success", "Cập nhật thành công", `Đã cập nhật trạng thái đơn đặt lịch thành công.`);
-      
+
       // Refresh details if currently open
       if (selectedBooking && selectedBooking.id === bookingId) {
         const response = await getBookingDetailAdminApi(bookingId);
         setSelectedBooking(response.data?.data || selectedBooking);
       }
-      
+
       await fetchBookings();
     } catch (error: any) {
       showToast("error", "Lỗi cập nhật", error.response?.data?.message || "Không thể cập nhật trạng thái đặt lịch.");
@@ -227,8 +207,7 @@ export const useFollowingOrder = () => {
     handleCloseDetail,
     handleUpdateBookingStatus,
     metrics,
-    toast,
-    setToast,
+
     itemsPerPage,
   };
 };

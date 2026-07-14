@@ -19,8 +19,7 @@ const ForgetPassword = () => {
     loading,
     errorMessage,
     successMessage,
-    handleResendOtp,
-  } = useForgetPassword();
+    handleResendOtp } = useForgetPassword();
 
   const renderStep1 = () => (
     <form

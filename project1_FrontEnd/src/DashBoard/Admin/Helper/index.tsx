@@ -2,7 +2,7 @@ import ReactECharts from "echarts-for-react";
 import { Icon } from "@iconify/react";
 import { useHelperManagement } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { Toast } from "../../../components/Toast";
+
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getInitials } from "../../../utils";
 
@@ -43,11 +43,10 @@ export const Helpers = () => {
     handleToggleSelectHelper,
     handleToggleSelectAll,
     handleBulkDeleteHelpers,
-    toast,
-    setToast,
+    
+    
     statusOption,
-    ratingOption,
-  } = useHelperManagement();
+    ratingOption } = useHelperManagement();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -321,8 +320,7 @@ export const Helpers = () => {
                         ? new Date(helper.birthday).toLocaleDateString("vi-VN", {
                             year: "numeric",
                             month: "long",
-                            day: "numeric",
-                          })
+                            day: "numeric" })
                         : "N/A"}
                     </td>
 
@@ -708,14 +706,7 @@ export const Helpers = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
+      
       {renderHeader()}
       {renderKPIs()}
       {renderCharts()}

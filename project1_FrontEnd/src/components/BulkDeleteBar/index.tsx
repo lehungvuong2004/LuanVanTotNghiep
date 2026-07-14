@@ -21,8 +21,7 @@ export const BulkDeleteBar = ({
   onToggleAll,
   onDeleteSelected,
   onClear,
-  loading = false,
-}: BulkDeleteBarProps) => {
+  loading = false }: BulkDeleteBarProps) => {
   const allSelected = selectedIds.length > 0 && selectedIds.length === totalCount;
   const someSelected = selectedIds.length > 0 && !allSelected;
   const count = selectedIds.length;
@@ -43,8 +42,7 @@ export const BulkDeleteBar = ({
         className="flex items-center justify-center w-5 h-5 rounded border-2 cursor-pointer transition-all shrink-0 focus:outline-none"
         style={{
           borderColor: allSelected || someSelected ? "#0e7490" : "#94a3b8",
-          background: allSelected ? "#0e7490" : someSelected ? "#cffafe" : "transparent",
-        }}
+          background: allSelected ? "#0e7490" : someSelected ? "#cffafe" : "transparent" }}
       >
         {allSelected && <Icon icon="material-symbols:check-small-rounded" className="text-white text-base" />}
         {someSelected && <Icon icon="material-symbols:remove-rounded" className="text-cyan-700 text-sm" />}

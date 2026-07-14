@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+
 import { useRolesAdmin } from "./useHook";
 
 export const Role = () => {
-  const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode, toast, setToast, openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } =
+  const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode,   openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } =
     useRolesAdmin();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -33,10 +33,7 @@ export const Role = () => {
     setSelectedIds([]);
   };
 
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
+  
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -74,20 +71,17 @@ export const Role = () => {
         icon: "material-symbols:shield-person-outline-rounded",
         label: "Tổng Số Vai Trò",
         value: totalItems,
-        color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
-      },
+        color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400" },
       {
         icon: "material-symbols:key-outline-rounded",
         label: "Vai Trò Mặc Định",
         value: coreCount,
-        color: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400",
-      },
+        color: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400" },
       {
         icon: "material-symbols:build-circle-outline-rounded",
         label: "Vai Trò Tùy Biến",
         value: customCount,
-        color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
-      },
+        color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400" },
     ];
 
     return (
@@ -396,7 +390,7 @@ export const Role = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
+      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
@@ -407,3 +401,4 @@ export const Role = () => {
 };
 
 export default Role;
+

@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+
 import { Pagination } from "../../../components/Pagination";
 import { useActivityLogsAdmin } from "./useHook";
 import { getInitials, getRoleBadge, formatDateTimeLong } from "../../../utils";
@@ -12,12 +12,11 @@ export const ActivityLogs = () => {
     setSearchQuery,
     currentPage,
     totalItems,
-    toast,
-    setToast,
+    
+    
     fetchLogs,
     handleDeleteLog,
-    handleClearLogs,
-  } = useActivityLogsAdmin();
+    handleClearLogs } = useActivityLogsAdmin();
 
   const getActionBadge = (action: string) => {
     const act = action.toLowerCase();
@@ -63,10 +62,7 @@ export const ActivityLogs = () => {
 
 
 
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
+  
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -242,7 +238,7 @@ export const ActivityLogs = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
+      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
@@ -252,3 +248,4 @@ export const ActivityLogs = () => {
 };
 
 export default ActivityLogs;
+

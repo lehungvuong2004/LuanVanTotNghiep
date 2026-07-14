@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useRecruitment, SALARY_OPTS, URGENCY_OPTS } from "./useHook";
 import { Pagination } from "../../components/Pagination";
 import { formatDateTime } from "../../utils";
-import { Toast } from "../../components/Toast";
+
 import { Link } from "react-router-dom";
 
 export const Recruitment = () => {
@@ -27,11 +27,10 @@ export const Recruitment = () => {
     clearFilters,
     categories,
     isLoading,
-    toast,
-    setToast,
+    
+    
     applyJob,
-    appliedJobIds,
-  } = useRecruitment();
+    appliedJobIds } = useRecruitment();
 
   const currentUser = (() => {
     try {
@@ -315,14 +314,7 @@ export const Recruitment = () => {
         <main className="lg:col-span-9">{renderJobListPanel()}</main>
       </div>
 
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={t(toast.title)}
-          message={t(toast.message)}
-          onClose={() => setToast(null)}
-        />
-      )}
+      
     </div>
   );
 };

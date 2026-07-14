@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { Icon } from "@iconify/react";
 import { useBooking } from "./useHook";
 import type { BookingItem } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { Toast } from "../../../components/Toast";
+
 import { formatNumberVI } from "../../../utils";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
+import { useToast } from "../../../contexts/ToastContext";
 
-export const Booking: React.FC = () => {
+export const Booking = () => {
+  const { showToast } = useToast();
   const {
     searchQuery,
     setSearchQuery,
@@ -36,8 +38,7 @@ export const Booking: React.FC = () => {
     handleQuickStatusChange,
     pieOption,
     lineOption,
-    toast,
-    setToast,
+
     selectedIds,
     toggleSelectOne,
     toggleSelectAll,
@@ -72,7 +73,7 @@ export const Booking: React.FC = () => {
         <button
           type="button"
           onClick={() => {
-            setToast({ type: "success", title: "Xuất báo cáo", message: "Báo cáo thống kê đơn đặt lịch đã được xuất thành công!" });
+            showToast("success", "Xuất báo cáo", "Báo cáo thống kê đơn đặt lịch đã được xuất thành công!");
           }}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-750 transition-all shadow-xs active:scale-97 cursor-pointer"
         >
@@ -83,7 +84,7 @@ export const Booking: React.FC = () => {
         <button
           type="button"
           onClick={() => {
-            setToast({ type: "info", title: "Tạo đơn mới", message: "Chức năng tạo đơn mới đang được kích hoạt..." });
+            showToast("info", "Tạo đơn mới", "Chức năng tạo đơn mới đang được kích hoạt...");
           }}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-xs hover:shadow-sm active:scale-97 transition-all cursor-pointer"
         >
@@ -262,12 +263,7 @@ export const Booking: React.FC = () => {
               >
                 {/* Checkbox */}
                 <div className="col-span-1 text-center">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleSelectOne(booking.id)}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
-                  />
+                  <input type="checkbox" checked={isSelected} onChange={() => toggleSelectOne(booking.id)} className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600" />
                 </div>
                 {/* Booking Code */}
                 <div className="col-span-2">
@@ -953,13 +949,7 @@ export const Booking: React.FC = () => {
           {renderToolbar()}
           {selectedIds.length > 0 && (
             <div className="p-4 border-b border-slate-200 dark:border-slate-750 bg-slate-50/30 dark:bg-slate-900/10">
-              <BulkDeleteBar
-                selectedIds={selectedIds}
-                totalCount={paginatedBookings.length}
-                onToggleAll={toggleSelectAll}
-                onDeleteSelected={handleBulkDelete}
-                onClear={clearSelection}
-              />
+              <BulkDeleteBar selectedIds={selectedIds} totalCount={paginatedBookings.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} />
             </div>
           )}
           {renderTable()}
@@ -976,7 +966,6 @@ export const Booking: React.FC = () => {
       {renderEditModal()}
 
       {/* Toast Alert message */}
-      {toast && <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 };

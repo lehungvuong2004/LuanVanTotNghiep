@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import { getReviewsAdmin, deleteReviewAdmin, updateReviewAdmin, type Review } from "../../../api/reviews";
 import { getUsersAdmin, type User } from "../../../api/users";
-import type { ToastProps } from "../../../types/Toast";
 
 export const useStaffReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -24,27 +24,7 @@ export const useStaffReviews = () => {
   const [saving, setSaving] = useState(false);
 
   // Toast state
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
+  const { showToast } = useToast();
 
   // Fetch users map for name/avatar resolving
   const fetchUsersMap = useCallback(async () => {
@@ -165,8 +145,7 @@ export const useStaffReviews = () => {
     setCurrentPage,
     totalPages,
     totalItems,
-    toast,
-    setToast,
+
     isEditModalOpen,
     openEditModal,
     closeEditModal,

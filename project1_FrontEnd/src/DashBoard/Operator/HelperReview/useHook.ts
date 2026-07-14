@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import { getHelpersAdmin, getHelperDetailAdmin, verifyHelperAdmin, toggleHelperStatusAdmin, getHelperStatsAdmin } from "../../../api/helpers";
 import type { HelperProfile, HelperStats } from "../../../api/helpers";
 
 export const useHelperReview = () => {
   const [helpers, setHelpers] = useState<HelperProfile[]>([]);
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("Pending"); // Default to pending for operator review
@@ -25,22 +27,6 @@ export const useHelperReview = () => {
   const [statusReason, setStatusReason] = useState("");
 
   // Toast notification state
-  const [toast, setToast] = useState<{
-    type: "success" | "error" | "warning" | "info";
-    title: string;
-    message?: string;
-  } | null>(null);
-  const toastTimeoutRef = useRef<any>(null);
-
-  const showToast = useCallback((type: "success" | "error" | "warning" | "info", title: string, message?: string) => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setToast({ type, title, message });
-    toastTimeoutRef.current = setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  }, []);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -127,11 +113,7 @@ export const useHelperReview = () => {
         status: verifyStatus,
         note: verifyNote || undefined,
       });
-      showToast(
-        "success",
-        "Thành công",
-        `Đã ${verifyStatus === "approved" ? "phê duyệt" : "từ chối"} hồ sơ người giúp việc thành công`
-      );
+      showToast("success", "Thành công", `Đã ${verifyStatus === "approved" ? "phê duyệt" : "từ chối"} hồ sơ người giúp việc thành công`);
       closeVerifyModal();
       refreshAll();
     } catch (error: any) {
@@ -161,11 +143,7 @@ export const useHelperReview = () => {
         status: newStatus,
         reason: statusReason || undefined,
       });
-      showToast(
-        "success",
-        "Thành công",
-        `Đã cập nhật trạng thái hoạt động thành ${newStatus === "active" ? "Hoạt động" : "Tạm ngưng"}`
-      );
+      showToast("success", "Thành công", `Đã cập nhật trạng thái hoạt động thành ${newStatus === "active" ? "Hoạt động" : "Tạm ngưng"}`);
       closeStatusModal();
       refreshAll();
     } catch (error: any) {
@@ -174,14 +152,6 @@ export const useHelperReview = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return {
     helpers,
@@ -214,8 +184,7 @@ export const useHelperReview = () => {
     statusReason,
     setStatusReason,
     handleSaveStatus,
-    toast,
-    setToast,
+
     refreshAll,
   };
 };

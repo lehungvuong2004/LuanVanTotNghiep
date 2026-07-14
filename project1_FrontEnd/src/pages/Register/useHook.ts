@@ -21,8 +21,7 @@ export const useRegister = () => {
       phone: "",
       password: "",
       confirmPassword: "",
-      agreeTerms: false,
-    },
+      agreeTerms: false },
     validationSchema: getRegisterSchema(t),
     onSubmit: async (values) => {
       setLoading(true);
@@ -32,8 +31,7 @@ export const useRegister = () => {
           full_name: values.fullName,
           email: values.email,
           phone: values.phone,
-          password: values.password,
-        });
+          password: values.password });
         console.log("Register response:", response);
 
         // Redirect to login page
@@ -56,8 +54,7 @@ export const useRegister = () => {
       } finally {
         setLoading(false);
       }
-    },
-  });
+    } });
 
   const registerWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -80,8 +77,7 @@ export const useRegister = () => {
     onError: () => {
       console.error("Google Register Failed");
       setErrorMessage(t("Đăng ký bằng Google thất bại."));
-    },
-  });
+    } });
 
   return {
     formik,
@@ -91,6 +87,5 @@ export const useRegister = () => {
     setShowConfirmPassword,
     registerWithGoogle,
     loading,
-    errorMessage,
-  };
+    errorMessage };
 };

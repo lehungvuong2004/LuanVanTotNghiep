@@ -87,9 +87,7 @@ export const uploadUserAvatarAdmin = async (file: File): Promise<{ message: stri
   formData.append("image", file);
   const response = await axiosInstance.post<{ message: string; path: string; url: string }>("/admin/users/upload", formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+      "Content-Type": "multipart/form-data" } });
   return response.data;
 };
 

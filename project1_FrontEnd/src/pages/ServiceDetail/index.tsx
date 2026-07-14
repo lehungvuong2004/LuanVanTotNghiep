@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../components/Toast";
+
 import { useServiceDetail } from "./useHook";
 import { formatVietnamDateTime, getRatingNote, formatNumberVI, parseUtcDate, getRatingBadgeClass } from "../../utils";
 
@@ -38,8 +38,8 @@ export const ServiceDetail = () => {
     selectedHelperId,
     setSelectedHelperId,
     reviewStats,
-    toast,
-    setToast,
+    
+    
     formRating,
     setFormRating,
     formComment,
@@ -85,8 +85,7 @@ export const ServiceDetail = () => {
     openBookingModal,
     closeBookingModal,
     handleAddNewAddress,
-    handleCreateBooking,
-  } = useServiceDetail();
+    handleCreateBooking } = useServiceDetail();
 
   if (loading) {
     return (
@@ -123,8 +122,7 @@ export const ServiceDetail = () => {
     ? {
         avg_rating: reviewStats.rating_avg,
         total_reviews: reviewStats.total_reviews,
-        rating_distribution: reviewStats.rating_distribution,
-      }
+        rating_distribution: reviewStats.rating_distribution }
     : ratingStats;
 
   // ─── Render Functions ───────────────────────────────────────────
@@ -848,7 +846,7 @@ export const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 pt-6 pb-16">
-      {toast && <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
+      
       {renderBreadcrumb()}
       {renderHeroSection()}
       {renderTabNavigation()}

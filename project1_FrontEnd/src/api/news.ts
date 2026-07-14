@@ -107,9 +107,7 @@ export const uploadNewsImage = async (file: File): Promise<UploadNewsImageRespon
   formData.append("image", file);
   const response = await axiosInstance.post<UploadNewsImageResponse>("/admin/news/upload", formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+      "Content-Type": "multipart/form-data" } });
   return response.data;
 };
 

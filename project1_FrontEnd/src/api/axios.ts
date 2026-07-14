@@ -7,9 +7,7 @@ export const axiosInstance = axios.create({
   baseURL,
   timeout: 20000,
   headers: {
-    "Content-Type": "application/json",
-  },
-});
+    "Content-Type": "application/json" } });
 
 setupInterceptors(axiosInstance);
 

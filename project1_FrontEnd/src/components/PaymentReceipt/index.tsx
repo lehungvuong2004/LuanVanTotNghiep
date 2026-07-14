@@ -31,8 +31,7 @@ export const PaymentReceipt = ({
   isSuccess = true,
   errorMessage = null,
   onClose,
-  actions,
-}: PaymentReceiptProps) => {
+  actions }: PaymentReceiptProps) => {
   const { t } = useTranslation();
 
   return (
