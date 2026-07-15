@@ -414,8 +414,7 @@ export const Home = () => {
           slidesPerView={1}
           breakpoints={{
             768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
-          }}
+            1024: { slidesPerView: 3 } }}
           pagination={{ clickable: true }}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           style={{ paddingBottom: "3rem" }}

@@ -109,18 +109,15 @@ export const useHelperOverview = () => {
         right: "4%",
         bottom: "10%",
         top: "12%",
-        containLabel: true,
-      },
+        containLabel: true },
       xAxis: {
         type: "category",
         boundaryGap: monthlyMonths.length > 1 ? false : true,
         data: monthlyMonths.length > 0 ? monthlyMonths : ["Chưa có dữ liệu"],
         axisLabel: {
           fontSize: 0.75 * rem,
-          color: "#64748b",
-        },
-        axisLine: { lineStyle: { color: "#e2e8f0" } },
-      },
+          color: "#64748b" },
+        axisLine: { lineStyle: { color: "#e2e8f0" } } },
       yAxis: {
         type: "value",
         axisLabel: {
@@ -132,8 +129,7 @@ export const useHelperOverview = () => {
             return val + " ₫";
           }
         },
-        splitLine: { lineStyle: { color: "#f1f5f9" } },
-      },
+        splitLine: { lineStyle: { color: "#f1f5f9" } } },
       series: [
         {
           name: "Doanh thu",
@@ -144,8 +140,7 @@ export const useHelperOverview = () => {
           data: monthlyValues.length > 0 ? monthlyValues : [0],
           lineStyle: {
             color: "#3b82f6",
-            width: 3,
-          },
+            width: 3 },
           itemStyle: {
             color: "#3b82f6",
             borderWidth: 2,
@@ -161,12 +156,8 @@ export const useHelperOverview = () => {
               colorStops: [
                 { offset: 0, color: "rgba(59, 130, 246, 0.25)" },
                 { offset: 1, color: "rgba(59, 130, 246, 0.00)" },
-              ],
-            },
-          },
-        },
-      ],
-    };
+              ] } } },
+      ] };
   }, [data, rem]);
 
   // Income sources pie chart option
@@ -192,9 +183,7 @@ export const useHelperOverview = () => {
         itemHeight: 8,
         textStyle: {
           fontSize: 0.75 * rem,
-          color: "#64748b",
-        },
-      },
+          color: "#64748b" } },
       series: [
         {
           name: "Nguồn thu nhập",
@@ -204,26 +193,19 @@ export const useHelperOverview = () => {
           itemStyle: {
             borderRadius: 8,
             borderColor: "#fff",
-            borderWidth: 2,
-          },
+            borderWidth: 2 },
           label: {
-            show: false,
-          },
+            show: false },
           emphasis: {
             label: {
-              show: false,
-            },
-          },
+              show: false } },
           labelLine: {
-            show: false,
-          },
+            show: false },
           data: [
             { value: data.earnings.booking_income, name: "Đặt lịch trực tiếp", itemStyle: { color: "#10b981" } },
             { value: data.earnings.job_post_income, name: "Bảng việc làm", itemStyle: { color: "#8b5cf6" } },
-          ],
-        },
-      ],
-    };
+          ] },
+      ] };
   }, [data, rem]);
 
   return {
@@ -231,6 +213,5 @@ export const useHelperOverview = () => {
     loading,
     error,
     barOption,
-    pieOption,
-  };
+    pieOption };
 };

@@ -34,8 +34,7 @@ export const Profile = () => {
     handleRemoveSkill,
     handleAddWorkingArea,
     handleRemoveWorkingArea,
-    handleSubmitVerification,
-  } = useProfile();
+    handleSubmitVerification } = useProfile();
 
   const [workingDistrict, setWorkingDistrict] = useState("");
   const [workingCity, setWorkingCity] = useState("");

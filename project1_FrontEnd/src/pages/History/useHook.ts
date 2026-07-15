@@ -1,3 +1,4 @@
+import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { getCustomerBookingsApi, getHelperBookingsApi, cancelBookingApi, startMovingApi, checkinApi, checkoutApi } from "../../api/bookings";
 import { getServicesApi } from "../../api/services";
@@ -7,10 +8,11 @@ import { io } from "socket.io-client";
 import { sortBookingsByDate } from "../../utils";
 
 export interface Booking {
-  id: string; // booking_code (e.g. BK-XXXXXX)
+  id: string;
   idRaw: number; // numeric primary key
   serviceName: string;
   helper: {
+    id?: number | null;
     name: string;
     avatar: string;
     phone?: string;
@@ -32,22 +34,16 @@ export const useHistory = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const itemsPerPage = 6;
+  // ── Inline Payment Modal ──────────────────────────────────
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentBooking, setPaymentBooking] = useState<Booking | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"vnpay" | "cash">("vnpay");
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
-  const [toast, setToast] = useState<{
-    type: "success" | "error" | "warning" | "info";
-    title: string;
-    message: string;
-  } | null>(null);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [isApplicationsLoading, setIsApplicationsLoading] = useState<boolean>(false);
 
-  // Auto-close toast after 3 seconds
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        setToast(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  const { showToast } = useToast();
 
   // Reset page when filter changes
   useEffect(() => {
@@ -136,6 +132,7 @@ export const useHistory = () => {
           idRaw: b.id,
           serviceName,
           helper: {
+            id: partner?.id || null,
             name: partner?.full_name || (isHelper ? "Khách hàng" : "Hệ thống đang tìm..."),
             avatar: avatarUrl,
             phone: partner?.phone || "",
@@ -172,10 +169,6 @@ export const useHistory = () => {
   // Calculate pagination details
   const totalItems = filteredBookings.length;
   const paginatedBookings = filteredBookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  // Helper Applications state
-  const [applications, setApplications] = useState<any[]>([]);
-  const [isApplicationsLoading, setIsApplicationsLoading] = useState<boolean>(false);
 
   const fetchApplications = useCallback(async () => {
     const userStr = localStorage.getItem("user");
@@ -228,17 +221,9 @@ export const useHistory = () => {
       fetchData();
       if (data?.status === "confirmed") {
         if (user.role_id === 3 && Number(data?.helper_id) === Number(user.id)) {
-          setToast({
-            type: "success",
-            title: "Khách hàng đã thanh toán",
-            message: "Khách hàng đã thanh toán thành công. Vui lòng bấm 'Bắt đầu đi' để bắt đầu di chuyển.",
-          });
+          showToast("success", "Khách hàng đã thanh toán", "Khách hàng đã thanh toán thành công. Vui lòng bấm 'Bắt đầu đi' để bắt đầu di chuyển.");
         } else if (user.role_id === 2 && Number(data?.customer_id) === Number(user.id)) {
-          setToast({
-            type: "success",
-            title: "Thanh toán thành công",
-            message: "Thanh toán cho đơn đặt lịch của bạn đã được xác nhận thành công.",
-          });
+          showToast("success", "Thanh toán thành công", "Thanh toán cho đơn đặt lịch của bạn đã được xác nhận thành công.");
         }
       }
     });
@@ -255,26 +240,14 @@ export const useHistory = () => {
       if (window.confirm("Bạn có chắc chắn muốn hủy lịch đặt này không?")) {
         try {
           await cancelBookingApi(booking.idRaw, "Khách hàng chủ động hủy qua giao diện");
-          setToast({
-            type: "success",
-            title: "Hủy thành công",
-            message: `Đã hủy lịch đặt ${booking.id} thành công!`,
-          });
+          showToast("success", "Hủy thành công", `Đã hủy lịch đặt ${booking.id} thành công!`);
           fetchData();
         } catch (err: any) {
-          setToast({
-            type: "error",
-            title: "Lỗi hủy lịch",
-            message: err.response?.data?.message || "Không thể hủy lịch đặt này.",
-          });
+          showToast("error", "Lỗi hủy lịch", err.response?.data?.message || "Không thể hủy lịch đặt này.");
         }
       }
     } else {
-      setToast({
-        type: "warning",
-        title: "Không thể hủy",
-        message: `Lịch đặt ${booking.id} đang thực hiện hoặc đã hoàn thành, không thể hủy.`,
-      });
+      showToast("warning", "Không thể hủy", `Lịch đặt ${booking.id} đang thực hiện hoặc đã hoàn thành, không thể hủy.`);
     }
   };
 
@@ -282,18 +255,10 @@ export const useHistory = () => {
     if (window.confirm("Bạn bắt đầu di chuyển đến địa chỉ khách hàng?")) {
       try {
         await startMovingApi(bookingId);
-        setToast({
-          type: "success",
-          title: "Thành công",
-          message: "Đang trên đường đến địa chỉ khách hàng.",
-        });
+        showToast("success", "Thành công", "Đang trên đường đến địa chỉ khách hàng.");
         fetchData();
       } catch (err: any) {
-        setToast({
-          type: "error",
-          title: "Lỗi",
-          message: err.response?.data?.message || "Thao tác thất bại.",
-        });
+        showToast("error", "Lỗi", err.response?.data?.message || "Thao tác thất bại.");
       }
     }
   };
@@ -302,18 +267,10 @@ export const useHistory = () => {
     if (window.confirm("Xác nhận bạn đã đến nơi và bắt đầu làm việc?")) {
       try {
         await checkinApi(bookingId);
-        setToast({
-          type: "success",
-          title: "Thành công",
-          message: "Đã xác nhận đến nơi. Bắt đầu làm việc.",
-        });
+        showToast("success", "Thành công", "Đã xác nhận đến nơi. Bắt đầu làm việc.");
         fetchData();
       } catch (err: any) {
-        setToast({
-          type: "error",
-          title: "Lỗi",
-          message: err.response?.data?.message || "Thao tác thất bại.",
-        });
+        showToast("error", "Lỗi", err.response?.data?.message || "Thao tác thất bại.");
       }
     }
   };
@@ -323,18 +280,10 @@ export const useHistory = () => {
     if (note !== null) {
       try {
         await checkoutApi(bookingId, { note });
-        setToast({
-          type: "success",
-          title: "Thành công",
-          message: "Đã hoàn thành công việc. Chúc mừng!",
-        });
+        showToast("success", "Thành công", "Đã hoàn thành công việc. Chúc mừng!");
         fetchData();
       } catch (err: any) {
-        setToast({
-          type: "error",
-          title: "Lỗi",
-          message: err.response?.data?.message || "Thao tác thất bại.",
-        });
+        showToast("error", "Lỗi", err.response?.data?.message || "Thao tác thất bại.");
       }
     }
   };
@@ -344,28 +293,14 @@ export const useHistory = () => {
     if (window.confirm(`Bạn có chắc chắn muốn ${actionLabel} công việc này?`)) {
       try {
         await respondToSelectionApi(applicationId, action);
-        setToast({
-          type: "success",
-          title: "Thành công",
-          message: action === "accept" ? "Đã chấp nhận công việc. Lịch đặt mới đã được tạo và chờ khách hàng thanh toán." : "Đã từ chối lời mời nhận việc.",
-        });
+        showToast("success", "Thành công", action === "accept" ? "Đã chấp nhận công việc. Lịch đặt mới đã được tạo và chờ khách hàng thanh toán." : "Đã từ chối lời mời nhận việc.");
         fetchData();
         fetchApplications();
       } catch (err: any) {
-        setToast({
-          type: "error",
-          title: "Lỗi phản hồi",
-          message: err.response?.data?.message || "Không thể thực hiện thao tác này.",
-        });
+        showToast("error", "Lỗi phản hồi", err.response?.data?.message || "Không thể thực hiện thao tác này.");
       }
     }
   };
-
-  // ── Inline Payment Modal ──────────────────────────────────
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentBooking, setPaymentBooking] = useState<Booking | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"vnpay" | "cash">("vnpay");
-  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
   const openPaymentModal = (booking: Booking) => {
     setPaymentBooking(booking);
@@ -384,20 +319,15 @@ export const useHistory = () => {
 
     const amount = parseFloat(paymentBooking.totalPrice.replace(/[^0-9]/g, ""));
     if (!amount || amount <= 0) {
-      setToast({ type: "error", title: "Lỗi", message: "Số tiền không hợp lệ." });
+      showToast("error", "Lỗi", "Số tiền không hợp lệ.");
       return;
     }
 
     setIsPaymentProcessing(true);
     try {
       if (paymentMethod === "vnpay") {
-        // VNPay: create VNPay URL and redirect
         if (amount < 10000) {
-          setToast({
-            type: "error",
-            title: "Lỗi",
-            message: "Số tiền thanh toán tối thiểu qua VNPay là 10.000 đ.",
-          });
+          showToast("error", "Lỗi", "Số tiền thanh toán tối thiểu qua VNPay là 10.000 đ.");
           setIsPaymentProcessing(false);
           return;
         }
@@ -408,28 +338,18 @@ export const useHistory = () => {
         closePaymentModal();
         window.location.href = res.payment_url;
       } else {
-        // Cash: create payment + auto-confirm
         const createRes = await createPaymentApi({
           payment_method: "cash",
           amount,
           booking_id: paymentBooking.idRaw,
         });
-        // Auto-confirm cash payment
         await simulatePaymentCallbackApi(createRes.data.id);
         closePaymentModal();
-        setToast({
-          type: "success",
-          title: "Thanh toán thành công",
-          message: "Đã xác nhận thanh toán bằng tiền mặt. Lịch hẹn đã được xác nhận.",
-        });
+        showToast("success", "Thanh toán thành công", "Đã xác nhận thanh toán bằng tiền mặt. Lịch hẹn đã được xác nhận.");
         fetchData();
       }
     } catch (err: any) {
-      setToast({
-        type: "error",
-        title: "Thanh toán thất bại",
-        message: err.response?.data?.message || "Không thể xử lý thanh toán. Vui lòng thử lại.",
-      });
+      showToast("error", "Thanh toán thất bại", err.response?.data?.message || "Không thể xử lý thanh toán. Vui lòng thử lại.");
       setIsPaymentProcessing(false);
     }
   };
@@ -447,8 +367,7 @@ export const useHistory = () => {
     handleCheckin,
     handleCheckout,
     handleRespondToSelection,
-    toast,
-    setToast,
+
     isLoading,
     isHelper: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!).role_id === 3 : false,
     refreshBookings: fetchData,

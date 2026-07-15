@@ -1,9 +1,17 @@
 import { useNewsAdmin } from "./useHook";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+import { useAuth } from "../../../hooks/useAuth";
+
 import { getImageUrl } from "../../../utils/images";
 
 export const NewsAdmin = () => {
+  const { hasPermission } = useAuth();
+
+  const permissions = {
+    create: hasPermission("news.create"),
+    update: hasPermission("news.update"),
+    delete: hasPermission("news.delete"),
+  };
   const {
     news,
     loading,
@@ -15,8 +23,8 @@ export const NewsAdmin = () => {
     totalItems,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+    
+    
     openAddModal,
     openEditModal,
     closeModal,
@@ -24,15 +32,11 @@ export const NewsAdmin = () => {
     handleDeleteNews,
     handleToggleStatus,
     uploadingImage,
-    handleUploadImage,
-  } = useNewsAdmin();
+    handleUploadImage } = useNewsAdmin();
 
 
 
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
+  
 
   const renderHeader = () => {
     return (
@@ -41,13 +45,15 @@ export const NewsAdmin = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Tin Tức</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý các bài viết tin tức, kinh nghiệm hiển thị trên trang chủ.</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-        >
-          <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-          Tạo Bài Viết Mới
-        </button>
+        {permissions.create && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+          >
+            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+            Tạo Bài Viết Mới
+          </button>
+        )}
       </div>
     );
   };
@@ -126,13 +132,15 @@ export const NewsAdmin = () => {
           </div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy bài viết nào</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Thử thay đổi từ khóa tìm kiếm hoặc tạo một bài viết mới.</p>
-          <button
-            onClick={openAddModal}
-            className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"
-          >
-            <Icon icon="material-symbols:add" />
-            Tạo Bài Viết Đầu Tiên
-          </button>
+          {permissions.create && (
+            <button
+              onClick={openAddModal}
+              className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"
+            >
+              <Icon icon="material-symbols:add" />
+              Tạo Bài Viết Đầu Tiên
+            </button>
+          )}
         </div>
       );
     }
@@ -192,36 +200,42 @@ export const NewsAdmin = () => {
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleStatus(item)}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      item.status === "published"
-                        ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70"
-                        : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
-                    }`}
-                  >
-                    <Icon icon={item.status === "published" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
-                    <span>{item.status === "published" ? "Chuyển Nháp" : "Xuất Bản"}</span>
-                  </button>
+                  {permissions.update ? (
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(item)}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        item.status === "published"
+                          ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70"
+                          : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
+                      }`}
+                    >
+                      <Icon icon={item.status === "published" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
+                      <span>{item.status === "published" ? "Chuyển Nháp" : "Xuất Bản"}</span>
+                    </button>
+                  ) : <div />}
 
                   <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(item)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                      title="Chỉnh sửa"
-                    >
-                      <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteNews(item.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-                      title="Xóa"
-                    >
-                      <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                    </button>
+                    {permissions.update && (
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(item)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                        title="Chỉnh sửa"
+                      >
+                        <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                      </button>
+                    )}
+                    {permissions.delete && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteNews(item.id)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-655 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                        title="Xóa"
+                      >
+                        <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -462,7 +476,7 @@ export const NewsAdmin = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
+      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
@@ -471,3 +485,4 @@ export const NewsAdmin = () => {
     </div>
   );
 };
+

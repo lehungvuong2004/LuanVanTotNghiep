@@ -1,6 +1,6 @@
 import { usePostAJobHook } from "./useHook";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../components/Toast";
+
 import { useTranslation } from "react-i18next";
 import { formatMoneyInput } from "../../utils";
 import { Link } from "react-router-dom";
@@ -16,8 +16,8 @@ const formatWorkingTime = (timeStr: string | null) => {
   return timeStr;
 };
 
-export default function PostAJob() {
-  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency, toast, setToast } = usePostAJobHook();
+export const PostAJob = () => {
+  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency } = usePostAJobHook();
   const { t } = useTranslation();
 
   const renderAddressForm = () => (
@@ -329,7 +329,7 @@ export default function PostAJob() {
             <span className="text-xs text-gray-400 font-medium">{t("Hôm nay")}</span>
           </div>
 
-          <h3 className="text-lg font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-[50px] leading-snug">{formik.values.jobTitle || t("Tiêu đề bài đăng của bạn")}</h3>
+          <h3 className="text-lg font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-12 leading-snug">{formik.values.jobTitle || t("Tiêu đề bài đăng của bạn")}</h3>
           <p className="text-[#0d5c63] dark:text-teal-400 text-sm font-medium mb-6">{formik.values.customCategory || t("Danh mục tuyển dụng")}</p>
 
           <div className="space-y-3.5 text-sm text-gray-600 dark:text-gray-300 font-medium">
@@ -384,20 +384,11 @@ export default function PostAJob() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* Form Section */}
         <div className="col-span-7">{renderAddressForm()}</div>
         <div className="col-span-5">{renderInformationForm()}</div>
-        {/* Preview Section */}
       </div>
 
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
+      
     </div>
   );
 }

@@ -3,11 +3,7 @@ import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { forgotPasswordApi, verifyOtpApi, resetPasswordApi } from "../../api/authApi/auth";
-import {
-  getForgotPasswordStep1Schema,
-  getForgotPasswordStep2Schema,
-  getForgotPasswordStep3Schema
-} from "../../api/authApi/validation";
+import { getForgotPasswordStep1Schema, getForgotPasswordStep2Schema, getForgotPasswordStep3Schema } from "../../api/authApi/validation";
 
 export type StepType = 1 | 2 | 3;
 

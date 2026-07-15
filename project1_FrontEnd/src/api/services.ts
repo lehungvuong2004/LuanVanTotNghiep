@@ -51,8 +51,7 @@ export interface AdminCategoriesResponse {
 // Service API endpoints
 export const getServicesAdmin = async (params?: { category_id?: number | string; status?: string; page?: number; limit?: number }): Promise<AdminServicesResponse> => {
   const response = await axiosInstance.get<AdminServicesResponse>("/providers/admin/services", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -91,8 +90,7 @@ export const deleteServiceAdmin = async (id: number): Promise<{ message: string 
 // Category API endpoints
 export const getCategoriesAdmin = async (params?: { status?: string }): Promise<AdminCategoriesResponse> => {
   const response = await axiosInstance.get<AdminCategoriesResponse>("/providers/admin/service-categories", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -129,8 +127,7 @@ export const deleteCategoryAdmin = async (id: number): Promise<{ message: string
 // Public Category & Service API endpoints
 export const getCategoriesApi = async (params?: { type?: string }): Promise<{ data: ServiceCategory[] }> => {
   const response = await axiosInstance.get<{ data: ServiceCategory[] }>("/providers/service-categories", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -143,8 +140,7 @@ export const getServicesApi = async (params?: {
   page?: number;
 }): Promise<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }> => {
   const response = await axiosInstance.get<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }>("/providers/services", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -161,8 +157,7 @@ export const getServicesEnrichedApi = async (params?: {
   page?: number;
 }): Promise<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }> => {
   const response = await axiosInstance.get<{ data: { data: Service[]; total: number; current_page: number; last_page: number } }>("/providers/services/enriched", {
-    params,
-  });
+    params });
   return response.data;
 };
 

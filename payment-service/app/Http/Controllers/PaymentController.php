@@ -364,7 +364,7 @@ class PaymentController extends Controller
     if ($customerId) {
       try {
         $identityUrl = env('IDENTITY_SERVICE_URL', 'http://identity-service:8000');
-        $response = \Illuminate\Support\Facades\Http::timeout(3)
+        $response = Http::timeout(3)
           ->post($identityUrl . '/api/internal/users/by-ids', ['ids' => [$customerId]]);
 
         if ($response->successful()) {
@@ -563,7 +563,7 @@ class PaymentController extends Controller
     // 2. Fetch Job Posts in bulk
     if (!empty($jobPostIds)) {
       try {
-        $response = \Illuminate\Support\Facades\Http::timeout(3)
+        $response = Http::timeout(3)
           ->withHeaders(['Authorization' => $token])
           ->get($orderUrl . '/api/orders/admin/job-posts', [
             'ids' => implode(',', $jobPostIds),
@@ -660,7 +660,7 @@ class PaymentController extends Controller
     if ($jobPostId) {
       try {
         // Try admin endpoint first
-        $response = \Illuminate\Support\Facades\Http::timeout(3)
+        $response = Http::timeout(3)
           ->withHeaders(['Authorization' => $token])
           ->get($orderUrl . '/api/orders/admin/job-posts/' . $jobPostId);
 
@@ -685,7 +685,7 @@ class PaymentController extends Controller
 
   private function syncPaymentStatusWithOrderService($payment)
   {
-    $orderUrl = env('ORDER_SERVICE_URL', 'http://lv-order:8000');
+    $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
 
     if ($payment->booking_id) {
       try {

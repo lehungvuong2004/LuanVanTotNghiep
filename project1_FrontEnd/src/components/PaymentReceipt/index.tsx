@@ -37,7 +37,6 @@ export const PaymentReceipt = ({
 
   return (
     <div className="bg-white dark:bg-slate-850 w-full max-w-md rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-      {/* Header */}
       <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-700/50">
         <div className="text-left">
           <h3 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">

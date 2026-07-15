@@ -452,8 +452,7 @@ export const Service = () => {
       price_type: undefined,
       min_price: undefined,
       max_price: undefined,
-      service_id: undefined,
-    });
+      service_id: undefined });
   };
 
   return (

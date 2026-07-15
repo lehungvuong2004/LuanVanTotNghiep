@@ -73,21 +73,23 @@ Route::prefix('orders')->group(function () {
       Route::patch('bookings/{id}/status', [BookingController::class, 'adminUpdateStatus']);
 
       // Job Posts
-      Route::get('job-posts',               [JobPostController::class, 'adminIndex']);
-      Route::get('job-posts/{id}',          [JobPostController::class, 'adminShow']);
-      Route::patch('job-posts/{id}/status', [JobPostController::class, 'adminUpdateStatus']);
-      Route::delete('job-posts/{id}',       [JobPostController::class, 'adminDestroy']);
+      Route::get('job-posts',               [JobPostController::class, 'adminIndex'])->middleware('permission:job_posts.view');
+      Route::get('job-posts/{id}',          [JobPostController::class, 'adminShow'])->middleware('permission:job_posts.view');
+      Route::patch('job-posts/{id}/status', [JobPostController::class, 'adminUpdateStatus'])->middleware('permission:job_posts.approve');
+      Route::delete('job-posts/{id}',       [JobPostController::class, 'adminDestroy'])->middleware('permission:job_posts.delete');
 
       // Reviews
-      Route::get('reviews',                 [ReviewController::class, 'adminIndex']);
-      Route::post('reviews',                [ReviewController::class, 'adminCreate']);
-      Route::put('reviews/{id}',            [ReviewController::class, 'adminUpdate']);
-      Route::delete('reviews/{id}',         [ReviewController::class, 'adminDestroy']);
+      Route::get('reviews',                 [ReviewController::class, 'adminIndex'])->middleware('permission:reviews.view');
+      Route::post('reviews',                [ReviewController::class, 'adminCreate'])->middleware('permission:reviews.create');
+      Route::put('reviews/{id}',            [ReviewController::class, 'adminUpdate'])->middleware('permission:reviews.update');
+      Route::delete('reviews/{id}',         [ReviewController::class, 'adminDestroy'])->middleware('permission:reviews.update');
 
       // Reports
       Route::get('reports',                 [ReportController::class, 'adminIndex']);
+      Route::delete('reports/bulk-delete',  [ReportController::class, 'bulkDestroy']);
       Route::get('reports/{id}',            [ReportController::class, 'adminShow']);
       Route::patch('reports/{id}/process',  [ReportController::class, 'process']);
+      Route::delete('reports/{id}',         [ReportController::class, 'destroy']);
     });
   });
 });

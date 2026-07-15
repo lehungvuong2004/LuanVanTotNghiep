@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Banner } from "../../../api/banners";
-import type { ToastProps } from "../../../types/Toast";
 import { getBannersAdmin, createBannerAdmin, updateBannerAdmin, toggleBannerStatusAdmin, deleteBannerAdmin, uploadBannerImage } from "../../../api/banners";
+import { useToast } from "../../../contexts/ToastContext";
 
 export const useBanner = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -23,29 +23,7 @@ export const useBanner = () => {
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [currentBanner, setCurrentBanner] = useState<Banner | null>(null);
 
-  // Toast state using standard ToastProps
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  // Clean up timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
+  const { showToast } = useToast();
 
   const fetchBanners = useCallback(
     async (page = 1) => {
@@ -55,8 +33,7 @@ export const useBanner = () => {
           search: searchQuery || undefined,
           status: statusFilter === "all" ? undefined : statusFilter,
           page,
-          limit: perPage,
-        });
+          limit: perPage });
 
         const { data, last_page, total, current_page, per_page } = response.data;
         setBanners(data);
@@ -101,8 +78,7 @@ export const useBanner = () => {
       title: "",
       image: "",
       link: "",
-      status: "active" as "active" | "inactive",
-    },
+      status: "active" as "active" | "inactive" },
     validationSchema: Yup.object().shape({
       title: Yup.string().required("Vui lòng nhập tiêu đề banner").max(150, "Tiêu đề không được vượt quá 150 ký tự"),
       image: Yup.string()
@@ -129,8 +105,7 @@ export const useBanner = () => {
         .nullable()
         .transform((curr, orig) => (orig === "" ? null : curr))
         .max(255, "Đường dẫn liên kết không được vượt quá 255 ký tự"),
-      status: Yup.string().oneOf(["active", "inactive"]).required("Vui lòng chọn trạng thái"),
-    }),
+      status: Yup.string().oneOf(["active", "inactive"]).required("Vui lòng chọn trạng thái") }),
     onSubmit: async (values) => {
       setLoading(true);
       try {
@@ -139,16 +114,14 @@ export const useBanner = () => {
             title: values.title,
             image: values.image,
             link: values.link || null,
-            status: values.status,
-          });
+            status: values.status });
           showToast("success", "Thành công", "Cập nhật banner thành công!");
         } else {
           await createBannerAdmin({
             title: values.title,
             image: values.image,
             link: values.link || null,
-            status: values.status,
-          });
+            status: values.status });
           showToast("success", "Thành công", "Thêm banner mới thành công!");
         }
         closeModal();
@@ -159,8 +132,7 @@ export const useBanner = () => {
       } finally {
         setLoading(false);
       }
-    },
-  });
+    } });
 
   const openAddModal = () => {
     setModalMode("add");
@@ -170,9 +142,7 @@ export const useBanner = () => {
         title: "",
         image: "",
         link: "",
-        status: "active",
-      },
-    });
+        status: "active" } });
     setIsModalOpen(true);
   };
 
@@ -184,9 +154,7 @@ export const useBanner = () => {
         title: banner.title,
         image: banner.image,
         link: banner.link || "",
-        status: banner.status,
-      },
-    });
+        status: banner.status } });
     setIsModalOpen(true);
   };
 
@@ -248,8 +216,6 @@ export const useBanner = () => {
     totalItems,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
     openAddModal,
     openEditModal,
     closeModal,
@@ -257,6 +223,6 @@ export const useBanner = () => {
     handleDeleteBanner,
     handleToggleStatus,
     uploadingImage,
-    handleUploadImage,
-  };
+    handleUploadImage };
 };
+

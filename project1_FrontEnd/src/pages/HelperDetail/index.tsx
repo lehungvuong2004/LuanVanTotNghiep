@@ -33,6 +33,10 @@ export const HelperDetail = () => {
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
 
+  const user = (helper as any).user;
+  const skills = helper.skills ?? [];
+  const rawAreas = (helper as any).working_areas ?? helper.workingAreas ?? [];
+  const ratingDist = reviewData?.rating_distribution ?? {};
   useEffect(() => {
     if (!id) return;
     const fetchHelper = async () => {
@@ -96,11 +100,6 @@ export const HelperDetail = () => {
     );
   }
 
-  const user = (helper as any).user;
-  const skills = helper.skills ?? [];
-  const rawAreas = (helper as any).working_areas ?? helper.workingAreas ?? [];
-  const ratingDist = reviewData?.rating_distribution ?? {};
-
   const renderBreadcrumb = () => (
     <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-6">
       <button onClick={() => navigate("/")} className="hover:text-teal-600 cursor-pointer">
@@ -124,7 +123,7 @@ export const HelperDetail = () => {
             {user?.avatar ? (
               <img src={user.avatar} alt={user.full_name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-4xl">
+              <div className="w-full h-full bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-4xl">
                 {(user?.full_name ?? "H").charAt(0).toUpperCase()}
               </div>
             )}
@@ -228,7 +227,10 @@ export const HelperDetail = () => {
             </div>
           )}
 
-          <button className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-2xl font-bold hover:border-teal-500 transition-all cursor-pointer flex items-center justify-center gap-2 w-full text-sm">
+          <button
+            onClick={() => navigate(`/messages/${user?.id}`)}
+            className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-2xl font-bold hover:border-teal-500 transition-all cursor-pointer flex items-center justify-center gap-2 w-full text-sm"
+          >
             <Icon icon="material-symbols:chat-outline" className="text-xl" />
             {t("Nhắn tin")}
           </button>

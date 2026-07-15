@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { ServiceCategory } from "../../../api/services";
-import type { ToastProps } from "../../../types/Toast";
+
 import {
   getCategoriesAdmin,
   createCategoryAdmin,
   updateCategoryAdmin,
-  deleteCategoryAdmin,
-} from "../../../api/services";
+  deleteCategoryAdmin } from "../../../api/services";
 
 export const useServiceCategoriesAdmin = () => {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -20,28 +20,13 @@ export const useServiceCategoriesAdmin = () => {
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [currentCategory, setCurrentCategory] = useState<ServiceCategory | null>(null);
 
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
+  const { showToast } = useToast();
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getCategoriesAdmin({
-        status: statusFilter === "all" ? undefined : statusFilter,
-      });
+        status: statusFilter === "all" ? undefined : statusFilter });
       setCategories(res.data);
     } catch (err: any) {
       showToast("error", "Lỗi tải dữ liệu", err.response?.data?.message || "Không thể tải danh mục");
@@ -70,15 +55,13 @@ export const useServiceCategoriesAdmin = () => {
       description: "",
       icon: "",
       type: "both" as "booking" | "job" | "both",
-      status: "active" as "active" | "inactive",
-    },
+      status: "active" as "active" | "inactive" },
     validationSchema: Yup.object().shape({
       name: Yup.string().required("Vui lòng nhập tên danh mục").max(100, "Không quá 100 ký tự"),
       description: Yup.string().max(500, "Không quá 500 ký tự").nullable(),
       icon: Yup.string().max(255).nullable(),
       type: Yup.string().oneOf(["booking", "job", "both"]).required(),
-      status: Yup.string().oneOf(["active", "inactive"]).required(),
-    }),
+      status: Yup.string().oneOf(["active", "inactive"]).required() }),
     onSubmit: async (values) => {
       setLoading(true);
       try {
@@ -88,8 +71,7 @@ export const useServiceCategoriesAdmin = () => {
             description: values.description || null,
             icon: values.icon || null,
             type: values.type,
-            status: values.status,
-          });
+            status: values.status });
           showToast("success", "Thành công", "Cập nhật danh mục thành công!");
         } else {
           await createCategoryAdmin({
@@ -97,8 +79,7 @@ export const useServiceCategoriesAdmin = () => {
             description: values.description || null,
             icon: values.icon || null,
             type: values.type,
-            status: values.status,
-          });
+            status: values.status });
           showToast("success", "Thành công", "Thêm danh mục mới thành công!");
         }
         closeModal();
@@ -108,8 +89,7 @@ export const useServiceCategoriesAdmin = () => {
       } finally {
         setLoading(false);
       }
-    },
-  });
+    } });
 
   const openAddModal = () => {
     setModalMode("add");
@@ -127,9 +107,7 @@ export const useServiceCategoriesAdmin = () => {
         description: item.description || "",
         icon: item.icon || "",
         type: item.type as "booking" | "job" | "both",
-        status: item.status,
-      },
-    });
+        status: item.status } });
     setIsModalOpen(true);
   };
 
@@ -169,13 +147,11 @@ export const useServiceCategoriesAdmin = () => {
     setStatusFilter,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+    
     openAddModal,
     openEditModal,
     closeModal,
     formik,
     handleDelete,
-    handleToggleStatus,
-  };
+    handleToggleStatus };
 };

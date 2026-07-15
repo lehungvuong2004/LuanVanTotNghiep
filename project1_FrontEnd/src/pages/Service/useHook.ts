@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   getHelpersPublic,
-  type HelperProfile,
-} from "../../api/helpers";
+  type HelperProfile } from "../../api/helpers";
 import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/services";
 
 // Shape dùng trong UI cho Service Card
@@ -93,8 +92,7 @@ function mapHelperProfile(profile: HelperProfile): HelperItem {
     tags: skillTags,
     avatar: (profile as any).user?.avatar ?? undefined,
     isOnline: false, // online status handled by socket
-    bio: profile.bio ?? undefined,
-  };
+    bio: profile.bio ?? undefined };
 }
 
 // Chuyển Service từ API → ServiceItem cho UI (sử dụng dữ liệu thực từ enriched API)
@@ -111,8 +109,7 @@ function mapService(service: Service): ServiceItem {
     helpersCount: Number((service as any).helpers_count) || 0,
     description: service.description ?? "Dịch vụ chuyên nghiệp, chất lượng cao.",
     image: service.image || undefined,
-    isFavorite: false,
-  };
+    isFavorite: false };
 }
 
 export const useService = () => {
@@ -128,8 +125,7 @@ export const useService = () => {
   const [filterParams, setFilterParams] = useState<ServiceFilterParams>({
     limit: 8,
     page: 1,
-    city: "TP.HCM",
-  });
+    city: "TP.HCM" });
 
   // Fetch danh mục từ API
   useEffect(() => {
@@ -153,8 +149,7 @@ export const useService = () => {
         category_id: params.category_id,
         price_type: params.price_type,
         min_price: params.min_price,
-        max_price: params.max_price,
-      });
+        max_price: params.max_price });
       const rawServices = res?.data?.data ?? [];
       setServices(rawServices.map((s) => mapService(s)));
     } catch (err) {
@@ -172,8 +167,7 @@ export const useService = () => {
       const res = await getHelpersPublic({
         limit: params.limit,
         page: params.page,
-        service_id: params.service_id,
-      });
+        service_id: params.service_id });
       const pagination = res?.data;
       const rawHelpers: HelperProfile[] = pagination?.data ?? [];
 
@@ -237,6 +231,5 @@ export const useService = () => {
     updateHelperFilter,
     goToHelperPage,
     sortBy,
-    setSortBy,
-  };
+    setSortBy };
 };

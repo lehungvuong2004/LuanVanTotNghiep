@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useHeader } from "./useHook";
 import type { NotificationType, Notification } from "../../api/notifications";
-import { Toast } from "../Toast";
+
 import { formatVietnamDateTime } from "../../utils";
 import { ROLES, getRoleName, getRoleDashboard, getUserRole } from "../../constants/roles";
 
@@ -28,6 +28,7 @@ export const Header = () => {
     user,
     notifications,
     unreadCount,
+    chatUnreadCount,
     markAllAsRead,
     toggleRead,
     removeNotification,
@@ -47,11 +48,26 @@ export const Header = () => {
     bottomLinks,
     newsItems,
     categoryDetails,
-    toast,
-    setToast,
   } = useHeader();
 
   const navigate = useNavigate();
+
+  const handleChatIconClick = () => {
+    if (!user) {
+      navigate("/dang-nhap");
+      return;
+    }
+    const role = getUserRole(user);
+    if (role === ROLES.ADMIN) {
+      navigate("/admin/messages");
+    } else if (role === ROLES.OPERATOR) {
+      navigate("/operator/messages");
+    } else if (role === ROLES.HELPER) {
+      navigate("/helper/messages");
+    } else {
+      navigate("/messages");
+    }
+  };
 
   const handleNotificationClick = (notif: Notification) => {
     toggleRead(notif.id);
@@ -321,14 +337,14 @@ export const Header = () => {
                                 <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${isUnread ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
                                 <div className="flex flex-col flex-1 text-left">
                                   <span className="text-gray-700 dark:text-gray-200 leading-tight font-semibold">{notif.title}</span>
-                                  {notif.message && <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" dangerouslySetInnerHTML={{ __html: notif.message }} />}
+                                  {notif.message && <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" dangerouslySetInnerHTML={{ __html: notif.message }} />}
                                   {notif.type === "booking" && (
-                                    <span className="text-[10px] text-[#026E5F] dark:text-teal-400 font-bold mt-0.5 flex items-center gap-0.5">
-                                      <Icon icon="material-symbols:arrow-forward-rounded" className="text-[10px]" />
+                                    <span className="text-xs text-[#026E5F] dark:text-teal-400 font-bold mt-0.5 flex items-center gap-0.5">
+                                      <Icon icon="material-symbols:arrow-forward-rounded" className="text-xs" />
                                       {t("Xem chi tiết")}
                                     </span>
                                   )}
-                                  <span className="text-[10px] text-gray-400 mt-0.5">{timeLabel}</span>
+                                  <span className="text-xs text-gray-400 mt-0.5">{timeLabel}</span>
                                 </div>
                               </div>
                             );
@@ -450,11 +466,24 @@ export const Header = () => {
                 <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105">
                   <Icon icon="boxicons:location" className="text-xl" />
                 </div>
+                {isLoggedIn && (
+                  <button
+                    onClick={handleChatIconClick}
+                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 relative"
+                  >
+                    <Icon icon="material-symbols:chat-outline" className="text-xl" />
+                    {chatUnreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
+                        {chatUnreadCount}
+                      </span>
+                    )}
+                  </button>
+                )}
                 <div className="relative group h-full flex items-center cursor-pointer">
                   <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs self-center hover:scale-105 relative">
                     <Icon icon="mdi:bell-outline" className="text-xl" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
                         {unreadCount}
                       </span>
                     )}
@@ -462,7 +491,7 @@ export const Header = () => {
 
                   {/* Desktop Notification Dropdown */}
                   <div className="absolute top-full right-0 w-96 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 text-left text-gray-800 dark:text-white h-[480px] overflow-hidden">
+                    <div className="rounded-b-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 text-left text-gray-800 dark:text-white h-120 overflow-hidden">
                       {/* Header */}
                       <div className="flex items-center justify-between px-4 pt-4 pb-2 relative">
                         <span className="font-bold text-xl text-gray-900 dark:text-white">{t("Thông báo")}</span>
@@ -772,7 +801,6 @@ export const Header = () => {
           <span className="text-white font-bold text-2xl md:text-3xl invisible">Gia Đình Việt</span>
         </div>
       </div>
-      {toast && <Toast type={toast.type as any} title={toast.title} message={toast.message} onClose={() => setToast(null)} />}
     </>
   );
 };

@@ -111,9 +111,7 @@ export const uploadAvatarApi = async (file: File): Promise<{ message: string; ur
   formData.append("avatar", file);
   const response = await axiosInstance.post<{ message: string; url: string; data: UserProfile }>("/profile/avatar", formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+      "Content-Type": "multipart/form-data" } });
   return response.data;
 };
 

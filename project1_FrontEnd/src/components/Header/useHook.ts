@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useLogout } from "../../hooks/useLogout";
 import { io } from "socket.io-client";
 import { getNewsList } from "../../api/news";
 import type { NewsItem as ApiNewsItem } from "../../api/news";
 import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from "../../api/notifications";
 import type { Notification } from "../../api/notifications";
+import { useToast } from "../../contexts/ToastContext";
 
 export interface Category {
   name: string;
@@ -36,7 +38,6 @@ export interface NewsItem {
 export const useHeader = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -49,6 +50,13 @@ export const useHeader = () => {
     return userStr ? JSON.parse(userStr) : null;
   });
 
+  const { logout: handleLogout } = useLogout(() => {
+    setIsLoggedIn(false);
+    setUser(null);
+  });
+
+  const { showToast } = useToast();
+
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("access_token"));
     const userStr = localStorage.getItem("user");
@@ -56,22 +64,18 @@ export const useHeader = () => {
 
     const showLoginToast = sessionStorage.getItem("show_login_toast");
     if (showLoginToast === "true") {
-      setToast({
-        type: "success",
-        title: t("Thành công"),
-        message: t("Đăng nhập thành công!"),
-      });
+      showToast("success", t("Thành công"), t("Đăng nhập thành công!"));
       sessionStorage.removeItem("show_login_toast");
     }
-  }, [location, t]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-    setIsLoggedIn(false);
-    setUser(null);
-    navigate("/");
-  };
+    const showLogoutToast = sessionStorage.getItem("show_logout_toast");
+    if (showLogoutToast === "true") {
+      showToast("info", t("Đăng Xuất"), t("Bạn đã đăng xuất thành công."));
+      sessionStorage.removeItem("show_logout_toast");
+    }
+  }, [location, t, showToast]);
+
+
 
   // ─── Notifications (API-backed & Real-time) ──────────────────────────────────
 
@@ -81,7 +85,6 @@ export const useHeader = () => {
   const [notifLastPage, setNotifLastPage] = useState(1);
   const [notifLoading, setNotifLoading] = useState(false);
   const socketRef = useRef<any>(null);
-  const [toast, setToast] = useState<{ type: string; title: string; message: string } | null>(null);
 
   /** Tải trang đầu hoặc tải thêm (infinite scroll) */
   const fetchNotifications = useCallback(async (page = 1, replace = true) => {
@@ -134,11 +137,7 @@ export const useHeader = () => {
         console.log("Received real-time notification:", notif);
         setNotifications((prev) => [notif, ...prev]);
         setUnreadCount((c) => c + 1);
-        setToast({
-          type: "info",
-          title: notif.title || t("Thông báo mới"),
-          message: notif.message || "",
-        });
+        showToast("info", notif.title || t("Thông báo mới"), notif.message || "");
       });
 
       return () => {
@@ -219,8 +218,7 @@ export const useHeader = () => {
           res.data.data.map((item: ApiNewsItem) => ({
             title: item.title,
             slug: item.slug,
-            time: new Date(item.created_at).toLocaleDateString("vi-VN"),
-          })),
+            time: new Date(item.created_at).toLocaleDateString("vi-VN") })),
         );
       })
       .catch(() => {});
@@ -245,18 +243,15 @@ export const useHeader = () => {
           exp: "5 năm kinh nghiệm",
           desc: "Luôn tận tâm, sạch sẽ và đúng giờ.",
           area: "Quận 1, Quận 3",
-          avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop",
-        },
+          avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop" },
         {
           name: "Trần Văn Tú",
           rating: 4.9,
           exp: "3 năm kinh nghiệm",
           desc: "Chuyên vệ sinh thiết bị điện máy gia đình.",
           area: "Quận Bình Thạnh",
-          avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop",
-        },
-      ],
-    },
+          avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop" },
+      ] },
     "Tổng vệ sinh": {
       services: [
         { name: "Tổng vệ sinh nhà cửa", price: "150k/h", desc: "Dọn dẹp toàn diện, hút bụi, lau kính, làm sạch sâu mọi ngóc ngách.", icon: "material-symbols:cleaning-services" },
@@ -269,10 +264,8 @@ export const useHeader = () => {
           exp: "4 năm kinh nghiệm",
           desc: "Nhiệt tình, trung thực và làm việc khoa học.",
           area: "Quận 2, Quận 7",
-          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop",
-        },
-      ],
-    },
+          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop" },
+      ] },
     "Chăm sóc người già": {
       services: [
         { name: "Chăm sóc tại bệnh viện", price: "140k/h", desc: "Hỗ trợ ăn uống, vệ sinh, theo dõi sức khỏe của cụ tại viện.", icon: "material-symbols:medical-services" },
@@ -285,10 +278,8 @@ export const useHeader = () => {
           exp: "6 năm kinh nghiệm",
           desc: "Kiên nhẫn, am hiểu tâm lý người cao tuổi.",
           area: "Quận Phú Nhuận",
-          avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop",
-        },
-      ],
-    },
+          avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop" },
+      ] },
     "Chăm em bé": {
       services: [
         { name: "Trông trẻ theo giờ", price: "130k/h", desc: "Chơi cùng bé, cho bé ăn, đưa đón bé đi học theo yêu cầu.", icon: "material-symbols:child-care" },
@@ -301,10 +292,8 @@ export const useHeader = () => {
           exp: "3 năm kinh nghiệm",
           desc: "Yêu trẻ, cẩn thận, có kỹ năng sư phạm mầm non.",
           area: "Quận Tân Bình",
-          avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop",
-        },
-      ],
-    },
+          avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop" },
+      ] },
     "Nấu ăn gia đình": {
       services: [
         { name: "Nấu ăn bữa chính", price: "120k/h", desc: "Đi chợ, nấu các món ăn gia đình ba miền chuẩn vị vệ sinh.", icon: "material-symbols:soup-kitchen" },
@@ -317,11 +306,8 @@ export const useHeader = () => {
           exp: "8 năm kinh nghiệm",
           desc: "Nấu ăn ngon, đa dạng thực đơn dinh dưỡng.",
           area: "Quận Gò Vấp",
-          avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=80&auto=format&fit=crop",
-        },
-      ],
-    },
-  };
+          avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=80&auto=format&fit=crop" },
+      ] } };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -357,6 +343,35 @@ export const useHeader = () => {
 
   const isEn = i18n.language === "en";
 
+  const [chatUnreadCount, setChatUnreadCount] = useState(0);
+
+  const fetchChatUnreadCount = useCallback(async () => {
+    if (!localStorage.getItem("access_token")) {
+      setChatUnreadCount(0);
+      return;
+    }
+    try {
+      const { getConversations } = await import("../../api/messages");
+      const res = await getConversations();
+      const sum = res.data.reduce((total, c) => total + c.unread_count, 0);
+      setChatUnreadCount(sum);
+    } catch (err) {
+      // silent on errors
+    }
+  }, []);
+
+  // Poll chat unread count every 10 seconds
+  useEffect(() => {
+    const delayTimer = setTimeout(() => {
+      fetchChatUnreadCount();
+    }, 0);
+    const interval = setInterval(fetchChatUnreadCount, 10000);
+    return () => {
+      clearTimeout(delayTimer);
+      clearInterval(interval);
+    };
+  }, [fetchChatUnreadCount]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -372,6 +387,7 @@ export const useHeader = () => {
     user,
     notifications,
     unreadCount,
+    chatUnreadCount,
     markAllAsRead,
     toggleRead,
     removeNotification,
@@ -391,8 +407,5 @@ export const useHeader = () => {
     categories,
     bottomLinks,
     newsItems,
-    categoryDetails,
-    toast,
-    setToast,
-  };
+    categoryDetails };
 };

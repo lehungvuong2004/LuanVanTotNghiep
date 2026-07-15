@@ -48,6 +48,5 @@ export const useGeolocation = () => {
     loading: status === "loading",
     error,
     getCurrentLocation,
-    clearLocation: () => dispatch(clearLocation()),
-  };
+    clearLocation: () => dispatch(clearLocation()) };
 };

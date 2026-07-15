@@ -1,12 +1,11 @@
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import { Toast } from "../../components/Toast";
+
 import {
   usePayment,
   PAYMENT_METHODS,
   STATUS_META,
-  REFUND_STATUS_META,
-} from "./useHook";
+  REFUND_STATUS_META } from "./useHook";
 
 const fmt = (n: number | string | null | undefined) =>
   n == null ? "—" : Number(n).toLocaleString("vi-VN") + " ₫";
@@ -19,7 +18,7 @@ const fmtDate = (s: string | null | undefined) => {
 export const Payment = () => {
   const { t } = useTranslation();
   const {
-    toast, setToast,
+    
     showCreateModal, setShowCreateModal,
     form, formError,
     handleCreateOpen, handleFormChange, handleCreateSubmit, isCreating,
@@ -29,8 +28,7 @@ export const Payment = () => {
     showRefundModal, setShowRefundModal,
     refundForm, refundError,
     handleRefundOpen, handleRefundChange, handleRefundSubmit, isRefunding,
-    myPayments, paymentsPage, setPaymentsPage, totalPayments, lastPage, isPaymentsLoading,
-  } = usePayment();
+    myPayments, paymentsPage, setPaymentsPage, totalPayments, lastPage, isPaymentsLoading } = usePayment();
 
   const statusMeta = payment ? (STATUS_META[payment.status] ?? { label: payment.status, cls: "bg-slate-100 text-slate-600" }) : null;
 
@@ -582,14 +580,7 @@ export const Payment = () => {
       {renderCreateModal()}
       {renderRefundModal()}
 
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
+      
     </div>
   );
 };

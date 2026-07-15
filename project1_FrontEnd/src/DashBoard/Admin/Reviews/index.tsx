@@ -1,13 +1,36 @@
-import React from "react";
 import { Icon } from "@iconify/react";
 import ReactECharts from "echarts-for-react";
 import { useAdminReviews } from "./useHook";
-import { Toast } from "../../../components/Toast";
+import { useAuth } from "../../../hooks/useAuth";
+import { useState } from "react";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getInitials } from "../../../utils";
 
 export const Reviews = () => {
+  const { hasPermission } = useAuth();
+  const permissions = {
+    view: hasPermission("reviews.view"),
+    create: hasPermission("reviews.create"),
+    update: hasPermission("reviews.update"),
+    delete: hasPermission("reviews.update"),
+  };
+  // Modal states
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Form states - Create
+  const [createCustomerId, setCreateCustomerId] = useState("");
+  const [createHelperId, setCreateHelperId] = useState("");
+  const [createRating, setCreateRating] = useState(5);
+  const [createComment, setCreateComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form states - Edit
+  const [editingReview, setEditingReview] = useState<any>(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editComment, setEditComment] = useState("");
+
   const {
     reviews,
     usersMap,
@@ -20,13 +43,12 @@ export const Reviews = () => {
     setCurrentPage,
     totalItems,
     itemsPerPage,
-    toast,
-    setToast,
+
     handleCreateReview,
     handleUpdateReview,
     handleDeleteReview,
-    getRatingDistributionOption,
-    getRatingBarOption,
+    ratingDistributionOption,
+    ratingBarOption,
     selectedIds,
     toggleSelectOne,
     toggleSelectAll,
@@ -34,26 +56,8 @@ export const Reviews = () => {
     handleBulkDelete,
   } = useAdminReviews();
 
-  // Modal states
-  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-  const [isEditOpen, setIsEditOpen] = React.useState(false);
-
-  // Form states - Create
-  const [createCustomerId, setCreateCustomerId] = React.useState("");
-  const [createHelperId, setCreateHelperId] = React.useState("");
-  const [createRating, setCreateRating] = React.useState(5);
-  const [createComment, setCreateComment] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  // Form states - Edit
-  const [editingReview, setEditingReview] = React.useState<any>(null);
-  const [editRating, setEditRating] = React.useState(5);
-  const [editComment, setEditComment] = React.useState("");
-
   const customersList = Object.values(usersMap).filter((u) => u.role_id === 4);
   const helpersList = Object.values(usersMap).filter((u) => u.role_id === 3);
-
-
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -96,7 +100,7 @@ export const Reviews = () => {
     }
   };
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editingReview) return;
     setIsSubmitting(true);
@@ -119,16 +123,18 @@ export const Reviews = () => {
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Giám Sát Đánh Giá (Reviews)</h2>
+        <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Giám Sát Đánh Giá</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc. (Quyền đọc & Ghi)</p>
       </div>
-      <button
-        onClick={() => setIsCreateOpen(true)}
-        className="cursor-pointer bg-[#008080] hover:bg-[#006666] active:scale-95 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shrink-0 flex items-center gap-2 shadow-md shadow-[#008080]/20 text-sm"
-      >
-        <Icon icon="material-symbols:add-rounded" className="text-lg" />
-        Thêm Đánh Giá
-      </button>
+      {permissions.create && (
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="cursor-pointer bg-[#008080] hover:bg-[#006666] active:scale-95 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shrink-0 flex items-center gap-2 shadow-md shadow-[#008080]/20 text-sm"
+        >
+          <Icon icon="material-symbols:add-rounded" className="text-lg" />
+          Thêm Đánh Giá
+        </button>
+      )}
     </div>
   );
 
@@ -191,11 +197,15 @@ export const Reviews = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 animate-fade-in">
         {/* Doughnut Chart */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
-          <ReactECharts option={getRatingDistributionOption()} style={{ height: "300px" }} />
+          <div className="h-80 w-full flex items-center justify-center">
+            <ReactECharts option={ratingDistributionOption} style={{ height: "100%", width: "100%" }} notMerge={true} lazyUpdate={true} />
+          </div>
         </div>
         {/* Bar Chart */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
-          <ReactECharts option={getRatingBarOption()} style={{ height: "300px" }} />
+          <div className="h-80 w-full flex items-center justify-center">
+            <ReactECharts option={ratingBarOption} style={{ height: "100%", width: "100%" }} notMerge={true} lazyUpdate={true} />
+          </div>
         </div>
       </div>
     );
@@ -264,25 +274,27 @@ export const Reviews = () => {
           <table className="w-full text-left border-collapse min-w-4xl">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <th className="py-3 px-5 w-12 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.length === reviews.length && reviews.length > 0}
-                    ref={(el) => {
-                      if (el) {
-                        el.indeterminate = selectedIds.length > 0 && selectedIds.length < reviews.length;
-                      }
-                    }}
-                    onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                  />
-                </th>
+                {permissions.delete && (
+                  <th className="py-3 px-5 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.length === reviews.length && reviews.length > 0}
+                      ref={(el) => {
+                        if (el) {
+                          el.indeterminate = selectedIds.length > 0 && selectedIds.length < reviews.length;
+                        }
+                      }}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                    />
+                  </th>
+                )}
                 <th className="py-3 px-5">Khách Hàng</th>
                 <th className="py-3 px-5">Người Giúp Việc</th>
                 <th className="py-3 px-5">Đánh Giá</th>
                 <th className="py-3 px-5">Nội Dung Nhận Xét</th>
                 <th className="py-3 px-5">Thời Gian</th>
-                <th className="py-3 px-5 text-right">Thao Tác</th>
+                {(permissions.update || permissions.delete) && <th className="py-3 px-5 text-right">Thao Tác</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-150 dark:divide-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
@@ -293,9 +305,11 @@ export const Reviews = () => {
 
                 return (
                   <tr key={r.id} className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-750/30 ${isSelected ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
-                    <td className="py-3 px-5 text-center">
-                      <input type="checkbox" checked={isSelected} onChange={() => toggleSelectOne(r.id)} className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600" />
-                    </td>
+                    {permissions.delete && (
+                      <td className="py-3 px-5 text-center">
+                        <input type="checkbox" checked={isSelected} onChange={() => toggleSelectOne(r.id)} className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600" />
+                      </td>
+                    )}
                     {/* Customer */}
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
@@ -350,29 +364,35 @@ export const Reviews = () => {
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3 px-5 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => {
-                            setEditingReview(r);
-                            setEditRating(r.rating);
-                            setEditComment(r.comment || "");
-                            setIsEditOpen(true);
-                          }}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-                          title="Sửa đánh giá"
-                        >
-                          <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteReview(r.id)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                          title="Xóa đánh giá"
-                        >
-                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                        </button>
-                      </div>
-                    </td>
+                    {(permissions.update || permissions.delete) && (
+                      <td className="py-3 px-5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {permissions.update && (
+                            <button
+                              onClick={() => {
+                                setEditingReview(r);
+                                setEditRating(r.rating);
+                                setEditComment(r.comment || "");
+                                setIsEditOpen(true);
+                              }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                              title="Sửa đánh giá"
+                            >
+                              <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                            </button>
+                          )}
+                          {permissions.delete && (
+                            <button
+                              onClick={() => handleDeleteReview(r.id)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                              title="Xóa đánh giá"
+                            >
+                              <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -581,12 +601,11 @@ export const Reviews = () => {
 
   return (
     <div className="p-6 w-full">
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       {renderHeader()}
       {renderKPIs()}
       {renderCharts()}
       {renderFilters()}
-      {selectedIds.length > 0 && (
+      {permissions.delete && selectedIds.length > 0 && (
         <div className="mb-4">
           <BulkDeleteBar selectedIds={selectedIds} totalCount={reviews.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} loading={loading} />
         </div>
