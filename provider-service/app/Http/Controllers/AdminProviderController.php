@@ -12,15 +12,21 @@ use Illuminate\Support\Facades\Http;
 class AdminProviderController extends Controller
 {
     /**
-     * Kiểm tra quyền Admin (role_id=1) hoặc Operator (role_id=2).
+     * Kiểm tra quyền Admin (role_id=1) hoặc Operator (role_id=2) dựa trên role hoặc permission.
      */
     private function requireAdminOrOperator(Request $request): ?array
     {
-        $roleId = $request->authUser['role_id'] ?? null;
-        if (!in_array($roleId, [Role::ADMIN, Role::OPERATOR])) {
+        $authUser = $request->authUser ?? null;
+        if (!$authUser) {
             return null;
         }
-        return $request->authUser;
+        if ($authUser['role_id'] === Role::ADMIN) {
+            return $authUser;
+        }
+        if (in_array('helper_profile.verify', $authUser['permissions'] ?? [])) {
+            return $authUser;
+        }
+        return null;
     }
 
     // =====================================================================
@@ -57,7 +63,7 @@ class AdminProviderController extends Controller
             try {
                 $response = Http::withHeaders(['Authorization' => $authHeader])
                     ->timeout(3)
-                    ->get('http://identity-service:8000/api/admin/users/search-ids', ['query' => $search]);
+                    ->get(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users/search-ids', ['query' => $search]);
 
                 if ($response->successful()) {
                     $userIds = $response->json() ?? [];
@@ -82,7 +88,7 @@ class AdminProviderController extends Controller
             try {
                 $usersResponse = Http::withHeaders(['Authorization' => $authHeader])
                     ->timeout(3)
-                    ->post('http://identity-service:8000/api/admin/users/by-ids', ['ids' => $userIds]);
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users/by-ids', ['ids' => $userIds]);
 
                 if ($usersResponse->successful()) {
                     $users = $usersResponse->json('data') ?? [];
@@ -123,7 +129,7 @@ class AdminProviderController extends Controller
         try {
             $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
-                ->post('http://identity-service:8000/api/admin/users/by-ids', ['ids' => [$helper->user_id]]);
+                ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users/by-ids', ['ids' => [$helper->user_id]]);
 
             if ($userResponse->successful()) {
                 $users = $userResponse->json('data') ?? [];
@@ -197,19 +203,26 @@ class AdminProviderController extends Controller
      */
     public function toggleHelperStatus(Request $request, $id)
     {
-        if (!$this->requireAdminOrOperator($request)) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
-        }
-
-        $helper = HelperProfile::find($id);
-        if (!$helper) {
-            return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
+        $authUser = $request->authUser ?? null;
+        if (!$authUser) {
+            return response()->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
         }
 
         $fields = $request->validate([
             'status' => 'required|string|in:active,suspended',
             'reason' => 'nullable|string|max:255',
         ]);
+
+        $permissionToCheck = ($fields['status'] === 'suspended') ? 'helper_profile.lock' : 'helper_profile.unlock';
+
+        if ($authUser['role_id'] !== Role::ADMIN && !in_array($permissionToCheck, $authUser['permissions'] ?? [])) {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $helper = HelperProfile::find($id);
+        if (!$helper) {
+            return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
+        }
 
         $helper->update(['status' => $fields['status']]);
 
@@ -253,8 +266,11 @@ class AdminProviderController extends Controller
      */
     public function deleteHelper(Request $request, $id)
     {
-        // Phải là Admin (role_id = 1)
-        if ($request->authUser['role_id'] !== Role::ADMIN) {
+        $authUser = $request->authUser ?? null;
+        if (!$authUser) {
+            return response()->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
+        }
+        if ($authUser['role_id'] !== Role::ADMIN && !in_array('helper_profile.delete', $authUser['permissions'] ?? [])) {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
@@ -268,7 +284,7 @@ class AdminProviderController extends Controller
         try {
             $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(5)
-                ->delete("http://identity-service:8000/api/admin/users/{$helper->user_id}");
+                ->delete(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . "/api/admin/users/{$helper->user_id}");
 
             // Nếu xóa user thành công hoặc user không tồn tại thì ta tiếp tục xóa helper profile
             if ($userResponse->successful() || $userResponse->status() === 404) {
@@ -294,8 +310,11 @@ class AdminProviderController extends Controller
      */
     public function bulkDeleteHelpers(Request $request)
     {
-        // Phải là Admin (role_id = 1)
-        if ($request->authUser['role_id'] !== Role::ADMIN) {
+        $authUser = $request->authUser ?? null;
+        if (!$authUser) {
+            return response()->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
+        }
+        if ($authUser['role_id'] !== Role::ADMIN && !in_array('helper_profile.delete', $authUser['permissions'] ?? [])) {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
         }
 
@@ -318,7 +337,7 @@ class AdminProviderController extends Controller
             // Gọi identity-service để bulk delete account
             $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(5)
-                ->post("http://identity-service:8000/api/admin/users/bulk-delete", ['ids' => $userIds]);
+                ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . "/api/admin/users/bulk-delete", ['ids' => $userIds]);
 
             if ($userResponse->successful()) {
                 // Xóa các helper profile tương ứng

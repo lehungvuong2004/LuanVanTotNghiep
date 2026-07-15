@@ -13,7 +13,6 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
 
   const role = getUserRole(user);
 
-  // Memoized: only recompute when role or permissions change
   const navItems = useMemo(
     () =>
       (NAV_ITEMS[role ?? ROLES.HELPER] ?? []).filter(

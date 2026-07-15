@@ -45,7 +45,6 @@ export const Recruitment = () => {
   const renderSidebarFilter = () => {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm sticky top-24 flex flex-col divide-y divide-slate-100 dark:divide-slate-700/50 overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4">
           <span className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100 text-sm">
             <Icon icon="material-symbols:tune" className="text-lg text-[#026E5F] dark:text-teal-400" />

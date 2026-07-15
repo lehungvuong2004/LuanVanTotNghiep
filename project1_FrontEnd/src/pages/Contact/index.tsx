@@ -7,7 +7,7 @@ import contactImg from "../../assets/images/contact/contact.webp";
 export const Contact = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const { t } = useTranslation();
-  const { questions, formik } = useContact();
+  const { questions, formik, loading } = useContact();
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -101,9 +101,11 @@ export const Contact = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full md:w-auto bg-[#026E5F] hover:bg-[#025E50] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5"
+                  disabled={loading}
+                  className="w-full md:w-auto bg-[#026E5F] hover:bg-[#025E50] cursor-pointer text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {t("Gửi yêu cầu")}
+                  {loading && <span className="w-4 h-4 border-2  border-white border-t-transparent rounded-full animate-spin" />}
+                  {loading ? t("Đang gửi...") : t("Gửi yêu cầu")}
                 </button>
                 <p className="text-base text-gray-500 dark:text-gray-400 mt-4">{t("Thông thường chúng tôi phản hồi trong vòng 24 giờ.")}</p>
               </div>

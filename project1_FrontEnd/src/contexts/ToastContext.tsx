@@ -9,13 +9,14 @@ export const ToastProvider = ({ children }) => {
 
   const showToast = useCallback((type, title, message) => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    
+
     setToast({
       id: Math.random().toString(36).substr(2, 9),
       type,
       title,
-      message });
-    
+      message,
+    });
+
     timerRef.current = setTimeout(() => {
       setToast(null);
       timerRef.current = null;
@@ -51,4 +52,3 @@ export const useToast = () => {
   }
   return context;
 };
-

@@ -1,17 +1,17 @@
 import { ROLES, getUserRole } from "../constants/roles";
 
-// NOTE: Hiện tại không được sử dụng trong codebase
-// export const waitFor = (ms: number) => {
-//   return new Promise((resolve) => setTimeout(resolve, ms));
-// };
-
-// NOTE: Hiện tại không được sử dụng trong codebase
-// export const ceilDiv = (a: number, b: number) => Math.floor((a + b - 1) / b);
+const numberFormatter = new Intl.NumberFormat("vi-VN");
 
 export function formatNumberVI(value: number | null | undefined): string | null | undefined {
   if (value === undefined) return undefined;
   if (value === null) return null;
-  return new Intl.NumberFormat("vi-VN").format(value);
+  return numberFormatter.format(value);
+}
+
+export function fmtVND(value: number | string | null | undefined): string {
+  if (value === undefined || value === null) return "0 ₫";
+  const num = typeof value === "string" ? Number(value) : value;
+  return `${numberFormatter.format(num)} ₫`;
 }
 
 export const parseUtcDate = (dateStr: string | null | undefined): Date => {
@@ -22,9 +22,10 @@ export const parseUtcDate = (dateStr: string | null | undefined): Date => {
   return new Date(dateStr);
 };
 
-export const formatDateTime = (dateStr: string | null) => {
-  if (!dateStr) return null;
+export const formatDateTime = (dateStr: string | null | undefined): any => {
+  if (!dateStr) return dateStr === null ? null : "";
   const d = parseUtcDate(dateStr);
+  if (isNaN(d.getTime())) return "";
   const dd = String(d.getDate()).padStart(2, "0");
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
@@ -43,7 +44,8 @@ export const formatDateTimeLong = (dateStr: string | null | undefined): string =
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit" });
+      second: "2-digit",
+    });
   } catch {
     return dateStr;
   }
@@ -63,18 +65,18 @@ export function formatMoneyShortVI(value: number | string | null | undefined): s
     const ty = num / 1_000_000_000;
     const rounded = Math.round(ty * 10) / 10;
     const formatted = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1).replace(".", ",");
-    return `${formatted} tỷ ₫`;
+    return `${formatted} tỷ`;
   }
   if (num >= 1_000_000) {
     const tr = num / 1_000_000;
     const rounded = Math.round(tr * 10) / 10;
     const formatted = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1).replace(".", ",");
-    return `${formatted} triệu ₫`;
+    return `${formatted} triệu`;
   }
   if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(0)} nghìn ₫`;
+    return `${(num / 1_000).toFixed(0)} nghìn`;
   }
-  return `${num} ₫`;
+  return `${num}`;
 }
 
 export const formatDate = (dateStr): any => {
@@ -87,24 +89,14 @@ export function formatMoneyInput(value: string | number | null | undefined) {
   const cleanVal = value.toString().replace(/\D/g, "");
   if (!cleanVal) return "";
   const num = parseInt(cleanVal, 10);
-  return new Intl.NumberFormat("vi-VN").format(num);
+  return numberFormatter.format(num);
 }
 
 export const sortBookingsByDate = (items: any[]) => {
   return [...items].sort((a, b) => b.id - a.id);
 };
 
-export const formatVietnamDateTime = (dateStr: string | null | undefined) => {
-  if (!dateStr) return "";
-  const d = parseUtcDate(dateStr);
-  if (isNaN(d.getTime())) return "";
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
-};
+export const formatVietnamDateTime = formatDateTime;
 
 export const getRatingNote = (rating) => {
   switch (rating) {

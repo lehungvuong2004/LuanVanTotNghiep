@@ -343,6 +343,35 @@ export const useHeader = () => {
 
   const isEn = i18n.language === "en";
 
+  const [chatUnreadCount, setChatUnreadCount] = useState(0);
+
+  const fetchChatUnreadCount = useCallback(async () => {
+    if (!localStorage.getItem("access_token")) {
+      setChatUnreadCount(0);
+      return;
+    }
+    try {
+      const { getConversations } = await import("../../api/messages");
+      const res = await getConversations();
+      const sum = res.data.reduce((total, c) => total + c.unread_count, 0);
+      setChatUnreadCount(sum);
+    } catch (err) {
+      // silent on errors
+    }
+  }, []);
+
+  // Poll chat unread count every 10 seconds
+  useEffect(() => {
+    const delayTimer = setTimeout(() => {
+      fetchChatUnreadCount();
+    }, 0);
+    const interval = setInterval(fetchChatUnreadCount, 10000);
+    return () => {
+      clearTimeout(delayTimer);
+      clearInterval(interval);
+    };
+  }, [fetchChatUnreadCount]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -358,6 +387,7 @@ export const useHeader = () => {
     user,
     notifications,
     unreadCount,
+    chatUnreadCount,
     markAllAsRead,
     toggleRead,
     removeNotification,

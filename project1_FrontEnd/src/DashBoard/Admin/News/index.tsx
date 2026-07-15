@@ -6,6 +6,12 @@ import { getImageUrl } from "../../../utils/images";
 
 export const NewsAdmin = () => {
   const { hasPermission } = useAuth();
+
+  const permissions = {
+    create: hasPermission("news.create"),
+    update: hasPermission("news.update"),
+    delete: hasPermission("news.delete"),
+  };
   const {
     news,
     loading,
@@ -39,7 +45,7 @@ export const NewsAdmin = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Tin Tức</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý các bài viết tin tức, kinh nghiệm hiển thị trên trang chủ.</p>
         </div>
-        {hasPermission("news.create") && (
+        {permissions.create && (
           <button
             onClick={openAddModal}
             className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
@@ -126,7 +132,7 @@ export const NewsAdmin = () => {
           </div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy bài viết nào</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Thử thay đổi từ khóa tìm kiếm hoặc tạo một bài viết mới.</p>
-          {hasPermission("news.create") && (
+          {permissions.create && (
             <button
               onClick={openAddModal}
               className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"
@@ -194,7 +200,7 @@ export const NewsAdmin = () => {
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
-                  {hasPermission("news.update") ? (
+                  {permissions.update ? (
                     <button
                       type="button"
                       onClick={() => handleToggleStatus(item)}
@@ -210,7 +216,7 @@ export const NewsAdmin = () => {
                   ) : <div />}
 
                   <div className="flex items-center gap-1">
-                    {hasPermission("news.update") && (
+                    {permissions.update && (
                       <button
                         type="button"
                         onClick={() => openEditModal(item)}
@@ -220,11 +226,11 @@ export const NewsAdmin = () => {
                         <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
                       </button>
                     )}
-                    {hasPermission("news.delete") && (
+                    {permissions.delete && (
                       <button
                         type="button"
                         onClick={() => handleDeleteNews(item.id)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-655 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
                         title="Xóa"
                       >
                         <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />

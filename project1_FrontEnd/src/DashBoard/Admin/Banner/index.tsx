@@ -5,6 +5,12 @@ import { useAuth } from "../../../hooks/useAuth";
 
 export const Banners = () => {
   const { hasPermission } = useAuth();
+
+  const permissions = {
+    create: hasPermission("banners.create"),
+    update: hasPermission("banners.update"),
+    delete: hasPermission("banners.delete"),
+  };
   const {
     banners,
     loading,
@@ -39,7 +45,7 @@ export const Banners = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Banner Quảng Cáo</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Cấu hình các slide ảnh trượt và banner chiến dịch khuyến mãi hiển thị tại trang chủ.</p>
         </div>
-        {hasPermission("banners.create") && (<button onClick={openAddModal} className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"><Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />Tạo Banner Mới</button>)}
+        {permissions.create && (<button onClick={openAddModal} className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"><Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />Tạo Banner Mới</button>)}
       </div>
     );
   };
@@ -158,7 +164,7 @@ export const Banners = () => {
           </div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy banner nào</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Thử thay đổi từ khóa tìm kiếm hoặc tạo một banner quảng cáo mới.</p>
-          {hasPermission("banners.create") && (<button onClick={openAddModal} className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"><Icon icon="material-symbols:add" />Tạo Banner</button>)}
+          {permissions.create && (<button onClick={openAddModal} className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"><Icon icon="material-symbols:add" />Tạo Banner</button>)}
         </div>
       );
     }
@@ -224,7 +230,7 @@ export const Banners = () => {
 
                 {/* Actions footer of card */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
-                  {hasPermission("banners.update") ? (
+                  {permissions.update ? (
                     <button
                       type="button"
                       onClick={() => handleToggleStatus(banner)}
@@ -238,7 +244,7 @@ export const Banners = () => {
                   ) : <div />}
 
                   <div className="flex items-center gap-1">
-                    {hasPermission("banners.update") && (
+                    {permissions.update && (
                       <button
                         type="button"
                         onClick={() => openEditModal(banner)}
@@ -248,7 +254,7 @@ export const Banners = () => {
                         <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
                       </button>
                     )}
-                    {hasPermission("banners.delete") && (
+                    {permissions.delete && (
                       <button
                         type="button"
                         onClick={() => handleDeleteBanner(banner.id)}

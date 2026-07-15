@@ -7,8 +7,8 @@ import { Contact } from "./pages/Contact";
 import { LoginLayout } from "./layouts/LoginLayout";
 import { Login } from "./pages/Login/Login";
 import { Register } from "./pages/Register/Register";
-import ForgetPassword from "./pages/ForgetPassword";
-import PostAJob from "./pages/PostAJob";
+import { ForgetPassword } from "./pages/ForgetPassword";
+import { PostAJob } from "./pages/PostAJob";
 import { Home } from "./pages/Home";
 import { Service } from "./pages/Service";
 import { ServiceDetail } from "./pages/ServiceDetail";
@@ -28,17 +28,23 @@ import { ServiceCategories } from "./DashBoard/Admin/Service_Categories";
 import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
 import { Booking } from "./DashBoard/Admin/Booking";
 import { Banners } from "./DashBoard/Admin/Banner";
-import { PaymentsRefunds } from "./DashBoard/Admin/PayMent & Refund";
+import { Payments } from "./DashBoard/Admin/Payments";
+import { Refunds } from "./DashBoard/Admin/Refunds";
 import { Users } from "./DashBoard/Admin/Users";
 import { Helpers } from "./DashBoard/Admin/Helper";
 import { Reviews } from "./DashBoard/Admin/Reviews";
 import { NewsAdmin } from "./DashBoard/Admin/News";
 import { Role as RolePage } from "./DashBoard/Admin/Role";
-import { PermissionsMatrix} from "./DashBoard/Admin/Permissions";
+import { PermissionsMatrix } from "./DashBoard/Admin/Permissions";
 import { ActivityLogs } from "./DashBoard/Admin/Log";
-import { ApplicationReview } from "./DashBoard/Admin/JobPosts";
+import { ApplicationReview } from "./DashBoard/Operator/JobPosts";
+import { Reports } from "./DashBoard/Admin/Reports";
 import { StaffRecruitmentDashboard } from "./DashBoard/Staff";
 import { HelperOverview } from "./DashBoard/Helper/Overview";
+import { Contacts } from "./DashBoard/Admin/Contacts";
+import { Notifications } from "./DashBoard/Admin/Notifications";
+import { AdminMessages } from "./DashBoard/Admin/Messages";
+import { ChatPage } from "./pages/Chat";
 
 function App() {
   useEffect(() => {
@@ -80,7 +86,8 @@ function App() {
             <Route path="/ho-so" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
-            {/* <Route path="/thanh-toan" element={<Payment />} />   Todo: Route thanh toán độc lập đã loại bỏ */}
+            <Route path="/messages" element={<ChatPage />} />
+            <Route path="/messages/:partnerId" element={<ChatPage />} />
           </Route>
           <Route element={<LoginLayout />}>
             <Route path="/dang-nhap" element={<Login />} />
@@ -98,31 +105,43 @@ function App() {
             <Route path="bookings" element={<Booking />} />
             <Route path="banners" element={<Banners />} />
             <Route path="news" element={<NewsAdmin />} />
-            <Route path="payments" element={<PaymentsRefunds defaultTab="payments" />} />
-            <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
+            <Route path="payments" element={<Payments />} />
+            <Route path="refunds" element={<Refunds />} />
             <Route path="reviews" element={<Reviews />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="contacts" element={<Contacts />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="roles" element={<RolePage />} />
             <Route path="permissions" element={<PermissionsMatrix />} />
             <Route path="activity-logs" element={<ActivityLogs />} />
-            <Route path="job-posts" element={<ApplicationReview />} />
+            <Route path="messages" element={<AdminMessages />} />
+            <Route path="chat" element={<ChatPage />} />
+            <Route path="chat/:partnerId" element={<ChatPage />} />
           </Route>
           <Route path="/operator" element={<DashboardLayout allowedRole={ROLES.OPERATOR} />}>
             <Route index element={<Reviews />} />
             <Route path="dashboard" element={<DashboardOverview />} />
             <Route path="reviews" element={<Reviews />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="bookings" element={<Booking />} />
             <Route path="job-posts" element={<ApplicationReview />} />
             <Route path="helpers" element={<Helpers />} />
-            <Route path="payments" element={<PaymentsRefunds defaultTab="payments" />} />
-            <Route path="refunds" element={<PaymentsRefunds defaultTab="refunds" />} />
+            <Route path="payments" element={<Payments />} />
+            <Route path="refunds" element={<Refunds />} />
             <Route path="services" element={<Services />} />
+            <Route path="contacts" element={<Contacts />} />
             <Route path="activity-logs" element={<ActivityLogs />} />
+            <Route path="messages" element={<AdminMessages />} />
+            <Route path="chat" element={<ChatPage />} />
+            <Route path="chat/:partnerId" element={<ChatPage />} />
           </Route>
           <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>
             <Route index element={<HelperOverview />} />
             <Route path="dashboard" element={<StaffRecruitmentDashboard />} />
+            <Route path="messages" element={<ChatPage />} />
+            <Route path="messages/:partnerId" element={<ChatPage />} />
           </Route>
-          
+
           <Route path="*" element={<Errors404 />} />
         </Routes>
       </HashRouter>

@@ -128,7 +128,15 @@ export const DashboardOverview = () => {
                           : "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-455"
                     }`}
                   >
-                    {booking.status === "Completed" ? "Đã hoàn thành" : booking.status === "Confirmed" ? "Đã xác nhận" : booking.status === "Pending" ? "Chờ duyệt" : booking.status === "Cancelled" ? "Đã hủy" : booking.status}
+                    {booking.status === "Completed"
+                      ? "Đã hoàn thành"
+                      : booking.status === "Confirmed"
+                        ? "Đã xác nhận"
+                        : booking.status === "Pending"
+                          ? "Chờ duyệt"
+                          : booking.status === "Cancelled"
+                            ? "Đã hủy"
+                            : booking.status}
                   </span>
                 </td>
               </tr>

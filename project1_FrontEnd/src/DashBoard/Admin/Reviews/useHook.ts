@@ -1,9 +1,9 @@
 import { useToast } from "../../../contexts/ToastContext";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getReviewsAdmin, createReviewAdmin, updateReviewAdmin, deleteReviewAdmin, type Review } from "../../../api/reviews";
 import { getUsersAdmin, type User } from "../../../api/users";
-
 import { RATING_COLORS, SEMANTIC_COLORS } from "../../../utils/colors";
+import { getRootFontSizePx } from "../../../utils";
 
 export const useAdminReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -62,21 +62,15 @@ export const useAdminReviews = () => {
     }
   }, [currentPage, ratingFilter, itemsPerPage, showToast]);
 
-  // Load initial data
+  // Load users map once on mount
   useEffect(() => {
-    let active = true;
-    const init = async () => {
-      await Promise.resolve();
-      if (active) {
-        await fetchUsersMap();
-        await fetchReviews();
-      }
-    };
-    init();
-    return () => {
-      active = false;
-    };
-  }, [fetchUsersMap, fetchReviews]);
+    fetchUsersMap();
+  }, [fetchUsersMap]);
+
+  // Fetch reviews when pagination or filters change
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   const handleCreateReview = async (data: { customer_id: number; helper_id: number; rating: number; comment?: string | null }) => {
     try {
@@ -164,7 +158,8 @@ export const useAdminReviews = () => {
   };
 
   // ECharts Configurations
-  const getRatingDistributionOption = () => {
+  const ratingDistributionOption = useMemo(() => {
+    const rem = getRootFontSizePx();
     const counts = {
       5: ratingStats[5] || 0,
       4: ratingStats[4] || 0,
@@ -190,7 +185,7 @@ export const useAdminReviews = () => {
         text: "Tỷ Lệ Phân Bố Đánh Giá",
         left: "center",
         textStyle: {
-          fontSize: 15,
+          fontSize: 0.9375 * rem,
           fontWeight: "bold",
           color: "#475569",
         },
@@ -213,9 +208,9 @@ export const useAdminReviews = () => {
           radius: ["40%", "70%"],
           avoidLabelOverlap: false,
           itemStyle: {
-            borderRadius: 8,
+            borderRadius: 0.5 * rem,
             borderColor: "#fff",
-            borderWidth: 2,
+            borderWidth: 0.125 * rem,
           },
           label: {
             show: false,
@@ -224,7 +219,7 @@ export const useAdminReviews = () => {
           emphasis: {
             label: {
               show: true,
-              fontSize: 14,
+              fontSize: 0.875 * rem,
               fontWeight: "bold",
             },
           },
@@ -235,9 +230,10 @@ export const useAdminReviews = () => {
         },
       ],
     };
-  };
+  }, [ratingStats]);
 
-  const getRatingBarOption = () => {
+  const ratingBarOption = useMemo(() => {
+    const rem = getRootFontSizePx();
     const counts = {
       5: ratingStats[5] || 0,
       4: ratingStats[4] || 0,
@@ -251,7 +247,7 @@ export const useAdminReviews = () => {
         text: "Số Lượng Đánh Giá Chi Tiết",
         left: "center",
         textStyle: {
-          fontSize: 15,
+          fontSize: 0.9375 * rem,
           fontWeight: "bold",
           color: "#475569",
         },
@@ -304,7 +300,7 @@ export const useAdminReviews = () => {
         },
       ],
     };
-  };
+  }, [ratingStats]);
 
   return {
     reviews: filteredReviews,
@@ -324,8 +320,8 @@ export const useAdminReviews = () => {
     handleUpdateReview,
     handleDeleteReview,
     ratingStats,
-    getRatingDistributionOption,
-    getRatingBarOption,
+    ratingDistributionOption,
+    ratingBarOption,
     selectedIds,
     toggleSelectOne,
     toggleSelectAll,

@@ -1,9 +1,14 @@
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { createContactApi } from "../../api/contacts";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function useContact() {
   const { t } = useTranslation();
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -11,7 +16,8 @@ export default function useContact() {
       phone: "",
       email: "",
       message: "",
-      agree: false },
+      agree: false,
+    },
     validationSchema: Yup.object({
       fullName: Yup.string().required(t("Vui lòng nhập họ và tên")),
       phone: Yup.string()
@@ -21,12 +27,27 @@ export default function useContact() {
         .required(t("Vui lòng nhập số điện thoại")),
       email: Yup.string().email(t("Email không hợp lệ")).required(t("Vui lòng nhập email")),
       message: Yup.string().required(t("Vui lòng nhập nội dung")),
-      agree: Yup.boolean().oneOf([true], t("Bạn cần đồng ý với điều khoản")) }),
-    onSubmit: (values) => {
-      console.log(values);
-      alert(t("Gửi yêu cầu thành công!"));
-      formik.resetForm();
-    } });
+      agree: Yup.boolean().oneOf([true], t("Bạn cần đồng ý với điều khoản")),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        await createContactApi({
+          full_name: values.fullName,
+          phone: values.phone,
+          email: values.email,
+          message: values.message,
+        });
+        showToast("success", t("Thành công"), t("Gửi yêu cầu liên hệ thành công!"));
+        formik.resetForm();
+      } catch (error: any) {
+        // console.error("Submit contact error:", error);
+        showToast("error", t("Lỗi"), error?.response?.data?.message || t("Gửi yêu cầu thất bại. Vui lòng thử lại sau."));
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
   const questions = [
     {
       id: 1,
@@ -52,5 +73,6 @@ export default function useContact() {
 
   return {
     questions,
-    formik };
+    formik,
+    loading };
 }

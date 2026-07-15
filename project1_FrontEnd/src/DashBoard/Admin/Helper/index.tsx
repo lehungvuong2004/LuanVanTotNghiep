@@ -2,11 +2,19 @@ import ReactECharts from "echarts-for-react";
 import { Icon } from "@iconify/react";
 import { useHelperManagement } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-
+import { useAuth } from "../../../hooks/useAuth";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getInitials } from "../../../utils";
 
 export const Helpers = () => {
+  const { hasPermission } = useAuth();
+  const permissions = {
+    verify: hasPermission("helper_profile.verify"),
+    lock: hasPermission("helper_profile.lock"),
+    unlock: hasPermission("helper_profile.unlock"),
+    delete: hasPermission("helper_profile.delete"),
+  };
+
   const {
     helpers,
     loading,
@@ -43,10 +51,10 @@ export const Helpers = () => {
     handleToggleSelectHelper,
     handleToggleSelectAll,
     handleBulkDeleteHelpers,
-    
-    
+
     statusOption,
-    ratingOption } = useHelperManagement();
+    ratingOption,
+  } = useHelperManagement();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -81,15 +89,11 @@ export const Helpers = () => {
     }
   };
 
-
-
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Người Giúp Việc</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Duyệt hồ sơ đăng ký, quản lý khu vực làm việc, bộ kỹ năng và trạng thái hoạt động của đối tác helper.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Duyệt hồ sơ đăng ký, quản lý khu vực làm việc, bộ kỹ năng và trạng thái hoạt động của đối tác helper.</p>
       </div>
     </div>
   );
@@ -191,15 +195,7 @@ export const Helpers = () => {
                   : "text-slate-550 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
-              {status === "All"
-                ? "Tất Cả"
-                : status === "Pending"
-                ? "Chờ Duyệt"
-                : status === "Active"
-                ? "Hoạt Động"
-                : status === "Suspended"
-                ? "Tạm Ngưng"
-                : "Từ Chối"}
+              {status === "All" ? "Tất Cả" : status === "Pending" ? "Chờ Duyệt" : status === "Active" ? "Hoạt Động" : status === "Suspended" ? "Tạm Ngưng" : "Từ Chối"}
             </button>
           ))}
         </div>
@@ -235,19 +231,21 @@ export const Helpers = () => {
           <table className="w-full text-left border-collapse min-w-4xl">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <th className="py-3 px-5 w-12 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedHelperIds.length === helpers.length && helpers.length > 0}
-                    ref={(el) => {
-                      if (el) {
-                        el.indeterminate = selectedHelperIds.length > 0 && selectedHelperIds.length < helpers.length;
-                      }
-                    }}
-                    onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                  />
-                </th>
+                {permissions.delete && (
+                  <th className="py-3 px-5 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedHelperIds.length === helpers.length && helpers.length > 0}
+                      ref={(el) => {
+                        if (el) {
+                          el.indeterminate = selectedHelperIds.length > 0 && selectedHelperIds.length < helpers.length;
+                        }
+                      }}
+                      onChange={handleToggleSelectAll}
+                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                    />
+                  </th>
+                )}
                 <th className="py-3 px-5">Người Giúp Việc</th>
                 <th className="py-3 px-5">Số Điện Thoại</th>
                 <th className="py-3 px-5">Kinh Nghiệm</th>
@@ -265,22 +263,20 @@ export const Helpers = () => {
 
                 return (
                   <tr key={helper.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors">
-                    <td className="py-3 px-5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedHelperIds.includes(helper.id)}
-                        onChange={() => handleToggleSelectHelper(helper.id)}
-                        className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                      />
-                    </td>
+                    {permissions.delete && (
+                      <td className="py-3 px-5 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedHelperIds.includes(helper.id)}
+                          onChange={() => handleToggleSelectHelper(helper.id)}
+                          className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                        />
+                      </td>
+                    )}
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
                         {helper.user?.avatar ? (
-                          <img
-                            src={helper.user.avatar}
-                            alt={name}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                          />
+                          <img src={helper.user.avatar} alt={name} className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] font-bold text-sm flex items-center justify-center border border-slate-100 dark:border-slate-700">
                             {getInitials(name)}
@@ -304,12 +300,8 @@ export const Helpers = () => {
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-1">
                         <Icon icon="material-symbols:star-rounded" className="text-amber-500 text-base" />
-                        <span className="font-bold text-slate-800 dark:text-slate-100">
-                          {Number(helper.rating_avg || 0).toFixed(1)}
-                        </span>
-                        <span className="text-xs text-slate-400 dark:text-slate-550">
-                          ({helper.total_reviews} đánh giá)
-                        </span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{Number(helper.rating_avg || 0).toFixed(1)}</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-550">({helper.total_reviews} đánh giá)</span>
                       </div>
                     </td>
 
@@ -320,7 +312,8 @@ export const Helpers = () => {
                         ? new Date(helper.birthday).toLocaleDateString("vi-VN", {
                             year: "numeric",
                             month: "long",
-                            day: "numeric" })
+                            day: "numeric",
+                          })
                         : "N/A"}
                     </td>
 
@@ -334,7 +327,7 @@ export const Helpers = () => {
                           <Icon icon="material-symbols:folder-open-outline" className="text-lg" />
                         </button>
 
-                        {(helper.status === "pending" || helper.status === "rejected") && (
+                        {permissions.verify && (helper.status === "pending" || helper.status === "rejected") && (
                           <button
                             onClick={() => openVerifyModal(helper, "approved")}
                             className="p-2 rounded-xl text-slate-550 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-950/30 transition-all cursor-pointer"
@@ -344,7 +337,7 @@ export const Helpers = () => {
                           </button>
                         )}
 
-                        {(helper.status === "pending" || helper.status === "active") && (
+                        {permissions.verify && (helper.status === "pending" || helper.status === "active") && (
                           <button
                             onClick={() => openVerifyModal(helper, "rejected")}
                             className="p-2 rounded-xl text-slate-550 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-450 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
@@ -354,21 +347,25 @@ export const Helpers = () => {
                           </button>
                         )}
 
-                        <button
-                          onClick={() => openStatusModal(helper)}
-                          className="p-2 rounded-xl text-slate-550 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-950/30 transition-all cursor-pointer"
-                          title="Đổi Trạng Thái Hoạt Động"
-                        >
-                          <Icon icon="material-symbols:shield-lock-outline-rounded" className="text-lg" />
-                        </button>
+                        {permissions.lock && (
+                          <button
+                            onClick={() => openStatusModal(helper)}
+                            className="p-2 rounded-xl text-slate-550 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-950/30 transition-all cursor-pointer"
+                            title="Đổi Trạng Thái Hoạt Động"
+                          >
+                            <Icon icon="material-symbols:shield-lock-outline-rounded" className="text-lg" />
+                          </button>
+                        )}
 
-                        <button
-                          onClick={() => handleDeleteHelper(helper.id)}
-                          className="p-2 rounded-xl text-slate-550 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-all cursor-pointer"
-                          title="Xóa vĩnh viễn helper & tài khoản"
-                        >
-                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                        </button>
+                        {permissions.delete && (
+                          <button
+                            onClick={() => handleDeleteHelper(helper.id)}
+                            className="p-2 rounded-xl text-slate-550 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-all cursor-pointer"
+                            title="Xóa vĩnh viễn helper & tài khoản"
+                          >
+                            <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -378,12 +375,7 @@ export const Helpers = () => {
           </table>
         </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={(page) => setCurrentPage(page)} />
       </div>
     );
   };
@@ -414,11 +406,7 @@ export const Helpers = () => {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-150 dark:border-slate-700/80">
               {selectedHelper.user?.avatar ? (
-                <img
-                  src={selectedHelper.user.avatar}
-                  alt={name}
-                  className="w-16 h-16 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                />
+                <img src={selectedHelper.user.avatar} alt={name} className="w-16 h-16 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-[#026E5F]/15 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] font-bold text-xl flex items-center justify-center border border-slate-200">
                   {getInitials(name)}
@@ -426,7 +414,9 @@ export const Helpers = () => {
               )}
               <div className="flex-1 text-center sm:text-left">
                 <h4 className="font-extrabold text-lg text-slate-800 dark:text-slate-100">{name}</h4>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{email} | {phone}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  {email} | {phone}
+                </p>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
                   <span className="text-xxs px-2 py-0.5 font-bold rounded-md bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30">
                     ID Tài khoản: {selectedHelper.user_id}
@@ -438,9 +428,9 @@ export const Helpers = () => {
               </div>
               <div className="flex flex-col gap-1 items-center sm:items-end">
                 <span className="text-xxs text-slate-400 dark:text-slate-500 uppercase font-semibold">Tài khoản</span>
-                <span className={`px-2 py-0.5 rounded text-xxs font-bold uppercase tracking-wider ${
-                  accountStatus === "active" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
-                }`}>
+                <span
+                  className={`px-2 py-0.5 rounded text-xxs font-bold uppercase tracking-wider ${accountStatus === "active" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
+                >
                   {accountStatus === "active" ? "Active" : "Locked"}
                 </span>
               </div>
@@ -492,7 +482,10 @@ export const Helpers = () => {
               <div className="flex flex-wrap gap-2">
                 {selectedHelper.skills && selectedHelper.skills.length > 0 ? (
                   selectedHelper.skills.map((skill) => (
-                    <span key={skill.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50/50 dark:bg-teal-950/20 text-[#026E5F] dark:text-[#52c1b2] rounded-xl text-xs font-bold border border-teal-100 dark:border-teal-900/30 shadow-xs">
+                    <span
+                      key={skill.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50/50 dark:bg-teal-950/20 text-[#026E5F] dark:text-[#52c1b2] rounded-xl text-xs font-bold border border-teal-100 dark:border-teal-900/30 shadow-xs"
+                    >
                       <Icon icon="material-symbols:check-circle-rounded" className="text-sm shrink-0" />
                       {skill.service?.name} (Từ {skill.service?.base_price.toLocaleString("vi-VN")}đ)
                     </span>
@@ -508,7 +501,10 @@ export const Helpers = () => {
               <div className="flex flex-wrap gap-2">
                 {selectedHelper.workingAreas && selectedHelper.workingAreas.length > 0 ? (
                   selectedHelper.workingAreas.map((area) => (
-                    <span key={area.id} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold border border-blue-100 dark:border-blue-900/30 shadow-xs">
+                    <span
+                      key={area.id}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold border border-blue-100 dark:border-blue-900/30 shadow-xs"
+                    >
                       <Icon icon="material-symbols:location-on-outline" className="text-sm shrink-0" />
                       {area.district}, {area.city}
                     </span>
@@ -527,24 +523,18 @@ export const Helpers = () => {
                     <div key={v.id} className="p-3 bg-slate-50 dark:bg-slate-900/35 rounded-xl border border-slate-200/50 dark:border-slate-700 flex items-center justify-between text-xs gap-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-xxs font-bold uppercase ${
-                            v.status === "approved"
-                              ? "bg-emerald-500/10 text-emerald-600"
-                              : v.status === "rejected"
-                              ? "bg-rose-500/10 text-rose-500"
-                              : "bg-amber-500/10 text-amber-600"
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xxs font-bold uppercase ${
+                              v.status === "approved" ? "bg-emerald-500/10 text-emerald-600" : v.status === "rejected" ? "bg-rose-500/10 text-rose-500" : "bg-amber-500/10 text-amber-600"
+                            }`}
+                          >
                             {v.status}
                           </span>
-                          <span className="text-slate-450 dark:text-slate-500 font-semibold">
-                            {new Date(v.created_at).toLocaleString("vi-VN")}
-                          </span>
+                          <span className="text-slate-450 dark:text-slate-500 font-semibold">{new Date(v.created_at).toLocaleString("vi-VN")}</span>
                         </div>
                         {v.note && <p className="text-slate-600 dark:text-slate-350 mt-1 italic font-medium">Ghi chú: {v.note}</p>}
                       </div>
-                      {v.admin_id && (
-                        <span className="text-xxs font-bold text-slate-400 dark:text-slate-500">Admin ID: {v.admin_id}</span>
-                      )}
+                      {v.admin_id && <span className="text-xxs font-bold text-slate-400 dark:text-slate-500">Admin ID: {v.admin_id}</span>}
                     </div>
                   ))
                 ) : (
@@ -555,7 +545,10 @@ export const Helpers = () => {
           </div>
 
           <div className="p-5 bg-slate-50 dark:bg-slate-900/30 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-end">
-            <button onClick={closeDetailModal} className="px-5 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 font-bold text-xs rounded-xl transition-all cursor-pointer">
+            <button
+              onClick={closeDetailModal}
+              className="px-5 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 font-bold text-xs rounded-xl transition-all cursor-pointer"
+            >
               Đóng lại
             </button>
           </div>
@@ -576,7 +569,10 @@ export const Helpers = () => {
         <div className="relative bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all duration-300 scale-100 flex flex-col">
           <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
             <h3 className="font-extrabold text-base flex items-center gap-2">
-              <Icon icon={verifyStatus === "approved" ? "material-symbols:check-circle-outline" : "material-symbols:cancel-outline"} className={verifyStatus === "approved" ? "text-emerald-500" : "text-rose-500"} />
+              <Icon
+                icon={verifyStatus === "approved" ? "material-symbols:check-circle-outline" : "material-symbols:cancel-outline"}
+                className={verifyStatus === "approved" ? "text-emerald-500" : "text-rose-500"}
+              />
               Xác Nhận Xét Duyệt Hồ Sơ
             </h3>
             <button onClick={closeVerifyModal} className="text-slate-400 hover:text-slate-655 dark:hover:text-slate-255 cursor-pointer">
@@ -586,7 +582,8 @@ export const Helpers = () => {
 
           <div className="p-6 space-y-4">
             <p className="text-sm font-semibold text-slate-655 dark:text-slate-300">
-              Bạn có chắc chắn muốn <span className="font-extrabold">{verifyStatus === "approved" ? "PHÊ DUYỆT" : "TỪ CHỐI"}</span> hồ sơ của helper <span className="text-[#026E5F] font-extrabold">"{name}"</span>?
+              Bạn có chắc chắn muốn <span className="font-extrabold">{verifyStatus === "approved" ? "PHÊ DUYỆT" : "TỪ CHỐI"}</span> hồ sơ của helper{" "}
+              <span className="text-[#026E5F] font-extrabold">"{name}"</span>?
             </p>
 
             <div className="space-y-1">
@@ -706,12 +703,11 @@ export const Helpers = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      
       {renderHeader()}
       {renderKPIs()}
       {renderCharts()}
       {renderFilters()}
-      {selectedHelperIds.length > 0 && (
+      {permissions.delete && selectedHelperIds.length > 0 && (
         <div className="my-2">
           <BulkDeleteBar
             selectedIds={selectedHelperIds}

@@ -40,6 +40,7 @@ class RolePermissionSeeder extends Seeder
 
     $operatorPerms = [
       'helper_profile.verify',
+      'job_posts.view',
       'job_posts.approve',
       'job_posts.reject',
       'job_posts.hide',

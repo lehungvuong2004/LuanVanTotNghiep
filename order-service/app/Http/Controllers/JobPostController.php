@@ -911,8 +911,8 @@ class JobPostController extends Controller
      */
     public function adminDestroy(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== Role::ADMIN) {
-            return response()->json(['message' => 'Only administrators can delete job posts.'], Response::HTTP_FORBIDDEN);
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
         }
 
         $post = JobPost::find($id);

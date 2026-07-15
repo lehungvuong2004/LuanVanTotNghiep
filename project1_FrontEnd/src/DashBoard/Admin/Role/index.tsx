@@ -6,6 +6,11 @@ import { useRolesAdmin } from "./useHook";
 
 export const Role = () => {
   const { hasPermission } = useAuth();
+  const rolePermissions = {
+    create: hasPermission("roles.create"),
+    update: hasPermission("roles.update"),
+    delete: hasPermission("roles.delete"),
+  };
   const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode,   openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } =
     useRolesAdmin();
 
@@ -44,7 +49,7 @@ export const Role = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Thiết lập các vai trò người dùng trong hệ thống (Khách hàng, Nhân viên, Đối tác, Admin).</p>
       </div>
       <div className="flex items-center gap-3">
-        {selectedIds.length > 0 && hasPermission("roles.delete") && (
+        {selectedIds.length > 0 && rolePermissions.delete && (
           <button
             onClick={handleBulkDelete}
             className="flex items-center justify-center gap-2 bg-red-650 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
@@ -53,7 +58,7 @@ export const Role = () => {
             Xóa {selectedIds.length} đã chọn
           </button>
         )}
-        {hasPermission("roles.create") && (
+        {rolePermissions.create && (
           <button
             onClick={openAddModal}
             className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
@@ -206,7 +211,7 @@ export const Role = () => {
                     {/* Actions */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-1">
-                        {hasPermission("roles.update") && (
+                        {rolePermissions.update && (
                           <button
                             onClick={() => openEditModal(item)}
                             className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
@@ -215,11 +220,11 @@ export const Role = () => {
                             <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
                           </button>
                         )}
-                        {hasPermission("roles.delete") && (
+                        {rolePermissions.delete && (
                           <button
                             onClick={() => handleDelete(item.id)}
                             disabled={isCore}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-405 dark:hover:bg-red-950/30 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                             title={isCore ? "Không thể xóa vai trò hệ thống" : "Xóa"}
                           >
                             <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />

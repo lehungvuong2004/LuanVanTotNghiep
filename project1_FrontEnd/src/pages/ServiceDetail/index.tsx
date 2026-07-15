@@ -38,8 +38,7 @@ export const ServiceDetail = () => {
     selectedHelperId,
     setSelectedHelperId,
     reviewStats,
-    
-    
+
     formRating,
     setFormRating,
     formComment,
@@ -85,7 +84,8 @@ export const ServiceDetail = () => {
     openBookingModal,
     closeBookingModal,
     handleAddNewAddress,
-    handleCreateBooking } = useServiceDetail();
+    handleCreateBooking,
+  } = useServiceDetail();
 
   if (loading) {
     return (
@@ -122,7 +122,8 @@ export const ServiceDetail = () => {
     ? {
         avg_rating: reviewStats.rating_avg,
         total_reviews: reviewStats.total_reviews,
-        rating_distribution: reviewStats.rating_distribution }
+        rating_distribution: reviewStats.rating_distribution,
+      }
     : ratingStats;
 
   // ─── Render Functions ───────────────────────────────────────────
@@ -238,12 +239,28 @@ export const ServiceDetail = () => {
                   <span className="text-sm text-slate-400">/{priceTypeLabel(service.price_type)}</span>
                 </div>
               </div>
-              <button
-                onClick={openBookingModal}
-                className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg hover:shadow-teal-600/20 active:scale-95 transition-all cursor-pointer"
-              >
-                {t("Đặt ngay")}
-              </button>
+              <div className="flex items-center gap-2">
+                {selectedHelperObj && (
+                  <button
+                    onClick={() => {
+                      const helperUserId = selectedHelperObj.user?.id || selectedHelperObj.user_id;
+                      if (helperUserId) {
+                        navigate(`/messages/${helperUserId}`);
+                      }
+                    }}
+                    className="bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 text-base shadow-sm"
+                  >
+                    <Icon icon="material-symbols:chat-outline" className="text-xl" />
+                    {t("Nhắn tin")}
+                  </button>
+                )}
+                <button
+                  onClick={openBookingModal}
+                  className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg hover:shadow-teal-600/20 active:scale-95 transition-all cursor-pointer"
+                >
+                  {t("Đặt ngay")}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -846,7 +863,6 @@ export const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 pt-6 pb-16">
-      
       {renderBreadcrumb()}
       {renderHeroSection()}
       {renderTabNavigation()}

@@ -4,8 +4,14 @@ import { Pagination } from "../../../components/Pagination";
 
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 
-export const ApplicationReview= () => {
+export const ApplicationReview = () => {
+  const { hasPermission } = useAuth();
+  const canApprove = hasPermission("job_posts.approve");
+  const canReject = hasPermission("job_posts.reject");
+  const canHide = hasPermission("job_posts.hide");
+
   const {
     jobPosts,
     usersMap,
@@ -244,7 +250,7 @@ export const ApplicationReview= () => {
                         <td className="py-3.5 px-5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             {/* Approve (Open) */}
-                            {post.status !== "open" && (
+                            {post.status !== "open" && canApprove && (
                               <button
                                 disabled={actionLoading}
                                 onClick={() => handleUpdateStatus(post.id, "open")}
@@ -256,7 +262,7 @@ export const ApplicationReview= () => {
                             )}
 
                             {/* Block / Pending */}
-                            {post.status !== "pending" && (
+                            {post.status !== "pending" && canHide && (
                               <button
                                 disabled={actionLoading}
                                 onClick={() => handleUpdateStatus(post.id, "pending")}
@@ -268,7 +274,7 @@ export const ApplicationReview= () => {
                             )}
 
                             {/* Close */}
-                            {post.status !== "closed" && (
+                            {post.status !== "closed" && canHide && (
                               <button
                                 disabled={actionLoading}
                                 onClick={() => handleUpdateStatus(post.id, "closed")}
@@ -313,7 +319,7 @@ export const ApplicationReview= () => {
                   <Icon icon="material-symbols:post-add-rounded" className="text-[#026E5F] dark:text-emerald-400" />
                   Chi Tiết Bài Tuyển Dụng
                 </h3>
-                <p className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">Kiểm duyệt các thông tin công việc</p>
+                <p className="text-xxs text-slate-400 dark:text-slate-550 mt-0.5">Kiểm duyệt các thông tin công việc</p>
               </div>
               <button onClick={handleCloseDetail} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
@@ -366,7 +372,7 @@ export const ApplicationReview= () => {
 
                   {/* Description */}
                   <div className="space-y-2">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Mô tả công việc</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550">Mô tả công việc</h4>
                     <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-750 text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">
                       {selectedPost.description || "Không có mô tả công việc."}
                     </div>
@@ -374,7 +380,7 @@ export const ApplicationReview= () => {
 
                   {/* Services Needed */}
                   <div className="space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Dịch vụ yêu cầu</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550">Dịch vụ yêu cầu</h4>
                     {selectedPost.services && selectedPost.services.length > 0 ? (
                       <div className="border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden text-xs">
                         <table className="w-full text-left">
@@ -401,7 +407,7 @@ export const ApplicationReview= () => {
 
                   {/* Job Applications list */}
                   <div className="space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Hồ sơ ứng tuyển từ thợ ({selectedPost.applications?.length || 0})</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550">Hồ sơ ứng tuyển từ thợ ({selectedPost.applications?.length || 0})</h4>
                     {selectedPost.applications && selectedPost.applications.length > 0 ? (
                       <div className="space-y-3">
                         {selectedPost.applications.map((app: any) => {
@@ -447,7 +453,7 @@ export const ApplicationReview= () => {
               {/* Quick actions in detail modal */}
               {selectedPost && !detailLoading && (
                 <div className="flex gap-2">
-                  {selectedPost.status !== "open" && (
+                  {selectedPost.status !== "open" && canApprove && (
                     <button
                       disabled={actionLoading}
                       onClick={() => handleUpdateStatus(selectedPost.id, "open")}
@@ -456,7 +462,7 @@ export const ApplicationReview= () => {
                       Duyệt (Open)
                     </button>
                   )}
-                  {selectedPost.status !== "pending" && (
+                  {selectedPost.status !== "pending" && canHide && (
                     <button
                       disabled={actionLoading}
                       onClick={() => handleUpdateStatus(selectedPost.id, "pending")}
@@ -465,7 +471,7 @@ export const ApplicationReview= () => {
                       Dừng (Pending)
                     </button>
                   )}
-                  {selectedPost.status !== "closed" && (
+                  {selectedPost.status !== "closed" && canHide && (
                     <button
                       disabled={actionLoading}
                       onClick={() => handleUpdateStatus(selectedPost.id, "closed")}
@@ -474,7 +480,7 @@ export const ApplicationReview= () => {
                       Gỡ (Closed)
                     </button>
                   )}
-                  {selectedPost.status !== "rejected" && (
+                  {selectedPost.status !== "rejected" && canReject && (
                     <button
                       disabled={actionLoading}
                       onClick={() => {

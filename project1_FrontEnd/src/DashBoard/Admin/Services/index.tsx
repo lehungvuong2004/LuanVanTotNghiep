@@ -29,6 +29,12 @@ const formatPrice = (price: number | string) => {
 
 export const Services = () => {
   const { hasPermission } = useAuth();
+  const permissions = {
+    create: hasPermission("services.create"),
+    update: hasPermission("services.update"),
+    delete: hasPermission("services.delete"),
+    updateStatus: hasPermission("services.update_status"),
+  };
   const {
     services,
     categories,
@@ -48,6 +54,7 @@ export const Services = () => {
     closeModal,
     formik,
     handleDelete,
+    handleToggleStatus,
   } = useServicesAdmin();
 
   const [selectedIds, setSelectedIds] = useState([]);
@@ -74,26 +81,26 @@ export const Services = () => {
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Dịch Vụ</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý danh sách dịch vụ, giá cả và trạng thái hoạt động.</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý danh sách dịch vụ, giá cả</p>
       </div>
       <div className="flex items-center gap-3">
-        {selectedIds.length > 0 && (
+        {permissions.delete && selectedIds.length > 0 && (
           <button
             onClick={handleBulkDelete}
-            className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+            className="flex items-center justify-center gap-2 bg-red-650 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
           >
             <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
             Xóa {selectedIds.length} đã chọn
           </button>
         )}
-        {hasPermission("services.create") && (
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-        >
-          <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-          Thêm Dịch Vụ
-        </button>
+        {permissions.create && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+          >
+            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+            Thêm Dịch Vụ
+          </button>
         )}
       </div>
     </div>
@@ -200,25 +207,30 @@ export const Services = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-700/50">
-                  <th className="px-4 py-3.5 w-10">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.length === services.length && services.length > 0}
-                      ref={(el) => {
-                        if (el) {
-                          el.indeterminate = selectedIds.length > 0 && selectedIds.length < services.length;
-                        }
-                      }}
-                      onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700"
-                    />
-                  </th>
+                  {permissions.delete && (
+                    <th className="px-4 py-3.5 w-10">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.length === services.length && services.length > 0}
+                        ref={(el) => {
+                          if (el) {
+                            el.indeterminate = selectedIds.length > 0 && selectedIds.length < services.length;
+                          }
+                        }}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700"
+                      />
+                    </th>
+                  )}
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Dịch Vụ</th>
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Danh Mục</th>
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Giá Cơ Bản</th>
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loại Giá</th>
-                  <th className="text-right px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành Động</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng Thái</th>
+                  {(permissions.update || permissions.delete) && (
+                    <th className="text-right px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành Động</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
@@ -227,14 +239,16 @@ export const Services = () => {
                   const category = item.category;
                   return (
                     <tr key={item.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
-                      <td className="px-4 py-4 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(item.id)}
-                          onChange={() => toggleSelectOne(item.id)}
-                          className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700"
-                        />
-                      </td>
+                      {permissions.delete && (
+                        <td className="px-4 py-4 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(item.id)}
+                            onChange={() => toggleSelectOne(item.id)}
+                            className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700"
+                          />
+                        </td>
+                      )}
                       <td className="px-5 py-4 text-slate-400 dark:text-slate-500 font-mono text-xs">#{item.id}</td>
 
                       {/* Service Name + Description */}
@@ -275,29 +289,58 @@ export const Services = () => {
                         </span>
                       </td>
 
-                      {/* Actions */}
+                      {/* Status */}
                       <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-1">
-                          {hasPermission("services.update") && (
+                        {permissions.updateStatus ? (
                           <button
-                            onClick={() => openEditModal(item)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                            title="Chỉnh sửa"
+                            onClick={() => handleToggleStatus(item)}
+                            className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all hover:scale-105 active:scale-95 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                           >
-                            <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${item.status === "active" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                            <span className={item.status === "active" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}>
+                              {item.status === "active" ? "Hoạt động" : "Tạm ngưng"}
+                            </span>
+                            <Icon icon="material-symbols:sync-alt-rounded" className="text-xs text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                           </button>
-                          )}
-                          {hasPermission("services.delete") && (
-                          <button
-                            onClick={() => handleDelete(item.id)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-                            title="Xóa"
+                        ) : (
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold ${
+                              item.status === "active"
+                                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
+                                : "bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400"
+                            }`}
                           >
-                            <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                          </button>
-                          )}
-                        </div>
+                            <div className={`w-1.5 h-1.5 rounded-full ${item.status === "active" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                            {item.status === "active" ? "Hoạt động" : "Tạm ngưng"}
+                          </span>
+                        )}
                       </td>
+
+                      {/* Actions */}
+                      {(permissions.update || permissions.delete) && (
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-end gap-1">
+                            {permissions.update && (
+                              <button
+                                onClick={() => openEditModal(item)}
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                                title="Chỉnh sửa"
+                              >
+                                <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                              </button>
+                            )}
+                            {permissions.delete && (
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                                title="Xóa"
+                              >
+                                <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}

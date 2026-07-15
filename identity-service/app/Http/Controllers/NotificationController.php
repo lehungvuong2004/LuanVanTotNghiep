@@ -199,23 +199,26 @@ class NotificationController extends Controller
     if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
       return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
     }
-
+ 
     $fields = $request->validate([
-      'role'    => 'required|string|in:customer,helper,operator,admin',
+      'role'    => 'required|string|in:customer,helper,operator,admin,all',
       'title'   => 'required|string|max:150',
       'message' => 'required|string|max:1000',
       'type'    => 'sometimes|string|in:system,booking,payment,promotion,report',
     ]);
-
-    $roleMap = ['admin' => Role::ADMIN, 'customer' => Role::CUSTOMER, 'helper' => Role::HELPER, 'operator' => Role::OPERATOR];
-    $roleId  = $roleMap[$fields['role']];
-
-    $userIds = User::where('role_id', $roleId)
-      ->where('status', 'active')
-      ->pluck('id');
-
+ 
+    if ($fields['role'] === 'all') {
+      $userIds = User::where('status', 'active')->pluck('id');
+    } else {
+      $roleMap = ['admin' => Role::ADMIN, 'customer' => Role::CUSTOMER, 'helper' => Role::HELPER, 'operator' => Role::OPERATOR];
+      $roleId  = $roleMap[$fields['role']];
+      $userIds = User::where('role_id', $roleId)
+        ->where('status', 'active')
+        ->pluck('id');
+    }
+ 
     if ($userIds->isEmpty()) {
-      return response()->json(['message' => 'Không có user nào thuộc role này.'], Response::HTTP_NOT_FOUND);
+      return response()->json(['message' => 'Không có user nào thuộc đối tượng này.'], Response::HTTP_NOT_FOUND);
     }
 
     $insertedNotifications = [];

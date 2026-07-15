@@ -132,6 +132,8 @@ return new class extends Migration
       $table->string('message_type', 30)->default('text');
       $table->string('attachment', 255)->nullable();
       $table->tinyInteger('is_read')->default(0);
+      $table->tinyInteger('sender_deleted')->default(0);
+      $table->tinyInteger('receiver_deleted')->default(0);
       $table->timestamp('created_at')->useCurrent();
 
       $table->foreign('sender_id', 'fk_messages_sender')

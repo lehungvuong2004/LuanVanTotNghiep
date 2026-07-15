@@ -101,7 +101,7 @@ export const useServiceDetail = () => {
     setBookingNote("");
   };
 
-  const handleAddNewAddress = async (e: React.FormEvent) => {
+  const handleAddNewAddress = async (e) => {
     e.preventDefault();
     if (!newAddress.trim()) {
       showToast("error", t("Lỗi"), t("Vui lòng nhập địa chỉ cụ thể."));
@@ -123,7 +123,7 @@ export const useServiceDetail = () => {
     }
   };
 
-  const handleCreateBooking = async (e: React.FormEvent) => {
+  const handleCreateBooking = async (e) => {
     e.preventDefault();
     if (!selectedAddressId) {
       showToast("error", t("Lỗi"), t("Vui lòng chọn hoặc thêm địa chỉ nhận việc."));
@@ -214,7 +214,7 @@ export const useServiceDetail = () => {
     }
   }, [selectedHelperId]);
 
-  const handleCreateReview = async (e: React.FormEvent) => {
+  const handleCreateReview = async (e) => {
     e.preventDefault();
     if (!formHelperId) {
       showToast("error", t("Lỗi"), t("Vui lòng chọn nhân viên để đánh giá."));
