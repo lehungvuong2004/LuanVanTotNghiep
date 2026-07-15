@@ -21,8 +21,7 @@ export const BulkDeleteBar = ({
   onToggleAll,
   onDeleteSelected,
   onClear,
-  loading = false,
-}: BulkDeleteBarProps) => {
+  loading = false }: BulkDeleteBarProps) => {
   const allSelected = selectedIds.length > 0 && selectedIds.length === totalCount;
   const someSelected = selectedIds.length > 0 && !allSelected;
   const count = selectedIds.length;
@@ -40,14 +39,20 @@ export const BulkDeleteBar = ({
         type="button"
         onClick={onToggleAll}
         title={allSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-        className="flex items-center justify-center w-5 h-5 rounded border-2 cursor-pointer transition-all shrink-0 focus:outline-none"
-        style={{
-          borderColor: allSelected || someSelected ? "#0e7490" : "#94a3b8",
-          background: allSelected ? "#0e7490" : someSelected ? "#cffafe" : "transparent",
-        }}
+        className={`flex items-center justify-center w-5 h-5 rounded border-2 cursor-pointer transition-all shrink-0 focus:outline-none ${
+          allSelected || someSelected
+            ? "border-cyan-700 dark:border-cyan-600"
+            : "border-slate-400 dark:border-slate-500"
+        } ${
+          allSelected
+            ? "bg-cyan-700 dark:bg-cyan-600"
+            : someSelected
+            ? "bg-cyan-100 dark:bg-cyan-950/40"
+            : "bg-transparent"
+        }`}
       >
         {allSelected && <Icon icon="material-symbols:check-small-rounded" className="text-white text-base" />}
-        {someSelected && <Icon icon="material-symbols:remove-rounded" className="text-cyan-700 text-sm" />}
+        {someSelected && <Icon icon="material-symbols:remove-rounded" className="text-cyan-700 dark:text-cyan-400 text-sm" />}
       </button>
 
       {/* Label */}

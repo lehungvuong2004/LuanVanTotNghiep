@@ -2,17 +2,17 @@ import ReactECharts from "echarts-for-react";
 import { Icon } from "@iconify/react";
 import { useDashboardOverview } from "./useHook";
 import type { KPICardData, RecentBooking } from "./useHook";
+import { Link } from "react-router-dom";
 import { formatNumberVI, formatMoneyShortVI } from "../../../utils";
 
 export const DashboardOverview = () => {
-  // Delegate all charts configuration and lifecycle to the custom hook
   const { kpis, recentBookings, totalServiceCount, barOption, pieOption, loading, error } = useDashboardOverview();
 
   if (loading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-10 min-h-96">
         <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-blue-600 mb-2" />
-        <span className="text-slate-500 text-sm">Loading dashboard statistics...</span>
+        <span className="text-slate-500 text-sm">Đang tải dữ liệu thống kê...</span>
       </div>
     );
   }
@@ -31,19 +31,20 @@ export const DashboardOverview = () => {
   // Sub-render 1: Page Header
   const renderHeader = () => (
     <div>
-      <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-0.5">Dashboard Overview</h2>
-      <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back, Admin. Here is today's platform summary.</p>
+      <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-0.5">Tổng quan bảng điều khiển</h2>
+      <p className="text-sm text-slate-500 dark:text-slate-400">Chào mừng trở lại, Quản trị viên. Dưới đây là tóm tắt hoạt động hôm nay.</p>
     </div>
   );
 
-  // Sub-render 2: KPI Metrics Cards using Grid (taller values & text)
   const renderKPICards = (items: KPICardData[]) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {items.map((card, idx) => (
         <div key={idx} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between transition-all hover:shadow-sm">
           <div>
             <span className="block text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{card.title}</span>
-            <span className="block text-2xl font-bold text-slate-850 dark:text-slate-100">{typeof card.value === "number" ? formatMoneyShortVI(card.value) : card.value}</span>
+            <span className="block text-2xl font-bold text-slate-850 dark:text-slate-100">
+              {typeof card.value === "number" ? (idx === 0 ? formatMoneyShortVI(card.value) : card.value.toLocaleString("vi-VN")) : card.value}
+            </span>
             <span className="inline-flex items-center gap-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-455 mt-1">
               <Icon icon="material-symbols:trending-up-rounded" />
               {card.change}
@@ -62,8 +63,8 @@ export const DashboardOverview = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div className="lg:col-span-2 min-h-80 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Weekly Booking Activity</h3>
-          <span className="text-sm text-slate-400 dark:text-slate-500">Mon - Sun overview</span>
+          <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Hoạt động đặt chỗ hàng tuần</h3>
+          <span className="text-sm text-slate-400 dark:text-slate-500">Tổng quan từ Thứ 2 - Chủ Nhật</span>
         </div>
         <div className="flex-1 h-80 flex items-center justify-center">
           <ReactECharts option={barOption} style={{ height: "100%", width: "100%" }} />
@@ -73,11 +74,11 @@ export const DashboardOverview = () => {
       {/* Service Shares Pie Chart (1 col width, aligned height) */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Service Category</h3>
+          <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Danh mục dịch vụ</h3>
 
           {/* Small stats indicator on top-right corner */}
           <div className="text-right leading-none">
-            <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">Total count</span>
+            <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">Tổng số lượng</span>
             <span className="text-base font-black text-blue-600 dark:text-blue-450">{totalServiceCount.toLocaleString()}</span>
           </div>
         </div>
@@ -94,18 +95,20 @@ export const DashboardOverview = () => {
   const renderRecentActivity = (bookings: RecentBooking[]) => (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-        <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Recent Bookings</h3>
-        <button className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer">View All</button>
+        <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Đặt chỗ gần đây</h3>
+        <Link to="/admin/bookings" className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer" target="_blank">
+          Xem tất cả
+        </Link>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-700">
-              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
-              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Service</th>
-              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Date</th>
-              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Price</th>
-              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Khách hàng</th>
+              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Dịch vụ</th>
+              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Ngày</th>
+              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Giá</th>
+              <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Trạng thái</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-750">
@@ -125,7 +128,15 @@ export const DashboardOverview = () => {
                           : "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-455"
                     }`}
                   >
-                    {booking.status}
+                    {booking.status === "Completed"
+                      ? "Đã hoàn thành"
+                      : booking.status === "Confirmed"
+                        ? "Đã xác nhận"
+                        : booking.status === "Pending"
+                          ? "Chờ duyệt"
+                          : booking.status === "Cancelled"
+                            ? "Đã hủy"
+                            : booking.status}
                   </span>
                 </td>
               </tr>

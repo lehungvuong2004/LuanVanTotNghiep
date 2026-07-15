@@ -55,5 +55,4 @@ export const getPostJobSchema = (t: any) =>
     specificAddress: Yup.string().required(t("Địa chỉ cụ thể là bắt buộc")),
     district: Yup.string().required(t("Quận/Huyện là bắt buộc")),
     city: Yup.string().required(t("Thành phố là bắt buộc")),
-    jobDescription: Yup.string().required(t("Mô tả công việc là bắt buộc")),
-  });
+    jobDescription: Yup.string().required(t("Mô tả công việc là bắt buộc")) });

@@ -1,3 +1,4 @@
+import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
@@ -16,8 +17,7 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
       multiplier: 1.25,
       label: diffDays < 2 ? "Cần gấp (< 2 ngày) — +25%" : "Cần gấp (2 - 4 ngày) — +25%",
       color: "text-red-600 dark:text-red-400",
-      bg: "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900",
-    };
+      bg: "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900" };
   }
   if (diffDays <= 7) {
     return {
@@ -25,16 +25,14 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
       multiplier: 1.15,
       label: "Bình thường (4 - 7 ngày) — +15%",
       color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900",
-    };
+      bg: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900" };
   }
   return {
     level: "long",
     multiplier: 1.0,
     label: "Lâu dài (> 7 ngày) — Giá gốc (+0%)",
     color: "text-emerald-600 dark:text-emerald-400",
-    bg: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900",
-  };
+    bg: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900" };
 };
 
 export const usePostAJobHook = () => {
@@ -45,7 +43,7 @@ export const usePostAJobHook = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<number | string>("new");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [toast, setToast] = useState<{ type: "success" | "error" | "warning" | "info"; title: string; message?: string } | null>(null);
+  const { showToast } = useToast();
 
   const validationSchema = getPostJobSchema(t);
 
@@ -62,8 +60,7 @@ export const usePostAJobHook = () => {
       specificAddress: "",
       district: "",
       city: "",
-      jobDescription: "",
-    },
+      jobDescription: "" },
     validationSchema,
     onSubmit: async (values) => {
       setIsLoading(true);
@@ -95,8 +92,7 @@ export const usePostAJobHook = () => {
               address: values.specificAddress,
               district: values.district,
               city: values.city,
-              is_default: addresses.length === 0,
-            });
+              is_default: addresses.length === 0 });
           } catch (addrErr) {
             console.error("Failed to save new address to customer profile:", addrErr);
           }
@@ -127,14 +123,9 @@ export const usePostAJobHook = () => {
           city: values.city,
           working_time: values.workingTime,
           expired_at: values.expirationDate || undefined,
-          service_ids: isCustom ? [] : values.requiredServices.map(Number),
-        });
+          service_ids: isCustom ? [] : values.requiredServices.map(Number) });
 
-        setToast({
-          type: "success",
-          title: t("Đăng bài thành công"),
-          message: t("Bài tuyển dụng của bạn đã được đăng thành công và đang chờ duyệt."),
-        });
+        showToast("success", t("Đăng bài thành công"), t("Bài tuyển dụng của bạn đã được đăng thành công và đang chờ duyệt."));
 
         formik.resetForm();
       } catch (err: any) {
@@ -146,8 +137,7 @@ export const usePostAJobHook = () => {
       } finally {
         setIsLoading(false);
       }
-    },
-  });
+    } });
 
   // Fetch customer addresses on mount
   useEffect(() => {
@@ -210,8 +200,5 @@ export const usePostAJobHook = () => {
     handleAddressChange,
     isLoading,
     errorMsg,
-    computedUrgency,
-    toast,
-    setToast,
-  };
+    computedUrgency };
 };

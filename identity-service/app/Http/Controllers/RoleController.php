@@ -14,10 +14,6 @@ class RoleController extends Controller
    */
   public function index(Request $request)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
 
     $roles = RoleModel::with('permissions')->get();
     return response()->json($roles, Response::HTTP_OK);
@@ -28,10 +24,6 @@ class RoleController extends Controller
    */
   public function store(Request $request)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
 
     $fields = $request->validate([
       'name'        => 'required|string|max:50|unique:roles,name',
@@ -57,10 +49,6 @@ class RoleController extends Controller
    */
   public function show(Request $request, $id)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
 
     $role = RoleModel::with('permissions')->find($id);
     if (!$role) {
@@ -75,10 +63,6 @@ class RoleController extends Controller
    */
   public function update(Request $request, $id)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
 
     $role = RoleModel::find($id);
     if (!$role) {
@@ -107,6 +91,9 @@ class RoleController extends Controller
     ]);
 
     if ($request->has('permissions')) {
+      if ((int)$id === RoleConst::ADMIN) {
+        return response()->json(['message' => 'Không thể thay đổi quyền của Admin (Luôn Full Access).'], Response::HTTP_FORBIDDEN);
+      }
       $role->permissions()->sync($request->input('permissions'));
     }
 
@@ -118,10 +105,6 @@ class RoleController extends Controller
    */
   public function destroy(Request $request, $id)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
 
     // Core system roles cannot be deleted
     if (in_array((int)$id, [RoleConst::ADMIN, RoleConst::OPERATOR, RoleConst::HELPER, RoleConst::CUSTOMER])) {

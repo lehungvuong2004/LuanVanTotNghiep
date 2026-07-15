@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useRecruitment, SALARY_OPTS, URGENCY_OPTS } from "./useHook";
 import { Pagination } from "../../components/Pagination";
 import { formatDateTime } from "../../utils";
-import { Toast } from "../../components/Toast";
+
 import { Link } from "react-router-dom";
 
 export const Recruitment = () => {
@@ -27,11 +27,10 @@ export const Recruitment = () => {
     clearFilters,
     categories,
     isLoading,
-    toast,
-    setToast,
+    
+    
     applyJob,
-    appliedJobIds,
-  } = useRecruitment();
+    appliedJobIds } = useRecruitment();
 
   const currentUser = (() => {
     try {
@@ -46,7 +45,6 @@ export const Recruitment = () => {
   const renderSidebarFilter = () => {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm sticky top-24 flex flex-col divide-y divide-slate-100 dark:divide-slate-700/50 overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4">
           <span className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100 text-sm">
             <Icon icon="material-symbols:tune" className="text-lg text-[#026E5F] dark:text-teal-400" />
@@ -315,14 +313,7 @@ export const Recruitment = () => {
         <main className="lg:col-span-9">{renderJobListPanel()}</main>
       </div>
 
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={t(toast.title)}
-          message={t(toast.message)}
-          onClose={() => setToast(null)}
-        />
-      )}
+      
     </div>
   );
 };

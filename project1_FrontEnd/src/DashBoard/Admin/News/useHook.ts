@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { NewsItem } from "../../../api/news";
-import type { ToastProps } from "../../../types/Toast";
+
 import { getNewsAdmin, createNewsAdmin, updateNewsAdmin, toggleNewsStatusAdmin, deleteNewsAdmin, uploadNewsImage } from "../../../api/news";
 
 export const useNewsAdmin = () => {
@@ -24,25 +25,7 @@ export const useNewsAdmin = () => {
   const [currentNews, setCurrentNews] = useState<NewsItem | null>(null);
 
   // Toast state
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+  const { showToast } = useToast();
 
   const fetchNewsList = useCallback(
     async (page = 1) => {
@@ -101,23 +84,19 @@ export const useNewsAdmin = () => {
       thumbnail: Yup.string()
         .required("Vui lòng nhập đường dẫn hoặc tải lên hình thu nhỏ")
         .max(255, "Đường dẫn không quá 255 ký tự")
-        .test(
-          "is-valid-image",
-          "Hình ảnh phải là URL hoặc đường dẫn tải lên hợp lệ và có đuôi định dạng ảnh (.jpg, .jpeg, .png, .webp)",
-          (value) => {
-            if (!value) return false;
-            const hasValidExtension = /\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(value);
-            if (!hasValidExtension) return false;
+        .test("is-valid-image", "Hình ảnh phải là URL hoặc đường dẫn tải lên hợp lệ và có đuôi định dạng ảnh (.jpg, .jpeg, .png, .webp)", (value) => {
+          if (!value) return false;
+          const hasValidExtension = /\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(value);
+          if (!hasValidExtension) return false;
 
-            if (value.startsWith("uploads/")) return true;
-            try {
-              new URL(value);
-              return true;
-            } catch {
-              return false;
-            }
+          if (value.startsWith("uploads/")) return true;
+          try {
+            new URL(value);
+            return true;
+          } catch {
+            return false;
           }
-        ),
+        }),
       summary: Yup.string().max(500, "Tóm tắt không quá 500 ký tự").nullable(),
       content: Yup.string().required("Vui lòng nhập nội dung bài viết"),
       status: Yup.string().oneOf(["draft", "published"]).required("Vui lòng chọn trạng thái"),
@@ -237,8 +216,7 @@ export const useNewsAdmin = () => {
     totalItems,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+
     openAddModal,
     openEditModal,
     closeModal,

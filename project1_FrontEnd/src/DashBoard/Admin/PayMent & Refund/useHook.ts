@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Payment, Refund } from "../../../api/payments";
 import {
   getPaymentsAdmin,
   updatePaymentStatusAdmin,
   getRefundsAdmin,
   processRefundAdmin,
-  getPaymentStatsAdmin,
-} from "../../../api/payments";
+  getPaymentStatsAdmin } from "../../../api/payments";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Constants
@@ -14,13 +14,11 @@ import {
 
 export const PAYMENT_METHODS_LABELS: Record<string, string> = {
   cash:          "Tiền mặt",
-  vnpay:         "VNPay",
-};
+  vnpay:         "VNPay" };
 
 export const PAYMENT_METHODS_ICONS: Record<string, string> = {
   cash:          "material-symbols:payments-outline",
-  vnpay:         "material-symbols:credit-score-outline",
-};
+  vnpay:         "material-symbols:credit-score-outline" };
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Hook
@@ -54,23 +52,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
   const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 10;
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
-  const [toast, setToast] = useState<{
-    type: "success" | "error" | "warning" | "info";
-    title: string;
-    message?: string;
-  } | null>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const showToast = useCallback((
-    type: "success" | "error" | "warning" | "info",
-    title: string,
-    message?: string
-  ) => {
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    setToast({ type, title, message });
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 4000);
-  }, []);
+  const { showToast } = useToast();
 
   // ── Fetch real stats from GET /payments/admin/stats ────────────────────────
   const fetchStats = useCallback(async () => {
@@ -96,8 +78,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
         page: paymentsPage,
         limit: itemsPerPage,
         status: statusParam,
-        payment_method: methodParam,
-      });
+        payment_method: methodParam });
 
       setPayments(response.data.data);
       setPaymentsTotal(response.data.total);
@@ -117,8 +98,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
       const response = await getRefundsAdmin({
         page: refundsPage,
         limit: itemsPerPage,
-        status: statusParam,
-      });
+        status: statusParam });
 
       setRefunds(response.data.data);
       setRefundsTotal(response.data.total);
@@ -223,25 +203,21 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
       tooltip: {
         trigger: "axis",
         formatter: (params: any) =>
-          `${params[0].name}: <b style="color:#0a9ea6">${Number(params[0].value).toLocaleString("vi-VN")} ₫</b>`,
-      },
+          `${params[0].name}: <b style="color:#0a9ea6">${Number(params[0].value).toLocaleString("vi-VN")} ₫</b>` },
       grid: { top: 25, bottom: 25, left: 60, right: 15 },
       xAxis: {
         type: "category",
         data: dates.length ? dates : ["Chưa có dữ liệu"],
         axisLine: { lineStyle: { color: "#94a3b8" } },
-        axisLabel: { color: "#64748b", fontSize: 10 },
-      },
+        axisLabel: { color: "#64748b", fontSize: 10 } },
       yAxis: {
         type: "value",
         axisLabel: {
           color: "#64748b",
           fontSize: 10,
           formatter: (v: number) =>
-            v >= 1_000_000 ? `${v / 1_000_000}M ₫` : v >= 1_000 ? `${v / 1_000}k ₫` : `${v} ₫`,
-        },
-        splitLine: { lineStyle: { color: "#f1f5f9" } },
-      },
+            v >= 1_000_000 ? `${v / 1_000_000}M ₫` : v >= 1_000 ? `${v / 1_000}k ₫` : `${v} ₫` },
+        splitLine: { lineStyle: { color: "#f1f5f9" } } },
       series: [{
         data: revenues.length ? revenues : [0],
         type: "line",
@@ -255,11 +231,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
             colorStops: [
               { offset: 0, color: "rgba(10,158,166,0.25)" },
               { offset: 1, color: "rgba(10,158,166,0)" },
-            ],
-          },
-        },
-      }],
-    };
+            ] } } }] };
   }, [payments]);
 
   // ── Payment status distribution chart ────────────────────────────────────
@@ -271,8 +243,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
 
     const data = Object.keys(counts).map((k) => ({
       name: k.charAt(0).toUpperCase() + k.slice(1),
-      value: counts[k],
-    }));
+      value: counts[k] }));
 
     return {
       tooltip: { trigger: "item", formatter: "{b}: <b>{c} giao dịch</b> ({d}%)" },
@@ -283,9 +254,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
         itemStyle: { borderRadius: 8, borderColor: "#fff", borderWidth: 2 },
         label: { show: true, position: "outside", formatter: "{b}: {d}%", color: "#64748b", fontSize: 10 },
         data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
-        color: ["#f59e0b", "#10b981", "#ef4444", "#8b5cf6"],
-      }],
-    };
+        color: ["#f59e0b", "#10b981", "#ef4444", "#8b5cf6"] }] };
   }, [payments]);
 
   // ── Payment method distribution chart ────────────────────────────────────
@@ -309,20 +278,18 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
         itemStyle: { borderRadius: 8, borderColor: "#fff", borderWidth: 2 },
         label: { show: true, formatter: "{b}: {d}%", color: "#64748b", fontSize: 10 },
         data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
-        color: ["#0ea5e9", "#f472b6", "#a78bfa", "#34d399", "#fb923c"],
-      }],
-    };
+        color: ["#0ea5e9", "#f472b6", "#a78bfa", "#34d399", "#fb923c"] }] };
   }, [payments]);
 
   // ── Cleanup ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    return () => { if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current); };
+    // No cleanup needed
   }, []);
 
   return {
     activeTab, setActiveTab,
     loading, statsLoading,
-    toast, setToast,
+    
     searchQuery, setSearchQuery,
 
     // Live stats
@@ -348,6 +315,6 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
     revenueChartOption,
     statusDistributionOption,
     methodDistributionOption,
-    itemsPerPage,
-  };
+    itemsPerPage };
 };
+

@@ -47,7 +47,7 @@ class ReviewController extends Controller
     if (!empty($customerIds)) {
       try {
         $userResponse = Http::timeout(3)
-          ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => $customerIds]);
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $customerIds]);
         if ($userResponse->successful()) {
           $customerMap = collect($userResponse->json('data') ?? [])->keyBy('id')->toArray();
         }
@@ -163,7 +163,7 @@ class ReviewController extends Controller
       $newAvg = $allReviews->avg('rating');
       $newCount = $allReviews->count();
 
-      Http::timeout(3)->post('http://provider-service:8000/api/providers/internal/update-helper-rating', [
+      Http::timeout(3)->post(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/internal/update-helper-rating', [
         'helper_id'     => $fields['helper_id'],
         'rating_avg'    => round($newAvg, 2),
         'total_reviews' => $newCount,
@@ -304,7 +304,7 @@ class ReviewController extends Controller
       $newAvg = $allReviews->avg('rating');
       $newCount = $allReviews->count();
 
-      Http::timeout(3)->post('http://provider-service:8000/api/providers/internal/update-helper-rating', [
+      Http::timeout(3)->post(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/internal/update-helper-rating', [
         'helper_id'     => $review->helper_id,
         'rating_avg'    => $newAvg ? round($newAvg, 2) : 0.00,
         'total_reviews' => $newCount,
@@ -346,7 +346,7 @@ class ReviewController extends Controller
       $newAvg = $allReviews->avg('rating');
       $newCount = $allReviews->count();
 
-      Http::timeout(3)->post('http://provider-service:8000/api/providers/internal/update-helper-rating', [
+      Http::timeout(3)->post(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/internal/update-helper-rating', [
         'helper_id'     => $helperId,
         'rating_avg'    => $newAvg ? round($newAvg, 2) : 0.00,
         'total_reviews' => $newCount,

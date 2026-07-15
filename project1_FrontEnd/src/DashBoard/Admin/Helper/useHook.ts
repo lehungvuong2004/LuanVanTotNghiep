@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getHelpersAdmin, getHelperDetailAdmin, verifyHelperAdmin, toggleHelperStatusAdmin, deleteHelperAdmin, bulkDeleteHelpersAdmin } from "../../../api/helpers";
 import type { HelperProfile } from "../../../api/helpers";
 import { getRootFontSizePx } from "../../../utils";
@@ -26,22 +27,7 @@ export const useHelperManagement = () => {
   const [selectedHelperIds, setSelectedHelperIds] = useState<number[]>([]);
 
   // Toast notification state
-  const [toast, setToast] = useState<{
-    type: "success" | "error" | "warning" | "info";
-    title: string;
-    message?: string;
-  } | null>(null);
-  const toastTimeoutRef = useRef<any>(null);
-
-  const showToast = useCallback((type: "success" | "error" | "warning" | "info", title: string, message?: string) => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setToast({ type, title, message });
-    toastTimeoutRef.current = setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  }, []);
+  const { showToast } = useToast();
 
   const fetchHelpers = useCallback(async () => {
     setLoading(true);
@@ -120,11 +106,7 @@ export const useHelperManagement = () => {
         status: verifyStatus,
         note: verifyNote || undefined,
       });
-      showToast(
-        "success",
-        "Thành công",
-        `Đã ${verifyStatus === "approved" ? "duyệt" : "từ chối"} hồ sơ người giúp việc thành công`
-      );
+      showToast("success", "Thành công", `Đã ${verifyStatus === "approved" ? "duyệt" : "từ chối"} hồ sơ người giúp việc thành công`);
       closeVerifyModal();
       fetchHelpers();
     } catch (error: any) {
@@ -154,11 +136,7 @@ export const useHelperManagement = () => {
         status: newStatus,
         reason: statusReason || undefined,
       });
-      showToast(
-        "success",
-        "Thành công",
-        `Đã cập nhật trạng thái hoạt động thành ${newStatus === "active" ? "Hoạt động" : "Tạm ngưng"}`
-      );
+      showToast("success", "Thành công", `Đã cập nhật trạng thái hoạt động thành ${newStatus === "active" ? "Hoạt động" : "Tạm ngưng"}`);
       closeStatusModal();
       fetchHelpers();
     } catch (error: any) {
@@ -183,9 +161,7 @@ export const useHelperManagement = () => {
   };
 
   const handleToggleSelectHelper = useCallback((helperId: number) => {
-    setSelectedHelperIds((prev) =>
-      prev.includes(helperId) ? prev.filter((id) => id !== helperId) : [...prev, helperId]
-    );
+    setSelectedHelperIds((prev) => (prev.includes(helperId) ? prev.filter((id) => id !== helperId) : [...prev, helperId]));
   }, []);
 
   const handleToggleSelectAll = useCallback(() => {
@@ -199,7 +175,7 @@ export const useHelperManagement = () => {
   const handleBulkDeleteHelpers = async () => {
     if (selectedHelperIds.length === 0) return;
     if (!window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedHelperIds.length} người giúp việc và tài khoản liên kết đã chọn không?`)) return;
-    
+
     setLoading(true);
     try {
       await bulkDeleteHelpersAdmin(selectedHelperIds);
@@ -213,13 +189,7 @@ export const useHelperManagement = () => {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-    };
-  }, []);
+  
 
   const rem = getRootFontSizePx();
 
@@ -372,9 +342,9 @@ export const useHelperManagement = () => {
     handleToggleSelectHelper,
     handleToggleSelectAll,
     handleBulkDeleteHelpers,
-    toast,
-    setToast,
+
     statusOption,
     ratingOption,
   };
 };
+

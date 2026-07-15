@@ -49,6 +49,5 @@ export const useNews = () => {
     total,
     searchQuery,
     setSearchQuery,
-    fetchNews,
-  };
+    fetchNews };
 };

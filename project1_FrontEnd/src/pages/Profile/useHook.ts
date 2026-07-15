@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useLogout } from "../../hooks/useLogout";
 import {
   getProfileApi,
   updateProfileApi,
@@ -42,6 +43,7 @@ import {
 export const useProfile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { logout } = useLogout();
 
   const [activeTab, setActiveTab] = useState<"info" | "address" | "password" | "skills" | "working_areas">("info");
   const [loading, setLoading] = useState<boolean>(true);
@@ -115,8 +117,6 @@ export const useProfile = () => {
 
   // Fetch user profile and custom profile on load
   const fetchAllData = async () => {
-    setLoading(true);
-    setErrorMessage(null);
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -156,9 +156,7 @@ export const useProfile = () => {
     } catch (err: any) {
       console.error("Failed to fetch profile:", err);
       if (err?.response?.status === 401) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user");
-        navigate("/dang-nhap");
+        logout();
       } else {
         setErrorMessage(t("Không thể tải thông tin profile. Vui lòng thử lại sau."));
       }

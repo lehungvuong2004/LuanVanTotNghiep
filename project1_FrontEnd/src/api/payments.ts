@@ -74,8 +74,7 @@ export const getPaymentsAdmin = async (params?: {
   limit?: number;
 }): Promise<AdminPaymentsResponse> => {
   const response = await axiosInstance.get<AdminPaymentsResponse>("/payments/admin", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -110,8 +109,7 @@ export const getRefundsAdmin = async (params?: {
   limit?: number;
 }): Promise<AdminRefundsResponse> => {
   const response = await axiosInstance.get<AdminRefundsResponse>("/payments/admin/refunds", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -161,8 +159,7 @@ export const getMyPaymentsApi = async (params?: {
   limit?: number;
 }): Promise<AdminPaymentsResponse> => {
   const response = await axiosInstance.get<AdminPaymentsResponse>("/payments", {
-    params,
-  });
+    params });
   return response.data;
 };
 
@@ -232,7 +229,6 @@ export const verifyVnpayReturnApi = async (
   queryParams: Record<string, string>
 ): Promise<any> => {
   const response = await axiosInstance.get("/payments/vnpay/return", {
-    params: queryParams,
-  });
+    params: queryParams });
   return response.data;
 };

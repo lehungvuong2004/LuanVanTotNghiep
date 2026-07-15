@@ -128,7 +128,7 @@ class ServiceController extends Controller
     if (!empty($userIds)) {
       try {
         $userResponse = Http::timeout(3)
-          ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => $userIds]);
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $userIds]);
         if ($userResponse->successful()) {
           $userMap = collect($userResponse->json('data') ?? [])->keyBy('id');
           foreach ($helpers as $h) {
@@ -151,7 +151,7 @@ class ServiceController extends Controller
 
       if (!empty($helperIds)) {
         $reviewResponse = Http::timeout(3)
-          ->post('http://order-service:8000/api/orders/internal/service-review-stats', [
+          ->post(env('ORDER_SERVICE_URL', 'http://order-service:8000') . '/api/orders/internal/service-review-stats', [
             'helper_ids' => $helperIds
           ]);
         if ($reviewResponse->successful()) {
@@ -206,7 +206,7 @@ class ServiceController extends Controller
     if (!empty($userIds)) {
       try {
         $userResponse = Http::timeout(3)
-          ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => $userIds]);
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $userIds]);
         if ($userResponse->successful()) {
           $userMap = collect($userResponse->json('data') ?? [])->keyBy('id');
           foreach ($helpers->items() as $h) {
@@ -257,7 +257,7 @@ class ServiceController extends Controller
     if (!empty($allHelperIds)) {
       try {
         $reviewResponse = Http::timeout(5)
-          ->post('http://order-service:8000/api/orders/internal/reviews-by-helpers', [
+          ->post(env('ORDER_SERVICE_URL', 'http://order-service:8000') . '/api/orders/internal/reviews-by-helpers', [
             'helper_ids' => $allHelperIds
           ]);
         if ($reviewResponse->successful()) {
@@ -297,7 +297,7 @@ class ServiceController extends Controller
 
   public function adminListCategories(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
+    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
       return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
@@ -381,7 +381,7 @@ class ServiceController extends Controller
 
   public function adminListServices(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
+    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
       return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
     }
 
@@ -426,8 +426,18 @@ class ServiceController extends Controller
 
   public function updateService(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
+    $isAdmin = ($request->authUser['role_id'] === Role::ADMIN);
+    $isOperator = ($request->authUser['role_id'] === Role::OPERATOR);
+
+    if (!$isAdmin && !$isOperator) {
       return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    }
+
+    if ($isOperator) {
+      $keys = array_keys($request->all());
+      if (count($keys) > 1 || !in_array('status', $keys)) {
+        return response()->json(['message' => 'Bạn không có quyền sửa các trường khác ngoài trạng thái.'], Response::HTTP_FORBIDDEN);
+      }
     }
 
     $service = Service::find($id);

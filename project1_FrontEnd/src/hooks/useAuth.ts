@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { ROLES } from "../constants/roles";
 
 export const useAuth = () => {
   const [token, setToken] = useState(() => localStorage.getItem("access_token"));
@@ -22,10 +21,7 @@ export const useAuth = () => {
   const hasPermission = (permissionName: string): boolean => {
     if (!user) return false;
 
-    // Admin role has access to everything
-    if (user.role?.name?.toLowerCase() === "admin" || user.role_id === ROLES.ADMIN) {
-      return true;
-    }
+    // Remove hardcoded Admin bypass so RBAC is strictly driven by the database
 
     // Check flat permissions array at user root level first
     if (Array.isArray(user.permissions) && user.permissions.includes(permissionName)) {

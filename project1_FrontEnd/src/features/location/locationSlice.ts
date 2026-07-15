@@ -9,8 +9,7 @@ const initialState: LocationState = {
   address: null,
   addressDetails: null,
   status: "idle",
-  error: null,
-};
+  error: null };
 
 export const reverseGeocode = createAsyncThunk(
   "location/reverseGeocode",
@@ -62,8 +61,7 @@ const locationSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string || "Lỗi giải mã tọa độ";
       });
-  },
-});
+  } });
 
 export const { setLocation, clearLocation, setLocationError } = locationSlice.actions;
 export default locationSlice.reducer;

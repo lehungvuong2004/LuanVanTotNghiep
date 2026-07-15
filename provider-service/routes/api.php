@@ -71,25 +71,25 @@ Route::prefix('providers')->group(function () {
     Route::prefix('admin')->group(function () {
 
       // Helpers management
-      Route::get('helpers',               [AdminProviderController::class, 'listHelpers']);
-      Route::get('helpers/stats',         [AdminProviderController::class, 'stats']);
-      Route::get('helpers/{id}',          [AdminProviderController::class, 'showHelper']);
-      Route::patch('helpers/{id}/verify', [AdminProviderController::class, 'verifyHelper']);
+      Route::get('helpers',               [AdminProviderController::class, 'listHelpers'])->middleware('permission:helper_profile.verify');
+      Route::get('helpers/stats',         [AdminProviderController::class, 'stats'])->middleware('permission:helper_profile.verify');
+      Route::get('helpers/{id}',          [AdminProviderController::class, 'showHelper'])->middleware('permission:helper_profile.verify');
+      Route::patch('helpers/{id}/verify', [AdminProviderController::class, 'verifyHelper'])->middleware('permission:helper_profile.verify');
       Route::patch('helpers/{id}/status', [AdminProviderController::class, 'toggleHelperStatus']);
-      Route::delete('helpers/{id}',       [AdminProviderController::class, 'deleteHelper']);
-      Route::post('helpers/bulk-delete',  [AdminProviderController::class, 'bulkDeleteHelpers']);
+      Route::delete('helpers/{id}',       [AdminProviderController::class, 'deleteHelper'])->middleware('permission:helper_profile.delete');
+      Route::post('helpers/bulk-delete',  [AdminProviderController::class, 'bulkDeleteHelpers'])->middleware('permission:helper_profile.delete');
 
-      // Service Categories (Admin only — enforced in controller)
-      Route::get('service-categories',         [ServiceController::class, 'adminListCategories']);
-      Route::post('service-categories',        [ServiceController::class, 'createCategory']);
-      Route::put('service-categories/{id}',    [ServiceController::class, 'updateCategory']);
-      Route::delete('service-categories/{id}', [ServiceController::class, 'deleteCategory']);
+      // Service Categories
+      Route::get('service-categories',         [ServiceController::class, 'adminListCategories'])->middleware('permission:categories.view');
+      Route::post('service-categories',        [ServiceController::class, 'createCategory'])->middleware('permission:categories.create');
+      Route::put('service-categories/{id}',    [ServiceController::class, 'updateCategory'])->middleware('permission:categories.update');
+      Route::delete('service-categories/{id}', [ServiceController::class, 'deleteCategory'])->middleware('permission:categories.delete');
 
-      // Services (Admin only — enforced in controller)
-      Route::get('services',          [ServiceController::class, 'adminListServices']);
-      Route::post('services',         [ServiceController::class, 'createService']);
+      // Services
+      Route::get('services',          [ServiceController::class, 'adminListServices'])->middleware('permission:services.view');
+      Route::post('services',         [ServiceController::class, 'createService'])->middleware('permission:services.create');
       Route::put('services/{id}',     [ServiceController::class, 'updateService']);
-      Route::delete('services/{id}',  [ServiceController::class, 'deleteService']);
+      Route::delete('services/{id}',  [ServiceController::class, 'deleteService'])->middleware('permission:services.delete');
     });
   });
 });

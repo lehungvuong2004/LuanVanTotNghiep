@@ -478,7 +478,7 @@ class AuthController extends Controller
     $helperUserIds = [];
     try {
       $response = Http::timeout(3)
-        ->get('http://provider-service:8000/api/providers/helper-user-ids');
+        ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/helper-user-ids');
       if ($response->successful()) {
         $helperUserIds = $response->json() ?? [];
       }

@@ -1,3 +1,4 @@
+import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useMemo } from "react";
 import { getRootFontSizePx } from "../../../utils";
 import { QUALITATIVE_PALETTE } from "../../../constants/colors";
@@ -297,12 +298,7 @@ export const useBooking = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<BookingItem | null>(null);
 
-  // Toast message
-  const [toast, setToast] = useState<{
-    type: "success" | "error" | "warning" | "info";
-    title: string;
-    message: string;
-  } | null>(null);
+  const { showToast } = useToast();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -315,14 +311,6 @@ export const useBooking = () => {
   useEffect(() => {
     localStorage.setItem("admin_bookings", JSON.stringify(bookings));
   }, [bookings]);
-
-  // Auto-dismiss toast
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   // Wrapper functions to reset page when search query or filters change
   const handleSearchChange = (val: string) => {
@@ -364,11 +352,7 @@ export const useBooking = () => {
     if (selectedBooking && selectedBooking.id === updated.id) {
       setSelectedBooking(updated);
     }
-    setToast({
-      type: "success",
-      title: "Cập nhật thành công",
-      message: `Cập nhật thông tin đơn đặt lịch ${updated.bookingCode} thành công!`,
-    });
+    showToast("success", "Cập nhật thành công", `Cập nhật thông tin đơn đặt lịch ${updated.bookingCode} thành công!`);
     handleCloseEdit();
   };
 
@@ -376,11 +360,7 @@ export const useBooking = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa đơn đặt lịch này?")) {
       const booking = bookings.find((b) => b.id === id);
       setBookings((prev) => prev.filter((b) => b.id !== id));
-      setToast({
-        type: "success",
-        title: "Xóa thành công",
-        message: `Đã xóa đơn đặt lịch ${booking?.bookingCode || id} khỏi hệ thống.`,
-      });
+      showToast("success", "Xóa thành công", `Đã xóa đơn đặt lịch ${booking?.bookingCode || id} khỏi hệ thống.`);
       if (selectedBooking?.id === id) {
         handleCloseDetail();
       }
@@ -427,11 +407,7 @@ export const useBooking = () => {
       });
     }
 
-    setToast({
-      type: "success",
-      title: "Cập nhật trạng thái",
-      message: `Đã đổi trạng thái booking thành công sang "${newStatus}".`,
-    });
+    showToast("success", "Cập nhật trạng thái", `Đã đổi trạng thái booking thành công sang "${newStatus}".`);
   };
 
   // Filter Bookings
@@ -613,15 +589,11 @@ export const useBooking = () => {
   }, [bookings, rem]);
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds((prev) =>
-      prev.length === paginatedBookings.length ? [] : paginatedBookings.map((b) => b.id)
-    );
+    setSelectedIds((prev) => (prev.length === paginatedBookings.length ? [] : paginatedBookings.map((b) => b.id)));
   };
 
   const clearSelection = () => {
@@ -633,11 +605,7 @@ export const useBooking = () => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch đã chọn?`)) {
       const remainingBookings = bookings.filter((b) => !selectedIds.includes(b.id));
       setBookings(remainingBookings);
-      setToast({
-        type: "success",
-        title: "Xóa thành công",
-        message: `Đã xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch khỏi hệ thống.`,
-      });
+      showToast("success", "Xóa thành công", `Đã xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch khỏi hệ thống.`);
       setSelectedIds([]);
       if (selectedBooking && selectedIds.includes(selectedBooking.id)) {
         handleCloseDetail();
@@ -673,8 +641,7 @@ export const useBooking = () => {
     handleQuickStatusChange,
     pieOption,
     lineOption,
-    toast,
-    setToast,
+
     selectedIds,
     toggleSelectOne,
     toggleSelectAll,

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import forgetPasswordImg from "../../assets/images/forgetPassword.webp";
 import { Icon } from "@iconify/react";
 
-const ForgetPassword = () => {
+export const ForgetPassword = () => {
   const {
     step,
     setStep,
@@ -19,8 +19,7 @@ const ForgetPassword = () => {
     loading,
     errorMessage,
     successMessage,
-    handleResendOtp,
-  } = useForgetPassword();
+    handleResendOtp } = useForgetPassword();
 
   const renderStep1 = () => (
     <form
@@ -292,4 +291,3 @@ const ForgetPassword = () => {
   );
 };
 
-export default ForgetPassword;

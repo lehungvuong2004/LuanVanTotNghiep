@@ -1,13 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  getJobPostsApi,
-  getMyApplicationsApi,
-  applyJobPostApi,
-  withdrawApplicationApi,
-  respondToSelectionApi,
-  type JobPost,
-} from "../../api/jobPostsApi/jobPosts";
-import type { ToastProps } from "../../types/Toast";
+import { useToast } from "../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
+import { getJobPostsApi, getMyApplicationsApi, applyJobPostApi, withdrawApplicationApi, respondToSelectionApi, type JobPost } from "../../api/jobPostsApi/jobPosts";
 
 export interface JobApplicationItem {
   id: number;
@@ -24,7 +17,7 @@ export const useStaffRecruitment = () => {
   const [activeTab, setActiveTab] = useState<"browse" | "my-applications">("browse");
   const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
   const [applications, setApplications] = useState<JobApplicationItem[]>([]);
-  
+
   // Loading states
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -49,27 +42,7 @@ export const useStaffRecruitment = () => {
   const [applyProposedPrice, setApplyProposedPrice] = useState<number | undefined>(undefined);
 
   // Toast
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
-
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
+  const { showToast } = useToast();
 
   // Fetch job posts
   const fetchJobPosts = useCallback(async () => {
@@ -156,9 +129,7 @@ export const useStaffRecruitment = () => {
 
   // Handle Respond to Selection (accept or reject)
   const handleRespond = async (appId: number, action: "accept" | "reject") => {
-    const confirmMsg = action === "accept" 
-      ? "Đồng ý nhận công việc này và tạo lịch đặt làm việc?" 
-      : "Từ chối nhận công việc này?";
+    const confirmMsg = action === "accept" ? "Đồng ý nhận công việc này và tạo lịch đặt làm việc?" : "Từ chối nhận công việc này?";
     if (!window.confirm(confirmMsg)) return;
 
     setActionLoading(true);
@@ -184,9 +155,7 @@ export const useStaffRecruitment = () => {
       setActiveTab(tab);
       setCurrentPage(1);
     },
-    jobPosts: jobPosts.filter(post => 
-      !searchQuery || post.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ),
+    jobPosts: jobPosts.filter((post) => !searchQuery || post.title.toLowerCase().includes(searchQuery.toLowerCase())),
     applications,
     loading,
     actionLoading,
@@ -216,7 +185,5 @@ export const useStaffRecruitment = () => {
     handleApply,
     handleWithdraw,
     handleRespond,
-    toast,
-    setToast,
   };
 };

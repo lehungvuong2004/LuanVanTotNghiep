@@ -5,10 +5,12 @@ import { useHistory } from "./useHook";
 import type { Booking, StatusFilter } from "./useHook";
 import { useRecruitment } from "../Recruitment/useHook";
 import { Pagination } from "../../components/Pagination";
-import { Toast } from "../../components/Toast";
+
 import { Link, useSearchParams } from "react-router-dom";
 import { formatDateTime } from "../../utils";
 import { PaymentReceipt } from "../../components/PaymentReceipt";
+import { createReportApi } from "../../api/reports";
+import { useToast } from "../../contexts/ToastContext";
 
 export const HistoryPage = () => {
   const { t } = useTranslation();
@@ -26,8 +28,7 @@ export const HistoryPage = () => {
     handleCheckin,
     handleCheckout,
     handleRespondToSelection,
-    toast,
-    setToast,
+
     isLoading,
     isHelper,
     applications,
@@ -66,8 +67,6 @@ export const HistoryPage = () => {
     showHelperProfile,
     viewHelperProfile,
     closeHelperProfile,
-    toast: recruitmentToast,
-    setToast: setRecruitmentToast,
     setActiveTab,
     fetchMyJobPosts,
   } = useRecruitment();
@@ -75,6 +74,53 @@ export const HistoryPage = () => {
   // ── Local state for phone reveal in applicant list ───────
   const [revealedPhones, setRevealedPhones] = useState({});
   const [activeMainTab, setActiveMainTab] = useState<"bookings" | "job-posts" | "helper-applications">("bookings");
+
+  // ── Report Modal states & handlers ────────────────────────
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportBooking, setReportBooking] = useState<Booking | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
+  const { showToast } = useToast();
+
+  const handleOpenReportModal = (booking: Booking) => {
+    setReportBooking(booking);
+    setReportReason("");
+    setShowReportModal(true);
+  };
+
+  const handleCloseReportModal = () => {
+    setShowReportModal(false);
+    setReportBooking(null);
+    setReportReason("");
+    setIsReporting(false);
+  };
+
+  const handleSubmitReport = async () => {
+    if (!reportBooking) return;
+    if (!reportReason.trim()) {
+      showToast("error", t("Lỗi nhập liệu"), t("Vui lòng nhập lý do báo cáo vi phạm."));
+      return;
+    }
+    if (!reportBooking.helper?.id) {
+      showToast("error", t("Lỗi dữ liệu"), t("Không xác định được người giúp việc cần báo cáo."));
+      return;
+    }
+
+    setIsReporting(true);
+    try {
+      await createReportApi({
+        booking_id: reportBooking.idRaw,
+        reported_user_id: reportBooking.helper.id,
+        reason: reportReason.trim(),
+      });
+      showToast("success", t("Gửi báo cáo thành công"), t("Báo cáo vi phạm đã được gửi đến ban quản trị để xử lý."));
+      handleCloseReportModal();
+    } catch (err: any) {
+      showToast("error", t("Lỗi gửi báo cáo"), err.response?.data?.message || t("Không thể gửi báo cáo vi phạm. Vui lòng thử lại."));
+    } finally {
+      setIsReporting(false);
+    }
+  };
   const [currentTab, setCurrentTab] = useState<string>("bookings");
   const [searchParams] = useSearchParams();
 
@@ -471,17 +517,27 @@ export const HistoryPage = () => {
           <div className="flex items-center justify-center gap-2">
             {!isHelper ? (
               // Customer actions
-              ["pending", "confirmed"].includes(booking.statusRaw) ? (
-                <button
-                  onClick={() => handleCancelBooking(booking)}
-                  title={t("Hủy lịch")}
-                  className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-650 transition-all cursor-pointer dark:bg-red-950/30 dark:hover:bg-red-900/40 dark:text-red-400 hover:scale-105"
-                >
-                  <Icon icon="material-symbols:cancel-outline" className="text-lg" />
-                </button>
-              ) : (
-                <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>
-              )
+              <div className="flex items-center justify-center gap-2">
+                {["pending", "confirmed"].includes(booking.statusRaw) && (
+                  <button
+                    onClick={() => handleCancelBooking(booking)}
+                    title={t("Hủy lịch")}
+                    className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-650 transition-all cursor-pointer dark:bg-red-950/30 dark:hover:bg-red-900/40 dark:text-red-400 hover:scale-105"
+                  >
+                    <Icon icon="material-symbols:cancel-outline" className="text-lg" />
+                  </button>
+                )}
+                {["confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && booking.helper?.id && (
+                  <button
+                    onClick={() => handleOpenReportModal(booking)}
+                    title={t("Báo cáo vi phạm")}
+                    className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-600 transition-all cursor-pointer dark:bg-amber-950/30 dark:hover:bg-amber-900/45 dark:text-amber-400 hover:scale-105"
+                  >
+                    <Icon icon="material-symbols:report-outline" className="text-lg" />
+                  </button>
+                )}
+                {!["pending", "confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>}
+              </div>
             ) : (
               // Helper actions
               <>
@@ -535,6 +591,80 @@ export const HistoryPage = () => {
       </div>
     </div>
   );
+
+  const renderReportModal = () => {
+    if (!showReportModal || !reportBooking) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div className="bg-white dark:bg-slate-850 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-700/50">
+            <div className="text-left">
+              <h3 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
+                <Icon icon="material-symbols:warning-amber-rounded" className="text-2xl text-amber-500" />
+                {t("Báo cáo vi phạm")}
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">{t("Báo cáo người giúp việc của đơn đặt lịch này")}</p>
+            </div>
+            <button
+              onClick={handleCloseReportModal}
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:scale-105 transition cursor-pointer"
+            >
+              <Icon icon="material-symbols:close" className="text-xl" />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="p-6 space-y-4">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800/50 space-y-2 text-left text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Mã đặt lịch")}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{reportBooking.id}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Người giúp việc")}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{reportBooking.helper?.name}</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 text-left">
+                {t("Lý do báo cáo vi phạm")} <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder={t("Vui lòng mô tả chi tiết vi phạm của người giúp việc (ví dụ: đến trễ, hành vi không đúng mực, tự ý bỏ về...)")}
+                rows={4}
+                disabled={isReporting}
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 outline-none transition disabled:opacity-60 resize-none text-left"
+              />
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 pb-6 flex gap-3">
+            <button
+              onClick={handleCloseReportModal}
+              disabled={isReporting}
+              className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {t("Hủy")}
+            </button>
+            <button
+              onClick={handleSubmitReport}
+              disabled={isReporting || !reportReason.trim()}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white text-sm font-bold transition active:scale-95 cursor-pointer disabled:pointer-events-none shadow-sm"
+            >
+              {isReporting ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" /> : <Icon icon="material-symbols:send-rounded" className="text-lg" />}
+              {t("Gửi báo cáo")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderEmpty = () => (
     <div className="py-16 px-4 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.01)]">
@@ -942,7 +1072,7 @@ export const HistoryPage = () => {
   const renderEditJobPostModal = () => {
     if (!isEditModalOpen || !editingJobPost) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e) => {
       e.preventDefault();
 
       let prefix = "";
@@ -1490,8 +1620,7 @@ export const HistoryPage = () => {
         })()}
 
       {/* Toast states */}
-      {toast && <Toast type={toast.type} title={t(toast.title)} message={t(toast.message)} onClose={() => setToast(null)} />}
-      {recruitmentToast && <Toast type={recruitmentToast.type} title={t(recruitmentToast.title)} message={t(recruitmentToast.message)} onClose={() => setRecruitmentToast(null)} />}
+      {renderReportModal()}
     </div>
   );
 };

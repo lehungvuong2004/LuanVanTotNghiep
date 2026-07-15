@@ -62,7 +62,7 @@ class HelperController extends Controller
     if (!empty($userIds)) {
       try {
         $userResponse = Http::timeout(3)
-          ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => $userIds]);
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $userIds]);
 
         if ($userResponse->successful()) {
           $users = $userResponse->json('data') ?? [];
@@ -94,7 +94,7 @@ class HelperController extends Controller
     if (!$helper) {
       try {
         $userResponse = Http::timeout(3)
-          ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => [$id]]);
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => [$id]]);
 
         if ($userResponse->successful()) {
           $users = $userResponse->json('data') ?? [];
@@ -122,7 +122,7 @@ class HelperController extends Controller
     // Fetch user info from identity-service internally
     try {
       $userResponse = Http::timeout(3)
-        ->post('http://identity-service:8000/api/internal/users/by-ids', ['ids' => [$helper->user_id]]);
+        ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => [$helper->user_id]]);
 
       if ($userResponse->successful()) {
         $users = $userResponse->json('data') ?? [];
@@ -581,7 +581,7 @@ class HelperController extends Controller
     try {
       $orderResponse = Http::timeout(5)
         ->withHeaders(['Authorization' => $token])
-        ->get('http://order-service:8000/api/orders/helper/stats');
+        ->get(env('ORDER_SERVICE_URL', 'http://order-service:8000') . '/api/orders/helper/stats');
 
       if ($orderResponse->successful()) {
         $orderStats = $orderResponse->json();
@@ -604,7 +604,7 @@ class HelperController extends Controller
       try {
         $paymentResponse = Http::timeout(5)
           ->withHeaders(['Authorization' => $token])
-          ->post('http://payment-service:8000/api/payments/helper/earnings-stats', [
+          ->post(env('PAYMENT_SERVICE_URL', 'http://payment-service:8000') . '/api/payments/helper/earnings-stats', [
             'booking_ids' => $bookingIds,
             'job_post_ids' => $jobPostIds,
           ]);

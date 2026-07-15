@@ -1,14 +1,22 @@
 import { Icon } from "@iconify/react";
 import ReactECharts from "echarts-for-react";
-import { useAccount } from "./useHook";
+import { useUsers } from "./useHook";
+import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
-import { Toast } from "../../../components/Toast";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
 import { ROLES } from "../../../constants/roles";
 import { getInitials, getRoleBadge } from "../../../utils";
 
-export const Account = () => {
+export const Users = () => {
+  const { hasPermission } = useAuth();
+  const permissions = {
+    create: hasPermission("users.create"),
+    delete: hasPermission("users.delete"),
+    view: hasPermission("users.view"),
+    update: hasPermission("users.update"),
+    lock: hasPermission("users.lock"),
+  };
   const {
     searchQuery,
     setSearchQuery,
@@ -22,8 +30,7 @@ export const Account = () => {
     totalItems,
     users,
     loading,
-    toast,
-    setToast,
+
     isModalOpen,
     modalMode,
     currentUser,
@@ -52,7 +59,7 @@ export const Account = () => {
     uploadingImage,
     handleUploadAvatar,
     formik,
-  } = useAccount();
+  } = useUsers();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -89,17 +96,17 @@ export const Account = () => {
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Người Dùng</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý tài khoản, thay đổi vai trò hệ thống, khóa/mở khóa, cập nhật email/SDT hoặc reset mật khẩu của thành viên.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý tài khoản, thay đổi vai trò hệ thống, khóa/mở khóa, cập nhật email/SDT hoặc reset mật khẩu của thành viên.</p>
       </div>
-      <button
-        onClick={openAddModal}
-        className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
-      >
-        <Icon icon="material-symbols:person-add-rounded" className="text-xl" />
-        Thêm Người Dùng Mới
-      </button>
+      {permissions.create && (
+        <button
+          onClick={openAddModal}
+          className="flex items-center justify-center gap-2 bg-[#026E5F] hover:bg-[#025a4e] text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
+        >
+          <Icon icon="material-symbols:person-add-rounded" className="text-xl" />
+          Thêm Người Dùng Mới
+        </button>
+      )}
     </div>
   );
 
@@ -187,15 +194,7 @@ export const Account = () => {
                     : "text-slate-555 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                {roleOption === "All"
-                  ? "Tất Cả"
-                  : roleOption === "Admin"
-                  ? "QTV"
-                  : roleOption === "Operator"
-                  ? "VH"
-                  : roleOption === "Helper"
-                  ? "GV"
-                  : "Khách"}
+                {roleOption === "All" ? "Tất Cả" : roleOption === "Admin" ? "QTV" : roleOption === "Operator" ? "VH" : roleOption === "Helper" ? "GV" : "Khách"}
               </button>
             ))}
           </div>
@@ -219,13 +218,7 @@ export const Account = () => {
                     : "text-slate-555 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                {statusOption === "All"
-                  ? "Tất Cả"
-                  : statusOption === "Active"
-                  ? "Hoạt Động"
-                  : statusOption === "Inactive"
-                  ? "Tạm Khóa"
-                  : "Bị Khóa"}
+                {statusOption === "All" ? "Tất Cả" : statusOption === "Active" ? "Hoạt Động" : statusOption === "Inactive" ? "Tạm Khóa" : "Bị Khóa"}
               </button>
             ))}
           </div>
@@ -264,17 +257,19 @@ export const Account = () => {
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
                 <th className="py-3 px-5 w-12 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedUserIds.length === users.length && users.length > 0}
-                    ref={(el) => {
-                      if (el) {
-                        el.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < users.length;
-                      }
-                    }}
-                    onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                  />
+                  {permissions.delete && (
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.length === users.length && users.length > 0}
+                      ref={(el) => {
+                        if (el) {
+                          el.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < users.length;
+                        }
+                      }}
+                      onChange={handleToggleSelectAll}
+                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                    />
+                  )}
                 </th>
                 <th className="py-3 px-5">Thành Viên</th>
                 <th className="py-3 px-5">Vai Trò</th>
@@ -290,22 +285,20 @@ export const Account = () => {
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors">
                   <td className="py-3 px-5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedUserIds.includes(user.id)}
-                      onChange={() => handleToggleSelectUser(user.id)}
-                      className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
-                    />
+                    {permissions.delete && (
+                      <input
+                        type="checkbox"
+                        checked={selectedUserIds.includes(user.id)}
+                        onChange={() => handleToggleSelectUser(user.id)}
+                        className="w-4 h-4 rounded border-slate-350 text-blue-600 cursor-pointer accent-blue-600"
+                      />
+                    )}
                   </td>
                   {/* User Profile column */}
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-3">
                       {user.avatar && isValidAvatarUrl(user.avatar) ? (
-                        <img
-                          src={getImageUrl(user.avatar)}
-                          alt={user.full_name}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-                        />
+                        <img src={getImageUrl(user.avatar)} alt={user.full_name} className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] font-bold text-sm flex items-center justify-center border border-slate-100 dark:border-slate-700">
                           {getInitials(user.full_name)}
@@ -318,9 +311,7 @@ export const Account = () => {
                   </td>
 
                   {/* Role column */}
-                  <td className="py-3 px-5">
-                    {getRoleBadge(user.role_id)}
-                  </td>
+                  <td className="py-3 px-5">{getRoleBadge(user.role_id)}</td>
 
                   {/* Email column */}
                   <td className="py-3 px-5">
@@ -329,9 +320,7 @@ export const Account = () => {
 
                   {/* Phone column */}
                   <td className="py-3 px-5">
-                    <span className="font-medium text-slate-650 dark:text-slate-300">
-                      {user.phone || <span className="italic text-slate-400 dark:text-slate-600 text-xs">Chưa cung cấp</span>}
-                    </span>
+                    <span className="font-medium text-slate-650 dark:text-slate-300">{user.phone || <span className="italic text-slate-400 dark:text-slate-600 text-xs">Chưa cung cấp</span>}</span>
                   </td>
 
                   {/* Provider column */}
@@ -353,44 +342,50 @@ export const Account = () => {
                   <td className="py-3 px-5">{getStatusBadge(user.status)}</td>
 
                   {/* Created At column */}
-                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400 whitespace-nowrap">
-                    {new Date(user.created_at).toLocaleDateString("vi-VN")}
-                  </td>
+                  <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400 whitespace-nowrap">{new Date(user.created_at).toLocaleDateString("vi-VN")}</td>
 
                   {/* Actions column */}
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => openViewModal(user)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-950/30 transition-all cursor-pointer"
-                        title="Xem chi tiết"
-                      >
-                        <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
-                      </button>
+                      {permissions.view && (
+                        <button
+                          onClick={() => openViewModal(user)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-950/30 transition-all cursor-pointer"
+                          title="Xem chi tiết"
+                        >
+                          <Icon icon="material-symbols:visibility-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => openEditModal(user)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
-                        title="Sửa thông tin"
-                      >
-                        <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                      </button>
+                      {permissions.update && (
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
+                          title="Sửa thông tin"
+                        >
+                          <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => openStatusModal(user)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-950/30 transition-all cursor-pointer"
-                        title="Thay đổi trạng thái"
-                      >
-                        <Icon icon="material-symbols:shield-lock-outline-rounded" className="text-lg" />
-                      </button>
+                      {permissions.lock && (
+                        <button
+                          onClick={() => openStatusModal(user)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-950/30 transition-all cursor-pointer"
+                          title="Thay đổi trạng thái"
+                        >
+                          <Icon icon="material-symbols:shield-lock-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-all cursor-pointer"
-                        title="Xóa tài khoản"
-                      >
-                        <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                      </button>
+                      {permissions.delete && (
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="p-2 rounded-xl text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-500 dark:hover:bg-red-950/30 transition-all cursor-pointer"
+                          title="Xóa tài khoản"
+                        >
+                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -400,12 +395,7 @@ export const Account = () => {
         </div>
 
         {/* Pagination controls */}
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={(page) => setCurrentPage(page)} />
       </div>
     );
   };
@@ -424,16 +414,14 @@ export const Account = () => {
           {/* Modal Header */}
           <div className="p-5 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
             <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
-                modalMode === "add" ? "bg-blue-100 text-blue-600" : modalMode === "edit" ? "bg-indigo-100 text-indigo-600" : "bg-emerald-100 text-emerald-600"
-              }`}>
-                <Icon icon={
-                  modalMode === "add" ? "material-symbols:person-add-rounded" : modalMode === "edit" ? "material-symbols:edit-note" : "material-symbols:visibility-outline-rounded"
-                } />
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
+                  modalMode === "add" ? "bg-blue-100 text-blue-600" : modalMode === "edit" ? "bg-indigo-100 text-indigo-600" : "bg-emerald-100 text-emerald-600"
+                }`}
+              >
+                <Icon icon={modalMode === "add" ? "material-symbols:person-add-rounded" : modalMode === "edit" ? "material-symbols:edit-note" : "material-symbols:visibility-outline-rounded"} />
               </div>
-              <h3 className="font-extrabold text-base">
-                {modalMode === "add" ? "Thêm Người Dùng Mới" : modalMode === "edit" ? "Chỉnh Sửa Người Dùng" : "Chi Tiết Người Dùng"}
-              </h3>
+              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Người Dùng Mới" : modalMode === "edit" ? "Chỉnh Sửa Người Dùng" : "Chi Tiết Người Dùng"}</h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -445,11 +433,7 @@ export const Account = () => {
             {/* Avatar Preview (if avatar is set) */}
             {formik.values.avatar && isValidAvatarUrl(formik.values.avatar) && (
               <div className="flex justify-center pb-2">
-                <img
-                  src={getImageUrl(formik.values.avatar)}
-                  alt={formik.values.full_name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-[#026E5F] shadow-xs"
-                />
+                <img src={getImageUrl(formik.values.avatar)} alt={formik.values.full_name} className="w-20 h-20 rounded-full object-cover border-2 border-[#026E5F] shadow-xs" />
               </div>
             )}
 
@@ -529,9 +513,7 @@ export const Account = () => {
             {/* Password input */}
             {!isViewMode && (
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  {modalMode === "add" ? "Mật Khẩu *" : "Mật Khẩu Mới (Để trống nếu giữ nguyên)"}
-                </label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{modalMode === "add" ? "Mật Khẩu *" : "Mật Khẩu Mới (Để trống nếu giữ nguyên)"}</label>
                 <input
                   type="password"
                   name="password"
@@ -556,9 +538,7 @@ export const Account = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Nguồn Đăng Ký</label>
-                  <span className="inline-block mt-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 capitalize">
-                    {currentUser.provider === "google" ? "Google OAuth" : "Hệ thống"}
-                  </span>
+                  <span className="inline-block mt-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 capitalize">{currentUser.provider === "google" ? "Google OAuth" : "Hệ thống"}</span>
                 </div>
               </div>
             )}
@@ -573,7 +553,7 @@ export const Account = () => {
                     month: "long",
                     day: "numeric",
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
                   })}
                 </span>
               </div>
@@ -602,7 +582,7 @@ export const Account = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* File Upload Button */}
                   <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
                     <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
@@ -793,14 +773,6 @@ export const Account = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {toast && (
-        <Toast
-          type={toast.type}
-          title={toast.title}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
       {renderHeader()}
       {renderKPIs()}
       {renderCharts()}

@@ -13,7 +13,11 @@ class Message extends Model
     'message_type',
     'attachment',
     'is_read',
+    'sender_deleted',
+    'receiver_deleted',
   ];
+
+
 
   public $timestamps = false;
 

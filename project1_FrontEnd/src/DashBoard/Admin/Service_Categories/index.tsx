@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Toast } from "../../../components/Toast";
+import { useAuth } from "../../../hooks/useAuth";
+
 import { useServiceCategoriesAdmin } from "./useHook";
 
-const TYPE_LABELS: Record<string, { label: string; color: string }> = {
+const TYPE_LABELS= {
   both: { label: "Tất cả", color: "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400" },
   booking: { label: "Đặt lịch", color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400" },
   job: { label: "Công việc", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400" },
@@ -29,6 +30,12 @@ const SUGGESTED_ICONS = [
 ];
 
 export const ServiceCategories = () => {
+  const { hasPermission } = useAuth();
+  const permissions = {
+    create: hasPermission("categories.create"),
+    update: hasPermission("categories.update"),
+    delete: hasPermission("categories.delete"),
+  };
   const {
     categories,
     totalItems,
@@ -37,8 +44,7 @@ export const ServiceCategories = () => {
     setSearchQuery,
     isModalOpen,
     modalMode,
-    toast,
-    setToast,
+
     openAddModal,
     openEditModal,
     closeModal,
@@ -48,16 +54,12 @@ export const ServiceCategories = () => {
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  const toggleSelectOne = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+  const toggleSelectOne = (id) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds((prev) =>
-      prev.length === categories.length ? [] : categories.map((c) => c.id)
-    );
+    setSelectedIds((prev) => (prev.length === categories.length ? [] : categories.map((c) => c.id)));
   };
 
   const handleBulkDelete = async () => {
@@ -70,21 +72,11 @@ export const ServiceCategories = () => {
     setSelectedIds([]);
   };
 
-
-  const renderToast = () => {
-    if (!toast) return null;
-    return <Toast type={toast.type} title={toast.title} message={toast.message} onClose={() => setToast(null)} />;
-  };
-
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Quản Lý Danh Mục Dịch Vụ
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý các danh mục phân loại dịch vụ trên nền tảng.
-        </p>
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Danh Mục Dịch Vụ</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý các danh mục phân loại dịch vụ trên nền tảng.</p>
       </div>
       <div className="flex items-center gap-3">
         {selectedIds.length > 0 && (
@@ -96,13 +88,15 @@ export const ServiceCategories = () => {
             Xóa {selectedIds.length} đã chọn
           </button>
         )}
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-        >
-          <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-          Thêm Danh Mục
-        </button>
+        {permissions.create && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+          >
+            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+            Thêm Danh Mục
+          </button>
+        )}
       </div>
     </div>
   );
@@ -142,17 +136,12 @@ export const ServiceCategories = () => {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
         {stats.map((s) => (
-          <div
-            key={s.label}
-            className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4"
-          >
+          <div key={s.label} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${s.color}`}>
               <Icon icon={s.icon} />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                {s.label}
-              </p>
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{s.label}</p>
               <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
             </div>
           </div>
@@ -233,12 +222,7 @@ export const ServiceCategories = () => {
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
               {categories.map((item) => (
-                <tr
-                  key={item.id}
-                  className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${
-                    selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""
-                  }`}
-                >
+                <tr key={item.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors ${selectedIds.includes(item.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
                   <td className="px-4 py-4 text-center">
                     <input
                       type="checkbox"
@@ -251,45 +235,40 @@ export const ServiceCategories = () => {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-lg shrink-0">
-                        {item.icon ? (
-                          <Icon icon={item.icon} />
-                        ) : (
-                          <Icon icon="material-symbols:category-outline-rounded" />
-                        )}
+                        {item.icon ? <Icon icon={item.icon} /> : <Icon icon="material-symbols:category-outline-rounded" />}
                       </div>
                       <div>
                         <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
-                        {item.description && (
-                          <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-xs">{item.description}</p>
-                        )}
+                        {item.description && <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-xs">{item.description}</p>}
                       </div>
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${TYPE_LABELS[item.type]?.color || ""}`}>
-                      {TYPE_LABELS[item.type]?.label || item.type}
-                    </span>
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${TYPE_LABELS[item.type]?.color || ""}`}>{TYPE_LABELS[item.type]?.label || item.type}</span>
                   </td>
                   <td className="px-5 py-4">
                     <span className="font-bold text-slate-700 dark:text-slate-200">{item.services_count ?? 0}</span>
                   </td>
-                  {/* Actions */}
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => openEditModal(item)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                        title="Chỉnh sửa"
-                      >
-                        <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-                        title="Xóa"
-                      >
-                        <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                      </button>
+                      {permissions.update && (
+                        <button
+                          onClick={() => openEditModal(item)}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                          title="Chỉnh sửa"
+                        >
+                          <Icon icon="material-symbols:edit-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
+                      {permissions.delete && (
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                          title="Xóa"
+                        >
+                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -312,9 +291,7 @@ export const ServiceCategories = () => {
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${modalMode === "add" ? "bg-blue-100 text-blue-600" : "bg-indigo-100 text-indigo-600"}`}>
                 <Icon icon={modalMode === "add" ? "material-symbols:add" : "material-symbols:edit-note"} />
               </div>
-              <h3 className="font-extrabold text-base">
-                {modalMode === "add" ? "Thêm Danh Mục Mới" : "Chỉnh Sửa Danh Mục"}
-              </h3>
+              <h3 className="font-extrabold text-base">{modalMode === "add" ? "Thêm Danh Mục Mới" : "Chỉnh Sửa Danh Mục"}</h3>
             </div>
             <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
               <Icon icon="mdi:close" className="text-xl" />
@@ -355,9 +332,7 @@ export const ServiceCategories = () => {
 
             {/* Icon */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Icon (Iconify key)
-              </label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Icon (Iconify key)</label>
               <div className="flex items-center gap-3">
                 <input
                   type="text"
@@ -374,9 +349,7 @@ export const ServiceCategories = () => {
                 )}
               </div>
               <div className="mt-2.5">
-                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block mb-1.5">
-                  Gợi ý icon dịch vụ phổ biến (Click để chọn):
-                </span>
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block mb-1.5">Gợi ý icon dịch vụ phổ biến (Click để chọn):</span>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 max-h-36 overflow-y-auto p-1.5 border border-slate-100 dark:border-slate-700/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/20">
                   {SUGGESTED_ICONS.map((item) => (
                     <button
@@ -391,7 +364,7 @@ export const ServiceCategories = () => {
                       }`}
                     >
                       <Icon icon={item.key} className="text-xl" />
-                      <span className="text-[9px] text-center truncate w-full font-medium">{item.label}</span>
+                      <span className="text-xs text-center truncate w-full font-medium">{item.label}</span>
                     </button>
                   ))}
                 </div>
@@ -418,8 +391,6 @@ export const ServiceCategories = () => {
               </div>
             </div>
 
-
-
             <div className="pt-4 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-end gap-3 mt-2">
               <button
                 type="button"
@@ -445,7 +416,6 @@ export const ServiceCategories = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      {renderToast()}
       {renderHeader()}
       {renderStats()}
       {renderFilters()}

@@ -9,33 +9,28 @@ const toastConfig = {
     border: "border-emerald-200 dark:border-emerald-900/50",
     iconColor: "text-emerald-600 dark:text-emerald-400",
     titleColor: "text-emerald-900 dark:text-emerald-250",
-    messageColor: "text-emerald-750 dark:text-emerald-450",
-  },
+    messageColor: "text-emerald-750 dark:text-emerald-450" },
   error: {
     icon: "material-symbols:error-outline-rounded",
     cardBg: "bg-red-50/95 dark:bg-red-950/30",
     border: "border-red-200 dark:border-red-900/50",
     iconColor: "text-red-600 dark:text-red-400",
     titleColor: "text-red-900 dark:text-red-250",
-    messageColor: "text-red-750 dark:text-red-450",
-  },
+    messageColor: "text-red-750 dark:text-red-450" },
   warning: {
     icon: "material-symbols:warning-outline-rounded",
     cardBg: "bg-amber-50/95 dark:bg-amber-950/30",
     border: "border-amber-200 dark:border-amber-900/50",
     iconColor: "text-amber-600 dark:text-amber-400",
     titleColor: "text-amber-900 dark:text-amber-250",
-    messageColor: "text-amber-750 dark:text-amber-400",
-  },
+    messageColor: "text-amber-750 dark:text-amber-400" },
   info: {
     icon: "material-symbols:info-outline-rounded",
     cardBg: "bg-sky-50/95 dark:bg-sky-950/30",
     border: "border-sky-200 dark:border-sky-900/50",
     iconColor: "text-sky-600 dark:text-sky-400",
     titleColor: "text-sky-900 dark:text-sky-250",
-    messageColor: "text-sky-750 dark:text-sky-450",
-  },
-};
+    messageColor: "text-sky-750 dark:text-sky-450" } };
 
 export const Toast = ({ type = "success", title, message, onClose }: ToastProps) => {
   const config = toastConfig[type];

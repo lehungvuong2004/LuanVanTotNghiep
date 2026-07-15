@@ -35,8 +35,7 @@ export interface NotificationsResponse {
  */
 export const getNotifications = async (is_read?: 0 | 1, limit?: number, page?: number): Promise<NotificationsResponse> => {
   const response = await axiosInstance.get<NotificationsResponse>("/notifications", {
-    params: { is_read, limit, page },
-  });
+    params: { is_read, limit, page } });
   return response.data;
 };
 
@@ -61,5 +60,31 @@ export const markAllNotificationsRead = async (): Promise<{ message: string }> =
  */
 export const deleteNotification = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/notifications/${id}`);
+  return response.data;
+};
+
+/**
+ * Admin gửi thông báo đến các user cụ thể.
+ */
+export const sendNotification = async (data: {
+  user_ids: number[];
+  title: string;
+  message: string;
+  type?: string;
+}): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>("/admin/notifications/send", data);
+  return response.data;
+};
+
+/**
+ * Admin broadcast thông báo cho một nhóm vai trò.
+ */
+export const broadcastNotification = async (data: {
+  role: "customer" | "helper" | "operator" | "admin" | "all";
+  title: string;
+  message: string;
+  type?: string;
+}): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>("/admin/notifications/broadcast", data);
   return response.data;
 };

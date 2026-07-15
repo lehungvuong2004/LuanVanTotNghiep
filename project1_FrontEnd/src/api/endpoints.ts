@@ -6,10 +6,7 @@ export const API_ENDPOINTS = {
     GOOGLE_CALLBACK: "/auth/google/callback",
     FORGOT_PASSWORD: "/auth/forgot-password",
     VERIFY_OTP: "/auth/verify-otp",
-    RESET_PASSWORD: "/auth/reset-password",
-  },
+    RESET_PASSWORD: "/auth/reset-password" },
   NEWS: {
     LIST: "/news",
-    DETAIL: (slug: string) => `/news/${slug}`,
-  },
-} as const;
+    DETAIL: (slug: string) => `/news/${slug}` } } as const;

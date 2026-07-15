@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useToast } from "../../../contexts/ToastContext";
+import { useState, useEffect, useCallback } from "react";
 import type { ActivityLog } from "../../../api/activityLogs";
-import type { ToastProps } from "../../../types/Toast";
+
 import {
   getActivityLogsAdmin,
   deleteActivityLogAdmin,
-  clearActivityLogsAdmin,
-} from "../../../api/activityLogs";
+  clearActivityLogsAdmin } from "../../../api/activityLogs";
 
 export const useActivityLogsAdmin = () => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -18,23 +18,12 @@ export const useActivityLogsAdmin = () => {
   const [totalItems, setTotalItems] = useState(0);
   const perPage = 15;
 
-  const [toast, setToast] = useState<ToastProps | null>(null);
-  const timerRef = useRef<any>(null);
+  const { showToast } = useToast();
+  
 
-  const showToast = useCallback((type: ToastProps["type"], title: string, message?: string) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setToast({ type, title, message });
-    timerRef.current = setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, 4000);
-  }, []);
+  
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+  
 
   const fetchLogs = useCallback(
     async (page = 1) => {
@@ -44,8 +33,7 @@ export const useActivityLogsAdmin = () => {
           search: searchQuery || undefined,
           user_id: userIdFilter || undefined,
           page,
-          limit: perPage,
-        });
+          limit: perPage });
         setLogs(res.data);
         setCurrentPage(res.current_page);
         setTotalPages(res.last_page);
@@ -108,10 +96,10 @@ export const useActivityLogsAdmin = () => {
     currentPage,
     totalPages,
     totalItems,
-    toast,
-    setToast,
+    
     fetchLogs,
     handleDeleteLog,
-    handleClearLogs,
-  };
+    handleClearLogs };
 };
+
+

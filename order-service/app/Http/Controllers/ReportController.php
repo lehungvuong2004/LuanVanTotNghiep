@@ -136,4 +136,40 @@ class ReportController extends Controller
             'data'    => $report->fresh(),
         ], Response::HTTP_OK);
     }
+
+    /**
+     * Delete a report.
+     */
+    public function destroy(Request $request, $id)
+    {
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $report = Report::find($id);
+        if (!$report) return response()->json(['message' => 'Report not found.'], Response::HTTP_NOT_FOUND);
+
+        $report->delete();
+
+        return response()->json(['message' => 'Report deleted.'], Response::HTTP_OK);
+    }
+
+    /**
+     * Bulk delete reports.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
+            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $fields = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:reports,id',
+        ]);
+
+        Report::whereIn('id', $fields['ids'])->delete();
+
+        return response()->json(['message' => 'Reports deleted.'], Response::HTTP_OK);
+    }
 }
