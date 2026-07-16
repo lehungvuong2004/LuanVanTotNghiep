@@ -3,6 +3,7 @@ import { useToast } from "../../../contexts/ToastContext";
 import type { Payment } from "../../../api/payments";
 import { getPaymentsAdmin, updatePaymentStatusAdmin, getPaymentStatsAdmin } from "../../../api/payments";
 import { getRootFontSizePx } from "../../../utils";
+import { SEMANTIC_COLORS, PINK_GRADIENT_COLORS } from "../../../constants/colors";
 
 export const PAYMENT_METHODS_LABELS: Record<string, string> = {
   cash: "Tiền mặt",
@@ -112,7 +113,7 @@ export const usePaymentsHook = () => {
     return {
       tooltip: {
         trigger: "axis",
-        formatter: (params: any) => `${params[0].name}: <b style="color:#0a9ea6">${Number(params[0].value).toLocaleString("vi-VN")} ₫</b>`,
+        formatter: (params: any) => `${params[0].name}: <b style="color:${SEMANTIC_COLORS.info}">${Number(params[0].value).toLocaleString("vi-VN")} ₫</b>`,
       },
       grid: { top: 1.5 * rem, bottom: 1.5 * rem, left: 3.75 * rem, right: 1 * rem },
       xAxis: {
@@ -136,7 +137,7 @@ export const usePaymentsHook = () => {
           type: "line",
           smooth: true,
           symbolSize: 0.4375 * rem,
-          itemStyle: { color: "#0a9ea6" },
+          itemStyle: { color: SEMANTIC_COLORS.info },
           lineStyle: { width: 0.1875 * rem },
           areaStyle: {
             color: {
@@ -146,8 +147,8 @@ export const usePaymentsHook = () => {
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: "rgba(10,158,166,0.25)" },
-                { offset: 1, color: "rgba(10,158,166,0)" },
+                { offset: 0, color: "rgba(6, 182, 212, 0.25)" },
+                { offset: 1, color: "rgba(6, 182, 212, 0)" },
               ],
             },
           },
@@ -163,10 +164,26 @@ export const usePaymentsHook = () => {
       if (p.status) counts[p.status] = (counts[p.status] || 0) + 1;
     });
 
-    const data = Object.keys(counts).map((k) => ({
-      name: k.charAt(0).toUpperCase() + k.slice(1),
-      value: counts[k],
-    }));
+    const data = Object.keys(counts).map((k) => {
+      let color = "#cbd5e1";
+      if (k === "completed") color = SEMANTIC_COLORS.good;
+      else if (k === "pending") color = SEMANTIC_COLORS.warning;
+      else if (k === "failed") color = SEMANTIC_COLORS.bad;
+      else if (k === "refunded") color = "#8b5cf6";
+
+      const nameMap: Record<string, string> = {
+        completed: "Hoàn thành",
+        pending: "Chờ thanh toán",
+        failed: "Thất bại",
+        refunded: "Đã hoàn tiền",
+      };
+
+      return {
+        name: nameMap[k] ?? k.charAt(0).toUpperCase() + k.slice(1),
+        value: counts[k],
+        itemStyle: { color },
+      };
+    });
 
     return {
       tooltip: { trigger: "item", formatter: "{b}: <b>{c} giao dịch</b> ({d}%)" },
@@ -177,8 +194,7 @@ export const usePaymentsHook = () => {
           avoidLabelOverlap: false,
           itemStyle: { borderRadius: 0.5 * rem, borderColor: "#fff", borderWidth: 0.125 * rem },
           label: { show: true, position: "outside", formatter: "{b}: {d}%", color: "#64748b", fontSize: 0.625 * rem },
-          data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
-          color: ["#f59e0b", "#10b981", "#ef4444", "#8b5cf6"],
+          data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0, itemStyle: { color: "#cbd5e1" } }],
         },
       ],
     };
@@ -194,7 +210,17 @@ export const usePaymentsHook = () => {
       }
     });
 
-    const data = Object.keys(counts).map((k) => ({ name: k, value: counts[k] }));
+    const data = Object.keys(counts).map((k) => {
+      let color = "#cbd5e1";
+      if (k === "VNPay") color = SEMANTIC_COLORS.normal;
+      else if (k === "Tiền mặt") color = PINK_GRADIENT_COLORS[5];
+
+      return {
+        name: k,
+        value: counts[k],
+        itemStyle: { color },
+      };
+    });
 
     return {
       tooltip: { trigger: "item", formatter: "{b}: <b>{c} giao dịch</b> ({d}%)" },
@@ -205,8 +231,7 @@ export const usePaymentsHook = () => {
           avoidLabelOverlap: false,
           itemStyle: { borderRadius: 0.5 * rem, borderColor: "#fff", borderWidth: 0.125 * rem },
           label: { show: true, formatter: "{b}: {d}%", color: "#64748b", fontSize: 0.625 * rem },
-          data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
-          color: ["#0ea5e9", "#f472b6", "#a78bfa", "#34d399", "#fb923c"],
+          data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0, itemStyle: { color: "#cbd5e1" } }],
         },
       ],
     };

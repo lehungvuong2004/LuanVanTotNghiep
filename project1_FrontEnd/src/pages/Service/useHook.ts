@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   getHelpersPublic,
   type HelperProfile } from "../../api/helpers";
-import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/services";
+import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/servicesApi/services";
 
 // Shape dùng trong UI cho Service Card
 export interface ServiceItem {

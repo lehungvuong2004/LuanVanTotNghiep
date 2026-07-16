@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useService } from "./useHook";
 import type { ServiceItem, HelperItem, ServiceFilterParams } from "./useHook";
-import type { ServiceCategory } from "../../api/services";
+import type { ServiceCategory } from "../../api/servicesApi/services";
 import { formatNumberVI } from "../../utils";
 import { Pagination } from "../../components/Pagination";
 

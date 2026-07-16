@@ -243,7 +243,7 @@ class NotificationController extends Controller
     $this->pushToSocket(['notifications' => $socketPayload]);
 
     return response()->json([
-      'message' => "Broadcast thành công đến {$userIds->count()} người dùng role [{$fields['role']}].",
+      'message' => "Broadcast thành công đến {$userIds->count()} người dùng.",
     ], Response::HTTP_CREATED);
   }
 

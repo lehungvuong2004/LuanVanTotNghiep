@@ -15,7 +15,7 @@ class ContactController extends Controller
    */
   public function index(Request $request)
   {
-    $query = Contact::with('processedBy:id,full_name,email');
+    $query = Contact::query();
 
     if ($request->filled('status')) {
       $query->where('status', $request->query('status'));
@@ -89,8 +89,6 @@ class ContactController extends Controller
       'processed_by' => $authUser->id,
       'processed_at' => now(),
     ]);
-
-    $contact->load('processedBy:id,full_name,email');
 
     return response()->json([
       'message' => 'Xử lý liên hệ thành công.',

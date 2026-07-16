@@ -1,7 +1,7 @@
 import { useNewsAdmin } from "./useHook";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../../../hooks/useAuth";
-
+import { Pagination } from "../../../components/Pagination";
 import { getImageUrl } from "../../../utils/images";
 
 export const NewsAdmin = () => {
@@ -19,12 +19,10 @@ export const NewsAdmin = () => {
     setSearchQuery,
     currentPage,
     setCurrentPage,
-    totalPages,
     totalItems,
+    perPage,
     isModalOpen,
     modalMode,
-    
-    
     openAddModal,
     openEditModal,
     closeModal,
@@ -32,7 +30,8 @@ export const NewsAdmin = () => {
     handleDeleteNews,
     handleToggleStatus,
     uploadingImage,
-    handleUploadImage } = useNewsAdmin();
+    handleUploadImage,
+  } = useNewsAdmin();
 
 
 
@@ -70,7 +69,7 @@ export const NewsAdmin = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng Bài Viết</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
+            <p className="text-3xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
           </div>
         </div>
 
@@ -80,7 +79,7 @@ export const NewsAdmin = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đã Xuất Bản</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{publishedCount}</p>
+            <p className="text-3xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{publishedCount}</p>
           </div>
         </div>
 
@@ -90,7 +89,7 @@ export const NewsAdmin = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Bản Nháp (Ẩn)</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{draftCount}</p>
+            <p className="text-3xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{draftCount}</p>
           </div>
         </div>
       </div>
@@ -204,14 +203,27 @@ export const NewsAdmin = () => {
                     <button
                       type="button"
                       onClick={() => handleToggleStatus(item)}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        item.status === "published"
-                          ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70"
-                          : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
-                      }`}
+                      className="flex items-center gap-2.5 cursor-pointer group"
+                      title={item.status === "published" ? "Chuyển sang Bản Nháp" : "Xuất Bản bài viết"}
                     >
-                      <Icon icon={item.status === "published" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
-                      <span>{item.status === "published" ? "Chuyển Nháp" : "Xuất Bản"}</span>
+                      {/* Toggle switch track */}
+                      <span
+                        className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                          item.status === "published" ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
+                        }`}
+                      >
+                        {/* Toggle switch thumb */}
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                            item.status === "published" ? "translate-x-4" : "translate-x-0"
+                          }`}
+                        />
+                      </span>
+                      <span className={`text-xs font-semibold ${
+                        item.status === "published" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"
+                      }`}>
+                        {item.status === "published" ? "Hoạt động" : "Tạm ngưng"}
+                      </span>
                     </button>
                   ) : <div />}
 
@@ -243,49 +255,12 @@ export const NewsAdmin = () => {
           ))}
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-200/50 dark:border-slate-700/50 pt-5">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Hiển thị trang <span className="font-bold">{currentPage}</span> / <span className="font-bold">{totalPages}</span>
-            </p>
-            <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1 || loading}
-                className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <Icon icon="material-symbols:chevron-left-rounded" className="text-xl" />
-              </button>
-              {Array.from({ length: totalPages }).map((_, idx) => {
-                const pageNum = idx + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    type="button"
-                    onClick={() => setCurrentPage(pageNum)}
-                    disabled={loading}
-                    className={`w-10 h-10 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                      currentPage === pageNum
-                        ? "bg-cyan-900 text-white shadow-xs"
-                        : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-              <button
-                type="button"
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages || loading}
-                className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <Icon icon="material-symbols:chevron-right-rounded" className="text-xl" />
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={perPage}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </div>
     );
   };

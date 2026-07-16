@@ -28,7 +28,6 @@ export const DashboardOverview = () => {
     );
   }
 
-  // Sub-render 1: Page Header
   const renderHeader = () => (
     <div>
       <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-0.5">Tổng quan bảng điều khiển</h2>
@@ -42,11 +41,13 @@ export const DashboardOverview = () => {
         <div key={idx} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between transition-all hover:shadow-sm">
           <div>
             <span className="block text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{card.title}</span>
-            <span className="block text-2xl font-bold text-slate-850 dark:text-slate-100">
+            <span className="block text-3xl font-extrabold text-slate-850 dark:text-slate-100">
               {typeof card.value === "number" ? (idx === 0 ? formatMoneyShortVI(card.value) : card.value.toLocaleString("vi-VN")) : card.value}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-455 mt-1">
-              <Icon icon="material-symbols:trending-up-rounded" />
+            <span
+              className={`inline-flex items-center gap-0.5 text-xs font-semibold mt-1 ${card.isPositive !== false ? "text-emerald-650 dark:text-emerald-450" : "text-rose-600 dark:text-rose-400"}`}
+            >
+              <Icon icon={card.isPositive !== false ? "material-symbols:trending-up-rounded" : "material-symbols:trending-down-rounded"} />
               {card.change}
             </span>
           </div>
@@ -67,25 +68,31 @@ export const DashboardOverview = () => {
           <span className="text-sm text-slate-400 dark:text-slate-500">Tổng quan từ Thứ 2 - Chủ Nhật</span>
         </div>
         <div className="flex-1 h-80 flex items-center justify-center">
-          <ReactECharts option={barOption} style={{ height: "100%", width: "100%" }} />
+          <ReactECharts option={barOption} style={{ height: "100%", width: "100%" }} lazyUpdate notMerge />
         </div>
       </div>
 
       {/* Service Shares Pie Chart (1 col width, aligned height) */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col">
-        <div className="flex justify-between items-start mb-2">
+        <div className="flex justify-between items-center mb-2">
           <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Danh mục dịch vụ</h3>
-
-          {/* Small stats indicator on top-right corner */}
-          <div className="text-right leading-none">
-            <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">Tổng số lượng</span>
-            <span className="text-base font-black text-blue-600 dark:text-blue-450">{totalServiceCount.toLocaleString()}</span>
-          </div>
         </div>
 
         {/* Aligned height for symmetrical grid layout */}
         <div className="flex-1 h-80 flex items-center justify-center relative">
-          <ReactECharts option={pieOption} style={{ height: "100%", width: "100%" }} />
+          <ReactECharts option={pieOption} style={{ height: "100%", width: "100%" }} lazyUpdate notMerge />
+        </div>
+
+        {/* Bottom stats and action link */}
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-750 flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng số lượng:</span>
+            <span className="text-xl font-black text-emerald-650 dark:text-blue-450">{totalServiceCount}</span>
+          </div>
+          <Link to="/admin/categories" className="inline-flex items-center gap-1 text-sm font-semibold text-blue-950 hover:text-blue-780 dark:text-blue-400 dark:hover:text-blue-300" target="_blank">
+            <span>Xem tất cả</span>
+            <Icon icon="material-symbols:chevron-right-rounded" className="text-lg" />
+          </Link>
         </div>
       </div>
     </div>
@@ -96,7 +103,7 @@ export const DashboardOverview = () => {
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
         <h3 className="text-base font-bold text-slate-805 dark:text-slate-100">Đặt chỗ gần đây</h3>
-        <Link to="/admin/bookings" className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer" target="_blank">
+        <Link to="/admin/bookings" className="text-sm font-semibold text-blue-950 hover:text-gray-800 dark:text-blue-400 cursor-pointer" target="_blank">
           Xem tất cả
         </Link>
       </div>

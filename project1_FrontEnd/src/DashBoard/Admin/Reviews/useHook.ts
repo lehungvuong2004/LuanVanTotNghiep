@@ -1,8 +1,8 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getReviewsAdmin, createReviewAdmin, updateReviewAdmin, deleteReviewAdmin, type Review } from "../../../api/reviews";
-import { getUsersAdmin, type User } from "../../../api/users";
-import { RATING_COLORS, SEMANTIC_COLORS } from "../../../utils/colors";
+import { getUsersAdmin, type User } from "../../../api/usersApi/users";
+import { RATING_COLORS, SEMANTIC_COLORS } from "../../../constants/colors";
 import { getRootFontSizePx } from "../../../utils";
 
 export const useAdminReviews = () => {

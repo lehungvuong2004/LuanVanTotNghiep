@@ -4,28 +4,8 @@ import { useAuth } from "../../../hooks/useAuth";
 
 import { Pagination } from "../../../components/Pagination";
 import { useServicesAdmin } from "./useHook";
-
-const PRICE_TYPE_LABELS = {
-  hourly: {
-    label: "Theo giờ",
-    icon: "material-symbols:schedule-outline-rounded",
-    color: "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
-  },
-  fixed: {
-    label: "Cố định",
-    icon: "material-symbols:attach-money-rounded",
-    color: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
-  },
-  daily: {
-    label: "Theo ngày",
-    icon: "material-symbols:calendar-today-outline",
-    color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400",
-  },
-};
-
-const formatPrice = (price: number | string) => {
-  return Number(price).toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-};
+import { formatPrice } from "../../../utils";
+import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 
 export const Services = () => {
   const { hasPermission } = useAuth();
@@ -48,7 +28,7 @@ export const Services = () => {
     fetchServices,
     isModalOpen,
     modalMode,
-
+    PRICE_TYPE_LABELS,
     openAddModal,
     openEditModal,
     closeModal,
@@ -57,7 +37,7 @@ export const Services = () => {
     handleToggleStatus,
   } = useServicesAdmin();
 
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const toggleSelectOne = (id: number) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -84,15 +64,6 @@ export const Services = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý danh sách dịch vụ, giá cả</p>
       </div>
       <div className="flex items-center gap-3">
-        {permissions.delete && selectedIds.length > 0 && (
-          <button
-            onClick={handleBulkDelete}
-            className="flex items-center justify-center gap-2 bg-red-650 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-            Xóa {selectedIds.length} đã chọn
-          </button>
-        )}
         {permissions.create && (
           <button
             onClick={openAddModal}
@@ -131,7 +102,7 @@ export const Services = () => {
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{s.label}</p>
-              <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
+              <p className="text-3xl font-black mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
             </div>
           </div>
         ))}
@@ -228,9 +199,7 @@ export const Services = () => {
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Giá Cơ Bản</th>
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loại Giá</th>
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng Thái</th>
-                  {(permissions.update || permissions.delete) && (
-                    <th className="text-right px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành Động</th>
-                  )}
+                  {(permissions.update || permissions.delete) && <th className="text-right px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành Động</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
@@ -249,7 +218,7 @@ export const Services = () => {
                           />
                         </td>
                       )}
-                      <td className="px-5 py-4 text-slate-400 dark:text-slate-500 font-mono text-xs">#{item.id}</td>
+                      <td className="px-5 py-4 text-slate-400 dark:text-slate-500 font-mono text-sm font-semibold">#{item.id}</td>
 
                       {/* Service Name + Description */}
                       <td className="px-5 py-4">
@@ -291,29 +260,24 @@ export const Services = () => {
 
                       {/* Status */}
                       <td className="px-5 py-4">
-                        {permissions.updateStatus ? (
+                        <div className="flex items-center gap-2.5">
                           <button
-                            onClick={() => handleToggleStatus(item)}
-                            className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all hover:scale-105 active:scale-95 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
-                          >
-                            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${item.status === "active" ? "bg-emerald-500" : "bg-slate-400"}`} />
-                            <span className={item.status === "active" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}>
-                              {item.status === "active" ? "Hoạt động" : "Tạm ngưng"}
-                            </span>
-                            <Icon icon="material-symbols:sync-alt-rounded" className="text-xs text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </button>
-                        ) : (
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold ${
-                              item.status === "active"
-                                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
-                                : "bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400"
+                            onClick={() => permissions.updateStatus && handleToggleStatus(item)}
+                            disabled={!permissions.updateStatus}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
+                              item.status === "active" ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
                             }`}
                           >
-                            <div className={`w-1.5 h-1.5 rounded-full ${item.status === "active" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                            <span
+                              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                                item.status === "active" ? "translate-x-5" : "translate-x-0"
+                              }`}
+                            />
+                          </button>
+                          <span className={`text-xs font-bold ${item.status === "active" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
                             {item.status === "active" ? "Hoạt động" : "Tạm ngưng"}
                           </span>
-                        )}
+                        </div>
                       </td>
 
                       {/* Actions */}
@@ -332,7 +296,7 @@ export const Services = () => {
                             {permissions.delete && (
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="p-1.5 rounded-lg text-slate-500 hover:text-red-650 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
                                 title="Xóa"
                               >
                                 <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
@@ -496,6 +460,18 @@ export const Services = () => {
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
+      {permissions.delete && selectedIds.length > 0 && (
+        <div className="my-2">
+          <BulkDeleteBar
+            selectedIds={selectedIds}
+            totalCount={services.length}
+            onToggleAll={toggleSelectAll}
+            onDeleteSelected={handleBulkDelete}
+            onClear={() => setSelectedIds([])}
+            loading={loading}
+          />
+        </div>
+      )}
       {renderTable()}
       {renderModal()}
     </div>

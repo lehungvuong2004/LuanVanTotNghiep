@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useHeader } from "./useHook";
-import type { NotificationType, Notification } from "../../api/notifications";
+import type { NotificationType, Notification } from "../../api/notificationsApi/notifications";
 
 import { formatVietnamDateTime } from "../../utils";
 import { ROLES, getRoleName, getRoleDashboard, getUserRole } from "../../constants/roles";

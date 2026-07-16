@@ -1,11 +1,12 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
-import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin, uploadUserAvatarAdmin } from "../../../api/users";
-import type { User } from "../../../api/users";
+import { getUsersAdmin, createUserAdmin, updateUserAdmin, toggleUserStatusAdmin, deleteUserAdmin, bulkDeleteUsersAdmin, uploadUserAvatarAdmin } from "../../../api/usersApi/users";
+import type { User } from "../../../api/usersApi/users";
+import { getAddUserSchema, getEditUserSchema } from "../../../api/usersApi/validation";
 import { getRootFontSizePx } from "../../../utils";
 import { ROLES } from "../../../constants/roles";
+import { SEMANTIC_COLORS } from "../../../constants/colors";
 
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -223,8 +224,8 @@ export const useUsers = () => {
     const googleCount = users.filter((u) => u.provider === "google").length;
 
     const data = [
-      { name: "Đăng ký thường", value: localCount, color: "#3b82f6" },
-      { name: "Đăng ký Google", value: googleCount, color: "#ef4444" },
+      { name: "Đăng ký thường", value: localCount, color: SEMANTIC_COLORS.normal },
+      { name: "Đăng ký Google", value: googleCount, color: SEMANTIC_COLORS.bad },
     ].filter((item) => item.value > 0);
 
     return {
@@ -283,9 +284,9 @@ export const useUsers = () => {
     const bannedCount = users.filter((u) => u.status === "banned").length;
 
     const data = [
-      { name: "Hoạt động", value: activeCount, color: "#10b981" },
-      { name: "Tạm khóa", value: inactiveCount, color: "#f59e0b" },
-      { name: "Bị khóa", value: bannedCount, color: "#ef4444" },
+      { name: "Hoạt động", value: activeCount, color: SEMANTIC_COLORS.good },
+      { name: "Tạm khóa", value: inactiveCount, color: SEMANTIC_COLORS.warning },
+      { name: "Bị khóa", value: bannedCount, color: SEMANTIC_COLORS.bad },
     ];
 
     return {
@@ -330,37 +331,8 @@ export const useUsers = () => {
   }, [users, rem]);
 
   // 1. Validation Schemas for Formik (All Roles)
-  const addValidationSchema = Yup.object().shape({
-    full_name: Yup.string().min(2, "Họ tên phải có ít nhất 2 ký tự").max(100, "Họ tên không được vượt quá 100 ký tự").required("Vui lòng nhập họ tên"),
-    email: Yup.string().email("Định dạng email không hợp lệ").required("Vui lòng nhập email"),
-    phone: Yup.string()
-      .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")
-      .nullable(),
-    role_id: Yup.number().oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ").required("Vui lòng chọn vai trò"),
-    password: Yup.string()
-      .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
-      .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
-      .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
-      .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
-      .required("Vui lòng nhập mật khẩu"),
-    status: Yup.string().oneOf(["active", "inactive", "banned"]).required(),
-  });
-
-  const editValidationSchema = Yup.object().shape({
-    full_name: Yup.string().min(2, "Họ tên phải có ít nhất 2 ký tự").max(100, "Họ tên không được vượt quá 100 ký tự").required("Vui lòng nhập họ tên"),
-    email: Yup.string().email("Định dạng email không hợp lệ").required("Vui lòng nhập email"),
-    phone: Yup.string()
-      .matches(/^(0[3|5|7|8|9])[0-9]{8}$/, "Số điện thoại không hợp lệ")
-      .nullable(),
-    role_id: Yup.number().oneOf([ROLES.ADMIN, ROLES.OPERATOR, ROLES.HELPER, ROLES.CUSTOMER], "Vai trò không hợp lệ").required("Vui lòng chọn vai trò"),
-    password: Yup.string()
-      .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
-      .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ in hoa")
-      .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
-      .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
-      .nullable(),
-    avatar: Yup.string().nullable(),
-  });
+  const addValidationSchema = getAddUserSchema();
+  const editValidationSchema = getEditUserSchema();
 
   const formik = useFormik({
     enableReinitialize: true,

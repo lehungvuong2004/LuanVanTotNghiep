@@ -1,7 +1,7 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { adminGetJobPostsApi, adminGetJobPostDetailApi, adminUpdateJobPostStatusApi, adminDeleteJobPostApi, type JobPost } from "../../../api/jobPostsApi/jobPosts";
-import { getUsersAdmin, type User } from "../../../api/users";
+import { getUsersAdmin, type User } from "../../../api/usersApi/users";
 
 export const useApplicationReview = () => {
   const [jobPosts, setJobPosts] = useState<JobPost[]>([]);

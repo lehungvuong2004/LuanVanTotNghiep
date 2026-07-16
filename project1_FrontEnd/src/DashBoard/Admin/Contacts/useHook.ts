@@ -71,7 +71,7 @@ export const useAdminContacts = () => {
       }
       setSelectedIds((prev) => prev.filter((item) => item !== id));
     } catch (error: any) {
-      console.error("Delete contact error:", error);
+      // console.error("Delete contact error:", error);
       showToast("error", t("Lỗi"), error?.response?.data?.message || t("Xóa liên hệ thất bại."));
     }
   };

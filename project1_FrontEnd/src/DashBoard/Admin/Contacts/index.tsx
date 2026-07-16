@@ -115,7 +115,7 @@ export const Contacts = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng yêu cầu</span>
-            <h3 className="text-2xl font-black text-slate-700 dark:text-slate-100 mt-1">{totalCount}</h3>
+            <h3 className="text-3xl font-black text-slate-700 dark:text-slate-100 mt-1">{totalCount}</h3>
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
             <Icon icon="material-symbols:contact-phone-outline-rounded" className="text-2xl" />
@@ -125,7 +125,7 @@ export const Contacts = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đang chờ xử lý</span>
-            <h3 className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{pendingCount}</h3>
+            <h3 className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">{pendingCount}</h3>
           </div>
           <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/30">
             <Icon icon="material-symbols:hourglass-empty" className="text-2xl" />
@@ -135,7 +135,7 @@ export const Contacts = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đã giải quyết</span>
-            <h3 className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{processedCount}</h3>
+            <h3 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{processedCount}</h3>
           </div>
           <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/30">
             <Icon icon="material-symbols:check-circle-outline-rounded" className="text-2xl" />
@@ -227,7 +227,6 @@ export const Contacts = () => {
                 <th className="py-4 px-5">Lời nhắn</th>
                 <th className="py-4 px-5">Trạng thái</th>
                 <th className="py-4 px-5">Ngày gửi</th>
-                <th className="py-4 px-5">Người xử lý</th>
                 <th className="py-4 px-5 text-right">Thao tác</th>
               </tr>
             </thead>
@@ -274,20 +273,6 @@ export const Contacts = () => {
                     <td className="py-3.5 px-5">{getStatusBadge(c.status)}</td>
                     <td className="py-3.5 px-5 text-slate-450 dark:text-slate-500">
                       {formatDateTime(c.created_at)}
-                    </td>
-                    <td className="py-3.5 px-5">
-                      {c.processed_by_user ? (
-                        <div>
-                          <p className="font-bold text-slate-750 dark:text-slate-200">{c.processed_by_user.full_name}</p>
-                          {c.processed_at && (
-                            <p className="text-slate-400 text-xxs mt-0.5">
-                              {formatDate(c.processed_at)}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 dark:text-slate-550 italic font-medium">—</span>
-                      )}
                     </td>
                     <td className="py-3.5 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">

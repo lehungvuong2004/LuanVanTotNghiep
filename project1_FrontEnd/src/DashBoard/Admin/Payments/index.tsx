@@ -63,7 +63,6 @@ export const Payments = () => {
       </div>
     );
   };
-
   const renderStats = () => {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -76,7 +75,7 @@ export const Payments = () => {
             {statsLoading ? (
               <div className="mt-1.5 h-5 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
             ) : (
-              <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtVND(liveStats.total_revenue) : "—"}</h3>
+              <h3 className="mt-1 text-3xl font-black text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtVND(liveStats.total_revenue) : "—"}</h3>
             )}
             {liveStats && !statsLoading && <p className="text-xs mt-0.5 font-medium text-slate-400">Tháng này: {fmtVND(liveStats.this_month_revenue)}</p>}
           </div>
@@ -91,21 +90,21 @@ export const Payments = () => {
             {statsLoading ? (
               <div className="mt-1.5 h-5 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
             ) : (
-              <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtPct(liveStats.change_percent) : "—"}</h3>
+              <h3 className="mt-1 text-3xl font-black text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtPct(liveStats.change_percent) : "—"}</h3>
             )}
             {liveStats && !statsLoading && (
               <p className={`text-xs mt-0.5 font-medium ${liveStats.change_percent >= 0 ? "text-emerald-500" : "text-rose-500"}`}>Tháng trước: {fmtVND(liveStats.last_month_revenue)}</p>
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="flex w-12 h-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
             <Icon icon="material-symbols:receipt-long-outline-rounded" className="text-2xl" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">Tổng số giao dịch</p>
-            <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{paymentsTotal} giao dịch</h3>
+            <h3 className="mt-1 text-3xl font-black text-slate-800 dark:text-slate-100 truncate">{paymentsTotal} giao dịch</h3>
             <p className="text-xs mt-0.5 font-medium text-slate-400">Dựa theo bộ lọc hiện tại</p>
           </div>
         </div>

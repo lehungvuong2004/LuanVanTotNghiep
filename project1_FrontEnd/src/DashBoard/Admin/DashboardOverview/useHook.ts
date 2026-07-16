@@ -18,32 +18,75 @@ export const useDashboardOverview = () => {
       try {
         setLoading(true);
         const data = await getDashboardOverview();
-        
-        const staticCardMeta = [
-          {
+
+        const kpiMetaMap: Record<string, { title: string; icon: string; bgColor: string; textColor: string }> = {
+          revenue: {
+            title: "Tổng doanh thu",
             icon: "material-symbols:payments-outline-rounded",
             bgColor: "bg-blue-50 dark:bg-blue-950/30",
-            textColor: "text-blue-600 dark:text-blue-400" },
-          {
+            textColor: "text-blue-600 dark:text-blue-400",
+          },
+          bookings: {
+            title: "Tổng số đặt chỗ",
             icon: "material-symbols:event-available-outline-rounded",
             bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
-            textColor: "text-emerald-600 dark:text-emerald-455" },
-          {
+            textColor: "text-emerald-600 dark:text-emerald-455",
+          },
+          helpers: {
+            title: "Cộng tác viên hoạt động",
             icon: "material-symbols:group-outline-rounded",
             bgColor: "bg-amber-50 dark:bg-amber-950/30",
-            textColor: "text-amber-600 dark:text-amber-400" },
-          {
+            textColor: "text-amber-600 dark:text-amber-400",
+          },
+          satisfaction: {
+            title: "Mức độ hài lòng",
             icon: "material-symbols:rate-review-outline-rounded",
             bgColor: "bg-violet-50 dark:bg-violet-950/30",
-            textColor: "text-violet-600 dark:text-violet-400" },
-        ];
+            textColor: "text-violet-600 dark:text-violet-400",
+          },
+        };
 
-        const mappedKpis = data.kpis.map((kpi, idx) => ({
-          ...kpi,
-          ...staticCardMeta[idx] }));
+        const dayMap = {
+          2: "Thứ 2",
+          3: "Thứ 3",
+          4: "Thứ 4",
+          5: "Thứ 5",
+          6: "Thứ 6",
+          7: "Thứ 7",
+          1: "Chủ Nhật",
+        };
+
+        const mappedKpis = data.kpis.map((kpi) => {
+          const meta = kpiMetaMap[kpi.type];
+
+          let changeFormatted = kpi.change;
+          if (kpi.type === "revenue" || kpi.type === "bookings") {
+            const num = Number(kpi.change);
+            const prefix = num >= 0 ? "+" : "";
+            changeFormatted = `${prefix}${num.toFixed(1)}%`;
+          } else if (kpi.type === "helpers") {
+            changeFormatted = `+${kpi.change} đang chờ duyệt`;
+          } else if (kpi.type === "satisfaction") {
+            changeFormatted = `TB ${kpi.change}`;
+          }
+
+          return {
+            ...kpi,
+            title: meta.title,
+            icon: meta.icon,
+            bgColor: meta.bgColor,
+            textColor: meta.textColor,
+            change: changeFormatted,
+          };
+        });
+
+        const mappedWeeklyBookings = data.weeklyBookings.map((item) => ({
+          ...item,
+          day: dayMap[item.day] || `Thứ ${item.day}`,
+        }));
 
         setKpis(mappedKpis);
-        setWeeklyBookings(data.weeklyBookings);
+        setWeeklyBookings(mappedWeeklyBookings);
         setServiceShares(data.serviceShares);
         setRecentBookings(data.recentBookings);
         setError(null);
@@ -58,35 +101,38 @@ export const useDashboardOverview = () => {
   }, []);
 
   // Total Services Count (calculated for display on the top-right of pie chart)
-  const totalServiceCount = serviceShares.reduce((acc, curr) => acc + curr.value, 0);
-
+  const totalServiceCount = serviceShares.length;
   const rem = getRootFontSizePx();
 
   // Weekly Bookings Bar Option
   const barOption = {
     tooltip: {
       trigger: "axis",
-      axisPointer: { type: "shadow" } },
+      axisPointer: { type: "shadow" },
+    },
     grid: {
       left: "3%",
       right: "4%",
       bottom: "3%",
       top: "10%",
-      containLabel: true },
+      containLabel: true,
+    },
     xAxis: [
       {
         type: "category",
         data: weeklyBookings.map((item) => item.day),
         axisTick: { alignWithLabel: true },
         axisLine: { lineStyle: { color: "#e2e8f0" } },
-        axisLabel: { color: "#64748b", fontSize: 0.8125 * rem } },
+        axisLabel: { color: "#64748b", fontSize: 0.8125 * rem },
+      },
     ],
     yAxis: [
       {
         type: "value",
         splitLine: { lineStyle: { type: "dashed", color: "#f1f5f9" } },
         axisLine: { show: false },
-        axisLabel: { color: "#64748b", fontSize: 0.8125 * rem } },
+        axisLabel: { color: "#64748b", fontSize: 0.8125 * rem },
+      },
     ],
     series: [
       {
@@ -96,53 +142,59 @@ export const useDashboardOverview = () => {
         data: weeklyBookings.map((item, index) => ({
           value: item.count,
           itemStyle: {
-            color: BLUE_PURPLE_07[index % BLUE_PURPLE_07.length] } })),
+            color: BLUE_PURPLE_07[index % BLUE_PURPLE_07.length],
+          },
+        })),
         itemStyle: {
-          borderRadius: [0.25 * rem, 0.25 * rem, 0, 0] } },
-    ] };
+          borderRadius: [0.25 * rem, 0.25 * rem, 0, 0],
+        },
+      },
+    ],
+  };
 
   // Service Shares Pie Option
   const pieOption = {
     tooltip: {
-      trigger: "item" },
+      trigger: "item",
+    },
     legend: {
-      orient: "horizontal",
-      bottom: "0",
-      left: "center",
-      itemWidth: 0.5 * rem,
-      itemHeight: 0.5 * rem,
-      textStyle: { color: "#64748b", fontSize: 0.75 * rem },
-      formatter: (name: string) => {
-        const item = serviceShares.find((s) => s.name === name);
-        return item ? `${name} ( ${item.value} )` : name;
-      } },
+      show: false,
+    },
     series: [
       {
         name: "Tỷ trọng dịch vụ",
         type: "pie",
-        radius: ["45%", "70%"],
-        center: ["50%", "42%"],
+        radius: ["50%", "75%"],
+        center: ["50%", "50%"],
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 0.375 * rem,
           borderColor: "#fff",
-          borderWidth: 0.125 * rem },
+          borderWidth: 0.125 * rem,
+        },
         label: {
           show: false,
-          position: "center" },
+          position: "center",
+        },
         emphasis: {
           label: {
             show: true,
             fontSize: 1 * rem,
             fontWeight: "bold",
-            formatter: "{b}\n{c}" } },
+            formatter: "{b}\n{c}",
+          },
+        },
         labelLine: {
-          show: false },
+          show: false,
+        },
         data: serviceShares.map((item, index) => ({
           value: item.value,
           name: item.name,
-          itemStyle: { color: QUALITATIVE_PALETTE[index % QUALITATIVE_PALETTE.length] } })) },
-    ] };
+          itemStyle: { color: QUALITATIVE_PALETTE[index % QUALITATIVE_PALETTE.length] },
+        })),
+      },
+    ],
+  };
 
   return {
     kpis,
@@ -151,5 +203,6 @@ export const useDashboardOverview = () => {
     barOption,
     pieOption,
     loading,
-    error };
+    error,
+  };
 };

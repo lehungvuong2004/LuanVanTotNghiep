@@ -16,6 +16,11 @@ class Contact extends Model
     'processed_at',
   ];
 
+  protected $hidden = [
+    'processed_by',
+    'processed_at',
+  ];
+
   public $timestamps = false;
 
   public function processedBy()

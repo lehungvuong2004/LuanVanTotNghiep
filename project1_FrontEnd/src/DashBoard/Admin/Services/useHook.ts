@@ -1,10 +1,9 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
-import type { Service, ServiceCategory } from "../../../api/services";
-
-import { getServicesAdmin, createServiceAdmin, updateServiceAdmin, deleteServiceAdmin, getCategoriesAdmin } from "../../../api/services";
+import type { Service, ServiceCategory } from "../../../api/servicesApi/services";
+import { getServicesAdmin, createServiceAdmin, updateServiceAdmin, deleteServiceAdmin, getCategoriesAdmin } from "../../../api/servicesApi/services";
+import { getServiceValidationSchema } from "../../../api/servicesApi/validation";
 
 export const useServicesAdmin = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -25,7 +24,6 @@ export const useServicesAdmin = () => {
 
   const { showToast } = useToast();
 
-  // Fetch categories once for select options
   useEffect(() => {
     getCategoriesAdmin()
       .then((res) => setCategories(res.data))
@@ -77,42 +75,7 @@ export const useServicesAdmin = () => {
       price_type: "hourly" as "hourly" | "fixed" | "daily",
       status: "active" as "active" | "inactive",
     },
-    validationSchema: Yup.object().shape({
-      category_id: Yup.number().required("Vui lòng chọn danh mục").min(1, "Vui lòng chọn danh mục"),
-      name: Yup.string().required("Vui lòng nhập tên dịch vụ").max(100, "Không quá 100 ký tự"),
-      description: Yup.string().nullable(),
-      base_price: Yup.number()
-        .required("Vui lòng nhập giá")
-        .test("price-range", "Giá không hợp lệ", function (value) {
-          if (value === undefined || value === null) return false;
-          const { price_type } = this.parent;
-          if (price_type === "hourly") {
-            if (value < 30000) {
-              return this.createError({ message: "Giá theo giờ tối thiểu là 30.000 VNĐ/giờ" });
-            }
-            if (value > 1000000) {
-              return this.createError({ message: "Giá theo giờ tối đa là 1.000.000 VNĐ/giờ" });
-            }
-          } else if (price_type === "daily") {
-            if (value < 100000) {
-              return this.createError({ message: "Giá theo ngày tối thiểu là 100.000 VNĐ/ngày" });
-            }
-            if (value > 10000000) {
-              return this.createError({ message: "Giá theo ngày tối đa là 10.000.000 VNĐ/ngày" });
-            }
-          } else {
-            if (value < 10000) {
-              return this.createError({ message: "Giá cố định tối thiểu là 10.000 VNĐ" });
-            }
-            if (value > 50000000) {
-              return this.createError({ message: "Giá cố định tối đa là 50.000.000 VNĐ" });
-            }
-          }
-          return true;
-        }),
-      price_type: Yup.string().oneOf(["hourly", "fixed", "daily"]).required(),
-      status: Yup.string().oneOf(["active", "inactive"]).required(),
-    }),
+    validationSchema: getServiceValidationSchema(),
     onSubmit: async (values) => {
       setLoading(true);
       try {
@@ -195,10 +158,29 @@ export const useServicesAdmin = () => {
       setLoading(false);
     }
   };
+  const PRICE_TYPE_LABELS = {
+    hourly: {
+      label: "Theo giờ",
+      icon: "material-symbols:schedule-outline-rounded",
+      color: "bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400",
+    },
+    fixed: {
+      label: "Cố định",
+      icon: "material-symbols:attach-money-rounded",
+      color: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
+    },
+    daily: {
+      label: "Theo ngày",
+      icon: "material-symbols:calendar-today-outline",
+      color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400",
+    },
+  };
+  
 
   return {
     services: filteredServices,
     categories,
+    PRICE_TYPE_LABELS,
     totalItems,
     loading,
     searchQuery,

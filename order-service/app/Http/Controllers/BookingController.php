@@ -11,9 +11,11 @@ use App\Models\BookingService;
 use App\Models\BookingStatusHistory;
 use App\Models\BookingWorkLog;
 use App\Models\Review;
+use App\Models\JobPost;
+use App\Models\JobApplication;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
+use Carbon\Carbon;
 class BookingController extends Controller
 {
     // =====================================================================
@@ -620,21 +622,20 @@ class BookingController extends Controller
 
         // 3. Số lượng Helper hoạt động
         $activeHelpers = 0;
-        $helpersChangeStr = "+0 new";
+        $pendingCount = 0;
         try {
             $helperStatsResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
                 ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/admin/helpers/stats');
             if ($helperStatsResponse->successful()) {
                 $activeHelpers = $helperStatsResponse->json('data.active') ?? 0;
-                $pendingVerifications = $helperStatsResponse->json('data.pending_verifications') ?? 0;
-                $helpersChangeStr = "+" . $pendingVerifications . " pending";
+                $pendingCount = $helperStatsResponse->json('data.pending_verifications') ?? 0;
             } else {
                 throw new \Exception('Failed to fetch helper stats');
             }
         } catch (\Exception $e) {
             $activeHelpers = Booking::whereNotNull('helper_id')->distinct('helper_id')->count('helper_id');
-            $helpersChangeStr = "active";
+            $pendingCount = 0;
         }
 
         // 4. Mức độ hài lòng (Reviews)
@@ -653,20 +654,11 @@ class BookingController extends Controller
             ->pluck('count', 'day_num')
             ->toArray();
 
-        $dayMap = [
-            2 => 'Mon',
-            3 => 'Tue',
-            4 => 'Wed',
-            5 => 'Thu',
-            6 => 'Fri',
-            7 => 'Sat',
-            1 => 'Sun'
-        ];
-
         $weeklyBookings = [];
-        foreach ($dayMap as $num => $dayName) {
+        $dayNums = [2, 3, 4, 5, 6, 7, 1]; // Mon to Sun order
+        foreach ($dayNums as $num) {
             $weeklyBookings[] = [
-                'day' => $dayName,
+                'day' => $num,
                 'count' => $bookingsByDay[$num] ?? 0
             ];
         }
@@ -674,6 +666,25 @@ class BookingController extends Controller
         // 6. Service category shares
         $serviceCategoryMap = [];
         $serviceNameMap = [];
+        $shares = [];
+
+        // Fetch all active categories first to ensure we have all of them (even with 0 services/bookings)
+        try {
+            $categoriesResponse = Http::withHeaders(['Authorization' => $authHeader])
+                ->timeout(3)
+                ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/service-categories');
+            if ($categoriesResponse->successful()) {
+                $categoriesData = $categoriesResponse->json('data') ?? [];
+                foreach ($categoriesData as $cat) {
+                    if (isset($cat['name'])) {
+                        $shares[$cat['name']] = 0;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
         try {
             $servicesResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
@@ -684,6 +695,10 @@ class BookingController extends Controller
                     if (isset($svc['id'])) {
                         if (isset($svc['category']['name'])) {
                             $serviceCategoryMap[$svc['id']] = $svc['category']['name'];
+                            // Fallback if categories list fetch failed or was incomplete
+                            if (!isset($shares[$svc['category']['name']])) {
+                                $shares[$svc['category']['name']] = 0;
+                            }
                         }
                         if (isset($svc['name'])) {
                             $serviceNameMap[$svc['id']] = $svc['name'];
@@ -699,13 +714,11 @@ class BookingController extends Controller
             ->groupBy('service_id')
             ->get();
 
-        $shares = [];
         foreach ($bookingServicesCounts as $bs) {
-            $categoryName = $serviceCategoryMap[$bs->service_id] ?? 'Others';
-            if (!isset($shares[$categoryName])) {
-                $shares[$categoryName] = 0;
+            $categoryName = $serviceCategoryMap[$bs->service_id] ?? null;
+            if ($categoryName) {
+                $shares[$categoryName] += $bs->count;
             }
-            $shares[$categoryName] += $bs->count;
         }
 
         $serviceShares = [];
@@ -716,45 +729,32 @@ class BookingController extends Controller
             ];
         }
 
-        $defaultCategories = ['Cleaning', 'Repair', 'Care', 'Others'];
-        foreach ($defaultCategories as $cat) {
-            $found = false;
-            foreach ($serviceShares as $share) {
-                if ($share['name'] === $cat) {
-                    $found = true;
-                    break;
-                }
-            }
-            if (!$found) {
-                $serviceShares[] = [
-                    'name' => $cat,
-                    'value' => 0
-                ];
-            }
-        }
-
         // 7. Recent Bookings
-        $userNameMap = [];
-        try {
-            $usersResponse = Http::withHeaders(['Authorization' => $authHeader])
-                ->timeout(3)
-                ->get(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users?limit=1000');
-            if ($usersResponse->successful()) {
-                $usersData = $usersResponse->json('data.data') ?? [];
-                foreach ($usersData as $user) {
-                    if (isset($user['id']) && isset($user['name'])) {
-                        $userNameMap[$user['id']] = $user['name'];
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // ignore
-        }
-
         $recentBookingsRaw = Booking::with('services')
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
+
+        $userNameMap = [];
+        $customerIds = $recentBookingsRaw->pluck('customer_id')->unique()->toArray();
+        if (!empty($customerIds)) {
+            try {
+                $usersResponse = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', [
+                        'ids' => array_values($customerIds)
+                    ]);
+                if ($usersResponse->successful()) {
+                    $usersData = $usersResponse->json('data') ?? [];
+                    foreach ($usersData as $user) {
+                        if (isset($user['id']) && isset($user['full_name'])) {
+                            $userNameMap[$user['id']] = $user['full_name'];
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // ignore
+            }
+        }
 
         $recentBookings = [];
         foreach ($recentBookingsRaw as $b) {
@@ -779,7 +779,7 @@ class BookingController extends Controller
             $recentBookings[] = [
                 'customer' => $userNameMap[$b->customer_id] ?? 'Khách hàng #' . $b->customer_id,
                 'service' => $serviceStr,
-                'date' => \Carbon\Carbon::parse($b->booking_date)->format('F j, Y'),
+                'date' => Carbon::parse($b->booking_date)->format('F j, Y'),
                 'price' => (float) $b->total_price,
                 'status' => $displayStatus
             ];
@@ -788,27 +788,27 @@ class BookingController extends Controller
         return response()->json([
             'kpis' => [
                 [
-                    'title' => 'Total Revenue',
+                    'type' => 'revenue',
                     'value' => (float) $totalRevenue,
-                    'change' => ($revenueChangePercent >= 0 ? '+' : '') . $revenueChangePercent . '%',
+                    'change' => (float) $revenueChangePercent,
                     'isPositive' => $revenueChangePercent >= 0,
                 ],
                 [
-                    'title' => 'Bookings',
+                    'type' => 'bookings',
                     'value' => $totalBookings,
-                    'change' => ($bookingsChangePercent >= 0 ? '+' : '') . $bookingsChangePercent . '%',
+                    'change' => (float) $bookingsChangePercent,
                     'isPositive' => $bookingsChangePercent >= 0,
                 ],
                 [
-                    'title' => 'Active Helpers',
+                    'type' => 'helpers',
                     'value' => $activeHelpers,
-                    'change' => $helpersChangeStr,
+                    'change' => $pendingCount,
                     'isPositive' => true,
                 ],
                 [
-                    'title' => 'Satisfaction',
+                    'type' => 'satisfaction',
                     'value' => $satisfactionStr,
-                    'change' => 'Avg ' . $avgRating . '★',
+                    'change' => (float) $avgRating,
                     'isPositive' => true,
                 ]
             ],
@@ -900,11 +900,11 @@ class BookingController extends Controller
     private function syncJobApplicationStatus($booking, string $status): void
     {
         try {
-            $post = \App\Models\JobPost::where('customer_id', $booking->customer_id)
+            $post = JobPost::where('customer_id', $booking->customer_id)
                                       ->where('selected_helper_id', $booking->helper_id)
                                       ->first();
             if ($post) {
-                $application = \App\Models\JobApplication::where('job_post_id', $post->id)
+                $application = JobApplication::where('job_post_id', $post->id)
                                                          ->where('helper_id', $booking->helper_id)
                                                          ->first();
                 if ($application) {
@@ -924,29 +924,29 @@ class BookingController extends Controller
 
         $helperId = $request->authUser['id'];
 
-        $bookingIds = \App\Models\Booking::where('helper_id', $helperId)->pluck('id')->toArray();
-        $jobPostIds = \App\Models\JobPost::where('selected_helper_id', $helperId)->pluck('id')->toArray();
+        $bookingIds = Booking::where('helper_id', $helperId)->pluck('id')->toArray();
+        $jobPostIds = JobPost::where('selected_helper_id', $helperId)->pluck('id')->toArray();
 
-        $completedBookingsCount = \App\Models\Booking::where('helper_id', $helperId)->where('status', 'completed')->count();
-        $inProgressJobsCount = \App\Models\Booking::where('helper_id', $helperId)->where('status', 'in_progress')->count();
+        $completedBookingsCount = Booking::where('helper_id', $helperId)->where('status', 'completed')->count();
+        $inProgressJobsCount = Booking::where('helper_id', $helperId)->where('status', 'in_progress')->count();
 
-        $pendingBookingsCount = \App\Models\Booking::where('helper_id', $helperId)->whereIn('status', ['pending', 'confirmed'])->count();
-        $pendingApplicationsCount = \App\Models\JobApplication::where('helper_id', $helperId)->where('status', 'pending')->count();
+        $pendingBookingsCount = Booking::where('helper_id', $helperId)->whereIn('status', ['pending', 'confirmed'])->count();
+        $pendingApplicationsCount = JobApplication::where('helper_id', $helperId)->where('status', 'pending')->count();
         $waitingConfirmationCount = $pendingBookingsCount + $pendingApplicationsCount;
 
-        $confirmedApps = \App\Models\JobApplication::where('helper_id', $helperId)->where('status', 'confirmed')->count();
-        $rejectedApps = \App\Models\JobApplication::where('helper_id', $helperId)->where('status', 'rejected')->count();
+        $confirmedApps = JobApplication::where('helper_id', $helperId)->where('status', 'confirmed')->count();
+        $rejectedApps = JobApplication::where('helper_id', $helperId)->where('status', 'rejected')->count();
         $totalApps = $confirmedApps + $rejectedApps;
         $acceptanceRate = $totalApps > 0 ? round(($confirmedApps / $totalApps) * 100, 2) : 100.00;
 
-        $cancelledByHelper = \App\Models\Booking::where('helper_id', $helperId)->where('status', 'cancelled')->where('cancel_by', $helperId)->count();
-        $totalBookings = \App\Models\Booking::where('helper_id', $helperId)->count();
+        $cancelledByHelper = Booking::where('helper_id', $helperId)->where('status', 'cancelled')->where('cancel_by', $helperId)->count();
+        $totalBookings = Booking::where('helper_id', $helperId)->count();
         $cancelRate = $totalBookings > 0 ? round(($cancelledByHelper / $totalBookings) * 100, 2) : 0.00;
 
-        $ratingAvg = \App\Models\Review::where('helper_id', $helperId)->avg('rating') ?? 0;
-        $totalReviews = \App\Models\Review::where('helper_id', $helperId)->count();
+        $ratingAvg = Review::where('helper_id', $helperId)->avg('rating') ?? 0;
+        $totalReviews = Review::where('helper_id', $helperId)->count();
 
-        $reviews = \App\Models\Review::where('helper_id', $helperId)
+        $reviews = Review::where('helper_id', $helperId)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
