@@ -196,7 +196,7 @@ export const useAdminReviews = () => {
       },
       legend: {
         orient: "horizontal",
-        bottom: "0",
+        bottom: 5,
         textStyle: {
           color: "#64748b",
         },
@@ -205,7 +205,8 @@ export const useAdminReviews = () => {
         {
           name: "Đánh Giá",
           type: "pie",
-          radius: ["40%", "70%"],
+          radius: ["35%", "55%"],
+          center: ["50%", "45%"],
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 0.5 * rem,

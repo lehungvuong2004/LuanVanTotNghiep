@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { getImageUrl } from "../../../utils/images";
+import Toggle from "../../../components/Toggle";
 
 export const NewsAdmin = () => {
   const { hasPermission } = useAuth();
@@ -32,10 +33,6 @@ export const NewsAdmin = () => {
     uploadingImage,
     handleUploadImage,
   } = useNewsAdmin();
-
-
-
-  
 
   const renderHeader = () => {
     return (
@@ -199,33 +196,7 @@ export const NewsAdmin = () => {
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
-                  {permissions.update ? (
-                    <button
-                      type="button"
-                      onClick={() => handleToggleStatus(item)}
-                      className="flex items-center gap-2.5 cursor-pointer group"
-                      title={item.status === "published" ? "Chuyển sang Bản Nháp" : "Xuất Bản bài viết"}
-                    >
-                      {/* Toggle switch track */}
-                      <span
-                        className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                          item.status === "published" ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
-                        }`}
-                      >
-                        {/* Toggle switch thumb */}
-                        <span
-                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                            item.status === "published" ? "translate-x-4" : "translate-x-0"
-                          }`}
-                        />
-                      </span>
-                      <span className={`text-xs font-semibold ${
-                        item.status === "published" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"
-                      }`}>
-                        {item.status === "published" ? "Hoạt động" : "Tạm ngưng"}
-                      </span>
-                    </button>
-                  ) : <div />}
+                  {permissions.update ? <Toggle checked={item.status === "published"} onChange={() => handleToggleStatus(item)} activeLabel="Hoạt động" inactiveLabel="Tạm ngưng" /> : <div />}
 
                   <div className="flex items-center gap-1">
                     {permissions.update && (
@@ -255,12 +226,7 @@ export const NewsAdmin = () => {
           ))}
         </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={perPage}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={perPage} onPageChange={(page) => setCurrentPage(page)} />
       </div>
     );
   };
@@ -322,7 +288,7 @@ export const NewsAdmin = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* File Upload Button */}
                 <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
                   <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
@@ -451,7 +417,6 @@ export const NewsAdmin = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
@@ -460,4 +425,3 @@ export const NewsAdmin = () => {
     </div>
   );
 };
-

@@ -32,9 +32,10 @@ class JwtAuthMiddleware
         }
 
         $request->authUser = [
-            'id'      => $payload['sub']     ?? null,
-            'role_id' => $payload['role_id'] ?? null,
-            'email'   => $payload['email']   ?? null,
+            'id'          => $payload['sub']         ?? null,
+            'role_id'     => $payload['role_id']     ?? null,
+            'email'       => $payload['email']       ?? null,
+            'permissions' => $payload['permissions'] ?? [],
         ];
 
         return $next($request);

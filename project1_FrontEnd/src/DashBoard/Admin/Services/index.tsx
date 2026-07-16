@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../../../hooks/useAuth";
-
 import { Pagination } from "../../../components/Pagination";
 import { useServicesAdmin } from "./useHook";
 import { formatPrice } from "../../../utils";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
+import Toggle from "../../../components/Toggle";
 
 export const Services = () => {
   const { hasPermission } = useAuth();
@@ -260,24 +260,7 @@ export const Services = () => {
 
                       {/* Status */}
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-2.5">
-                          <button
-                            onClick={() => permissions.updateStatus && handleToggleStatus(item)}
-                            disabled={!permissions.updateStatus}
-                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
-                              item.status === "active" ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
-                            }`}
-                          >
-                            <span
-                              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                                item.status === "active" ? "translate-x-5" : "translate-x-0"
-                              }`}
-                            />
-                          </button>
-                          <span className={`text-xs font-bold ${item.status === "active" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
-                            {item.status === "active" ? "Hoạt động" : "Tạm ngưng"}
-                          </span>
-                        </div>
+                        <Toggle checked={item.status === "active"} onChange={() => handleToggleStatus(item)} disabled={!permissions.updateStatus} activeLabel="Hoạt động" inactiveLabel="Tạm ngưng" />
                       </td>
 
                       {/* Actions */}

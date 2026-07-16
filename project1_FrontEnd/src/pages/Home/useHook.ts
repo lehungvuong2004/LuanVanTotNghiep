@@ -5,14 +5,14 @@ import cleaningImg from "../../assets/images/home_produce/cleaning.webp";
 import cookingImg from "../../assets/images/home_produce/cooking.webp";
 import designerImg from "../../assets/images/home_produce/designer.webp";
 import gradenImg from "../../assets/images/home_produce/graden.webp";
-import { getBannersPublic } from "../../api/banners";
-import type { Banner } from "../../api/banners";
+import { getBannersPublic } from "../../api/bannersApi/banners";
+import type { Banner } from "../../api/bannersApi/banners";
 
 export const useHome = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const cubeRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
+  const imageRef = useRef(null);
+  const contentRef = useRef(null);
+  const cubeRef = useRef(null);
   
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loadingBanners, setLoadingBanners] = useState<boolean>(true);
@@ -139,69 +139,20 @@ export const useHome = () => {
   }, []);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const image = imageRef.current;
-    const content = contentRef.current;
     const cube = cubeRef.current;
-
-    // Entry animation for banner
-    let ctx: any;
-    if (container) {
-      ctx = gsap.context(() => {
-        if (image) {
-          gsap.fromTo(image, { scale: 1.15, opacity: 0 }, { scale: 1.05, opacity: 1, duration: 1.2, ease: "power3.out" });
-        }
-        if (content) {
-          gsap.fromTo(content, { y: 45, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.2, ease: "power3.out" });
-        }
-
-        // 3D Carousel Y-axis infinite rotation with X-tilt
-        if (cube) {
-          gsap.set(cube, { rotationX: -16, rotationY: 0 });
-
-          gsap.to(cube, {
-            rotationY: -360,
-            duration: 20,
-            ease: "none",
-            repeat: -1 });
-        }
-      }, container);
+    if (cube) {
+      gsap.set(cube, { rotationX: -16, rotationY: 0 });
+      const anim = gsap.to(cube, {
+        rotationY: -360,
+        duration: 20,
+        ease: "none",
+        repeat: -1
+      });
+      return () => {
+        anim.kill();
+      };
     }
-
-    const tick = () => {
-      if (image) {
-        gsap.to(image, {
-          x: mouseRef.current.x * -20,
-          y: mouseRef.current.y * -15,
-          duration: 1.2,
-          ease: "power2.out",
-          overwrite: "auto" });
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-
-    if (container) {
-      container.addEventListener("mousemove", handleMouseMove);
-    }
-
-    // Reset position when mouse leaves the banner
-    const handleMouseLeave = () => {
-      mouseRef.current = { x: 0, y: 0 };
-    };
-    if (container) {
-      container.addEventListener("mouseleave", handleMouseLeave);
-    }
-
-    return () => {
-      if (ctx) ctx.revert();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      if (container) {
-        container.removeEventListener("mousemove", handleMouseMove);
-        container.removeEventListener("mouseleave", handleMouseLeave);
-      }
-    };
-  }, [handleMouseMove]);
+  }, []);
 
   return {
     bannerData,

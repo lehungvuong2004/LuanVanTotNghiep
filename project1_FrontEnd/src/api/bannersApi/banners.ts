@@ -1,4 +1,4 @@
-import axiosInstance from "./axios";
+import axiosInstance from "../axios";
 
 export interface Banner {
   id: number;
@@ -50,7 +50,8 @@ export const getBannersAdmin = async (params?: {
   limit?: number;
 }): Promise<AdminBannersResponse> => {
   const response = await axiosInstance.get<AdminBannersResponse>("/admin/banners", {
-    params });
+    params,
+  });
   return response.data;
 };
 
@@ -111,7 +112,9 @@ export const uploadBannerImage = async (file: File): Promise<{ message: string; 
     formData,
     {
       headers: {
-        "Content-Type": "multipart/form-data" } }
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
   return response.data;
 };

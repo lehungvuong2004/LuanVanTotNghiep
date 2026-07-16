@@ -16,7 +16,6 @@ interface SidebarFilterProps {
   onReset: () => void;
   categories: ServiceCategory[];
 }
-
 const CITIES = ["TP.HCM"];
 const DISTRICTS_HCMC = ["Tất cả", "Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
 const RATINGS = [

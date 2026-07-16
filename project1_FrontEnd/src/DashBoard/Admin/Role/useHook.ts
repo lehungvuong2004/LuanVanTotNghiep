@@ -2,14 +2,9 @@ import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import type { Role, Permission } from "../../../api/roles";
-
-import {
-  getRolesAdmin,
-  createRoleAdmin,
-  updateRoleAdmin,
-  deleteRoleAdmin,
-  getPermissionsAdmin } from "../../../api/roles";
+import type { Role, Permission } from "../../../api/rolesApi/roles";
+import { getRolesAdmin, createRoleAdmin, updateRoleAdmin, deleteRoleAdmin, getPermissionsAdmin } from "../../../api/rolesApi/roles";
+import { roleValidationSchema } from "../../../api/rolesApi/validation";
 
 export const useRolesAdmin = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -22,11 +17,6 @@ export const useRolesAdmin = () => {
   const [currentRole, setCurrentRole] = useState<Role | null>(null);
 
   const { showToast } = useToast();
-  
-
-  
-
-  
 
   const fetchRoles = useCallback(async () => {
     setLoading(true);
@@ -54,10 +44,7 @@ export const useRolesAdmin = () => {
     fetchPermissions();
   }, [fetchRoles, fetchPermissions]);
 
-  const filteredRoles = roles.filter((r) =>
-    r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (r.description && r.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredRoles = roles.filter((r) => r.name.toLowerCase().includes(searchQuery.toLowerCase()) || (r.description && r.description.toLowerCase().includes(searchQuery.toLowerCase())));
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -69,11 +56,9 @@ export const useRolesAdmin = () => {
     initialValues: {
       name: "",
       description: "",
-      permissions: [] as number[] },
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required("Vui lòng nhập tên vai trò").max(50, "Không quá 50 ký tự"),
-      description: Yup.string().max(191, "Không quá 191 ký tự").nullable(),
-      permissions: Yup.array().of(Yup.number()) }),
+      permissions: [] as number[],
+    },
+    validationSchema: roleValidationSchema,
     onSubmit: async (values) => {
       setLoading(true);
       try {
@@ -81,13 +66,15 @@ export const useRolesAdmin = () => {
           await updateRoleAdmin(currentRole.id, {
             name: values.name,
             description: values.description || undefined,
-            permissions: values.permissions });
+            permissions: values.permissions,
+          });
           showToast("success", "Thành công", "Cập nhật vai trò thành công!");
         } else {
           await createRoleAdmin({
             name: values.name,
             description: values.description || undefined,
-            permissions: values.permissions });
+            permissions: values.permissions,
+          });
           showToast("success", "Thành công", "Thêm vai trò mới thành công!");
         }
         closeModal();
@@ -97,7 +84,8 @@ export const useRolesAdmin = () => {
       } finally {
         setLoading(false);
       }
-    } });
+    },
+  });
 
   const openAddModal = () => {
     setModalMode("add");
@@ -114,7 +102,9 @@ export const useRolesAdmin = () => {
       values: {
         name: item.name,
         description: item.description || "",
-        permissions: permIds } });
+        permissions: permIds,
+      },
+    });
     setIsModalOpen(true);
   };
 
@@ -144,13 +134,12 @@ export const useRolesAdmin = () => {
     setSearchQuery,
     isModalOpen,
     modalMode,
-    
+
     openAddModal,
     openEditModal,
     closeModal,
     formik,
     handleDelete,
-    currentRole };
+    currentRole,
+  };
 };
-
-

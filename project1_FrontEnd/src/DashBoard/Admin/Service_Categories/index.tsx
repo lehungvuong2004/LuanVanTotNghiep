@@ -236,7 +236,7 @@ export const ServiceCategories = () => {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${TYPE_LABELS[item.type]?.color || ""}`}>{TYPE_LABELS[item.type]?.label || item.type}</span>
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${TYPE_LABELS[item.type]?.color || ""}`}>{TYPE_LABELS[item.type]?.label || item.type}</span>
                   </td>
                   <td className="px-5 py-4">
                     <span className="font-bold text-slate-700 dark:text-slate-200">{item.services_count ?? 0}</span>
