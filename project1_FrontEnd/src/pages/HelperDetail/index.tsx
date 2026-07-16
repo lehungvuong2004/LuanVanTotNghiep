@@ -33,10 +33,6 @@ export const HelperDetail = () => {
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
 
-  const user = (helper as any).user;
-  const skills = helper.skills ?? [];
-  const rawAreas = (helper as any).working_areas ?? helper.workingAreas ?? [];
-  const ratingDist = reviewData?.rating_distribution ?? {};
   useEffect(() => {
     if (!id) return;
     const fetchHelper = async () => {
@@ -100,6 +96,11 @@ export const HelperDetail = () => {
     );
   }
 
+  const user = (helper as any).user;
+  const skills = helper.skills ?? [];
+  const rawAreas = (helper as any).working_areas ?? helper.workingAreas ?? [];
+  const ratingDist = reviewData?.rating_distribution ?? {};
+
   const renderBreadcrumb = () => (
     <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-6">
       <button onClick={() => navigate("/")} className="hover:text-teal-600 cursor-pointer">
@@ -115,7 +116,7 @@ export const HelperDetail = () => {
   );
 
   const renderProfileHeader = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 p-8">
+    <div className="bg-transparent dark:bg-transparent md:bg-white md:dark:bg-slate-800 rounded-3xl border-0 md:border border-slate-100 dark:border-slate-700/50 p-0 md:p-8">
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Avatar */}
         <div className="relative">
@@ -240,7 +241,7 @@ export const HelperDetail = () => {
   );
 
   const renderReviewsSection = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 p-8">
+    <div className="bg-transparent dark:bg-transparent md:bg-white md:dark:bg-slate-800 rounded-3xl border-0 md:border border-slate-100 dark:border-slate-700/50 p-0 md:p-8">
       <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
         <Icon icon="material-symbols:reviews-outline" className="text-2xl text-teal-600" />
         {t("Đánh giá từ khách hàng")}

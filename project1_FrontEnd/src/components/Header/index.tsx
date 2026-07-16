@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useHeader } from "./useHook";
@@ -97,6 +97,19 @@ export const Header = () => {
 
   const [notifFilter, setNotifFilter] = useState<"all" | "unread">("all");
   const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+  const [isMobileNotifOpen, setIsMobileNotifOpen] = useState(false);
+  const [isMobileUserMenuOpen, setIsMobileUserMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMobileNotifOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [isMobileNotifOpen]);
 
   const displayedNotifications = notifFilter === "all" ? notifications : notifications.filter((notif) => !notif.is_read);
 
@@ -304,8 +317,15 @@ export const Header = () => {
                 >
                   <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-xl" />
                 </button>
-                <div className="relative group cursor-pointer flex items-center justify-center">
-                  <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs hover:scale-105 relative">
+                <div className="relative cursor-pointer flex items-center justify-center">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMobileNotifOpen(!isMobileNotifOpen);
+                      setIsMobileUserMenuOpen(false);
+                    }}
+                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs hover:scale-105 relative"
+                  >
                     <Icon icon="mdi:bell-outline" className="text-xl" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
@@ -313,53 +333,101 @@ export const Header = () => {
                       </span>
                     )}
                   </div>
-                  <div className="absolute top-full right-0 pt-4 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-3 text-left text-gray-800 dark:text-white">
-                      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-700/50">
-                        <span className="font-semibold text-xs">{t("Thông báo")}</span>
+                  {isMobileNotifOpen && (
+                    <div className="fixed inset-0 bg-slate-50 dark:bg-slate-900 z-50 flex flex-col cursor-default" onClick={(e) => e.stopPropagation()}>
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-4 py-3 bg-[#066d72] dark:bg-slate-800 text-white shadow-sm shrink-0">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setIsMobileNotifOpen(false)}
+                            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer"
+                          >
+                            <Icon icon="material-symbols:arrow-back" className="text-2xl" />
+                          </button>
+                          <span className="font-bold text-lg">{t("Thông báo")}</span>
+                        </div>
                         {unreadCount > 0 && (
-                          <button onClick={markAllAsRead} className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium cursor-pointer">
-                            {t("Đọc tất cả")}
+                          <button
+                            onClick={() => {
+                              markAllAsRead();
+                              setIsMobileNotifOpen(false);
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-full text-xs font-semibold transition-colors cursor-pointer"
+                          >
+                            <Icon icon="lucide:check-check" className="text-white text-sm" />
+                            <span>{t("Đọc tất cả")}</span>
                           </button>
                         )}
                       </div>
-                      <div className="flex flex-col gap-1.5 py-2 max-h-56 overflow-y-auto">
+
+                      {/* Notification List */}
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {notifications.length > 0 ? (
                           notifications.map((notif) => {
                             const isUnread = !notif.is_read;
                             const timeLabel = formatVietnamDateTime(notif.created_at);
+                            const meta = NOTIF_META[notif.type] || DEFAULT_META;
                             return (
                               <div
                                 key={notif.id}
-                                onClick={() => handleNotificationClick(notif)}
-                                className={`flex items-start gap-2 p-1.5 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-all duration-200 ${isUnread ? "bg-teal-50/50 dark:bg-teal-950/20 font-medium" : ""}`}
+                                onClick={() => {
+                                  handleNotificationClick(notif);
+                                  setIsMobileNotifOpen(false);
+                                }}
+                                className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-200 cursor-pointer shadow-xs border ${
+                                  isUnread
+                                    ? "bg-teal-50/30 dark:bg-teal-950/10 border-teal-100 dark:border-teal-900/30 font-medium"
+                                    : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/50"
+                                }`}
                               >
-                                <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${isUnread ? "bg-teal-600 dark:bg-teal-400" : "bg-transparent"}`} />
-                                <div className="flex flex-col flex-1 text-left">
-                                  <span className="text-gray-700 dark:text-gray-200 leading-tight font-semibold">{notif.title}</span>
-                                  {notif.message && <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" dangerouslySetInnerHTML={{ __html: notif.message }} />}
+                                <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${meta.bg}`}>
+                                  <Icon icon={meta.icon} className={`text-xl ${meta.fg}`} />
+                                </div>
+                                <div className="flex flex-col flex-1 text-left min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <span className="text-sm text-gray-800 dark:text-gray-100 leading-snug font-bold">{notif.title}</span>
+                                    {isUnread && (
+                                      <span className="w-2 h-2 bg-teal-600 dark:bg-teal-400 rounded-full shrink-0 mt-1.5" />
+                                    )}
+                                  </div>
+                                  {notif.message && (
+                                    <span
+                                      className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed line-clamp-3"
+                                      dangerouslySetInnerHTML={{ __html: notif.message }}
+                                    />
+                                  )}
                                   {notif.type === "booking" && (
-                                    <span className="text-xs text-[#026E5F] dark:text-teal-400 font-bold mt-0.5 flex items-center gap-0.5">
+                                    <span className="text-xs text-[#026E5F] dark:text-teal-400 font-bold mt-2 flex items-center gap-0.5">
                                       <Icon icon="material-symbols:arrow-forward-rounded" className="text-xs" />
                                       {t("Xem chi tiết")}
                                     </span>
                                   )}
-                                  <span className="text-xs text-gray-400 mt-0.5">{timeLabel}</span>
+                                  <span className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">{timeLabel}</span>
                                 </div>
                               </div>
                             );
                           })
                         ) : (
-                          <div className="text-center py-4 text-gray-400 text-xs">{t("Không có thông báo nào")}</div>
+                          <div className="flex flex-col items-center justify-center py-20 text-slate-400 dark:text-slate-500">
+                            <Icon icon="material-symbols:notifications-off-outline-rounded" className="text-6xl mb-3" />
+                            <span className="text-sm font-semibold">{t("Không có thông báo nào")}</span>
+                          </div>
                         )}
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
               {isLoggedIn ? (
-                <div className="relative group  flex items-center cursor-pointer">
-                  <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                <div className="relative flex items-center cursor-pointer">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMobileUserMenuOpen(!isMobileUserMenuOpen);
+                      setIsMobileNotifOpen(false);
+                    }}
+                    className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer"
+                  >
                     {user?.avatar ? (
                       <img src={user.avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
                     ) : (
@@ -367,57 +435,68 @@ export const Header = () => {
                     )}
                   </div>
 
-                  <div className="absolute top-full right-0 pt-4 w-60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
-                      <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
-                        <img
-                          src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"}
-                          alt="User Avatar"
-                          className="w-10 h-10 rounded-full object-cover border border-[#026E5F] dark:border-teal-500"
-                        />
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">{user?.full_name || "Nguyễn Văn A"}</span>
-                          <span className="text-xs text-gray-500 mt-0.5">{t(getRoleName(getUserRole(user)))}</span>
+                  {isMobileUserMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsMobileUserMenuOpen(false)} />
+                      <div className="absolute top-full right-0 pt-4 w-60 transition-all duration-200 z-50">
+                        <div className="rounded-xl shadow-xl border border-gray-100 dark:border-gray-700/50 flex flex-col bg-white dark:bg-slate-800 p-4 text-left">
+                          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/50">
+                            <img
+                              src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"}
+                              alt="User Avatar"
+                              className="w-10 h-10 rounded-full object-cover border border-[#026E5F] dark:border-teal-500"
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">{user?.full_name || "Nguyễn Văn A"}</span>
+                              <span className="text-xs text-gray-500 mt-0.5">{t(getRoleName(getUserRole(user)))}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-1 py-3">
+                            {user && getUserRole(user) !== ROLES.CUSTOMER && (
+                              <Link
+                                to={getRoleDashboard(getUserRole(user))}
+                                onClick={() => setIsMobileUserMenuOpen(false)}
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                              >
+                                <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />
+                                <span>{t("Bảng điều khiển")}</span>
+                              </Link>
+                            )}
+                            <Link
+                              to="/ho-so"
+                              onClick={() => setIsMobileUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                            >
+                              <Icon icon="mdi:account-outline" className="text-lg text-gray-400" />
+                              <span>{t("Hồ sơ cá nhân")}</span>
+                            </Link>
+                            <Link
+                              to="/lich-su-dat-lich"
+                              onClick={() => setIsMobileUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                            >
+                              <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
+                              <span>{t("Lịch sử đặt lịch")}</span>
+                            </Link>
+                          </div>
+
+                          <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
+                            <button
+                              onClick={() => {
+                                handleLogout();
+                                setIsMobileUserMenuOpen(false);
+                              }}
+                              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
+                            >
+                              <Icon icon="material-symbols:logout" className="text-lg" />
+                              <span>{t("Đăng xuất")}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex flex-col gap-1 py-3">
-                        {user && getUserRole(user) !== ROLES.CUSTOMER && (
-                          <Link
-                            to={getRoleDashboard(getUserRole(user))}
-                            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
-                          >
-                            <Icon icon="lucide:layout-dashboard" className="text-lg text-gray-400" />
-                            <span>{t("Bảng điều khiển")}</span>
-                          </Link>
-                        )}
-                        <Link
-                          to="/ho-so"
-                          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
-                        >
-                          <Icon icon="mdi:account-outline" className="text-lg text-gray-400" />
-                          <span>{t("Hồ sơ cá nhân")}</span>
-                        </Link>
-                        <Link
-                          to="/lich-su-dat-lich"
-                          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
-                        >
-                          <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
-                          <span>{t("Lịch sử đặt lịch")}</span>
-                        </Link>
-                      </div>
-
-                      <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold transition-all duration-200 cursor-pointer"
-                        >
-                          <Icon icon="material-symbols:logout" className="text-lg" />
-                          <span>{t("Đăng xuất")}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="relative h-full flex items-center cursor-pointer">
@@ -726,34 +805,16 @@ export const Header = () => {
                 </div>
 
                 <div className="flex flex-col gap-2 mt-2">
-                  <Link
-                    to="/about"
-                    className="text-gray-700  dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
-                    onClick={toggleMobileMenu}
-                  >
-                    {t("Trang Chủ")}
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
-                    onClick={toggleMobileMenu}
-                  >
-                    {t("Về chúng tôi")}
-                  </Link>
-                  {/* <Link
-                  to="/viec-lam"
-                  className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
-                  onClick={toggleMobileMenu}
-                >
-                  {t("Dịch Vụ")}
-                </Link> */}
-                  <Link
-                    to="/lien-he"
-                    className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
-                    onClick={toggleMobileMenu}
-                  >
-                    {t("Liên hệ")}
-                  </Link>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      to={link.to}
+                      className="text-gray-700 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 dark:hover:bg-slate-700 hover:pl-5 rounded-lg font-medium text-base px-3 py-3 transition-all duration-300"
+                      onClick={toggleMobileMenu}
+                    >
+                      {t(link.name)}
+                    </Link>
+                  ))}
                 </div>
 
                 <div className="mt-4 border-t border-gray-100 dark:border-gray-700 pt-6">

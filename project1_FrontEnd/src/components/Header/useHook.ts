@@ -199,6 +199,7 @@ export const useHeader = () => {
     { name: "Trang Chủ", to: "/" },
     { name: "Dịch Vụ", to: "/dich-vu" },
     { name: "Tuyển dụng", to: "/tuyen-dung" },
+    { name: "Tin tức", to: "/tin-tuc" },
     { name: "Liên hệ", to: "/lien-he" },
   ];
 

@@ -23,6 +23,59 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(days / 30)} tháng trước`;
 }
 
+interface CustomSelectProps {
+  value: string | number;
+  onChange: (value: string) => void;
+  options: { value: string | number; label: string }[];
+  placeholder?: string;
+  className?: string;
+}
+
+const CustomSelect = ({ value, onChange, options, placeholder, className = "" }: CustomSelectProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => String(opt.value) === String(value));
+
+  return (
+    <div className={`relative w-full ${className}`}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-705 dark:text-slate-350 flex items-center justify-between cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-left"
+      >
+        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+        <Icon icon="material-symbols:keyboard-arrow-down" className={`text-xl text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+
+          <ul className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm">
+            {options.map((opt) => {
+              const isSelected = String(opt.value) === String(value);
+              return (
+                <li
+                  key={opt.value}
+                  onClick={() => {
+                    onChange(String(opt.value));
+                    setIsOpen(false);
+                  }}
+                  className={`px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors font-medium flex items-center justify-between ${
+                    isSelected ? "text-teal-650 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/20 font-bold" : "text-slate-700 dark:text-slate-350"
+                  }`}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  {isSelected && <Icon icon="material-symbols:check" className="text-base text-teal-600 dark:text-teal-400" />}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+};
+
 export const ServiceDetail = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const {
@@ -231,7 +284,7 @@ export const ServiceDetail = () => {
 
           {/* Price */}
           <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-700/50">
-            <div className="flex items-end justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
                 <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">{t("Giá từ")}</span>
                 <div className="flex items-baseline gap-1 mt-1">
@@ -239,7 +292,7 @@ export const ServiceDetail = () => {
                   <span className="text-sm text-slate-400">/{priceTypeLabel(service.price_type)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 {selectedHelperObj && (
                   <button
                     onClick={() => {
@@ -248,7 +301,7 @@ export const ServiceDetail = () => {
                         navigate(`/messages/${helperUserId}`);
                       }
                     }}
-                    className="bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 text-base shadow-sm"
+                    className="flex-1 sm:flex-initial bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 text-base shadow-sm"
                   >
                     <Icon icon="material-symbols:chat-outline" className="text-xl" />
                     {t("Nhắn tin")}
@@ -256,7 +309,9 @@ export const ServiceDetail = () => {
                 )}
                 <button
                   onClick={openBookingModal}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg hover:shadow-teal-600/20 active:scale-95 transition-all cursor-pointer"
+                  className={`flex-1 sm:flex-initial bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg hover:shadow-teal-600/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
+                    !selectedHelperObj ? "w-full" : ""
+                  }`}
                 >
                   {t("Đặt ngay")}
                 </button>
@@ -346,17 +401,15 @@ export const ServiceDetail = () => {
           <h3 className="font-bold text-slate-800 dark:text-slate-100">{t("Xem đánh giá theo nhân viên")}</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t("Chọn nhân viên để xem các đánh giá chi tiết từ khách hàng.")}</p>
         </div>
-        <select
+        <CustomSelect
           value={selectedHelperId ?? ""}
-          onChange={(e) => setSelectedHelperId(Number(e.target.value))}
-          className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all sm:col-span-1 w-full"
-        >
-          {helpers.map((h: any) => (
-            <option key={h.id} value={h.id}>
-              {h.user?.full_name ?? `Helper #${h.id}`}
-            </option>
-          ))}
-        </select>
+          onChange={(val) => setSelectedHelperId(Number(val))}
+          options={helpers.map((h: any) => ({
+            value: h.id,
+            label: h.user?.full_name ?? `Helper #${h.id}`,
+          }))}
+          className="sm:col-span-1"
+        />
       </div>
     );
   };
@@ -411,17 +464,14 @@ export const ServiceDetail = () => {
           {/* Select Helper to Review */}
           <div className="text-left">
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t("Chọn nhân viên để đánh giá")}</label>
-            <select
+            <CustomSelect
               value={formHelperId ?? ""}
-              onChange={(e) => setFormHelperId(Number(e.target.value))}
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer"
-            >
-              {helpers.map((h: any) => (
-                <option key={h.id} value={h.id}>
-                  {h.user?.full_name ?? `Helper #${h.id}`}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setFormHelperId(Number(val))}
+              options={helpers.map((h: any) => ({
+                value: h.id,
+                label: h.user?.full_name ?? `Helper #${h.id}`,
+              }))}
+            />
           </div>
 
           {/* Rating Select */}
@@ -663,12 +713,10 @@ export const ServiceDetail = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t("Quận/Huyện")}</label>
-                      <select
+                      <CustomSelect
                         value={newDistrict}
-                        onChange={(e) => setNewDistrict(e.target.value)}
-                        className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:border-teal-500 text-slate-800 dark:text-slate-100"
-                      >
-                        {[
+                        onChange={setNewDistrict}
+                        options={[
                           "Quận 1",
                           "Quận 3",
                           "Quận 4",
@@ -686,15 +734,11 @@ export const ServiceDetail = () => {
                           "Phú Nhuận",
                           "Thủ Đức",
                           "Bình Tân",
-                        ].map((d) => (
-                          <option
-                            key={d}
-                            value={d === "Bình Thạnh" || d === "Gò Vấp" || d === "Tân Bình" || d === "Tân Phú" || d === "Phú Nhuận" || d === "Thủ Đức" || d === "Bình Tân" ? `Quận ${d}` : d}
-                          >
-                            {d}
-                          </option>
-                        ))}
-                      </select>
+                        ].map((d) => ({
+                          value: d === "Bình Thạnh" || d === "Gò Vấp" || d === "Tân Bình" || d === "Tân Phú" || d === "Phú Nhuận" || d === "Thủ Đức" || d === "Bình Tân" ? `Quận ${d}` : d,
+                          label: d,
+                        }))}
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t("Tỉnh/Thành phố")}</label>
@@ -724,17 +768,14 @@ export const ServiceDetail = () => {
               ) : (
                 <div className="relative">
                   {addresses.length > 0 ? (
-                    <select
+                    <CustomSelect
                       value={selectedAddressId || ""}
-                      onChange={(e) => setSelectedAddressId(Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:border-teal-500 text-sm font-semibold text-slate-800 dark:text-slate-100"
-                    >
-                      {addresses.map((addr) => (
-                        <option key={addr.id} value={addr.id}>
-                          {addr.address}, {addr.district}, {addr.city} {addr.is_default ? `(${t("Mặc định")})` : ""}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setSelectedAddressId(Number(val))}
+                      options={addresses.map((addr) => ({
+                        value: addr.id,
+                        label: `${addr.address}, ${addr.district}, ${addr.city} ${addr.is_default ? `(${t("Mặc định")})` : ""}`,
+                      }))}
+                    />
                   ) : (
                     <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-100 dark:border-amber-900/30 text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-2">
                       <Icon icon="material-symbols:warning-amber-rounded" className="text-lg shrink-0" />
@@ -777,16 +818,16 @@ export const ServiceDetail = () => {
             {/* Duration Select */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Thời lượng làm việc")}</label>
-              <select
+              <CustomSelect
                 value={durationHours}
-                onChange={(e) => setDurationHours(Number(e.target.value))}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:border-teal-500 text-sm font-semibold text-slate-800 dark:text-slate-100"
-              >
-                <option value={2}>2 {t("giờ")}</option>
-                <option value={4}>4 {t("giờ")}</option>
-                <option value={6}>6 {t("giờ")}</option>
-                <option value={8}>8 {t("giờ")}</option>
-              </select>
+                onChange={(val) => setDurationHours(Number(val))}
+                options={[
+                  { value: 2, label: `2 ${t("giờ")}` },
+                  { value: 4, label: `4 ${t("giờ")}` },
+                  { value: 6, label: `6 ${t("giờ")}` },
+                  { value: 8, label: `8 ${t("giờ")}` },
+                ]}
+              />
             </div>
 
             {/* Helper Preference */}

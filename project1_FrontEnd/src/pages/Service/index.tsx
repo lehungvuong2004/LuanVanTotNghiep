@@ -25,6 +25,59 @@ const RATINGS = [
   { value: 3.5, label: "3.5+" },
 ];
 
+
+
+const CustomSelect = ({ value, onChange, options, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => String(opt.value) === String(value));
+
+  return (
+    <div className="relative w-full">
+      {/* Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-350 flex items-center justify-between cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-left"
+      >
+        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+        <Icon
+          icon="material-symbols:keyboard-arrow-down"
+          className={`text-xl text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Options List */}
+      {isOpen && (
+        <>
+          {/* Transparent Backdrop to close on click outside */}
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          
+          <ul className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm">
+            {options.map((opt) => {
+              const isSelected = String(opt.value) === String(value);
+              return (
+                <li
+                  key={opt.value}
+                  onClick={() => {
+                    onChange(String(opt.value));
+                    setIsOpen(false);
+                  }}
+                  className={`px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors font-medium flex items-center justify-between ${
+                    isSelected ? "text-teal-650 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/20 font-bold" : "text-slate-700 dark:text-slate-350"
+                  }`}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  {isSelected && <Icon icon="material-symbols:check" className="text-base text-teal-600 dark:text-teal-400" />}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+};
+
 const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }: SidebarFilterProps) => {
   const handleDistrictChange = (district: string) => {
     onFilterChange({ district: district === "Tất cả" ? undefined : district });
@@ -71,65 +124,49 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
       {/* Giao diện lọc Thành phố */}
       <div>
         <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
-        <select
+        <CustomSelect
           value={filterParams.city ?? "TP.HCM"}
-          onChange={(e) => handleCityChange(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-        >
-          {CITIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+          onChange={handleCityChange}
+          options={CITIES.map((c) => ({ value: c, label: c }))}
+        />
       </div>
 
       {/* Quận / Huyện */}
       <div>
         <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Quận / Huyện")}</h4>
-        <select
+        <CustomSelect
           value={filterParams.district ?? "Tất cả"}
-          onChange={(e) => handleDistrictChange(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-        >
-          {DISTRICTS_HCMC.map((d) => (
-            <option key={d} value={d}>
-              {t(d)}
-            </option>
-          ))}
-        </select>
+          onChange={handleDistrictChange}
+          options={DISTRICTS_HCMC.map((d) => ({ value: d, label: t(d) }))}
+        />
       </div>
 
       {/* Danh mục dịch vụ */}
       <div>
         <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Danh mục dịch vụ")}</h4>
-        <select
+        <CustomSelect
           value={filterParams.category_id ?? "Tất cả"}
-          onChange={(e) => handleCategoryChange(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-        >
-          <option value="Tất cả">{t("Tất cả danh mục")}</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+          onChange={handleCategoryChange}
+          options={[
+            { value: "Tất cả", label: t("Tất cả danh mục") },
+            ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+          ]}
+        />
       </div>
 
       {/* Loại hình giá */}
       <div>
         <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Loại hình giá")}</h4>
-        <select
+        <CustomSelect
           value={filterParams.price_type ?? "Tất cả"}
-          onChange={(e) => handlePriceTypeChange(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-        >
-          <option value="Tất cả">{t("Tất cả loại giá")}</option>
-          <option value="hourly">{t("Theo giờ")}</option>
-          <option value="fixed">{t("Cố định")}</option>
-          <option value="daily">{t("Theo ngày")}</option>
-        </select>
+          onChange={handlePriceTypeChange}
+          options={[
+            { value: "Tất cả", label: t("Tất cả loại giá") },
+            { value: "hourly", label: t("Theo giờ") },
+            { value: "fixed", label: t("Cố định") },
+            { value: "daily", label: t("Theo ngày") },
+          ]}
+        />
       </div>
 
       {/* Đánh giá tối thiểu */}
