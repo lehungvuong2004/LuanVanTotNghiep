@@ -115,7 +115,7 @@ export const Contacts = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng yêu cầu</span>
-            <h3 className="text-2xl font-black text-slate-700 dark:text-slate-100 mt-1">{totalCount}</h3>
+            <h3 className="text-3xl font-black text-slate-700 dark:text-slate-100 mt-1">{totalCount}</h3>
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
             <Icon icon="material-symbols:contact-phone-outline-rounded" className="text-2xl" />
@@ -125,7 +125,7 @@ export const Contacts = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đang chờ xử lý</span>
-            <h3 className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{pendingCount}</h3>
+            <h3 className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">{pendingCount}</h3>
           </div>
           <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/30">
             <Icon icon="material-symbols:hourglass-empty" className="text-2xl" />
@@ -135,7 +135,7 @@ export const Contacts = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đã giải quyết</span>
-            <h3 className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{processedCount}</h3>
+            <h3 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{processedCount}</h3>
           </div>
           <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/30">
             <Icon icon="material-symbols:check-circle-outline-rounded" className="text-2xl" />
@@ -148,24 +148,32 @@ export const Contacts = () => {
   const renderFilters = () => {
     const statuses = ["All", "Pending", "Processed"];
     return (
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-        <div className="flex bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-xl border border-slate-150 dark:border-slate-700/60 w-fit shrink-0">
-          {statuses.map((status) => (
-            <button
-              key={status}
-              onClick={() => {
-                setStatusFilter(status);
-                setCurrentPage(1);
-              }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === status
-                  ? "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-xs border border-slate-200 dark:border-slate-700"
-                  : "text-slate-550 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              {status === "All" ? "Tất Cả" : status === "Pending" ? "Chờ Xử Lý" : "Đã Xử Lý"}
-            </button>
-          ))}
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between mb-6 animate-fade-in">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Lọc Trạng Thái:
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {statuses.map((status) => {
+              const isActive = statusFilter === status;
+              return (
+                <button
+                  key={status}
+                  onClick={() => {
+                    setStatusFilter(status);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? "bg-cyan-900 text-white shadow-xs"
+                      : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  {status === "All" ? "Tất Cả" : status === "Pending" ? "Chờ Xử Lý" : "Đã Xử Lý"}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="relative w-full md:max-w-md">
@@ -178,7 +186,7 @@ export const Contacts = () => {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all text-slate-700 dark:text-slate-200"
+            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-cyan-900/20 focus:outline-hidden focus:border-cyan-900 transition-all text-slate-700 dark:text-slate-200"
           />
         </div>
       </div>
@@ -227,7 +235,6 @@ export const Contacts = () => {
                 <th className="py-4 px-5">Lời nhắn</th>
                 <th className="py-4 px-5">Trạng thái</th>
                 <th className="py-4 px-5">Ngày gửi</th>
-                <th className="py-4 px-5">Người xử lý</th>
                 <th className="py-4 px-5 text-right">Thao tác</th>
               </tr>
             </thead>
@@ -266,28 +273,14 @@ export const Contacts = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-5 max-w-xs">
-                      <p className="truncate text-slate-600 dark:text-slate-300" title={c.message}>
+                    <td className="py-3.5 px-5 min-w-45 max-w-xs">
+                      <p className="whitespace-normal wrap-break-word text-slate-600 dark:text-slate-350" title={c.message}>
                         {c.message}
                       </p>
                     </td>
                     <td className="py-3.5 px-5">{getStatusBadge(c.status)}</td>
                     <td className="py-3.5 px-5 text-slate-450 dark:text-slate-500">
                       {formatDateTime(c.created_at)}
-                    </td>
-                    <td className="py-3.5 px-5">
-                      {c.processed_by_user ? (
-                        <div>
-                          <p className="font-bold text-slate-750 dark:text-slate-200">{c.processed_by_user.full_name}</p>
-                          {c.processed_at && (
-                            <p className="text-slate-400 text-xxs mt-0.5">
-                              {formatDate(c.processed_at)}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 dark:text-slate-550 italic font-medium">—</span>
-                      )}
                     </td>
                     <td className="py-3.5 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">

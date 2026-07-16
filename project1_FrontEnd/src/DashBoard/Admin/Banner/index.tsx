@@ -2,6 +2,7 @@ import { useBanner } from "./useHook";
 import { Icon } from "@iconify/react";
 import { getImageUrl } from "../../../utils/images";
 import { useAuth } from "../../../hooks/useAuth";
+import Toggle from "../../../components/Toggle";
 
 export const Banners = () => {
   const { hasPermission } = useAuth();
@@ -63,7 +64,7 @@ export const Banners = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng Banner</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
+            <p className="text-3xl font-black mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
           </div>
         </div>
 
@@ -73,7 +74,7 @@ export const Banners = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đang Hiển Thị</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{activeCount}</p>
+            <p className="text-3xl font-black mt-0.5 text-slate-800 dark:text-slate-100">{activeCount}</p>
           </div>
         </div>
 
@@ -83,7 +84,7 @@ export const Banners = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đang Ẩn</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{inactiveCount}</p>
+            <p className="text-3xl font-black mt-0.5 text-slate-800 dark:text-slate-100">{inactiveCount}</p>
           </div>
         </div>
       </div>
@@ -231,16 +232,12 @@ export const Banners = () => {
                 {/* Actions footer of card */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
                   {permissions.update ? (
-                    <button
-                      type="button"
-                      onClick={() => handleToggleStatus(banner)}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        banner.status === "active" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 hover:bg-amber-100/70" : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 hover:bg-emerald-100/70"
-                      }`}
-                    >
-                      <Icon icon={banner.status === "active" ? "material-symbols:visibility-off-outline-rounded" : "material-symbols:visibility-outline-rounded"} className="text-base" />
-                      <span>{banner.status === "active" ? "Ẩn Banner" : "Hiện Banner"}</span>
-                    </button>
+                    <Toggle
+                      checked={banner.status === "active"}
+                      onChange={() => handleToggleStatus(banner)}
+                      activeLabel="Hiển thị"
+                      inactiveLabel="Tạm ẩn"
+                    />
                   ) : <div />}
 
                   <div className="flex items-center gap-1">

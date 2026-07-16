@@ -1,7 +1,7 @@
 import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { getCustomerBookingsApi, getHelperBookingsApi, cancelBookingApi, startMovingApi, checkinApi, checkoutApi } from "../../api/bookings";
-import { getServicesApi } from "../../api/services";
+import { getServicesApi } from "../../api/servicesApi/services";
 import { getMyPaymentsApi, createVnpayUrlApi, createPaymentApi, simulatePaymentCallbackApi } from "../../api/payments";
 import { getMyApplicationsApi, respondToSelectionApi } from "../../api/jobPostsApi/jobPosts";
 import { io } from "socket.io-client";

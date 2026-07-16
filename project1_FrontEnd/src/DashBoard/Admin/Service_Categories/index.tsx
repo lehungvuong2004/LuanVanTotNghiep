@@ -3,9 +3,10 @@ import { Icon } from "@iconify/react";
 import { useAuth } from "../../../hooks/useAuth";
 
 import { useServiceCategoriesAdmin } from "./useHook";
+import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 
 const TYPE_LABELS= {
-  both: { label: "Tất cả", color: "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400" },
+  both: { label: "Tất cả", color: "bg-cyan-50 dark:bg-cyan-950/30 text-cyan-600 dark:text-cyan-400" },
   booking: { label: "Đặt lịch", color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400" },
   job: { label: "Công việc", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400" },
 };
@@ -79,15 +80,6 @@ export const ServiceCategories = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Quản lý các danh mục phân loại dịch vụ trên nền tảng.</p>
       </div>
       <div className="flex items-center gap-3">
-        {selectedIds.length > 0 && (
-          <button
-            onClick={handleBulkDelete}
-            className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-            Xóa {selectedIds.length} đã chọn
-          </button>
-        )}
         {permissions.create && (
           <button
             onClick={openAddModal}
@@ -142,7 +134,7 @@ export const ServiceCategories = () => {
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{s.label}</p>
-              <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
+              <p className="text-3xl font-black mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
             </div>
           </div>
         ))}
@@ -231,7 +223,7 @@ export const ServiceCategories = () => {
                       className="w-4 h-4 rounded border-slate-300 text-cyan-700 cursor-pointer accent-cyan-700"
                     />
                   </td>
-                  <td className="px-5 py-4 text-slate-400 dark:text-slate-500 font-mono text-xs">#{item.id}</td>
+                  <td className="px-5 py-4 text-slate-400 dark:text-slate-550 font-mono text-sm font-semibold">#{item.id}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-lg shrink-0">
@@ -244,7 +236,7 @@ export const ServiceCategories = () => {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${TYPE_LABELS[item.type]?.color || ""}`}>{TYPE_LABELS[item.type]?.label || item.type}</span>
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${TYPE_LABELS[item.type]?.color || ""}`}>{TYPE_LABELS[item.type]?.label || item.type}</span>
                   </td>
                   <td className="px-5 py-4">
                     <span className="font-bold text-slate-700 dark:text-slate-200">{item.services_count ?? 0}</span>
@@ -419,6 +411,18 @@ export const ServiceCategories = () => {
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
+      {permissions.delete && selectedIds.length > 0 && (
+        <div className="my-2">
+          <BulkDeleteBar
+            selectedIds={selectedIds}
+            totalCount={categories.length}
+            onToggleAll={toggleSelectAll}
+            onDeleteSelected={handleBulkDelete}
+            onClear={() => setSelectedIds([])}
+            loading={loading}
+          />
+        </div>
+      )}
       {renderTable()}
       {renderModal()}
     </div>

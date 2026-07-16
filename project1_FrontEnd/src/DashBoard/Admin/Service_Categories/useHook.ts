@@ -1,14 +1,14 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
-import type { ServiceCategory } from "../../../api/services";
+import type { ServiceCategory } from "../../../api/servicesApi/services";
+import { getCategoryValidationSchema } from "../../../api/servicesApi/validation";
 
 import {
   getCategoriesAdmin,
   createCategoryAdmin,
   updateCategoryAdmin,
-  deleteCategoryAdmin } from "../../../api/services";
+  deleteCategoryAdmin } from "../../../api/servicesApi/services";
 
 export const useServiceCategoriesAdmin = () => {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -56,12 +56,7 @@ export const useServiceCategoriesAdmin = () => {
       icon: "",
       type: "both" as "booking" | "job" | "both",
       status: "active" as "active" | "inactive" },
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required("Vui lòng nhập tên danh mục").max(100, "Không quá 100 ký tự"),
-      description: Yup.string().max(500, "Không quá 500 ký tự").nullable(),
-      icon: Yup.string().max(255).nullable(),
-      type: Yup.string().oneOf(["booking", "job", "both"]).required(),
-      status: Yup.string().oneOf(["active", "inactive"]).required() }),
+    validationSchema: getCategoryValidationSchema(),
     onSubmit: async (values) => {
       setLoading(true);
       try {

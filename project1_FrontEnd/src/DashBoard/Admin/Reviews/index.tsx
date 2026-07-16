@@ -5,7 +5,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useState } from "react";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
-import { getInitials } from "../../../utils";
+import { getInitials, formatNumberVI, formatMoneyShortVI } from "../../../utils";
 
 export const Reviews = () => {
   const { hasPermission } = useAuth();
@@ -152,7 +152,9 @@ export const Reviews = () => {
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Tổng Đánh Giá</span>
-            <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{totalItems}</span>
+            <span className="text-3xl font-black text-slate-800 dark:text-slate-100">
+              {totalItems >= 10_000_000 ? formatMoneyShortVI(totalItems) : formatNumberVI(totalItems)}
+            </span>
           </div>
         </div>
 
@@ -163,7 +165,7 @@ export const Reviews = () => {
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Điểm Trung Bình</span>
-            <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{avgRating} / 5.0</span>
+            <span className="text-3xl font-black text-slate-800 dark:text-slate-100">{avgRating} / 5.0</span>
           </div>
         </div>
 
@@ -173,8 +175,10 @@ export const Reviews = () => {
             <Icon icon="material-symbols:sentiment-very-satisfied-rounded" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Số Đánh Giá 5★</span>
-            <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{total5Star}</span>
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Số Đánh Giá Tốt</span>
+            <span className="text-3xl font-black text-slate-800 dark:text-slate-100">
+              {total5Star >= 10_000_000 ? formatMoneyShortVI(total5Star) : formatNumberVI(total5Star)}
+            </span>
           </div>
         </div>
 
@@ -184,8 +188,10 @@ export const Reviews = () => {
             <Icon icon="material-symbols:sentiment-very-dissatisfied-rounded" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Đánh Giá Xấu (≤ 2★)</span>
-            <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{totalBad}</span>
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block">Đánh Giá Xấu</span>
+            <span className="text-3xl font-black text-slate-800 dark:text-slate-100">
+              {totalBad >= 10_000_000 ? formatMoneyShortVI(totalBad) : formatNumberVI(totalBad)}
+            </span>
           </div>
         </div>
       </div>
@@ -348,8 +354,12 @@ export const Reviews = () => {
                     <td className="py-3 px-5">{renderStars(r.rating)}</td>
 
                     {/* Comment */}
-                    <td className="py-3 px-5 max-w-xs truncate">
-                      <span className={r.comment ? "text-slate-700 dark:text-slate-200" : "italic text-slate-400 dark:text-slate-500"}>{r.comment || "Không có nhận xét bằng văn bản"}</span>
+                    <td className="py-3 px-5 max-w-xs">
+                      <div className="truncate" title={r.comment || ""}>
+                        <span className={r.comment ? "text-slate-700 dark:text-slate-200" : "italic text-slate-400 dark:text-slate-500"}>
+                          {r.comment || "Không có nhận xét bằng văn bản"}
+                        </span>
+                      </div>
                     </td>
 
                     {/* Created At */}

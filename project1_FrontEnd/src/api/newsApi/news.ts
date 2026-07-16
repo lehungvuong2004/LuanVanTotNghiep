@@ -1,4 +1,4 @@
-import axiosInstance from "./axios";
+import axiosInstance from "../axios";
 
 export interface NewsItem {
   id: number;
@@ -110,4 +110,3 @@ export const uploadNewsImage = async (file: File): Promise<UploadNewsImageRespon
       "Content-Type": "multipart/form-data" } });
   return response.data;
 };
-

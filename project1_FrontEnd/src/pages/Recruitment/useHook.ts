@@ -2,7 +2,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { getCategoriesApi, type ServiceCategory } from "../../api/services";
+import { getCategoriesApi, type ServiceCategory } from "../../api/servicesApi/services";
 import {
   getJobPostsApi,
   applyJobPostApi,

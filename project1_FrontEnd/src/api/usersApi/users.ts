@@ -1,4 +1,4 @@
-import axiosInstance from "./axios";
+import axiosInstance from "../axios";
 
 export interface User {
   id: number;
@@ -90,4 +90,3 @@ export const uploadUserAvatarAdmin = async (file: File): Promise<{ message: stri
       "Content-Type": "multipart/form-data" } });
   return response.data;
 };
-

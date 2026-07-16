@@ -63,7 +63,6 @@ export const Payments = () => {
       </div>
     );
   };
-
   const renderStats = () => {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -76,7 +75,7 @@ export const Payments = () => {
             {statsLoading ? (
               <div className="mt-1.5 h-5 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
             ) : (
-              <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtVND(liveStats.total_revenue) : "—"}</h3>
+              <h3 className="mt-1 text-3xl font-black text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtVND(liveStats.total_revenue) : "—"}</h3>
             )}
             {liveStats && !statsLoading && <p className="text-xs mt-0.5 font-medium text-slate-400">Tháng này: {fmtVND(liveStats.this_month_revenue)}</p>}
           </div>
@@ -91,21 +90,21 @@ export const Payments = () => {
             {statsLoading ? (
               <div className="mt-1.5 h-5 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
             ) : (
-              <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtPct(liveStats.change_percent) : "—"}</h3>
+              <h3 className="mt-1 text-3xl font-black text-slate-800 dark:text-slate-100 truncate">{liveStats ? fmtPct(liveStats.change_percent) : "—"}</h3>
             )}
             {liveStats && !statsLoading && (
               <p className={`text-xs mt-0.5 font-medium ${liveStats.change_percent >= 0 ? "text-emerald-500" : "text-rose-500"}`}>Tháng trước: {fmtVND(liveStats.last_month_revenue)}</p>
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="flex w-12 h-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
             <Icon icon="material-symbols:receipt-long-outline-rounded" className="text-2xl" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">Tổng số giao dịch</p>
-            <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{paymentsTotal} giao dịch</h3>
+            <h3 className="mt-1 text-3xl font-black text-slate-800 dark:text-slate-100 truncate">{paymentsTotal} giao dịch</h3>
             <p className="text-xs mt-0.5 font-medium text-slate-400">Dựa theo bộ lọc hiện tại</p>
           </div>
         </div>
@@ -157,39 +156,47 @@ export const Payments = () => {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 dark:border-slate-800 px-5 py-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Lọc trạng thái:</span>
-          {["All", "Pending", "Completed", "Failed", "Refunded"].map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setPaymentStatusFilter(s);
-                setPaymentsPage(1);
-              }}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                paymentStatusFilter === s ? "bg-[#066d72] border-[#066d72] text-white" : "border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-          <span className="mx-1 text-slate-200 dark:text-slate-700">|</span>
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Phương thức:</span>
-          {["All", "cash", "vnpay"].map((m) => (
-            <button
-              key={m}
-              onClick={() => {
-                setPaymentMethodFilter(m);
-                setPaymentsPage(1);
-              }}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                paymentMethodFilter === m ? "bg-blue-600 border-blue-600 text-white" : "border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300"
-              }`}
-            >
-              {m === "All" ? "Tất cả" : (PAYMENT_METHODS_LABELS[m] ?? m)}
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 border-b border-slate-100 dark:border-slate-800 px-5 py-3">
+          {/* Status Filter */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Lọc trạng thái:</span>
+            {["All", "Pending", "Completed", "Failed", "Refunded"].map((s) => (
+              <button
+                key={s}
+                onClick={() => {
+                  setPaymentStatusFilter(s);
+                  setPaymentsPage(1);
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                  paymentStatusFilter === s ? "bg-[#066d72] border-[#066d72] text-white" : "border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="hidden sm:block w-px h-5 bg-slate-200 dark:bg-slate-800" />
+
+          {/* Payment Method Filter */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Phương thức:</span>
+            {["All", "cash", "vnpay"].map((m) => (
+              <button
+                key={m}
+                onClick={() => {
+                  setPaymentMethodFilter(m);
+                  setPaymentsPage(1);
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                  paymentMethodFilter === m ? "bg-blue-600 border-blue-600 text-white" : "border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                {m === "All" ? "Tất cả" : (PAYMENT_METHODS_LABELS[m] ?? m)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Table content */}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
-import { getNewsDetail, getNewsList } from "../../api/news";
-import type { NewsItem } from "../../api/news";
+import { getNewsDetail, getNewsList } from "../../api/newsApi/news";
+import type { NewsItem } from "../../api/newsApi/news";
 import { getImageUrl } from "../../utils/images";
 
 const formatDate = (dateStr: string) => {

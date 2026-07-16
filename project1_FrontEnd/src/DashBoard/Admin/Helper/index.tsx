@@ -56,7 +56,7 @@ export const Helpers = () => {
     ratingOption,
   } = useHelperManagement();
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status) => {
     switch (status) {
       case "active":
         return (
@@ -102,13 +102,12 @@ export const Helpers = () => {
     const totalCount = totalItems;
     const pendingCount = helpers.filter((h) => h.status === "pending").length;
     const activeCount = helpers.filter((h) => h.status === "active").length;
-
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Tổng số đối tác</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{totalCount}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{totalCount}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:engineering-outline" />
@@ -118,7 +117,7 @@ export const Helpers = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Chờ xét duyệt</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{pendingCount}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{pendingCount}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:pending-actions" />
@@ -128,7 +127,7 @@ export const Helpers = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-555 uppercase tracking-wider">Đang hoạt động</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{activeCount}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{activeCount}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:check-circle-outline-rounded" />
@@ -146,7 +145,7 @@ export const Helpers = () => {
           <span className="text-xs text-slate-400 dark:text-slate-500">Thống kê cơ cấu hoạt động và kiểm duyệt</span>
         </div>
         <div className="h-64 flex items-center justify-center">
-          <ReactECharts option={statusOption} style={{ height: "100%", width: "100%" }} />
+          <ReactECharts option={statusOption} style={{ height: "100%", width: "100%" }} lazyUpdate={true} />
         </div>
       </div>
 
@@ -156,7 +155,7 @@ export const Helpers = () => {
           <span className="text-xs text-slate-400 dark:text-slate-500">Phân bố chất lượng phục vụ đối tác</span>
         </div>
         <div className="h-64 flex items-center justify-center">
-          <ReactECharts option={ratingOption} style={{ height: "100%", width: "100%" }} />
+          <ReactECharts option={ratingOption} style={{ height: "100%", width: "100%" }} lazyUpdate={true} />
         </div>
       </div>
     </div>

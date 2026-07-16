@@ -96,6 +96,8 @@ export const sortBookingsByDate = (items: any[]) => {
   return [...items].sort((a, b) => b.id - a.id);
 };
 
+export const formatPrice = fmtVND;
+
 export const formatVietnamDateTime = formatDateTime;
 
 export const getRatingNote = (rating) => {

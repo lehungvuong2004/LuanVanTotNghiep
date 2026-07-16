@@ -1,9 +1,10 @@
 import axiosInstance from "./axios";
 
 export interface KPICardData {
-  title: string;
+  type: string;
+  title?: string;
   value: number | string;
-  change: string;
+  change: string | number;
   isPositive: boolean;
   icon?: string;
   bgColor?: string;
@@ -11,7 +12,7 @@ export interface KPICardData {
 }
 
 export interface BookingActivity {
-  day: string;
+  day: number | string;
   count: number;
 }
 
@@ -37,5 +38,6 @@ export interface DashboardOverviewResponse {
 
 export const getDashboardOverview = async (): Promise<DashboardOverviewResponse> => {
   const response = await axiosInstance.get<DashboardOverviewResponse>("/orders/admin/dashboard-overview");
+  // console.log(response.data);
   return response.data;
 };

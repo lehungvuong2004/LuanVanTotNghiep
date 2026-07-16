@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { getHelpersAdmin, getHelperDetailAdmin, verifyHelperAdmin, toggleHelperStatusAdmin, deleteHelperAdmin, bulkDeleteHelpersAdmin } from "../../../api/helpers";
 import type { HelperProfile } from "../../../api/helpers";
 import { getRootFontSizePx } from "../../../utils";
+import { SEMANTIC_COLORS, RATING_COLORS } from "../../../constants/colors";
 
 export const useHelperManagement = () => {
   const [helpers, setHelpers] = useState<HelperProfile[]>([]);
@@ -201,10 +202,10 @@ export const useHelperManagement = () => {
     const rejectedCount = helpers.filter((h) => h.status === "rejected").length;
 
     const data = [
-      { name: "Đã duyệt (Active)", value: activeCount, color: "#10b981" },
-      { name: "Chờ duyệt (Pending)", value: pendingCount, color: "#f59e0b" },
-      { name: "Tạm ngưng (Suspended)", value: suspendedCount, color: "#64748b" },
-      { name: "Từ chối (Rejected)", value: rejectedCount, color: "#ef4444" },
+      { name: "Đã duyệt (Active)", value: activeCount, color: SEMANTIC_COLORS.good },
+      { name: "Chờ duyệt (Pending)", value: pendingCount, color: SEMANTIC_COLORS.warning },
+      { name: "Tạm ngưng (Suspended)", value: suspendedCount, color: SEMANTIC_COLORS.gray },
+      { name: "Từ chối (Rejected)", value: rejectedCount, color: SEMANTIC_COLORS.bad },
     ].filter((item) => item.value > 0);
 
     return {
@@ -259,10 +260,10 @@ export const useHelperManagement = () => {
     const starUnder3 = helpers.filter((h) => Number(h.rating_avg || 0) < 2.5).length;
 
     const data = [
-      { name: "Xuất sắc", value: star5, color: "#10b981" },
-      { name: "Khá tốt", value: star4, color: "#3b82f6" },
-      { name: "Trung bình", value: star3, color: "#f59e0b" },
-      { name: "Yếu", value: starUnder3, color: "#ef4444" },
+      { name: "Xuất sắc", value: star5, color: RATING_COLORS[5] },
+      { name: "Khá tốt", value: star4, color: RATING_COLORS[4] },
+      { name: "Trung bình", value: star3, color: RATING_COLORS[3] },
+      { name: "Yếu", value: starUnder3, color: RATING_COLORS[1] },
     ];
 
     return {

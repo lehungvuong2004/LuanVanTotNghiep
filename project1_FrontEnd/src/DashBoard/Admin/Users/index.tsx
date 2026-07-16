@@ -61,7 +61,7 @@ export const Users = () => {
     formik,
   } = useUsers();
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status) => {
     switch (status) {
       case "active":
         return (
@@ -117,9 +117,9 @@ export const Users = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Tổng tài khoản hệ thống</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.total}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{roleCounts.total}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-450 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:group-outline" />
           </div>
         </div>
@@ -127,7 +127,7 @@ export const Users = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Khách Hàng (Customer)</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.customer}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{roleCounts.customer}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-[#026E5F]/10 dark:bg-[#026E5F]/20 text-[#026E5F] dark:text-[#52c1b2] flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:person-outline-rounded" />
@@ -137,7 +137,7 @@ export const Users = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Người Làm (Helper)</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.helper}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{roleCounts.helper}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:engineering-outline-rounded" />
@@ -147,7 +147,7 @@ export const Users = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Vận Hành & Admin (Other)</p>
-            <p className="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">{roleCounts.admin + roleCounts.operator}</p>
+            <p className="text-3xl font-black mt-1 text-slate-800 dark:text-slate-100">{roleCounts.admin + roleCounts.operator}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 dark:text-purple-400 flex items-center justify-center text-2xl">
             <Icon icon="material-symbols:admin-panel-settings-outline-rounded" />

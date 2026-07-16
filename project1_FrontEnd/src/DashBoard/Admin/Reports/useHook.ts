@@ -7,7 +7,7 @@ import {
   bulkDeleteReportsAdminApi,
   type Report,
 } from "../../../api/reports";
-import { getUsersAdmin, type User } from "../../../api/users";
+import { getUsersAdmin, type User } from "../../../api/usersApi/users";
 
 export const useAdminReports = () => {
   const [reports, setReports] = useState<Report[]>([]);

@@ -32,7 +32,7 @@ import type {
   HelperProfile
 } from "../../api/profileApi/profile";
 
-import { getCategoriesApi, type ServiceCategory } from "../../api/services";
+import { getCategoriesApi, type ServiceCategory } from "../../api/servicesApi/services";
 
 import {
   getProfileInfoSchema,

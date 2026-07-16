@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Role, Permission } from "../../../api/roles";
-import { getRolesAdmin, getPermissionsAdmin, updateRoleAdmin } from "../../../api/roles";
+import type { Role, Permission } from "../../../api/rolesApi/roles";
+import { getRolesAdmin, getPermissionsAdmin, updateRoleAdmin } from "../../../api/rolesApi/roles";
 import { ROLES } from "../../../constants/roles";
 import { useToast } from "../../../contexts/ToastContext";
 

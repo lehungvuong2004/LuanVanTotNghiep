@@ -11,8 +11,7 @@ export const Role = () => {
     update: hasPermission("roles.update"),
     delete: hasPermission("roles.delete"),
   };
-  const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode,   openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } =
-    useRolesAdmin();
+  const { roles, totalItems, permissions, loading, searchQuery, setSearchQuery, isModalOpen, modalMode, openAddModal, openEditModal, closeModal, formik, handleDelete, currentRole } = useRolesAdmin();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
@@ -39,8 +38,6 @@ export const Role = () => {
     }
     setSelectedIds([]);
   };
-
-  
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -80,17 +77,20 @@ export const Role = () => {
         icon: "material-symbols:shield-person-outline-rounded",
         label: "Tổng Số Vai Trò",
         value: totalItems,
-        color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400" },
+        color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
+      },
       {
         icon: "material-symbols:key-outline-rounded",
         label: "Vai Trò Mặc Định",
         value: coreCount,
-        color: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400" },
+        color: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400",
+      },
       {
         icon: "material-symbols:build-circle-outline-rounded",
         label: "Vai Trò Tùy Biến",
         value: customCount,
-        color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400" },
+        color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
+      },
     ];
 
     return (
@@ -102,7 +102,7 @@ export const Role = () => {
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{s.label}</p>
-              <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
+              <p className="text-3xl font-black mt-0.5 text-slate-800 dark:text-slate-100">{s.value}</p>
             </div>
           </div>
         ))}
@@ -319,25 +319,27 @@ export const Role = () => {
                   <div key={module} className="space-y-2">
                     <div className="flex items-center justify-between border-b border-slate-150 dark:border-slate-750 pb-1">
                       <span className="text-xs font-bold text-cyan-900 dark:text-cyan-400 uppercase tracking-wider">Mô-đun {module}</span>
-                      {!isAdminRole && (<button
-                        type="button"
-                        onClick={() => {
-                          const permIds = perms.map((p) => p.id);
-                          const allChecked = permIds.every((id) => formik.values.permissions.includes(id));
-                          if (allChecked) {
-                            formik.setFieldValue(
-                              "permissions",
-                              formik.values.permissions.filter((id) => !permIds.includes(id)),
-                            );
-                          } else {
-                            const uniqueIds = Array.from(new Set([...formik.values.permissions, ...permIds]));
-                            formik.setFieldValue("permissions", uniqueIds);
-                          }
-                        }}
-                        className="text-xxs font-medium text-slate-550 dark:text-slate-400 hover:text-cyan-800 dark:hover:text-cyan-300 transition-colors cursor-pointer"
-                      >
-                        {perms.map((p) => p.id).every((id) => formik.values.permissions.includes(id)) ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                      </button>)}
+                      {!isAdminRole && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const permIds = perms.map((p) => p.id);
+                            const allChecked = permIds.every((id) => formik.values.permissions.includes(id));
+                            if (allChecked) {
+                              formik.setFieldValue(
+                                "permissions",
+                                formik.values.permissions.filter((id) => !permIds.includes(id)),
+                              );
+                            } else {
+                              const uniqueIds = Array.from(new Set([...formik.values.permissions, ...permIds]));
+                              formik.setFieldValue("permissions", uniqueIds);
+                            }
+                          }}
+                          className="text-xxs font-medium text-slate-550 dark:text-slate-400 hover:text-cyan-800 dark:hover:text-cyan-300 transition-colors cursor-pointer"
+                        >
+                          {perms.map((p) => p.id).every((id) => formik.values.permissions.includes(id)) ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                        </button>
+                      )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {perms.map((p) => {
@@ -351,7 +353,23 @@ export const Role = () => {
                                 : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850"
                             }`}
                           >
-                            <input type="checkbox" checked={isChecked} disabled={isAdminRole} onChange={() => { if (isAdminRole) return; if (isChecked) { formik.setFieldValue("permissions", formik.values.permissions.filter((id) => id !== p.id)); } else { formik.setFieldValue("permissions", [...formik.values.permissions, p.id]); } }} className={`w-4 h-4 rounded border-slate-300 text-cyan-700 accent-cyan-700 mt-0.5 ${isAdminRole ? "cursor-not-allowed" : "cursor-pointer"}`} />
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isAdminRole}
+                              onChange={() => {
+                                if (isAdminRole) return;
+                                if (isChecked) {
+                                  formik.setFieldValue(
+                                    "permissions",
+                                    formik.values.permissions.filter((id) => id !== p.id),
+                                  );
+                                } else {
+                                  formik.setFieldValue("permissions", [...formik.values.permissions, p.id]);
+                                }
+                              }}
+                              className={`w-4 h-4 rounded border-slate-300 text-cyan-700 accent-cyan-700 mt-0.5 ${isAdminRole ? "cursor-not-allowed" : "cursor-pointer"}`}
+                            />
                             <div>
                               <p className="text-xs font-bold font-mono">{p.name}</p>
                               {p.description && <p className="text-xxs text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">{p.description}</p>}
@@ -390,7 +408,6 @@ export const Role = () => {
 
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
-      
       {renderHeader()}
       {renderStats()}
       {renderFilters()}
@@ -401,4 +418,3 @@ export const Role = () => {
 };
 
 export default Role;
-

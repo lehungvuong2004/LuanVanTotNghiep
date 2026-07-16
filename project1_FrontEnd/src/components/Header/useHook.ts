@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { useLogout } from "../../hooks/useLogout";
 import { io } from "socket.io-client";
-import { getNewsList } from "../../api/news";
-import type { NewsItem as ApiNewsItem } from "../../api/news";
-import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from "../../api/notifications";
-import type { Notification } from "../../api/notifications";
+import { getNewsList } from "../../api/newsApi/news";
+import type { NewsItem as ApiNewsItem } from "../../api/newsApi/news";
+import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from "../../api/notificationsApi/notifications";
+import type { Notification } from "../../api/notificationsApi/notifications";
 import { useToast } from "../../contexts/ToastContext";
 
 export interface Category {

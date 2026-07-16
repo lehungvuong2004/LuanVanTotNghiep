@@ -2,7 +2,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getServiceDetailApi, type ServiceDetailResponse } from "../../api/services";
+import { getServiceDetailApi, type ServiceDetailResponse } from "../../api/servicesApi/services";
 import { getHelperReviewsPublic, type Review, createReviewCustomer, updateReviewCustomer, deleteReviewCustomer } from "../../api/reviews";
 import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profileApi/profile";
 import { createBookingApi } from "../../api/bookings";

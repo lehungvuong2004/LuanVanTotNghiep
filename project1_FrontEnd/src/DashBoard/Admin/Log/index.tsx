@@ -97,7 +97,7 @@ export const ActivityLogs = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổng số bản ghi</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
+            <p className="text-3xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">{totalItems}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
@@ -106,7 +106,7 @@ export const ActivityLogs = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Người dùng hoạt động</p>
-            <p className="text-2xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">
+            <p className="text-3xl font-bold mt-0.5 text-slate-800 dark:text-slate-100">
               {Array.from(new Set(logs.map(l => l.user_id))).length} người
             </p>
           </div>
@@ -117,7 +117,7 @@ export const ActivityLogs = () => {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Trạng thái hệ thống</p>
-            <p className="text-sm font-bold mt-1.5 text-slate-800 dark:text-slate-100">Đang hoạt động ổn định</p>
+            <p className="text-xl font-bold mt-1.5 text-slate-800 dark:text-slate-100">Đang hoạt động ổn định</p>
           </div>
         </div>
       </div>
