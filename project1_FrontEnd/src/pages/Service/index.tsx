@@ -7,6 +7,7 @@ import type { ServiceItem, HelperItem, ServiceFilterParams } from "./useHook";
 import type { ServiceCategory } from "../../api/servicesApi/services";
 import { formatNumberVI } from "../../utils";
 import { Pagination } from "../../components/Pagination";
+import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 // ─── 1. Sidebar Filter ──────────────────────────────────────────────────────
 interface SidebarFilterProps {
@@ -25,8 +26,6 @@ const RATINGS = [
   { value: 3.5, label: "3.5+" },
 ];
 
-
-
 const CustomSelect = ({ value, onChange, options, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = options.find((opt) => String(opt.value) === String(value));
@@ -40,10 +39,7 @@ const CustomSelect = ({ value, onChange, options, placeholder }) => {
         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-350 flex items-center justify-between cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-left"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
-        <Icon
-          icon="material-symbols:keyboard-arrow-down"
-          className={`text-xl text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`}
-        />
+        <Icon icon="material-symbols:keyboard-arrow-down" className={`text-xl text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {/* Options List */}
@@ -51,7 +47,7 @@ const CustomSelect = ({ value, onChange, options, placeholder }) => {
         <>
           {/* Transparent Backdrop to close on click outside */}
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          
+
           <ul className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm">
             {options.map((opt) => {
               const isSelected = String(opt.value) === String(value);
@@ -124,21 +120,13 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
       {/* Giao diện lọc Thành phố */}
       <div>
         <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
-        <CustomSelect
-          value={filterParams.city ?? "TP.HCM"}
-          onChange={handleCityChange}
-          options={CITIES.map((c) => ({ value: c, label: c }))}
-        />
+        <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={CITIES.map((c) => ({ value: c, label: c }))} />
       </div>
 
       {/* Quận / Huyện */}
       <div>
         <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Quận / Huyện")}</h4>
-        <CustomSelect
-          value={filterParams.district ?? "Tất cả"}
-          onChange={handleDistrictChange}
-          options={DISTRICTS_HCMC.map((d) => ({ value: d, label: t(d) }))}
-        />
+        <CustomSelect value={filterParams.district ?? "Tất cả"} onChange={handleDistrictChange} options={DISTRICTS_HCMC.map((d) => ({ value: d, label: t(d) }))} />
       </div>
 
       {/* Danh mục dịch vụ */}
@@ -147,10 +135,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
         <CustomSelect
           value={filterParams.category_id ?? "Tất cả"}
           onChange={handleCategoryChange}
-          options={[
-            { value: "Tất cả", label: t("Tất cả danh mục") },
-            ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
-          ]}
+          options={[{ value: "Tất cả", label: t("Tất cả danh mục") }, ...categories.map((cat) => ({ value: cat.id, label: cat.name }))]}
         />
       </div>
 
@@ -462,14 +447,7 @@ const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helper
       )}
 
       {/* Pagination */}
-      {!loading && helperLastPage > 1 && (
-        <Pagination
-          currentPage={helperPage}
-          totalItems={totalHelpers}
-          itemsPerPage={itemsPerPage}
-          onPageChange={onPageChange}
-        />
-      )}
+      {!loading && helperLastPage > 1 && <Pagination currentPage={helperPage} totalItems={totalHelpers} itemsPerPage={itemsPerPage} onPageChange={onPageChange} />}
     </section>
   );
 };
@@ -488,7 +466,8 @@ export const Service = () => {
       price_type: undefined,
       min_price: undefined,
       max_price: undefined,
-      service_id: undefined });
+      service_id: undefined,
+    });
   };
 
   return (
@@ -499,17 +478,20 @@ export const Service = () => {
         </aside>
         <div className="lg:col-span-9 flex flex-col gap-6">
           <ServiceList t={t} services={services} loading={loading} sortBy={sortBy} onSortChange={setSortBy} onNavigateService={(id) => navigate(`/dich-vu/${id}`)} />
-          <FeaturedHelpers
-            t={t}
-            helpers={helpers}
-            loading={helperLoading}
-            totalHelpers={totalHelpers}
-            helperPage={helperPage}
-            helperLastPage={helperLastPage}
-            itemsPerPage={filterParams.limit ?? 8}
-            onPageChange={goToHelperPage}
-            onNavigateHelper={(userId) => navigate(`/nguoi-giup-viec/${userId}`)}
-          />
+
+          <AnimateOnScrollReveal>
+            <FeaturedHelpers
+              t={t}
+              helpers={helpers}
+              loading={helperLoading}
+              totalHelpers={totalHelpers}
+              helperPage={helperPage}
+              helperLastPage={helperLastPage}
+              itemsPerPage={filterParams.limit ?? 8}
+              onPageChange={goToHelperPage}
+              onNavigateHelper={(userId) => navigate(`/nguoi-giup-viec/${userId}`)}
+            />
+          </AnimateOnScrollReveal>
         </div>
       </div>
     </div>

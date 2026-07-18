@@ -88,12 +88,6 @@ export const NewsDetail = () => {
               <Icon icon="material-symbols:calendar-today-outline" className="text-base" />
               {formatDate(article.created_at)}
             </span>
-            {article.creator && (
-              <span className="flex items-center gap-1.5">
-                <Icon icon="material-symbols:person-outline" className="text-base" />
-                {article.creator.full_name}
-              </span>
-            )}
             <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
               Tin tức
             </span>

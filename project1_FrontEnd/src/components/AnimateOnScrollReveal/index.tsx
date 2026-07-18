@@ -1,4 +1,4 @@
-import { useRef, PropsWithChildren } from "react";
+import { useRef, type PropsWithChildren } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -31,7 +31,7 @@ export default function AnimateOnScrollReveal({
   scrub = false,
   markers = false,
 }: AnimateOnScrollRevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
   useGSAP(
     () => {
       if (!ref.current) return;

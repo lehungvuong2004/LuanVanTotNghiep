@@ -1,8 +1,8 @@
-import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { createContactApi } from "../../api/contacts";
+import { createContactApi } from "../../api/contactsApi/contacts";
+import { getContactValidationSchema } from "../../api/contactsApi/validation";
 import { useToast } from "../../contexts/ToastContext";
 
 export default function useContact() {
@@ -18,17 +18,7 @@ export default function useContact() {
       message: "",
       agree: false,
     },
-    validationSchema: Yup.object({
-      fullName: Yup.string().required(t("Vui lòng nhập họ và tên")),
-      phone: Yup.string()
-        .matches(/^[0-9]+$/, t("Số điện thoại chỉ bao gồm số"))
-        .min(10, t("Số điện thoại không hợp lệ"))
-        .max(10, t("Số điện thoại dài hơn bình thường"))
-        .required(t("Vui lòng nhập số điện thoại")),
-      email: Yup.string().email(t("Email không hợp lệ")).required(t("Vui lòng nhập email")),
-      message: Yup.string().required(t("Vui lòng nhập nội dung")),
-      agree: Yup.boolean().oneOf([true], t("Bạn cần đồng ý với điều khoản")),
-    }),
+    validationSchema: getContactValidationSchema(t),
     onSubmit: async (values) => {
       setLoading(true);
       try {
@@ -68,7 +58,7 @@ export default function useContact() {
     {
       id: 5,
       question: "Tôi có thể khiếu nại dịch vụ?",
-      answer: "Nếu bạn không hài lòng, vui lòng liên hệ qua email support@homehelper.vn hoặc hotline để được giải quyết." },
+      answer: "Nếu bạn không hài lòng, vui lòng liên hệ qua email giadinhviet.support@gmail.com hoặc hotline để được giải quyết." },
   ];
 
   return {

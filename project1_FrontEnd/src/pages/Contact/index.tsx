@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import useContact from "./useHook";
 import contactImg from "../../assets/images/contact/contact.webp";
+import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 export const Contact = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -111,7 +112,7 @@ export const Contact = () => {
               </div>
             </form>
           </div>
-          
+
           {/* Right Info */}
           <div className="w-full md:w-1/3">
             <div className="grid grid-cols-1 gap-8">
@@ -135,8 +136,8 @@ export const Contact = () => {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 tracking-wider uppercase mb-1">{t("EMAIL HỖ TRỢ")}</p>
-                  <a href="mailto:hungvuong@giadinh.vn" className="text-lg font-extrabold text-slate-850 dark:text-white hover:text-teal-600 transition-colors break-all">
-                    hungvuong@giadinh.vn
+                  <a href="mailto:giadinhviet.support@gmail.com" className="text-lg font-extrabold text-slate-850 dark:text-white hover:text-teal-600 transition-colors break-all">
+                    giadinhviet.support@gmail.com
                   </a>
                 </div>
               </div>
@@ -148,9 +149,7 @@ export const Contact = () => {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 tracking-wider uppercase mb-1">{t("VĂN PHÒNG")}</p>
-                  <p className="text-lg font-extrabold text-teal-955 dark:text-white">
-                    {t("Quận 1, TP. Hồ Chí Minh")}
-                  </p>
+                  <p className="text-lg font-extrabold text-teal-955 dark:text-white">{t("Quận 1, TP. Hồ Chí Minh")}</p>
                 </div>
               </div>
 
@@ -159,7 +158,7 @@ export const Contact = () => {
                 <img src={contactImg} alt="Support Team" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-teal-950/80 via-teal-950/20 to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20">
-                  <img src="https://i.pravatar.cc/100?img=32" alt="Support Agent" className="w-10 h-10 rounded-full object-cover border-2 border-white" />
+                  <img src="https://i.pravatar.cc/100?img=32" alt="Support Agent" className="w-10 h-10 rounded-full object-cover border-2 border-white" loading="lazy" />
                   <p className="text-sm font-semibold text-white">{t("Đội ngũ chuyên gia luôn sẵn sàng")}</p>
                 </div>
               </div>
@@ -251,15 +250,13 @@ export const Contact = () => {
               <Icon icon="ph:headset-bold" className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               <span>{t("Hỗ trợ khách hàng 24/7")}</span>
             </div>
-            
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#005C61] dark:text-teal-400 mb-4 leading-tight">
-              {t("Chúng tôi luôn sẵn sàng hỗ trợ bạn")}
-            </h2>
-            
+
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#005C61] dark:text-teal-400 mb-4 leading-tight">{t("Chúng tôi luôn sẵn sàng hỗ trợ bạn")}</h2>
+
             <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-8 max-w-lg leading-relaxed">
               {t("Gia Đình Việt luôn lắng nghe mọi phản hồi, góp ý từ bạn để không ngừng hoàn thiện chất lượng dịch vụ cho mọi gia đình.")}
             </p>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-teal-600 dark:text-teal-400 shadow-sm border border-teal-50 dark:border-gray-700 shrink-0">
@@ -279,13 +276,13 @@ export const Contact = () => {
                 <div>
                   <p className="text-xs text-gray-400 dark:text-gray-500 uppercase font-semibold tracking-wider">{t("EMAIL")}</p>
                   <a href="mailto:hungvuong04.dev@gmail.com" className="text-sm md:text-base font-bold text-gray-900 dark:text-white hover:text-teal-600 transition-colors break-all">
-                     hungvuong04.dev@gmail.com
+                    hungvuong04.dev@gmail.com
                   </a>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div className="md:col-span-5 w-full">
             <div className="relative rounded-3xl overflow-hidden shadow-lg h-64 md:h-80">
               <img src={contactImg} alt="Customer Support" className="w-full h-full object-cover" />
@@ -310,10 +307,10 @@ export const Contact = () => {
   return (
     <div className="w-full min-h-screen dark:bg-slate-900 transition-colors duration-300 py-12">
       <div className="w-full px-4 md:px-16 flex flex-col gap-12">
-        {renderBanner()}
-        {renderFormContact()}
-        {renderFeaturesContact()}
-        {renderQuestionContact()}
+        <AnimateOnScrollReveal>{renderBanner()}</AnimateOnScrollReveal>
+        <AnimateOnScrollReveal>{renderFormContact()}</AnimateOnScrollReveal>
+        <AnimateOnScrollReveal>{renderFeaturesContact()}</AnimateOnScrollReveal>
+        <AnimateOnScrollReveal>{renderQuestionContact()}</AnimateOnScrollReveal>
       </div>
     </div>
   );

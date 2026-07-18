@@ -5,8 +5,8 @@ import {
   getContactsAdminApi,
   processContactAdminApi,
   deleteContactAdminApi,
-} from "../../../api/contacts";
-import type { Contact } from "../../../api/contacts";
+} from "../../../api/contactsApi/contacts";
+import type { Contact } from "../../../api/contactsApi/contacts";
 
 export const useAdminContacts = () => {
   const { t } = useTranslation();

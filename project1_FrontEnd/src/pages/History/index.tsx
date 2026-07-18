@@ -9,6 +9,7 @@ import { Pagination } from "../../components/Pagination";
 import { Link, useSearchParams } from "react-router-dom";
 import { formatDateTime } from "../../utils";
 import { PaymentReceipt } from "../../components/PaymentReceipt";
+import { ReviewModal } from "../Review";
 import { createReportApi } from "../../api/reports";
 import { useToast } from "../../contexts/ToastContext";
 
@@ -31,6 +32,7 @@ export const HistoryPage = () => {
 
     isLoading,
     isHelper,
+    refreshBookings,
     applications,
     isApplicationsLoading,
     // Inline payment
@@ -43,6 +45,10 @@ export const HistoryPage = () => {
     closePaymentModal,
     handlePayBooking,
   } = useHistory();
+
+  // ── Review states ────────────────────────────────────────
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewTargetBooking, setReviewTargetBooking] = useState<Booking | null>(null);
 
   // ── Recruitment hook (job postings) ──────────────────────
   const {
@@ -525,6 +531,19 @@ export const HistoryPage = () => {
                     className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-650 transition-all cursor-pointer dark:bg-red-950/30 dark:hover:bg-red-900/40 dark:text-red-400 hover:scale-105"
                   >
                     <Icon icon="material-symbols:cancel-outline" className="text-lg" />
+                  </button>
+                )}
+                {booking.statusRaw === "completed" && (
+                  <button
+                    onClick={() => {
+                      setReviewTargetBooking(booking);
+                      setIsReviewModalOpen(true);
+                    }}
+                    title={t("Đánh giá")}
+                    className="px-3 py-1.5 bg-[#026E5F] hover:bg-[#01564a] text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer hover:scale-105"
+                  >
+                    <Icon icon="material-symbols:star-outline" className="text-sm" />
+                    <span>{t("Đánh giá")}</span>
                   </button>
                 )}
                 {["confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && booking.helper?.id && (
@@ -1618,6 +1637,22 @@ export const HistoryPage = () => {
             </div>
           );
         })()}
+
+      {/* Review Modal */}
+      {isReviewModalOpen && reviewTargetBooking && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => {
+            setIsReviewModalOpen(false);
+            setReviewTargetBooking(null);
+          }}
+          helperId={reviewTargetBooking.helper.idRaw || (reviewTargetBooking.helper as any).id || (reviewTargetBooking as any).helper_id}
+          helperName={reviewTargetBooking.helper.name}
+          helperAvatar={reviewTargetBooking.helper.avatar}
+          bookingId={reviewTargetBooking.idRaw || reviewTargetBooking.id}
+          onSuccess={refreshBookings}
+        />
+      )}
 
       {/* Toast states */}
       {renderReportModal()}
