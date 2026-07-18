@@ -75,8 +75,6 @@ export const useHeader = () => {
     }
   }, [location, t, showToast]);
 
-
-
   // ─── Notifications (API-backed & Real-time) ──────────────────────────────────
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -219,7 +217,8 @@ export const useHeader = () => {
           res.data.data.map((item: ApiNewsItem) => ({
             title: item.title,
             slug: item.slug,
-            time: new Date(item.created_at).toLocaleDateString("vi-VN") })),
+            time: new Date(item.created_at).toLocaleDateString("vi-VN"),
+          })),
         );
       })
       .catch(() => {});
@@ -244,15 +243,18 @@ export const useHeader = () => {
           exp: "5 năm kinh nghiệm",
           desc: "Luôn tận tâm, sạch sẽ và đúng giờ.",
           area: "Quận 1, Quận 3",
-          avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop" },
+          avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop",
+        },
         {
           name: "Trần Văn Tú",
           rating: 4.9,
           exp: "3 năm kinh nghiệm",
           desc: "Chuyên vệ sinh thiết bị điện máy gia đình.",
           area: "Quận Bình Thạnh",
-          avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop" },
-      ] },
+          avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop",
+        },
+      ],
+    },
     "Tổng vệ sinh": {
       services: [
         { name: "Tổng vệ sinh nhà cửa", price: "150k/h", desc: "Dọn dẹp toàn diện, hút bụi, lau kính, làm sạch sâu mọi ngóc ngách.", icon: "material-symbols:cleaning-services" },
@@ -265,8 +267,10 @@ export const useHeader = () => {
           exp: "4 năm kinh nghiệm",
           desc: "Nhiệt tình, trung thực và làm việc khoa học.",
           area: "Quận 2, Quận 7",
-          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop" },
-      ] },
+          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop",
+        },
+      ],
+    },
     "Chăm sóc người già": {
       services: [
         { name: "Chăm sóc tại bệnh viện", price: "140k/h", desc: "Hỗ trợ ăn uống, vệ sinh, theo dõi sức khỏe của cụ tại viện.", icon: "material-symbols:medical-services" },
@@ -279,8 +283,10 @@ export const useHeader = () => {
           exp: "6 năm kinh nghiệm",
           desc: "Kiên nhẫn, am hiểu tâm lý người cao tuổi.",
           area: "Quận Phú Nhuận",
-          avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop" },
-      ] },
+          avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop",
+        },
+      ],
+    },
     "Chăm em bé": {
       services: [
         { name: "Trông trẻ theo giờ", price: "130k/h", desc: "Chơi cùng bé, cho bé ăn, đưa đón bé đi học theo yêu cầu.", icon: "material-symbols:child-care" },
@@ -293,8 +299,10 @@ export const useHeader = () => {
           exp: "3 năm kinh nghiệm",
           desc: "Yêu trẻ, cẩn thận, có kỹ năng sư phạm mầm non.",
           area: "Quận Tân Bình",
-          avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop" },
-      ] },
+          avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop",
+        },
+      ],
+    },
     "Nấu ăn gia đình": {
       services: [
         { name: "Nấu ăn bữa chính", price: "120k/h", desc: "Đi chợ, nấu các món ăn gia đình ba miền chuẩn vị vệ sinh.", icon: "material-symbols:soup-kitchen" },
@@ -307,8 +315,11 @@ export const useHeader = () => {
           exp: "8 năm kinh nghiệm",
           desc: "Nấu ăn ngon, đa dạng thực đơn dinh dưỡng.",
           area: "Quận Gò Vấp",
-          avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=80&auto=format&fit=crop" },
-      ] } };
+          avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=80&auto=format&fit=crop",
+        },
+      ],
+    },
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -408,5 +419,6 @@ export const useHeader = () => {
     categories,
     bottomLinks,
     newsItems,
-    categoryDetails };
+    categoryDetails,
+  };
 };

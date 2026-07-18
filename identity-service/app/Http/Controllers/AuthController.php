@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Models\ActivityLog;
+use \App\Services\ImageUploadService;
 
 class AuthController extends Controller
 {
@@ -413,7 +414,7 @@ class AuthController extends Controller
   /**
    * Tải ảnh đại diện lên server (public/uploads/avatars) và cập nhật avatar của user.
    */
-  public function uploadAvatar(Request $request)
+  public function uploadAvatar(Request $request, ImageUploadService $imageUploadService)
   {
     $user = auth('api')->user();
     if (!$user) {
@@ -430,25 +431,14 @@ class AuthController extends Controller
     ]);
 
     if ($request->hasFile('avatar')) {
-      $file = $request->file('avatar');
-      $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+      $result = $imageUploadService->upload($request->file('avatar'), 'avatars');
 
-      // Ensure directory exists
-      $directory = public_path('uploads/avatars');
-      if (!file_exists($directory)) {
-        mkdir($directory, 0755, true);
-      }
-
-      $file->move($directory, $filename);
-
-      $url = url('uploads/avatars/' . $filename);
-
-      $user->update(['avatar' => $url]);
+      $user->update(['avatar' => $result['url']]);
       $user->load('role.permissions');
 
       return response()->json([
         'message' => 'Tải ảnh đại diện lên thành công.',
-        'url'     => $url,
+        'url'     => $result['url'],
         'data'    => $user
       ], Response::HTTP_OK);
     }

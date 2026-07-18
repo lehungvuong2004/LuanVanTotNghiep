@@ -14,24 +14,12 @@ import { useHome } from "./useHook";
 import { t } from "i18next";
 import { Link } from "react-router-dom";
 import { getImageUrl } from "../../utils/images";
+import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 export const Home = () => {
-  const { 
-    bannerData, 
-    serviceData, 
-    containerRef, 
-    imageRef, 
-    contentRef, 
-    cubeRef, 
-    produceData, 
-    reviewData,
-    banners,
-    loadingBanners
-  } = useHome();
+  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners } = useHome();
 
   const swiperRef = useRef<any>(null);
-
-
 
   const renderBanner = () => {
     if (loadingBanners) {
@@ -51,15 +39,18 @@ export const Home = () => {
       );
     }
 
-    const bannerList = banners && banners.length > 0 ? banners : [
-      {
-        id: 0,
-        title: "Bình tĩnh vì mọi việc gia đình luôn có người đồng hành.",
-        image: bannerHome,
-        link: null,
-        status: "active" as const
-      }
-    ];
+    const bannerList =
+      banners && banners.length > 0
+        ? banners
+        : [
+            {
+              id: 0,
+              title: "Bình tĩnh vì mọi việc gia đình luôn có người đồng hành.",
+              image: bannerHome,
+              link: null,
+              status: "active" as const,
+            },
+          ];
 
     return (
       <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center hero-swiper-container" style={{ height: "85vh" }}>
@@ -87,13 +78,8 @@ export const Home = () => {
               <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
 
               {/* Slide Content */}
-              <div 
-                ref={index === 0 ? contentRef : undefined}
-                className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10"
-              >
-                <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl max-w-4xl tracking-tight">
-                  {banner.title}
-                </h1>
+              <div ref={index === 0 ? contentRef : undefined} className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10">
+                <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl max-w-4xl tracking-tight">{banner.title}</h1>
 
                 {/* Mockup Search Form */}
                 <div className="w-full max-w-2xl bg-white p-2 md:p-2.5 rounded-none md:rounded-full shadow-xl flex flex-col md:flex-row items-center gap-2 mb-8">
@@ -121,40 +107,41 @@ export const Home = () => {
                   </button>
                 </div>
 
-                {banner.link && (() => {
-                  const getNormalizedLink = (lnk: string) => {
-                    if (!lnk) return "";
-                    if (lnk.startsWith("http")) return lnk;
-                    if (lnk.startsWith("/#/")) return lnk.substring(2);
-                    return lnk;
-                  };
-                  const normalizedLink = getNormalizedLink(banner.link);
-                  const isExternal = normalizedLink.startsWith("http");
+                {banner.link &&
+                  (() => {
+                    const getNormalizedLink = (lnk: string) => {
+                      if (!lnk) return "";
+                      if (lnk.startsWith("http")) return lnk;
+                      if (lnk.startsWith("/#/")) return lnk.substring(2);
+                      return lnk;
+                    };
+                    const normalizedLink = getNormalizedLink(banner.link);
+                    const isExternal = normalizedLink.startsWith("http");
 
-                  return (
-                    <div>
-                      {isExternal ? (
-                        <a 
-                          href={normalizedLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
-                        >
-                          <Icon icon="lucide:external-link" className="text-base" />
-                          Khám phá chi tiết
-                        </a>
-                      ) : (
-                        <Link 
-                          to={normalizedLink} 
-                          className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
-                        >
-                          <Icon icon="lucide:arrow-right" className="text-base" />
-                          Khám phá chi tiết
-                        </Link>
-                      )}
-                    </div>
-                  );
-                })()}
+                    return (
+                      <div>
+                        {isExternal ? (
+                          <a
+                            href={normalizedLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
+                          >
+                            <Icon icon="lucide:external-link" className="text-base" />
+                            Khám phá chi tiết
+                          </a>
+                        ) : (
+                          <Link
+                            to={normalizedLink}
+                            className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
+                          >
+                            <Icon icon="lucide:arrow-right" className="text-base" />
+                            Khám phá chi tiết
+                          </Link>
+                        )}
+                      </div>
+                    );
+                  })()}
               </div>
             </SwiperSlide>
           ))}
@@ -315,7 +302,10 @@ export const Home = () => {
               <div className="absolute bottom-0 left-0 w-full p-6 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100 flex flex-col items-start">
                 <h3 className="text-white font-bold text-2xl mb-2">{item.title}</h3>
                 <p className="text-white/90 text-sm mb-4 line-clamp-2">{item.description}</p>
-                <Link to="/dich-vu" className="bg-white/20 cursor-pointer hover:bg-white text-white hover:text-[#034d54] backdrop-blur-sm px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300">
+                <Link
+                  to="/dich-vu"
+                  className="bg-white/20 cursor-pointer hover:bg-white text-white hover:text-[#034d54] backdrop-blur-sm px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300"
+                >
                   Xem tất cả
                 </Link>
               </div>
@@ -348,7 +338,10 @@ export const Home = () => {
               <span className="text-gray-600 dark:text-gray-300 text-lg">{t("Giá cả minh bạch, không phát sinh")}</span>
             </li>
           </ul>
-          <Link to="/dich-vu" className="w-full text-center bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300">
+          <Link
+            to="/dich-vu"
+            className="w-full text-center bg-[#094b43] hover:bg-[#06332d] dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300"
+          >
             {t("Tìm người giúp việc ngay")}
           </Link>
         </div>
@@ -414,7 +407,8 @@ export const Home = () => {
           slidesPerView={1}
           breakpoints={{
             768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 } }}
+            1024: { slidesPerView: 3 },
+          }}
           pagination={{ clickable: true }}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           style={{ paddingBottom: "3rem" }}
@@ -457,11 +451,20 @@ export const Home = () => {
     <div className="w-full pb-10">
       <div className="flex flex-col gap-12">
         <div className="min-w-dvw ml-[calc(50%-50dvw)]">{renderBanner()}</div>
-        <div className="">{renderService()}</div>
-        {procuder()}
-        {renderPipeline()}
-        {renderReview()}
-        {renderIntroduce()}
+
+        <AnimateOnScrollReveal>
+          <div>{renderService()}</div>
+        </AnimateOnScrollReveal>
+        <AnimateOnScrollReveal delay={0.15}>
+          <div>{procuder()}</div>
+        </AnimateOnScrollReveal>
+        <AnimateOnScrollReveal direction="none" scale={0.93} duration={1}>
+          {renderPipeline()}
+        </AnimateOnScrollReveal>
+
+        <AnimateOnScrollReveal>{renderReview()}</AnimateOnScrollReveal>
+
+        <AnimateOnScrollReveal>{renderIntroduce()}</AnimateOnScrollReveal>
       </div>
     </div>
   );
