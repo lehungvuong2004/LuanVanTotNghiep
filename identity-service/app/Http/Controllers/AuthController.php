@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use App\Models\ActivityLog;
-use \App\Services\ImageUploadService;
+use App\Services\ActivityLogService;
+use App\Services\ImageUploadService;
+use App\Rules\StrongPassword;
 
 class AuthController extends Controller
 {
@@ -40,7 +41,7 @@ class AuthController extends Controller
       ], Response::HTTP_UNAUTHORIZED);
     }
 
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if ($user->status !== 'active') {
       $auth->logout();
       return response()->json([
@@ -48,7 +49,7 @@ class AuthController extends Controller
       ], Response::HTTP_FORBIDDEN);
     }
 
-    $this->logActivity($user->id, 'LOGIN', "Đăng nhập hệ thống thành công.");
+    ActivityLogService::log($user->id, 'LOGIN', "Đăng nhập hệ thống thành công.");
 
     return $this->responseWithToken($token, $user);
   }
@@ -60,18 +61,7 @@ class AuthController extends Controller
       'full_name' => 'required|string|min:2|max:50',
       'email'     => 'required|string|email|max:191|unique:users,email',
       'phone'     => ['required', 'string', 'regex:/^(0[3|5|7|8|9])[0-9]{8}$/', 'unique:users,phone'],
-      'password'  => [
-        'required',
-        'string',
-        'min:6',
-        'max:32',
-        function ($attribute, $value, $fail) {
-          if (preg_match('/\s/', $value))          $fail('Mật khẩu không được chứa khoảng trắng.');
-          if (!preg_match('/[A-Z]/', $value))      $fail('Mật khẩu phải chứa ít nhất 1 ký tự in hoa.');
-          if (!preg_match('/[a-z]/', $value))      $fail('Mật khẩu phải chứa ít nhất 1 ký tự in thường.');
-          if (!preg_match('/[0-9]/', $value))      $fail('Mật khẩu phải chứa ít nhất 1 ký tự số.');
-        }
-      ],
+      'password'  => ['required', 'string', 'min:6', 'max:32', new StrongPassword()],
     ], [
       'full_name.required' => 'Vui lòng nhập họ và tên.',
       'full_name.min'      => 'Họ và tên phải có ít nhất 2 ký tự.',
@@ -98,7 +88,7 @@ class AuthController extends Controller
 
     $token = auth('api')->login($user);
 
-    $this->logActivity($user->id, 'REGISTER', "Đăng ký tài khoản mới thành công.");
+    ActivityLogService::log($user->id, 'REGISTER', "Đăng ký tài khoản mới thành công.");
 
     return $this->responseWithToken($token, $user);
   }
@@ -164,7 +154,7 @@ class AuthController extends Controller
 
       $jwtToken = auth('api')->login($user);
 
-      $this->logActivity($user->id, 'GOOGLE_LOGIN', "Đăng nhập bằng tài khoản Google thành công.");
+      ActivityLogService::log($user->id, 'GOOGLE_LOGIN', "Đăng nhập bằng tài khoản Google thành công.");
 
       return $this->responseWithToken($jwtToken, $user);
     } catch (\Exception $e) {
@@ -282,12 +272,12 @@ class AuthController extends Controller
       ->first();
 
     if (!$tokenRecord) {
-      return response()->json(['message' => 'Refresh token không hợp lệ hoặc đã hết hạn.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse('Refresh token không hợp lệ hoặc đã hết hạn.');
     }
 
     $user = User::find($tokenRecord->user_id);
     if (!$user || $user->status !== 'active') {
-      return response()->json(['message' => 'Tài khoản không tồn tại hoặc đã bị khoá.'], Response::HTTP_FORBIDDEN);
+      return $this->forbiddenResponse('Tài khoản không tồn tại hoặc đã bị khoá.');
     }
 
     // Xoá refresh token cũ
@@ -303,9 +293,9 @@ class AuthController extends Controller
    */
   public function logout(Request $request)
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     // Xoá refresh token liên quan nếu client truyền lên
@@ -315,7 +305,7 @@ class AuthController extends Controller
         ->delete();
     }
 
-    $this->logActivity($user->id, 'LOGOUT', "Đăng xuất khỏi hệ thống.");
+    ActivityLogService::log($user->id, 'LOGOUT', "Đăng xuất khỏi hệ thống.");
 
     auth('api')->logout();
 
@@ -331,7 +321,7 @@ class AuthController extends Controller
    */
   public function me()
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
       return response()->json([
         'message' => 'Unauthorized.'
@@ -358,42 +348,30 @@ class AuthController extends Controller
    */
   public function getProfile()
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $user->load('role.permissions');
-    return response()->json(['data' => $user], Response::HTTP_OK);
+    return $this->successResponse($user);
   }
 
   /**
-   * Cập nhật thông tin cá nhân (full_name, phone, avatar, password)., thiếu cập nhật gmail à ? 
+   * Cập nhật thông tin cá nhân (full_name, phone, avatar, password).
    */
   public function updateProfile(Request $request)
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $fields = $request->validate([
       'full_name' => 'sometimes|required|string|max:100',
       'phone'     => 'sometimes|nullable|string|max:20|unique:users,phone,' . $user->id,
       'avatar'    => 'sometimes|nullable|string',
-      'password'  => [
-        'sometimes',
-        'required',
-        'string',
-        'min:6',
-        'max:32',
-        function ($attribute, $value, $fail) {
-          if (preg_match('/\s/', $value))     $fail('Mật khẩu không được chứa khoảng trắng.');
-          if (!preg_match('/[A-Z]/', $value)) $fail('Mật khẩu phải chứa ít nhất 1 ký tự in hoa.');
-          if (!preg_match('/[a-z]/', $value)) $fail('Mật khẩu phải chứa ít nhất 1 ký tự in thường.');
-          if (!preg_match('/[0-9]/', $value)) $fail('Mật khẩu phải chứa ít nhất 1 ký tự số.');
-        }
-      ],
+      'password'  => ['sometimes', 'required', 'string', 'min:6', 'max:32', new StrongPassword()],
     ], [
       'phone.unique' => 'Số điện thoại này đã được đăng ký sử dụng.',
     ]);
@@ -416,9 +394,9 @@ class AuthController extends Controller
    */
   public function uploadAvatar(Request $request, ImageUploadService $imageUploadService)
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $request->validate([
@@ -443,26 +421,16 @@ class AuthController extends Controller
       ], Response::HTTP_OK);
     }
 
-    return response()->json(['message' => 'Không tìm thấy file tải lên.'], Response::HTTP_BAD_REQUEST);
+    return $this->errorResponse('Không tìm thấy file tải lên.');
   }
 
   // =====================================================================
-  //  ADMIN — Quản lý Users (Chỉ Admin role_id = 1)
+  //  ADMIN — Quản lý Users (Chỉ Admin role_id = 1, bảo vệ bởi AdminMiddleware)
   // =====================================================================
 
   public function getUsers(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
-    }
-
-    // Chỉ Admin mới được phép xem danh sách toàn bộ users
-    if ($currentUser->role_id !== Role::ADMIN) {
-      return response()->json([
-        'message' => 'Bạn không có quyền truy cập danh sách người dùng.'
-      ], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     // Gọi nội bộ lấy danh sách user_id đã có profile helper
     $helperUserIds = [];
@@ -497,7 +465,7 @@ class AuthController extends Controller
       });
     }
 
-    $limit = (int) $request->query('limit', 20);
+    $limit = $request->integer('limit', 20);
     $users = $query->orderBy('id', 'desc')->paginate($limit);
 
     $roleCounts = User::select('role_id', DB::raw('count(*) as count'))
@@ -519,37 +487,25 @@ class AuthController extends Controller
   }
 
   /**
-   * Lấy chi tiết 1 user — CHỈ ADMIN.
+   * Lấy chi tiết 1 user.
    */
   public function getUser($id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
-    }
-    if ($currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
     $user = User::with('role')->find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy người dùng.');
     }
 
-    return response()->json(['data' => $user], Response::HTTP_OK);
+    return $this->successResponse($user);
   }
 
   /**
-   * Tải ảnh đại diện người dùng lên (chỉ Admin).
+   * Tải ảnh đại diện người dùng lên.
    */
-  public function uploadUserAvatar(Request $request, \App\Services\ImageUploadService $imageUploadService)
+  public function uploadUserAvatar(Request $request, ImageUploadService $imageUploadService)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $request->validate([
-      'image' => 'required|image|mimes:jpeg,png,jpg,webp,gif|max:2048', // max 2mb
+      'image' => 'required|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
     ], [
       'image.required' => 'Vui lòng chọn hình ảnh đại diện.',
       'image.image'    => 'File tải lên phải là hình ảnh.',
@@ -567,18 +523,15 @@ class AuthController extends Controller
       ], Response::HTTP_OK);
     }
 
-    return response()->json(['message' => 'Không tìm thấy file tải lên.'], Response::HTTP_BAD_REQUEST);
+    return $this->errorResponse('Không tìm thấy file tải lên.');
   }
 
   /**
-   * Admin tạo user mới (có thể tạo Helper, Operator, v.v.) — CHỈ ADMIN.
+   * Admin tạo user mới (có thể tạo Helper, Operator, v.v.).
    */
   public function createUser(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     $fields = $request->validate([
       'role_id'   => 'required|integer|exists:roles,id',
@@ -605,7 +558,7 @@ class AuthController extends Controller
 
     $user->load('role');
 
-    $this->logActivity($currentUser->id, 'CREATE_USER', "Tạo người dùng mới: {$user->full_name} ({$user->email}), vai trò: {$user->role->name}.");
+    ActivityLogService::log($currentUser->id, 'CREATE_USER', "Tạo người dùng mới: {$user->full_name} ({$user->email}), vai trò: {$user->role->name}.");
 
     return response()->json([
       'message' => 'Tạo người dùng thành công.',
@@ -614,18 +567,15 @@ class AuthController extends Controller
   }
 
   /**
-   * Admin cập nhật thông tin user khác — CHỈ ADMIN.
+   * Admin cập nhật thông tin user khác.
    */
   public function updateUser(Request $request, $id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     $user = User::find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy người dùng.');
     }
 
     $fields = $request->validate([
@@ -647,7 +597,7 @@ class AuthController extends Controller
     $user->update($fields);
     $user->load('role');
 
-    $this->logActivity($currentUser->id, 'UPDATE_USER', "Cập nhật thông tin người dùng: {$user->full_name} ({$user->email}).");
+    ActivityLogService::log($currentUser->id, 'UPDATE_USER', "Cập nhật thông tin người dùng: {$user->full_name} ({$user->email}).");
 
     return response()->json([
       'message' => 'Cập nhật thông tin người dùng thành công.',
@@ -656,15 +606,12 @@ class AuthController extends Controller
   }
 
   /**
-   * Admin khoá / mở khoá user — CHỈ ADMIN.
+   * Admin khoá / mở khoá user.
    * Body: { "status": "active" | "inactive" | "banned", "reason": "..." }
    */
   public function toggleUserStatus(Request $request, $id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     if ($currentUser->id == $id) {
       return response()->json(['message' => 'Bạn không thể tự thay đổi trạng thái tài khoản của chính mình.'], Response::HTTP_BAD_REQUEST);
@@ -672,7 +619,7 @@ class AuthController extends Controller
 
     $user = User::find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy người dùng.');
     }
 
     $request->validate([
@@ -689,7 +636,7 @@ class AuthController extends Controller
 
     $user->load('role');
 
-    $this->logActivity($currentUser->id, 'TOGGLE_USER_STATUS', "Thay đổi trạng thái tài khoản {$user->full_name} ({$user->email}) sang: {$user->status}. Lý do: " . ($request->input('reason') ?? 'Không có'));
+    ActivityLogService::log($currentUser->id, 'TOGGLE_USER_STATUS', "Thay đổi trạng thái tài khoản {$user->full_name} ({$user->email}) sang: {$user->status}. Lý do: " . ($request->input('reason') ?? 'Không có'));
 
     return response()->json([
       'message' => 'Cập nhật trạng thái tài khoản thành công.',
@@ -698,14 +645,11 @@ class AuthController extends Controller
   }
 
   /**
-   * Admin xóa user — CHỈ ADMIN.
+   * Admin xóa user.
    */
   public function deleteUser($id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     if ($currentUser->id == $id) {
       return response()->json(['message' => 'Bạn không thể tự xóa tài khoản của chính mình.'], Response::HTTP_BAD_REQUEST);
@@ -713,10 +657,10 @@ class AuthController extends Controller
 
     $user = User::find($id);
     if (!$user) {
-      return response()->json(['message' => 'Không tìm thấy người dùng.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy người dùng.');
     }
 
-    $this->logActivity($currentUser->id, 'DELETE_USER', "Xóa tài khoản người dùng: {$user->full_name} ({$user->email}).");
+    ActivityLogService::log($currentUser->id, 'DELETE_USER', "Xóa tài khoản người dùng: {$user->full_name} ({$user->email}).");
 
     DB::table('user_tokens')->where('user_id', $id)->delete();
     $user->delete();
@@ -725,14 +669,11 @@ class AuthController extends Controller
   }
 
   /**
-   * Admin xóa hàng loạt users — CHỈ ADMIN.
+   * Admin xóa hàng loạt users.
    */
   public function bulkDeleteUsers(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     $request->validate([
       'ids' => 'required|array',
@@ -754,7 +695,7 @@ class AuthController extends Controller
       User::whereIn('id', $ids)->delete();
     });
 
-    $this->logActivity($currentUser->id, 'BULK_DELETE_USERS', "Xóa hàng loạt các tài khoản người dùng: " . $deletedUsersInfo);
+    ActivityLogService::log($currentUser->id, 'BULK_DELETE_USERS', "Xóa hàng loạt các tài khoản người dùng: " . $deletedUsersInfo);
 
     return response()->json(['message' => 'Xóa danh sách người dùng thành công.'], Response::HTTP_OK);
   }
@@ -793,11 +734,6 @@ class AuthController extends Controller
    */
   public function getUsersByIds(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || !in_array($currentUser->role_id, [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
-    }
-
     $request->validate([
       'ids' => 'required|array',
       'ids.*' => 'integer'
@@ -806,7 +742,7 @@ class AuthController extends Controller
     $ids = $request->input('ids');
     $users = User::with('role')->whereIn('id', $ids)->get();
 
-    return response()->json(['data' => $users], Response::HTTP_OK);
+    return $this->successResponse($users);
   }
 
   /**
@@ -814,11 +750,6 @@ class AuthController extends Controller
    */
   public function searchUserIds(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || !in_array($currentUser->role_id, [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
-    }
-
     $queryStr = $request->query('query');
     if (empty($queryStr)) {
       return response()->json([], Response::HTTP_OK);
@@ -846,22 +777,6 @@ class AuthController extends Controller
     $ids = $request->input('ids');
     $users = User::whereIn('id', $ids)->get(['id', 'full_name', 'phone', 'avatar', 'email', 'role_id']);
 
-    return response()->json(['data' => $users], Response::HTTP_OK);
-  }
-
-  /**
-   * Helper to log user activities in the database.
-   */
-  private function logActivity($userId, $action, $description)
-  {
-    try {
-      ActivityLog::create([
-        'user_id'     => $userId,
-        'action'      => $action,
-        'description' => $description,
-      ]);
-    } catch (\Exception $e) {
-      Log::error("Failed to write activity log: " . $e->getMessage());
-    }
+    return $this->successResponse($users);
   }
 }

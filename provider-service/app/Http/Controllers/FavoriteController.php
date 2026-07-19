@@ -16,19 +16,19 @@ class FavoriteController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-            return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomer($request)) {
+            return $unauthorized;
         }
 
         $customerId = $request->authUser['id'];
-        $limit      = (int) $request->query('limit', 20);
+        $limit      = $request->integer('limit', 20);
 
         $favorites = Favorite::with(['helperProfile.skills.service', 'helperProfile.workingAreas'])
                              ->where('customer_id', $customerId)
                              ->orderByDesc('created_at')
                              ->paginate($limit);
 
-        return response()->json(['data' => $favorites], Response::HTTP_OK);
+        return $this->successResponse($favorites);
     }
 
     /**
@@ -38,14 +38,14 @@ class FavoriteController extends Controller
      */
     public function store(Request $request, $helperId)
     {
-        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-            return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomer($request)) {
+            return $unauthorized;
         }
 
         // Kiểm tra helper tồn tại và đang active
         $helper = HelperProfile::where('id', $helperId)->where('status', 'active')->first();
         if (!$helper) {
-            return response()->json(['message' => 'Helper không tồn tại hoặc chưa được kích hoạt.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Người giúp việc không tồn tại hoặc chưa được kích hoạt.');
         }
 
         $customerId = $request->authUser['id'];
@@ -55,7 +55,7 @@ class FavoriteController extends Controller
                             ->first();
 
         if ($existing) {
-            return response()->json(['message' => 'Helper này đã có trong danh sách yêu thích của bạn.'], Response::HTTP_CONFLICT);
+            return $this->errorResponse('Người giúp việc này đã có trong danh sách yêu thích của bạn.', Response::HTTP_CONFLICT);
         }
 
         $favorite = Favorite::create([
@@ -63,10 +63,7 @@ class FavoriteController extends Controller
             'helper_id'   => $helperId,
         ]);
 
-        return response()->json([
-            'message' => 'Đã thêm vào danh sách yêu thích.',
-            'data'    => $favorite,
-        ], Response::HTTP_CREATED);
+        return $this->successResponse($favorite, 'Đã thêm vào danh sách yêu thích.', Response::HTTP_CREATED);
     }
 
     /**
@@ -75,8 +72,8 @@ class FavoriteController extends Controller
      */
     public function destroy(Request $request, $helperId)
     {
-        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-            return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomer($request)) {
+            return $unauthorized;
         }
 
         $customerId = $request->authUser['id'];
@@ -86,12 +83,12 @@ class FavoriteController extends Controller
                             ->first();
 
         if (!$favorite) {
-            return response()->json(['message' => 'Helper này không có trong danh sách yêu thích của bạn.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Người giúp việc này không có trong danh sách yêu thích của bạn.');
         }
 
         $favorite->delete();
 
-        return response()->json(['message' => 'Đã xóa khỏi danh sách yêu thích.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa khỏi danh sách yêu thích.');
     }
 
     /**
@@ -101,14 +98,14 @@ class FavoriteController extends Controller
      */
     public function check(Request $request, $helperId)
     {
-        if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-            return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomer($request)) {
+            return $unauthorized;
         }
 
         $isFavorite = Favorite::where('customer_id', $request->authUser['id'])
                               ->where('helper_id', $helperId)
                               ->exists();
 
-        return response()->json(['is_favorite' => $isFavorite], Response::HTTP_OK);
+        return $this->successResponse(['is_favorite' => $isFavorite]);
     }
 }

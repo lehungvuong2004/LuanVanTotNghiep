@@ -31,7 +31,7 @@ class ServiceController extends Controller
       ->orderBy('name')
       ->get();
 
-    return response()->json(['data' => $categories], Response::HTTP_OK);
+    return $this->successResponse($categories);
   }
 
   /**
@@ -44,10 +44,10 @@ class ServiceController extends Controller
       ->find($id);
 
     if (!$category) {
-      return response()->json(['message' => 'Không tìm thấy danh mục.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy danh mục.');
     }
 
-    return response()->json(['data' => $category], Response::HTTP_OK);
+    return $this->successResponse($category);
   }
 
   /**
@@ -90,10 +90,10 @@ class ServiceController extends Controller
       });
     }
 
-    $limit    = (int) $request->query('limit', 50);
+    $limit    = $request->integer('limit', 50);
     $services = $query->orderBy('name')->paginate($limit);
 
-    return response()->json(['data' => $services], Response::HTTP_OK);
+    return $this->successResponse($services);
   }
 
   /**
@@ -106,7 +106,7 @@ class ServiceController extends Controller
       ->find($id);
 
     if (!$service) {
-      return response()->json(['message' => 'Không tìm thấy dịch vụ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy dịch vụ.');
     }
 
     // Đếm số helpers active có kỹ năng dịch vụ này
@@ -136,7 +136,7 @@ class ServiceController extends Controller
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch user info for service helpers: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin người dùng cho người giúp việc thuộc dịch vụ: ' . $e->getMessage());
       }
     }
 
@@ -159,7 +159,7 @@ class ServiceController extends Controller
         }
       }
     } catch (\Exception $e) {
-      Log::error('Failed to fetch review stats for service: ' . $e->getMessage());
+      Log::error('Không thể lấy thống kê đánh giá cho dịch vụ: ' . $e->getMessage());
     }
 
     return response()->json([
@@ -177,7 +177,7 @@ class ServiceController extends Controller
   {
     $service = Service::where('status', 'active')->find($id);
     if (!$service) {
-      return response()->json(['message' => 'Không tìm thấy dịch vụ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy dịch vụ.');
     }
 
     $query = HelperProfile::with(['skills.service', 'workingAreas'])
@@ -196,7 +196,7 @@ class ServiceController extends Controller
       $query->where('rating_avg', '>=', (float) $request->query('rating_min'));
     }
 
-    $limit = (int) $request->query('limit', 12);
+    $limit = $request->integer('limit', 12);
     $helpers = $query->orderByDesc('rating_avg')
       ->orderByDesc('total_reviews')
       ->paginate($limit);
@@ -214,11 +214,11 @@ class ServiceController extends Controller
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch user info for service helpers list: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin chi tiết danh sách người giúp việc theo dịch vụ: ' . $e->getMessage());
       }
     }
 
-    return response()->json(['data' => $helpers], Response::HTTP_OK);
+    return $this->successResponse($helpers);
   }
 
   /**
@@ -241,7 +241,7 @@ class ServiceController extends Controller
       $query->where('base_price', '<=', (float) $request->query('max_price'));
     }
 
-    $limit = (int) $request->query('limit', 50);
+    $limit = $request->integer('limit', 50);
     $services = $query->orderBy('name')->paginate($limit);
 
     // Enrich each service with helpers_count
@@ -264,7 +264,7 @@ class ServiceController extends Controller
           $reviewStatsMap = $reviewResponse->json('data') ?? [];
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch bulk review stats: ' . $e->getMessage());
+        Log::error('Không thể lấy thống kê đánh giá hàng loạt: ' . $e->getMessage());
       }
     }
 
@@ -286,7 +286,7 @@ class ServiceController extends Controller
       $service->avg_rating = $totalReviews > 0 ? round($totalRating / $totalReviews, 1) : 0;
     }
 
-    return response()->json(['data' => $services], Response::HTTP_OK);
+    return $this->successResponse($services);
   }
 
   // =====================================================================
@@ -297,8 +297,8 @@ class ServiceController extends Controller
 
   public function adminListCategories(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $query = ServiceCategory::withCount('services');
@@ -307,13 +307,13 @@ class ServiceController extends Controller
       $query->where('status', $request->query('status'));
     }
 
-    return response()->json(['data' => $query->orderBy('name')->get()], Response::HTTP_OK);
+    return $this->successResponse($query->orderBy('name')->get());
   }
 
   public function createCategory(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeRoles($request, [Role::ADMIN])) {
+      return $unauthorized;
     }
 
     $fields = $request->validate([
@@ -328,20 +328,17 @@ class ServiceController extends Controller
 
     $category = ServiceCategory::create($fields);
 
-    return response()->json([
-      'message' => 'Tạo danh mục thành công.',
-      'data'    => $category,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($category, 'Tạo danh mục thành công.', Response::HTTP_CREATED);
   }
 
   public function updateCategory(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeRoles($request, [Role::ADMIN])) {
+      return $unauthorized;
     }
 
     $category = ServiceCategory::find($id);
-    if (!$category) return response()->json(['message' => 'Không tìm thấy danh mục.'], Response::HTTP_NOT_FOUND);
+    if (!$category) return $this->notFoundResponse('Không tìm thấy danh mục.');
 
     $fields = $request->validate([
       'name'        => 'sometimes|required|string|max:100|unique:service_categories,name,' . $id,
@@ -353,36 +350,33 @@ class ServiceController extends Controller
 
     $category->update($fields);
 
-    return response()->json([
-      'message' => 'Cập nhật danh mục thành công.',
-      'data'    => $category,
-    ], Response::HTTP_OK);
+    return $this->successResponse($category, 'Cập nhật danh mục thành công.');
   }
 
   public function deleteCategory(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeRoles($request, [Role::ADMIN])) {
+      return $unauthorized;
     }
 
     $category = ServiceCategory::find($id);
-    if (!$category) return response()->json(['message' => 'Không tìm thấy danh mục.'], Response::HTTP_NOT_FOUND);
+    if (!$category) return $this->notFoundResponse('Không tìm thấy danh mục.');
 
     // Kiểm tra còn service đang dùng danh mục này không
     if ($category->services()->exists()) {
-      return response()->json(['message' => 'Không thể xóa danh mục đang có dịch vụ.'], Response::HTTP_CONFLICT);
+      return $this->errorResponse('Không thể xóa danh mục đang có dịch vụ.', Response::HTTP_CONFLICT);
     }
 
     $category->delete();
-    return response()->json(['message' => 'Xóa danh mục thành công.'], Response::HTTP_OK);
+    return $this->successResponse(null, 'Xóa danh mục thành công.');
   }
 
   // -- SERVICES --
 
   public function adminListServices(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $query = Service::with('category');
@@ -395,16 +389,16 @@ class ServiceController extends Controller
       $query->where('status', $request->query('status'));
     }
 
-    $limit    = (int) $request->query('limit', 20);
+    $limit    = $request->integer('limit', 20);
     $services = $query->orderBy('name')->paginate($limit);
 
-    return response()->json(['data' => $services], Response::HTTP_OK);
+    return $this->successResponse($services);
   }
 
   public function createService(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeRoles($request, [Role::ADMIN])) {
+      return $unauthorized;
     }
 
     $fields = $request->validate([
@@ -418,10 +412,7 @@ class ServiceController extends Controller
 
     $service = Service::create($fields);
 
-    return response()->json([
-      'message' => 'Tạo dịch vụ thành công.',
-      'data'    => $service->load('category'),
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($service->load('category'), 'Tạo dịch vụ thành công.', Response::HTTP_CREATED);
   }
 
   public function updateService(Request $request, $id)
@@ -430,18 +421,18 @@ class ServiceController extends Controller
     $isOperator = ($request->authUser['role_id'] === Role::OPERATOR);
 
     if (!$isAdmin && !$isOperator) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+      return $this->forbiddenResponse();
     }
 
     if ($isOperator) {
       $keys = array_keys($request->all());
       if (count($keys) > 1 || !in_array('status', $keys)) {
-        return response()->json(['message' => 'Bạn không có quyền sửa các trường khác ngoài trạng thái.'], Response::HTTP_FORBIDDEN);
+        return $this->forbiddenResponse('Bạn không có quyền sửa các trường khác ngoài trạng thái.');
       }
     }
 
     $service = Service::find($id);
-    if (!$service) return response()->json(['message' => 'Không tìm thấy dịch vụ.'], Response::HTTP_NOT_FOUND);
+    if (!$service) return $this->notFoundResponse('Không tìm thấy dịch vụ.');
 
     $fields = $request->validate([
       'category_id' => 'sometimes|integer|exists:service_categories,id',
@@ -454,22 +445,19 @@ class ServiceController extends Controller
 
     $service->update($fields);
 
-    return response()->json([
-      'message' => 'Cập nhật dịch vụ thành công.',
-      'data'    => $service->load('category'),
-    ], Response::HTTP_OK);
+    return $this->successResponse($service->load('category'), 'Cập nhật dịch vụ thành công.');
   }
 
   public function deleteService(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::ADMIN) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeRoles($request, [Role::ADMIN])) {
+      return $unauthorized;
     }
 
     $service = Service::find($id);
-    if (!$service) return response()->json(['message' => 'Không tìm thấy dịch vụ.'], Response::HTTP_NOT_FOUND);
+    if (!$service) return $this->notFoundResponse('Không tìm thấy dịch vụ.');
 
-    $service->delete(); // Thực hiện xóa cứng khỏi database
-    return response()->json(['message' => 'Xóa dịch vụ thành công.'], Response::HTTP_OK);
+    $service->delete();
+    return $this->successResponse(null, 'Xóa dịch vụ thành công.');
   }
 }

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
@@ -16,9 +15,9 @@ class MessageController extends Controller
      */
     public function send(Request $request)
     {
-        $currentUser = auth('api')->user();
+        $currentUser = $this->getAuthUser();
         if (!$currentUser) {
-            return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+            return $this->unauthorizedResponse();
         }
 
         $fields = $request->validate([
@@ -52,14 +51,14 @@ class MessageController extends Controller
      */
     public function getHistory($userId)
     {
-        $currentUser = auth('api')->user();
+        $currentUser = $this->getAuthUser();
         if (!$currentUser) {
-            return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+            return $this->unauthorizedResponse();
         }
 
         $partner = User::find($userId);
         if (!$partner) {
-            return response()->json(['message' => 'Người nhận không tồn tại.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Người nhận không tồn tại.');
         }
 
         $messages = Message::where(function ($query) use ($currentUser, $userId) {
@@ -75,7 +74,7 @@ class MessageController extends Controller
         ->orderBy('id', 'asc')
         ->get();
 
-        return response()->json(['data' => $messages], Response::HTTP_OK);
+        return $this->successResponse($messages);
     }
 
     /**
@@ -84,9 +83,9 @@ class MessageController extends Controller
      */
     public function getConversations()
     {
-        $currentUser = auth('api')->user();
+        $currentUser = $this->getAuthUser();
         if (!$currentUser) {
-            return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+            return $this->unauthorizedResponse();
         }
 
         $userId = $currentUser->id;
@@ -154,7 +153,7 @@ class MessageController extends Controller
             return strcmp($b['last_message']->created_at, $a['last_message']->created_at);
         });
 
-        return response()->json(['data' => $conversations], Response::HTTP_OK);
+        return $this->successResponse($conversations);
     }
 
     /**
@@ -163,9 +162,9 @@ class MessageController extends Controller
      */
     public function markRead($userId)
     {
-        $currentUser = auth('api')->user();
+        $currentUser = $this->getAuthUser();
         if (!$currentUser) {
-            return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+            return $this->unauthorizedResponse();
         }
 
         Message::where('sender_id', $userId)
@@ -173,7 +172,7 @@ class MessageController extends Controller
             ->where('is_read', 0)
             ->update(['is_read' => 1]);
 
-        return response()->json(['message' => 'Đã đánh dấu đọc toàn bộ tin nhắn.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã đánh dấu đọc toàn bộ tin nhắn.');
     }
 
     /**
@@ -182,18 +181,18 @@ class MessageController extends Controller
      */
     public function destroy($id)
     {
-        $currentUser = auth('api')->user();
+        $currentUser = $this->getAuthUser();
         if (!$currentUser) {
-            return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+            return $this->unauthorizedResponse();
         }
 
         $message = Message::find($id);
         if (!$message) {
-            return response()->json(['message' => 'Tin nhắn không tồn tại.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Tin nhắn không tồn tại.');
         }
 
         if ($message->sender_id !== $currentUser->id && $message->receiver_id !== $currentUser->id) {
-            return response()->json(['message' => 'Bạn không có quyền xóa tin nhắn này.'], Response::HTTP_FORBIDDEN);
+            return $this->forbiddenResponse('Bạn không có quyền xóa tin nhắn này.');
         }
 
         if ($message->sender_id === $currentUser->id) {
@@ -206,7 +205,7 @@ class MessageController extends Controller
 
         $message->save();
 
-        return response()->json(['message' => 'Đã xóa tin nhắn cá nhân.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa tin nhắn cá nhân.');
     }
 
     /**
@@ -232,7 +231,8 @@ class MessageController extends Controller
             });
         }
 
-        $messages = $query->orderBy('created_at', 'desc')->paginate(15);
+        $limit = $request->integer('limit', 15);
+        $messages = $query->orderBy('created_at', 'desc')->paginate($limit);
         return response()->json($messages, Response::HTTP_OK);
     }
 
@@ -244,11 +244,11 @@ class MessageController extends Controller
     {
         $message = Message::find($id);
         if (!$message) {
-            return response()->json(['message' => 'Tin nhắn không tồn tại.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Tin nhắn không tồn tại.');
         }
 
         $message->delete();
 
-        return response()->json(['message' => 'Đã xóa tin nhắn khỏi hệ thống.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa tin nhắn khỏi hệ thống.');
     }
 }

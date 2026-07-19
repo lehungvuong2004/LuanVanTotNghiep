@@ -28,7 +28,7 @@ class ReviewController extends Controller
       $query->where('rating', (int) $request->query('rating'));
     }
 
-    $limit   = (int) $request->query('limit', 20);
+    $limit   = $request->integer('limit', 20);
     $reviews = $query->paginate($limit);
 
     // Calculate average rating
@@ -52,7 +52,7 @@ class ReviewController extends Controller
           $customerMap = collect($userResponse->json('data') ?? [])->keyBy('id')->toArray();
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch customer info for reviews: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin khách hàng cho đánh giá: ' . $e->getMessage());
       }
     }
 
@@ -89,7 +89,7 @@ class ReviewController extends Controller
   {
     $helperIds = $request->input('helper_ids', []);
     if (empty($helperIds)) {
-      return response()->json(['data' => null], Response::HTTP_OK);
+      return $this->successResponse(null);
     }
 
     $totalReviews = Review::whereIn('helper_id', $helperIds)->count();
@@ -100,13 +100,11 @@ class ReviewController extends Controller
       $ratingDist[$i] = Review::whereIn('helper_id', $helperIds)->where('rating', $i)->count();
     }
 
-    return response()->json([
-      'data' => [
-        'total_reviews'      => $totalReviews,
-        'avg_rating'         => $avgRating ? round($avgRating, 2) : 0,
-        'rating_distribution' => $ratingDist,
-      ]
-    ], Response::HTTP_OK);
+    return $this->successResponse([
+      'total_reviews'       => $totalReviews,
+      'avg_rating'          => $avgRating ? round($avgRating, 2) : 0,
+      'rating_distribution' => $ratingDist,
+    ]);
   }
 
   /**
@@ -116,7 +114,7 @@ class ReviewController extends Controller
   {
     $helperIds = $request->input('helper_ids', []);
     if (empty($helperIds)) {
-      return response()->json(['data' => []], Response::HTTP_OK);
+      return $this->successResponse([]);
     }
 
     $result = [];
@@ -129,7 +127,7 @@ class ReviewController extends Controller
       ];
     }
 
-    return response()->json(['data' => $result], Response::HTTP_OK);
+    return $this->successResponse($result);
   }
 
     // =====================================================================
@@ -141,8 +139,8 @@ class ReviewController extends Controller
    */
   public function customerCreate(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chỉ khách hàng mới được viết đánh giá.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeCustomer($request, 'Chỉ khách hàng mới được viết đánh giá.')) {
+      return $unauthorized;
     }
 
     $fields = $request->validate([
@@ -169,13 +167,10 @@ class ReviewController extends Controller
         'total_reviews' => $newCount,
       ]);
     } catch (\Exception $e) {
-      Log::error('Failed to update helper rating: ' . $e->getMessage());
+      Log::error('Không thể cập nhật điểm đánh giá trung bình của người giúp việc: ' . $e->getMessage());
     }
 
-    return response()->json([
-      'message' => 'Cảm ơn bạn đã đánh giá!',
-      'data'    => $review,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($review, 'Cảm ơn bạn đã đánh giá!', Response::HTTP_CREATED);
   }
 
     // =====================================================================
@@ -187,8 +182,8 @@ class ReviewController extends Controller
    */
   public function adminIndex(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $query = Review::orderByDesc('created_at');
@@ -198,7 +193,7 @@ class ReviewController extends Controller
     if ($request->filled('rating'))      $query->where('rating', (int) $request->query('rating'));
     if ($request->filled('booking_id'))  $query->where('booking_id', $request->query('booking_id'));
 
-    $limit   = (int) $request->query('limit', 20);
+    $limit   = $request->integer('limit', 20);
     $reviews = $query->paginate($limit);
 
     $stats = [
@@ -217,25 +212,25 @@ class ReviewController extends Controller
 
   public function adminDestroy(Request $request, $id)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $review = Review::find($id);
-    if (!$review) return response()->json(['message' => 'Review not found.'], Response::HTTP_NOT_FOUND);
+    if (!$review) return $this->notFoundResponse('Không tìm thấy đánh giá.');
 
     $review->delete();
-    return response()->json(['message' => 'Review deleted successfully.'], Response::HTTP_OK);
+    return $this->successResponse(null, 'Đã xóa đánh giá thành công.');
   }
 
   public function adminUpdate(Request $request, $id)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $review = Review::find($id);
-    if (!$review) return response()->json(['message' => 'Review not found.'], Response::HTTP_NOT_FOUND);
+    if (!$review) return $this->notFoundResponse('Không tìm thấy đánh giá.');
 
     $fields = $request->validate([
       'rating'  => 'sometimes|integer|between:1,5',
@@ -244,16 +239,13 @@ class ReviewController extends Controller
 
     $review->update($fields);
 
-    return response()->json([
-      'message' => 'Review updated successfully.',
-      'data'    => $review->fresh(),
-    ], Response::HTTP_OK);
+    return $this->successResponse($review->fresh(), 'Cập nhật đánh giá thành công.');
   }
 
   public function adminCreate(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $fields = $request->validate([
@@ -267,10 +259,7 @@ class ReviewController extends Controller
 
     $review = Review::create($fields);
 
-    return response()->json([
-      'message' => 'Review created successfully.',
-      'data'    => $review,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($review, 'Tạo đánh giá thành công.', Response::HTTP_CREATED);
   }
 
   /**
@@ -278,17 +267,17 @@ class ReviewController extends Controller
    */
   public function customerUpdate(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chỉ khách hàng mới có quyền sửa đánh giá.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeCustomer($request, 'Chỉ khách hàng mới có quyền sửa đánh giá.')) {
+      return $unauthorized;
     }
 
     $review = Review::find($id);
     if (!$review) {
-      return response()->json(['message' => 'Không tìm thấy đánh giá.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy đánh giá.');
     }
 
     if ((int) $review->customer_id !== (int) $request->authUser['id']) {
-      return response()->json(['message' => 'Bạn chỉ được sửa đánh giá của chính mình.'], Response::HTTP_FORBIDDEN);
+      return $this->forbiddenResponse('Bạn chỉ được sửa đánh giá của chính mình.');
     }
 
     $fields = $request->validate([
@@ -310,13 +299,10 @@ class ReviewController extends Controller
         'total_reviews' => $newCount,
       ]);
     } catch (\Exception $e) {
-      Log::error('Failed to update helper rating on update: ' . $e->getMessage());
+      Log::error('Không thể cập nhật điểm đánh giá của người giúp việc khi sửa đánh giá: ' . $e->getMessage());
     }
 
-    return response()->json([
-      'message' => 'Cập nhật đánh giá thành công!',
-      'data'    => $review->fresh(),
-    ], Response::HTTP_OK);
+    return $this->successResponse($review->fresh(), 'Cập nhật đánh giá thành công!');
   }
 
   /**
@@ -324,17 +310,17 @@ class ReviewController extends Controller
    */
   public function customerDestroy(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chỉ khách hàng mới có quyền xóa đánh giá.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeCustomer($request, 'Chỉ khách hàng mới có quyền xóa đánh giá.')) {
+      return $unauthorized;
     }
 
     $review = Review::find($id);
     if (!$review) {
-      return response()->json(['message' => 'Không tìm thấy đánh giá.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy đánh giá.');
     }
 
     if ((int) $review->customer_id !== (int) $request->authUser['id']) {
-      return response()->json(['message' => 'Bạn chỉ được xóa đánh giá của chính mình.'], Response::HTTP_FORBIDDEN);
+      return $this->forbiddenResponse('Bạn chỉ được sửa đánh giá của chính mình.');
     }
 
     $helperId = $review->helper_id;
@@ -352,11 +338,9 @@ class ReviewController extends Controller
         'total_reviews' => $newCount,
       ]);
     } catch (\Exception $e) {
-      Log::error('Failed to update helper rating on delete: ' . $e->getMessage());
+      Log::error('Không thể cập nhật điểm đánh giá của người giúp việc khi xóa đánh giá: ' . $e->getMessage());
     }
 
-    return response()->json([
-      'message' => 'Xóa đánh giá thành công!',
-    ], Response::HTTP_OK);
+    return $this->successResponse(null, 'Xóa đánh giá thành công!');
   }
 }

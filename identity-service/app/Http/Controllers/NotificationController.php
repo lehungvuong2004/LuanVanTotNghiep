@@ -7,7 +7,6 @@ use App\Models\Notification;
 use App\Models\User;
 use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -23,9 +22,9 @@ class NotificationController extends Controller
    */
   public function index(Request $request)
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $query = Notification::where('user_id', $user->id)
@@ -35,7 +34,7 @@ class NotificationController extends Controller
       $query->where('is_read', (int) $request->query('is_read'));
     }
 
-    $limit         = (int) $request->query('limit', 20);
+    $limit         = $request->integer('limit', 20);
     $notifications = $query->paginate($limit);
     $unreadCount   = Notification::where('user_id', $user->id)->where('is_read', 0)->count();
 
@@ -50,9 +49,9 @@ class NotificationController extends Controller
    */
   public function markRead($id)
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $notification = Notification::where('id', $id)
@@ -60,7 +59,7 @@ class NotificationController extends Controller
       ->first();
 
     if (!$notification) {
-      return response()->json(['message' => 'Không tìm thấy thông báo.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy thông báo.');
     }
 
     $notification->update(['is_read' => 1]);
@@ -73,9 +72,9 @@ class NotificationController extends Controller
    */
   public function markAllRead()
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     Notification::where('user_id', $user->id)
@@ -89,9 +88,9 @@ class NotificationController extends Controller
    */
   public function destroy($id)
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $notification = Notification::where('id', $id)
@@ -99,7 +98,7 @@ class NotificationController extends Controller
       ->first();
 
     if (!$notification) {
-      return response()->json(['message' => 'Không tìm thấy thông báo.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy thông báo.');
     }
 
     $notification->delete();
@@ -108,20 +107,14 @@ class NotificationController extends Controller
   }
 
     // =====================================================================
-    //  ADMIN — Gửi thông báo đến user(s)
+    //  ADMIN — Gửi thông báo đến user(s) (bảo vệ bởi AdminMiddleware)
     // =====================================================================
 
   /**
    * Admin xem toàn bộ thông báo trong hệ thống (filter theo user_id, is_read).
-   * CHỈ ADMIN (role_id = 1).
    */
   public function adminIndex(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $query = Notification::orderByDesc('created_at');
 
     if ($request->filled('user_id')) {
@@ -136,24 +129,18 @@ class NotificationController extends Controller
       $query->where('type', $request->query('type'));
     }
 
-    $limit         = (int) $request->query('limit', 20);
+    $limit         = $request->integer('limit', 20);
     $notifications = $query->paginate($limit);
 
-    return response()->json(['data' => $notifications], Response::HTTP_OK);
+    return $this->successResponse($notifications);
   }
 
   /**
    * Admin gửi thông báo đến một hoặc nhiều user cụ thể.
    * Body: { "user_ids": [1,2,3], "title": "...", "message": "...", "type": "system" }
-   * CHỈ ADMIN (role_id = 1).
    */
   public function send(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $fields = $request->validate([
       'user_ids'   => 'required|array|min:1',
       'user_ids.*' => 'integer|exists:users,id',
@@ -162,26 +149,12 @@ class NotificationController extends Controller
       'type'       => 'sometimes|string|in:system,booking,payment,promotion,report,recruitment',
     ]);
 
-    $insertedNotifications = [];
-    foreach ($fields['user_ids'] as $userId) {
-      $insertedNotifications[] = Notification::create([
-        'user_id' => $userId,
-        'title'   => $fields['title'],
-        'message' => $fields['message'],
-        'type'    => $fields['type'] ?? 'system',
-        'is_read' => 0,
-        'created_at' => now()->toDateTimeString(),
-      ]);
-    }
-
-    $socketPayload = [];
-    foreach ($insertedNotifications as $notif) {
-      $socketPayload[] = [
-        'user_id'      => $notif->user_id,
-        'notification' => $notif
-      ];
-    }
-    $this->pushToSocket(['notifications' => $socketPayload]);
+    $this->createAndPushBatchNotifications(
+      $fields['user_ids'],
+      $fields['title'],
+      $fields['message'],
+      $fields['type'] ?? 'system'
+    );
 
     return response()->json([
       'message' => 'Gửi thông báo thành công đến ' . count($fields['user_ids']) . ' người dùng.',
@@ -191,22 +164,16 @@ class NotificationController extends Controller
   /**
    * Admin broadcast thông báo đến tất cả user thuộc 1 role.
    * Body: { "role": "customer" | "helper" | "operator", "title": "...", "message": "...", "type": "..." }
-   * CHỈ ADMIN (role_id = 1).
    */
   public function broadcast(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
- 
     $fields = $request->validate([
       'role'    => 'required|string|in:customer,helper,operator,admin,all',
       'title'   => 'required|string|max:150',
       'message' => 'required|string|max:1000',
       'type'    => 'sometimes|string|in:system,booking,payment,promotion,report',
     ]);
- 
+
     if ($fields['role'] === 'all') {
       $userIds = User::where('status', 'active')->pluck('id');
     } else {
@@ -216,31 +183,17 @@ class NotificationController extends Controller
         ->where('status', 'active')
         ->pluck('id');
     }
- 
+
     if ($userIds->isEmpty()) {
-      return response()->json(['message' => 'Không có user nào thuộc đối tượng này.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không có user nào thuộc đối tượng này.');
     }
 
-    $insertedNotifications = [];
-    foreach ($userIds as $userId) {
-      $insertedNotifications[] = Notification::create([
-        'user_id' => $userId,
-        'title'   => $fields['title'],
-        'message' => $fields['message'],
-        'type'    => $fields['type'] ?? 'system',
-        'is_read' => 0,
-        'created_at' => now()->toDateTimeString(),
-      ]);
-    }
-
-    $socketPayload = [];
-    foreach ($insertedNotifications as $notif) {
-      $socketPayload[] = [
-        'user_id'      => $notif->user_id,
-        'notification' => $notif
-      ];
-    }
-    $this->pushToSocket(['notifications' => $socketPayload]);
+    $this->createAndPushBatchNotifications(
+      $userIds,
+      $fields['title'],
+      $fields['message'],
+      $fields['type'] ?? 'system'
+    );
 
     return response()->json([
       'message' => "Broadcast thành công đến {$userIds->count()} người dùng.",
@@ -271,25 +224,12 @@ class NotificationController extends Controller
 
       $insertedNotifications = [];
       if (!$userIds->isEmpty()) {
-        foreach ($userIds as $userId) {
-          $insertedNotifications[] = Notification::create([
-            'user_id' => $userId,
-            'title'   => $fields['title'],
-            'message' => $fields['message'],
-            'type'    => $fields['type'] ?? 'system',
-            'is_read' => 0,
-            'created_at' => now()->toDateTimeString(),
-          ]);
-        }
-
-        $socketPayload = [];
-        foreach ($insertedNotifications as $notif) {
-          $socketPayload[] = [
-            'user_id'      => $notif->user_id,
-            'notification' => $notif
-          ];
-        }
-        $this->pushToSocket(['notifications' => $socketPayload]);
+        $insertedNotifications = $this->createAndPushBatchNotifications(
+          $userIds,
+          $fields['title'],
+          $fields['message'],
+          $fields['type'] ?? 'system'
+        );
       }
 
       return response()->json([
@@ -316,6 +256,36 @@ class NotificationController extends Controller
       'message' => 'Tạo thông báo nội bộ thành công.',
       'data'    => $notification
     ], Response::HTTP_CREATED);
+  }
+
+  /**
+   * Helper method to batch insert notifications and push to socket service.
+   */
+  private function createAndPushBatchNotifications($userIds, string $title, string $message, string $type): array
+  {
+    $insertedNotifications = [];
+    foreach ($userIds as $userId) {
+      $insertedNotifications[] = Notification::create([
+        'user_id'    => $userId,
+        'title'      => $title,
+        'message'    => $message,
+        'type'       => $type,
+        'is_read'    => 0,
+        'created_at' => now()->toDateTimeString(),
+      ]);
+    }
+
+    $socketPayload = [];
+    foreach ($insertedNotifications as $notif) {
+      $socketPayload[] = [
+        'user_id'      => $notif->user_id,
+        'notification' => $notif
+      ];
+    }
+
+    $this->pushToSocket(['notifications' => $socketPayload]);
+
+    return $insertedNotifications;
   }
 
   /**

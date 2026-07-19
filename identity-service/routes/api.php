@@ -78,7 +78,7 @@ Route::middleware('auth:api')->group(function () {
 
 
   //  ADMIN — Quản trị viên & Nhân viên (áp dụng kiểm tra Permission)
-  Route::prefix('admin')->group(function () {
+  Route::prefix('admin')->middleware('admin')->group(function () {
     // Users Management
     Route::get('users',              [AuthController::class, 'getUsers'])->middleware('permission:users.view');
     Route::post('users/by-ids',      [AuthController::class, 'getUsersByIds'])->middleware('permission:users.view');

@@ -7,7 +7,6 @@ use App\Models\CustomerProfile;
 use App\Models\CustomerAddress;
 use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\DB;
 
 class CustomerProfileController extends Controller
 {
@@ -21,14 +20,14 @@ class CustomerProfileController extends Controller
    */
   public function getProfile()
   {
-    $user = auth('api')->user();
+    $user = $this->getAuthUser();
     if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     // Customer lấy chính mình; Admin có thể dùng endpoint admin riêng
     if (!in_array($user->role_id, [Role::ADMIN, Role::CUSTOMER])) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
+      return $this->forbiddenResponse('Chức năng này dành cho tài khoản Khách hàng.');
     }
 
     $profile = CustomerProfile::with('addresses')
@@ -42,7 +41,7 @@ class CustomerProfileController extends Controller
 
     $profile->load('addresses');
 
-    return response()->json(['data' => $profile], Response::HTTP_OK);
+    return $this->successResponse($profile);
   }
 
   /**
@@ -51,14 +50,11 @@ class CustomerProfileController extends Controller
    */
   public function updateProfile(Request $request)
   {
-    $user = auth('api')->user();
-    if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+    if ($unauthorized = $this->authorizeCustomer()) {
+      return $unauthorized;
     }
 
-    if ($user->role_id !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
-    }
+    $user = $this->getAuthUser();
 
     $fields = $request->validate([
       'gender'   => 'sometimes|nullable|string|in:male,female,other',
@@ -86,25 +82,21 @@ class CustomerProfileController extends Controller
    */
   public function listAddresses()
   {
-    $user = auth('api')->user();
-    if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+    if ($unauthorized = $this->authorizeCustomer()) {
+      return $unauthorized;
     }
 
-    if ($user->role_id !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
-    }
-
+    $user = $this->getAuthUser();
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['data' => []], Response::HTTP_OK);
+      return $this->successResponse([]);
     }
 
     $addresses = CustomerAddress::where('customer_id', $profile->id)
       ->orderByDesc('is_default')
       ->get();
 
-    return response()->json(['data' => $addresses], Response::HTTP_OK);
+    return $this->successResponse($addresses);
   }
 
   /**
@@ -112,14 +104,11 @@ class CustomerProfileController extends Controller
    */
   public function addAddress(Request $request)
   {
-    $user = auth('api')->user();
-    if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+    if ($unauthorized = $this->authorizeCustomer()) {
+      return $unauthorized;
     }
 
-    if ($user->role_id !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
-    }
+    $user = $this->getAuthUser();
 
     $fields = $request->validate([
       'address'    => 'required|string|max:255',
@@ -158,25 +147,21 @@ class CustomerProfileController extends Controller
    */
   public function updateAddress(Request $request, $id)
   {
-    $user = auth('api')->user();
-    if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+    if ($unauthorized = $this->authorizeCustomer()) {
+      return $unauthorized;
     }
 
-    if ($user->role_id !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
-    }
-
+    $user = $this->getAuthUser();
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Không tìm thấy profile.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy profile.');
     }
 
     $address = CustomerAddress::where('id', $id)
       ->where('customer_id', $profile->id)
       ->first();
     if (!$address) {
-      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy địa chỉ.');
     }
 
     $fields = $request->validate([
@@ -198,25 +183,21 @@ class CustomerProfileController extends Controller
    */
   public function deleteAddress($id)
   {
-    $user = auth('api')->user();
-    if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+    if ($unauthorized = $this->authorizeCustomer()) {
+      return $unauthorized;
     }
 
-    if ($user->role_id !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
-    }
-
+    $user = $this->getAuthUser();
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Không tìm thấy profile.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy profile.');
     }
 
     $address = CustomerAddress::where('id', $id)
       ->where('customer_id', $profile->id)
       ->first();
     if (!$address) {
-      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy địa chỉ.');
     }
 
     $wasDefault = $address->is_default;
@@ -238,25 +219,21 @@ class CustomerProfileController extends Controller
    */
   public function setDefaultAddress($id)
   {
-    $user = auth('api')->user();
-    if (!$user) {
-      return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+    if ($unauthorized = $this->authorizeCustomer()) {
+      return $unauthorized;
     }
 
-    if ($user->role_id !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Khách hàng.'], Response::HTTP_FORBIDDEN);
-    }
-
+    $user = $this->getAuthUser();
     $profile = CustomerProfile::where('user_id', $user->id)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Không tìm thấy profile.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy profile.');
     }
 
     $address = CustomerAddress::where('id', $id)
       ->where('customer_id', $profile->id)
       ->first();
     if (!$address) {
-      return response()->json(['message' => 'Không tìm thấy địa chỉ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy địa chỉ.');
     }
 
     // Bỏ mặc định tất cả → đặt mặc định cho địa chỉ được chọn

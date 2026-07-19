@@ -52,7 +52,7 @@ class HelperController extends Controller
       $query->where('rating_avg', '>=', (float) $request->query('rating_min'));
     }
 
-    $limit   = (int) $request->query('limit', 20);
+    $limit   = $request->integer('limit', 20);
     $helpers = $query->orderByDesc('rating_avg')
       ->orderByDesc('total_reviews')
       ->paginate($limit);
@@ -72,11 +72,11 @@ class HelperController extends Controller
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch user details for public helper list: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin chi tiết người dùng cho danh sách người giúp việc: ' . $e->getMessage());
       }
     }
 
-    return response()->json(['data' => $helpers], Response::HTTP_OK);
+    return $this->successResponse($helpers);
   }
 
   /**
@@ -109,14 +109,14 @@ class HelperController extends Controller
             ]);
             $helper->load(['skills.service', 'workingAreas', 'availabilities']);
             $helper->user = $users[0];
-            return response()->json(['data' => $helper], Response::HTTP_OK);
+            return $this->successResponse($helper);
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to auto-create helper profile: ' . $e->getMessage());
+        Log::error('Không thể tự động tạo hồ sơ người giúp việc: ' . $e->getMessage());
       }
 
-      return response()->json(['message' => 'Không tìm thấy helper.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy người giúp việc.');
     }
 
     // Fetch user info from identity-service internally
@@ -131,10 +131,10 @@ class HelperController extends Controller
         }
       }
     } catch (\Exception $e) {
-      Log::error('Failed to fetch user details for public helper profile: ' . $e->getMessage());
+      Log::error('Không thể lấy thông tin chi tiết người dùng cho hồ sơ người giúp việc: ' . $e->getMessage());
     }
 
-    return response()->json(['data' => $helper], Response::HTTP_OK);
+    return $this->successResponse($helper);
   }
 
   /**
@@ -198,7 +198,7 @@ class HelperController extends Controller
       ->first();
 
     if (!$helper) {
-      return response()->json(['message' => 'Helper not found.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy người giúp việc.');
     }
 
     $helper->update([
@@ -206,7 +206,7 @@ class HelperController extends Controller
       'total_reviews' => $totalReviews,
     ]);
 
-    return response()->json(['message' => 'Rating updated.', 'data' => $helper], Response::HTTP_OK);
+    return $this->successResponse($helper, 'Đã cập nhật điểm đánh giá.');
   }
 
     // =====================================================================
@@ -214,20 +214,21 @@ class HelperController extends Controller
     // =====================================================================
   public function myProfile(Request $request)
   {
-    $userId = $request->authUser['id'];
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Helper.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
+
+    $userId = $request->authUser['id'];
 
     $profile = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities', 'verifications'])
       ->where('user_id', $userId)
       ->first();
 
     if (!$profile) {
-      return response()->json(['message' => 'Bạn chưa có hồ sơ. Vui lòng tạo hồ sơ trước.', 'data' => null], Response::HTTP_OK);
+      return $this->successResponse(null, 'Bạn chưa có hồ sơ. Vui lòng tạo hồ sơ trước.');
     }
 
-    return response()->json(['data' => $profile], Response::HTTP_OK);
+    return $this->successResponse($profile);
   }
 
   /**
@@ -235,15 +236,15 @@ class HelperController extends Controller
    */
   public function createProfile(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Helper.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $userId = $request->authUser['id'];
 
     $existing = HelperProfile::where('user_id', $userId)->first();
     if ($existing) {
-      return response()->json(['message' => 'Bạn đã có hồ sơ. Vui lòng dùng API cập nhật.'], Response::HTTP_CONFLICT);
+      return $this->errorResponse('Bạn đã có hồ sơ. Vui lòng dùng API cập nhật.', Response::HTTP_CONFLICT);
     }
 
     $fields = $request->validate([
@@ -259,10 +260,7 @@ class HelperController extends Controller
       'status'  => 'pending', // Chờ Admin/Operator duyệt
     ]));
 
-    return response()->json([
-      'message' => 'Tạo hồ sơ thành công. Hồ sơ đang chờ xét duyệt.',
-      'data'    => $profile,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($profile, 'Tạo hồ sơ thành công. Hồ sơ đang chờ xét duyệt.', Response::HTTP_CREATED);
   }
 
   /**
@@ -270,15 +268,15 @@ class HelperController extends Controller
    */
   public function updateProfile(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Chức năng này dành cho tài khoản Helper.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $userId  = $request->authUser['id'];
     $profile = HelperProfile::where('user_id', $userId)->first();
 
     if (!$profile) {
-      return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Bạn chưa có hồ sơ.');
     }
 
     $fields = $request->validate([
@@ -291,10 +289,7 @@ class HelperController extends Controller
 
     $profile->update($fields);
 
-    return response()->json([
-      'message' => 'Cập nhật hồ sơ thành công.',
-      'data'    => $profile->fresh(['skills.service', 'workingAreas']),
-    ], Response::HTTP_OK);
+    return $this->successResponse($profile->fresh(['skills.service', 'workingAreas']), 'Cập nhật hồ sơ thành công.');
   }
 
   // =====================================================================
@@ -303,28 +298,28 @@ class HelperController extends Controller
 
   public function listSkills(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['data' => []], Response::HTTP_OK);
+    if (!$profile) return $this->successResponse([]);
 
     $skills = HelperSkill::with('service')
       ->where('helper_id', $profile->id)
       ->get();
 
-    return response()->json(['data' => $skills], Response::HTTP_OK);
+    return $this->successResponse($skills);
   }
 
   public function addSkill(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $fields = $request->validate([
       'service_id' => 'required|integer|exists:services,id',
@@ -335,7 +330,7 @@ class HelperController extends Controller
       ->first();
 
     if ($existing) {
-      return response()->json(['message' => 'Kỹ năng này đã tồn tại trong hồ sơ của bạn.'], Response::HTTP_CONFLICT);
+      return $this->errorResponse('Kỹ năng này đã tồn tại trong hồ sơ của bạn.', Response::HTTP_CONFLICT);
     }
 
     $skill = HelperSkill::create([
@@ -343,29 +338,26 @@ class HelperController extends Controller
       'service_id' => $fields['service_id'],
     ]);
 
-    return response()->json([
-      'message' => 'Thêm kỹ năng thành công.',
-      'data'    => $skill->load('service'),
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($skill->load('service'), 'Thêm kỹ năng thành công.', Response::HTTP_CREATED);
   }
 
   public function removeSkill(Request $request, $serviceId)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $skill = HelperSkill::where('helper_id', $profile->id)
       ->where('service_id', $serviceId)
       ->first();
 
-    if (!$skill) return response()->json(['message' => 'Không tìm thấy kỹ năng.'], Response::HTTP_NOT_FOUND);
+    if (!$skill) return $this->notFoundResponse('Không tìm thấy kỹ năng.');
 
     $skill->delete();
-    return response()->json(['message' => 'Đã xóa kỹ năng.'], Response::HTTP_OK);
+    return $this->successResponse(null, 'Đã xóa kỹ năng.');
   }
 
   // =====================================================================
@@ -374,24 +366,24 @@ class HelperController extends Controller
 
   public function listWorkingAreas(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['data' => []], Response::HTTP_OK);
+    if (!$profile) return $this->successResponse([]);
 
-    return response()->json(['data' => $profile->workingAreas], Response::HTTP_OK);
+    return $this->successResponse($profile->workingAreas);
   }
 
   public function addWorkingArea(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $fields = $request->validate([
       'district' => 'required|string|max:100',
@@ -400,26 +392,23 @@ class HelperController extends Controller
 
     $area = HelperWorkingArea::create(array_merge($fields, ['helper_id' => $profile->id]));
 
-    return response()->json([
-      'message' => 'Thêm khu vực làm việc thành công.',
-      'data'    => $area,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($area, 'Thêm khu vực làm việc thành công.', Response::HTTP_CREATED);
   }
 
   public function removeWorkingArea(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $area = HelperWorkingArea::where('id', $id)->where('helper_id', $profile->id)->first();
-    if (!$area) return response()->json(['message' => 'Không tìm thấy khu vực.'], Response::HTTP_NOT_FOUND);
+    if (!$area) return $this->notFoundResponse('Không tìm thấy khu vực.');
 
     $area->delete();
-    return response()->json(['message' => 'Đã xóa khu vực làm việc.'], Response::HTTP_OK);
+    return $this->successResponse(null, 'Đã xóa khu vực làm việc.');
   }
 
   // =====================================================================
@@ -428,12 +417,12 @@ class HelperController extends Controller
 
   public function listAvailability(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['data' => []], Response::HTTP_OK);
+    if (!$profile) return $this->successResponse([]);
 
     $slots = HelperAvailability::where('helper_id', $profile->id)
       ->where('available_date', '>=', now()->toDateString())
@@ -441,17 +430,17 @@ class HelperController extends Controller
       ->orderBy('start_time')
       ->get();
 
-    return response()->json(['data' => $slots], Response::HTTP_OK);
+    return $this->successResponse($slots);
   }
 
   public function addAvailability(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $fields = $request->validate([
       'available_date' => 'required|date|after_or_equal:today',
@@ -466,7 +455,7 @@ class HelperController extends Controller
       ->exists();
 
     if ($exists) {
-      return response()->json(['message' => 'Khung giờ này đã tồn tại trong lịch của bạn.'], Response::HTTP_CONFLICT);
+      return $this->errorResponse('Khung giờ này đã tồn tại trong lịch của bạn.', Response::HTTP_CONFLICT);
     }
 
     $slot = HelperAvailability::create(array_merge($fields, [
@@ -474,26 +463,23 @@ class HelperController extends Controller
       'status'    => $fields['status'] ?? 'available',
     ]));
 
-    return response()->json([
-      'message' => 'Thêm lịch rảnh thành công.',
-      'data'    => $slot,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($slot, 'Thêm lịch rảnh thành công.', Response::HTTP_CREATED);
   }
 
   public function removeAvailability(Request $request, $id)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $slot = HelperAvailability::where('id', $id)->where('helper_id', $profile->id)->first();
-    if (!$slot) return response()->json(['message' => 'Không tìm thấy lịch.'], Response::HTTP_NOT_FOUND);
+    if (!$slot) return $this->notFoundResponse('Không tìm thấy lịch.');
 
     $slot->delete();
-    return response()->json(['message' => 'Đã xóa lịch rảnh.'], Response::HTTP_OK);
+    return $this->successResponse(null, 'Đã xóa lịch rảnh.');
   }
 
   // =====================================================================
@@ -502,12 +488,12 @@ class HelperController extends Controller
 
   public function submitVerification(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     // Kiểm tra nếu đang có verification pending
     $pending = HelperVerification::where('helper_id', $profile->id)
@@ -515,7 +501,7 @@ class HelperController extends Controller
       ->exists();
 
     if ($pending) {
-      return response()->json(['message' => 'Hồ sơ của bạn đang chờ xét duyệt.'], Response::HTTP_CONFLICT);
+      return $this->errorResponse('Hồ sơ của bạn đang chờ xét duyệt.', Response::HTTP_CONFLICT);
     }
 
     $verification = HelperVerification::create([
@@ -525,38 +511,35 @@ class HelperController extends Controller
 
     $profile->update(['status' => 'pending']);
 
-    return response()->json([
-      'message' => 'Đã nộp hồ sơ xét duyệt. Vui lòng chờ Admin/Operator xử lý.',
-      'data'    => $verification,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($verification, 'Đã nộp hồ sơ xét duyệt. Vui lòng chờ Admin/Operator xử lý.', Response::HTTP_CREATED);
   }
 
   public function myVerificationStatus(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
-    if (!$profile) return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
     $verifications = HelperVerification::where('helper_id', $profile->id)
       ->orderByDesc('created_at')
       ->get();
 
-    return response()->json(['data' => $verifications], Response::HTTP_OK);
+    return $this->successResponse($verifications);
   }
 
   public function dashboardStats(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $userId = $request->authUser['id'];
     $profile = HelperProfile::where('user_id', $userId)->first();
     if (!$profile) {
-      return response()->json(['message' => 'Bạn chưa có hồ sơ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Bạn chưa có hồ sơ.');
     }
 
     $token = $request->header('Authorization');
@@ -587,7 +570,7 @@ class HelperController extends Controller
         $orderStats = $orderResponse->json();
       }
     } catch (\Exception $e) {
-      Log::error('Failed to fetch stats from order-service: ' . $e->getMessage());
+      Log::error('Không thể lấy thống kê từ dịch vụ đặt lịch: ' . $e->getMessage());
     }
 
     $paymentStats = [
@@ -613,7 +596,7 @@ class HelperController extends Controller
           $paymentStats = $paymentResponse->json();
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch stats from payment-service: ' . $e->getMessage());
+        Log::error('Không thể lấy thống kê từ dịch vụ thanh toán: ' . $e->getMessage());
       }
     }
 

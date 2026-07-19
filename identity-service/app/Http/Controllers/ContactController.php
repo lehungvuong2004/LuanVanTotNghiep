@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contact;
 use Symfony\Component\HttpFoundation\Response;
-use App\Constants\Role;
 
 class ContactController extends Controller
 {
@@ -30,12 +29,10 @@ class ContactController extends Controller
       });
     }
 
-    $limit = (int) $request->query('limit', 15);
+    $limit = $request->integer('limit', 15);
     $contacts = $query->orderBy('id', 'desc')->paginate($limit);
 
-    return response()->json([
-      'data' => $contacts
-    ], Response::HTTP_OK);
+    return $this->successResponse($contacts);
   }
 
   /**
@@ -76,12 +73,12 @@ class ContactController extends Controller
   {
     $contact = Contact::find($id);
     if (!$contact) {
-      return response()->json(['message' => 'Không tìm thấy liên hệ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy liên hệ.');
     }
 
-    $authUser = auth('api')->user();
+    $authUser = $this->getAuthUser();
     if (!$authUser) {
-      return response()->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse();
     }
 
     $contact->update([
@@ -103,7 +100,7 @@ class ContactController extends Controller
   {
     $contact = Contact::find($id);
     if (!$contact) {
-      return response()->json(['message' => 'Không tìm thấy liên hệ.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy liên hệ.');
     }
 
     $contact->delete();

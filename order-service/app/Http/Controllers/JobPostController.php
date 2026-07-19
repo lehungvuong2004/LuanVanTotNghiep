@@ -11,6 +11,7 @@ use App\Models\JobApplication;
 use App\Models\Review;
 use App\Models\Booking;
 use App\Models\BookingService;
+use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -23,7 +24,6 @@ class JobPostController extends Controller
 
     /**
      * Browse open job posts.
-     * Filter: city, district, category_id, min_salary, max_salary
      */
     public function index(Request $request)
     {
@@ -39,10 +39,10 @@ class JobPostController extends Controller
         if ($request->filled('min_salary'))  $query->where('salary', '>=', (float) $request->query('min_salary'));
         if ($request->filled('max_salary'))  $query->where('salary', '<=', (float) $request->query('max_salary'));
 
-        $limit = (int) $request->query('limit', 20);
+        $limit = $request->integer('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], Response::HTTP_OK);
+        return $this->successResponse($posts);
     }
 
     /**
@@ -54,9 +54,9 @@ class JobPostController extends Controller
                        ->where('status', 'open')
                        ->find($id);
 
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
-        return response()->json(['data' => $post], Response::HTTP_OK);
+        return $this->successResponse($post);
     }
 
     // =====================================================================
@@ -68,8 +68,8 @@ class JobPostController extends Controller
      */
     public function myPosts(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $query = JobPost::with(['services'])
@@ -77,20 +77,19 @@ class JobPostController extends Controller
 
         if ($request->filled('status')) $query->where('status', $request->query('status'));
 
-        $limit = (int) $request->query('limit', 20);
+        $limit = $request->integer('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], Response::HTTP_OK);
+        return $this->successResponse($posts);
     }
 
     public function store(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Only customers, admins, or operators can post jobs.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request, 'Chỉ khách hàng, quản trị viên hoặc điều hành viên mới có thể đăng bài tuyển dụng.')) {
+            return $unauthorized;
         }
 
         if ($request->authUser['role_id'] === Role::CUSTOMER) {
-            // Bắt buộc khách hàng hoàn thiện thông tin trước khi đăng bài
             try {
                 $statusResponse = Http::timeout(3)
                     ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/customer/profile-status', [
@@ -100,13 +99,11 @@ class JobPostController extends Controller
                 if ($statusResponse->successful()) {
                     $statusData = $statusResponse->json();
                     if (isset($statusData['is_complete']) && !$statusData['is_complete']) {
-                        return response()->json([
-                            'message' => 'Vui lòng hoàn thiện hồ sơ trước khi đăng bài tuyển dụng: ' . $statusData['message']
-                        ], Response::HTTP_BAD_REQUEST);
+                        return $this->errorResponse('Vui lòng hoàn thiện hồ sơ trước khi đăng bài tuyển dụng: ' . $statusData['message']);
                     }
                 }
             } catch (\Exception $e) {
-                Log::error('Failed to validate customer profile completeness: ' . $e->getMessage());
+                Log::error('Không thể kiểm tra hoàn thiện hồ sơ khách hàng: ' . $e->getMessage());
             }
         }
 
@@ -130,9 +127,7 @@ class JobPostController extends Controller
         if (isset($fields['title'])) {
             $cleaned = preg_replace('/\s+/', '', $fields['title']);
             if (preg_match('/^\d+$/', $cleaned)) {
-                return response()->json([
-                    'message' => 'Tiêu đề không được chỉ chứa chữ số.'
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                return $this->errorResponse('Tiêu đề không được chỉ chứa chữ số.', Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         }
 
@@ -141,9 +136,7 @@ class JobPostController extends Controller
                 $category = trim($matches[1]);
                 $cleaned = preg_replace('/\s+/', '', $category);
                 if (preg_match('/^\d+$/', $cleaned)) {
-                    return response()->json([
-                        'message' => 'Tên danh mục không được chỉ chứa chữ số.'
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return $this->errorResponse('Tên danh mục không được chỉ chứa chữ số.', Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
 
@@ -151,9 +144,7 @@ class JobPostController extends Controller
                 $service = trim($matches[1]);
                 $cleaned = preg_replace('/\s+/', '', $service);
                 if (preg_match('/^\d+$/', $cleaned)) {
-                    return response()->json([
-                        'message' => 'Tên dịch vụ không được chỉ chứa chữ số.'
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return $this->errorResponse('Tên dịch vụ không được chỉ chứa chữ số.', Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
         }
@@ -183,37 +174,28 @@ class JobPostController extends Controller
             }
         }
 
-        // --- thông báo socket io (chỉ phát sự kiện realtime, không lưu db notification toàn bộ) ---
-        try {
-            $post->refresh();
-            Http::post(env('SOCKET_SERVICE_URL', 'http://socket-service:3000') . '/publish', [
-                'event' => 'new_job_post',
-                'data'  => $post->load('services'),
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to notify helpers of new job post via socket: ' . $e->getMessage());
-        }
+        InternalNotificationService::publishSocket([
+            'event' => 'new_job_post',
+            'data'  => $post->fresh('services'),
+        ]);
 
-        return response()->json([
-            'message' => 'Job post created successfully.',
-            'data'    => $post->load('services'),
-        ], Response::HTTP_CREATED);
+        return $this->successResponse($post->load('services'), 'Tạo bài đăng tuyển dụng thành công.', Response::HTTP_CREATED);
     }
 
     /**
-     * Customer updates their own job post (only if status is open).
+     * Customer updates their own job post (only if status is open/pending/rejected).
      */
     public function update(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         if (!in_array($post->status, ['open', 'pending', 'rejected'])) {
-            return response()->json(['message' => 'Only open, pending, or rejected job posts can be edited.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Chỉ có thể chỉnh sửa bài đăng ở trạng thái chờ duyệt, mở hoặc từ chối.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $fields = $request->validate([
@@ -234,9 +216,7 @@ class JobPostController extends Controller
         if (isset($fields['title'])) {
             $cleaned = preg_replace('/\s+/', '', $fields['title']);
             if (preg_match('/^\d+$/', $cleaned)) {
-                return response()->json([
-                    'message' => 'Tiêu đề không được chỉ chứa chữ số.'
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                return $this->errorResponse('Tiêu đề không được chỉ chứa chữ số.', Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         }
 
@@ -245,9 +225,7 @@ class JobPostController extends Controller
                 $category = trim($matches[1]);
                 $cleaned = preg_replace('/\s+/', '', $category);
                 if (preg_match('/^\d+$/', $cleaned)) {
-                    return response()->json([
-                        'message' => 'Tên danh mục không được chỉ chứa chữ số.'
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return $this->errorResponse('Tên danh mục không được chỉ chứa chữ số.', Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
 
@@ -255,9 +233,7 @@ class JobPostController extends Controller
                 $service = trim($matches[1]);
                 $cleaned = preg_replace('/\s+/', '', $service);
                 if (preg_match('/^\d+$/', $cleaned)) {
-                    return response()->json([
-                        'message' => 'Tên dịch vụ không được chỉ chứa chữ số.'
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return $this->errorResponse('Tên dịch vụ không được chỉ chứa chữ số.', Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
         }
@@ -267,10 +243,7 @@ class JobPostController extends Controller
         }
         $post->update($fields);
 
-        return response()->json([
-            'message' => 'Job post updated successfully.',
-            'data'    => $post->fresh(['services']),
-        ], Response::HTTP_OK);
+        return $this->successResponse($post->fresh(['services']), 'Cập nhật bài đăng tuyển dụng thành công.');
     }
 
     /**
@@ -278,16 +251,16 @@ class JobPostController extends Controller
      */
     public function close(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         $post->update(['status' => 'closed']);
 
-        return response()->json(['message' => 'Job post closed.', 'data' => $post->fresh()], Response::HTTP_OK);
+        return $this->successResponse($post->fresh(), 'Đã đóng bài đăng tuyển dụng.');
     }
 
     /**
@@ -295,16 +268,16 @@ class JobPostController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         $post->delete();
 
-        return response()->json(['message' => 'Job post deleted.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa bài đăng tuyển dụng thành công.');
     }
 
     /**
@@ -312,12 +285,12 @@ class JobPostController extends Controller
      */
     public function applications(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         $apps = JobApplication::where('job_post_id', $id)
                               ->orderByDesc('created_at')
@@ -338,37 +311,31 @@ class JobPostController extends Controller
                     }
                 }
             } catch (\Exception $e) {
-                Log::error('Failed to fetch user details for applications: ' . $e->getMessage());
+                Log::error('Không thể lấy thông tin chi tiết ứng viên: ' . $e->getMessage());
             }
         }
 
         foreach ($apps as $app) {
-            $helperInfo = $userMap[$app->helper_id] ?? null;
-            if ($helperInfo) {
-                $app->helper = $helperInfo;
-            } else {
-                $app->helper = null;
-            }
+            $app->helper = $userMap[$app->helper_id] ?? null;
         }
 
-        return response()->json(['data' => $apps], Response::HTTP_OK);
+        return $this->successResponse($apps);
     }
 
     /**
      * Customer selects a helper from the applicants.
-     * Sets selected_helper_id and changes post status to closed.
      */
     public function selectHelper(Request $request, $id, $helperId)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         if ($post->status !== 'open') {
-            return response()->json(['message' => 'Can only select a helper for open job posts.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Chỉ có thể chọn người giúp việc cho bài đăng đang công khai.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $application = JobApplication::where('job_post_id', $id)
@@ -377,7 +344,7 @@ class JobPostController extends Controller
                                      ->first();
 
         if (!$application) {
-            return response()->json(['message' => 'No pending application from this helper.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy ứng tuyển ở trạng thái chờ duyệt từ người giúp việc này.');
         }
 
         if ($post->working_time) {
@@ -389,14 +356,11 @@ class JobPostController extends Controller
                 $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
 
                 if (Booking::hasConflict((int) $helperId, $bookingDate, $startTime, (float) $durationHours)) {
-                    return response()->json([
-                        'message' => 'Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.'
-                    ], Response::HTTP_BAD_REQUEST);
+                    return $this->errorResponse('Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.');
                 }
             }
         }
 
-        // Set this application status to selected
         $application->update(['status' => 'selected']);
 
         $post->update([
@@ -404,23 +368,14 @@ class JobPostController extends Controller
             'status'             => 'closed',
         ]);
 
-        // Send notification to selected helper
-        try {
-            Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                'user_id' => $helperId,
-                'title'   => 'Bạn được mời nhận công việc',
-                //  . $post->title . '
-                'message' => 'Khách hàng đã chọn bạn cho công việc. Vui lòng phản hồi Đồng ý hoặc Từ chối.',
-                'type'    => 'recruitment',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to notify accepted helper: ' . $e->getMessage());
-        }
+        InternalNotificationService::sendToUser(
+            $helperId,
+            'Bạn được mời nhận công việc',
+            'Khách hàng đã chọn bạn cho công việc. Vui lòng phản hồi Đồng ý hoặc Từ chối.',
+            'recruitment'
+        );
 
-        return response()->json([
-            'message' => 'Helper selected. Waiting for helper approval.',
-            'data'    => $application,
-        ], Response::HTTP_OK);
+        return $this->successResponse($application, 'Đã chọn người giúp việc. Đang chờ phản hồi xác nhận.');
     }
 
     /**
@@ -428,8 +383,8 @@ class JobPostController extends Controller
      */
     public function respondToSelection(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== Role::HELPER) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeHelper($request)) {
+            return $unauthorized;
         }
 
         $fields = $request->validate([
@@ -442,12 +397,12 @@ class JobPostController extends Controller
                                      ->first();
 
         if (!$application) {
-            return response()->json(['message' => 'No selected application found to respond to.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy lời mời ứng tuyển để phản hồi.');
         }
 
         $post = JobPost::find($application->job_post_id);
         if (!$post) {
-            return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
         }
 
         if ($fields['action'] === 'accept') {
@@ -460,23 +415,18 @@ class JobPostController extends Controller
                     $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
 
                     if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
-                        return response()->json([
-                            'message' => 'Bạn không thể đồng ý nhận việc này do trùng lịch với một công việc khác đang chờ hoặc đang làm.'
-                        ], Response::HTTP_BAD_REQUEST);
+                        return $this->errorResponse('Bạn không thể nhận việc này do trùng lịch với một công việc khác.');
                     }
                 }
             }
 
-            // Update this application status to confirmed
             $application->update(['status' => 'confirmed']);
 
-            // Reject all other applications for this job post
             JobApplication::where('job_post_id', $post->id)
                           ->where('helper_id', '!=', $request->authUser['id'])
                           ->where('status', 'pending')
                           ->update(['status' => 'rejected']);
 
-            // Create matching Booking record with 'pending' status (unpaid)
             $bookingDate = now()->addDay()->toDateString();
             $startTime = '08:00:00';
             if ($post->working_time) {
@@ -500,7 +450,6 @@ class JobPostController extends Controller
                 'refund_status'=> 'none',
             ]);
 
-            // Link services
             $postServices = JobPostService::where('job_post_id', $post->id)->get();
             if ($postServices->count() > 0) {
                 foreach ($postServices as $index => $ps) {
@@ -515,52 +464,36 @@ class JobPostController extends Controller
                 }
             }
 
-            // Send notification to customer
-            try {
-                Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                    'user_id' => $post->customer_id,
-                    'title'   => 'Người giúp việc đã đồng ý nhận công việc',
-                    // ' . $post->title . 
-                    'message' => 'Người giúp việc đã đồng ý nhận công việc. Vui lòng thanh toán trong 30 phút.',
-                    'type'    => 'booking',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Failed to notify customer helper agreement: ' . $e->getMessage());
-            }
+            InternalNotificationService::sendToUser(
+                $post->customer_id,
+                'Người giúp việc đã đồng ý nhận công việc',
+                'Người giúp việc đã đồng ý nhận công việc. Vui lòng thanh toán trong 30 phút.',
+                'booking'
+            );
 
             return response()->json([
-                'message'    => 'Invitation accepted. Booking created in pending payment status.',
+                'success'    => true,
+                'message'    => 'Đã chấp nhận lời mời. Đơn đặt lịch đã được khởi tạo ở trạng thái chờ thanh toán.',
                 'data'       => $application,
                 'booking_id' => $booking->id,
             ], Response::HTTP_OK);
 
         } else {
-            // Reject invitation
             $application->update(['status' => 'rejected']);
 
-            // Reopen the job post and clear selected helper
             $post->update([
                 'selected_helper_id' => null,
                 'status'             => 'open',
             ]);
 
-            // Send notification to customer
-            try {
-                Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                    'user_id' => $post->customer_id,
-                    'title'   => 'Người giúp việc từ chối lời mời',
-                    // ' . $post->title .
-                    'message' => 'Người giúp việc đã từ chối nhận công việc. Vui lòng chọn người giúp việc khác.',
-                    'type'    => 'recruitment',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Failed to notify customer helper rejection: ' . $e->getMessage());
-            }
+            InternalNotificationService::sendToUser(
+                $post->customer_id,
+                'Người giúp việc từ chối lời mời',
+                'Người giúp việc đã từ chối nhận công việc. Vui lòng chọn người giúp việc khác.',
+                'recruitment'
+            );
 
-            return response()->json([
-                'message' => 'Invitation declined. Job post reopened.',
-                'data'    => $application,
-            ], Response::HTTP_OK);
+            return $this->successResponse($application, 'Đã từ chối lời mời. Bài đăng tuyển dụng đã được mở lại.');
         }
     }
 
@@ -569,15 +502,15 @@ class JobPostController extends Controller
      */
     public function rejectHelper(Request $request, $id, $helperId)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)->where('customer_id', $request->authUser['id'])->first();
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         if ($post->status !== 'open') {
-            return response()->json(['message' => 'Can only manage helper applications for open job posts.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Chỉ có thể từ chối ứng tuyển đối với bài đăng đang công khai.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $application = JobApplication::where('job_post_id', $id)
@@ -586,27 +519,19 @@ class JobPostController extends Controller
                                      ->first();
 
         if (!$application) {
-            return response()->json(['message' => 'No pending application from this helper.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy đơn ứng tuyển chờ duyệt từ người giúp việc này.');
         }
 
         $application->update(['status' => 'rejected']);
 
-        // Send notification to helper
-        try {
-            Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                'user_id' => $helperId,
-                'title'   => 'Kết quả ứng tuyển',
-                'message' => 'Rất tiếc, đơn ứng tuyển của bạn cho công việc: ' . $post->title . ' đã bị từ chối.',
-                'type'    => 'booking',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to notify rejected helper: ' . $e->getMessage());
-        }
+        InternalNotificationService::sendToUser(
+            $helperId,
+            'Kết quả ứng tuyển',
+            'Rất tiếc, đơn ứng tuyển của bạn cho công việc: ' . $post->title . ' đã bị từ chối.',
+            'booking'
+        );
 
-        return response()->json([
-            'message' => 'Helper rejected successfully.',
-            'data'    => $post->fresh(),
-        ], Response::HTTP_OK);
+        return $this->successResponse($post->fresh(), 'Đã từ chối đơn ứng tuyển của người giúp việc.');
     }
 
     /**
@@ -614,8 +539,8 @@ class JobPostController extends Controller
      */
     public function review(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::where('id', $id)
@@ -624,10 +549,10 @@ class JobPostController extends Controller
                        ->whereNotNull('selected_helper_id')
                        ->first();
 
-        if (!$post) return response()->json(['message' => 'Job post not found or not closed yet.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng hoặc bài đăng chưa đóng.');
 
         if (Review::where('job_post_id', $id)->where('customer_id', $request->authUser['id'])->exists()) {
-            return response()->json(['message' => 'You have already reviewed this job post.'], Response::HTTP_CONFLICT);
+            return $this->errorResponse('Bạn đã gửi đánh giá cho bài đăng công việc này rồi.', Response::HTTP_CONFLICT);
         }
 
         $fields = $request->validate([
@@ -643,7 +568,7 @@ class JobPostController extends Controller
             'comment'     => $fields['comment'] ?? null,
         ]);
 
-        return response()->json(['message' => 'Review submitted.', 'data' => $review], Response::HTTP_CREATED);
+        return $this->successResponse($review, 'Gửi đánh giá thành công.', Response::HTTP_CREATED);
     }
 
     // =====================================================================
@@ -651,12 +576,12 @@ class JobPostController extends Controller
     // =====================================================================
 
     /**
-     * Helper browses job posts (same as public but authenticated).
+     * Helper browses job posts.
      */
     public function helperBrowse(Request $request)
     {
-        if ($request->authUser['role_id'] !== Role::HELPER) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeHelper($request)) {
+            return $unauthorized;
         }
 
         $query = JobPost::with(['services'])
@@ -669,10 +594,10 @@ class JobPostController extends Controller
         if ($request->filled('district'))    $query->where('district', $request->query('district'));
         if ($request->filled('category_id')) $query->where('category_id', $request->query('category_id'));
 
-        $limit = (int) $request->query('limit', 20);
+        $limit = $request->integer('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], Response::HTTP_OK);
+        return $this->successResponse($posts);
     }
 
     /**
@@ -680,12 +605,10 @@ class JobPostController extends Controller
      */
     public function apply(Request $request, $id)
     {
-        if ($request->authUser['role_id'] !== Role::HELPER) {
-            return response()->json(['message' => 'Only helpers can apply to job posts.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeHelper($request, 'Chỉ người giúp việc mới có thể ứng tuyển công việc.')) {
+            return $unauthorized;
         }
 
-        // Bắt buộc thợ giúp việc hoàn thiện thông tin trước khi ứng tuyển
-        // 1. Kiểm tra số điện thoại của thợ giúp việc từ identity-service
         try {
             $userResponse = Http::timeout(3)
                 ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', [
@@ -695,16 +618,13 @@ class JobPostController extends Controller
             if ($userResponse->successful()) {
                 $users = $userResponse->json('data') ?? [];
                 if (empty($users) || empty($users[0]['phone'])) {
-                    return response()->json([
-                        'message' => 'Vui lòng cập nhật số điện thoại liên hệ trước khi ứng tuyển.'
-                    ], Response::HTTP_BAD_REQUEST);
+                    return $this->errorResponse('Vui lòng cập nhật số điện thoại liên hệ trước khi ứng tuyển.');
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Failed to validate helper phone completeness: ' . $e->getMessage());
+            Log::error('Không thể kiểm tra số điện thoại liên hệ người giúp việc: ' . $e->getMessage());
         }
 
-        // 2. Kiểm tra hồ sơ helper (bio, gender, birthday, address, skills, workingAreas) từ provider-service
         try {
             $statusResponse = Http::timeout(3)
                 ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/helpers/' . $request->authUser['id'] . '/status-check');
@@ -712,17 +632,15 @@ class JobPostController extends Controller
             if ($statusResponse->successful()) {
                 $statusData = $statusResponse->json();
                 if (isset($statusData['is_complete']) && !$statusData['is_complete']) {
-                    return response()->json([
-                        'message' => 'Vui lòng hoàn thiện hồ sơ trước khi ứng tuyển: ' . $statusData['message']
-                    ], Response::HTTP_BAD_REQUEST);
+                    return $this->errorResponse('Vui lòng hoàn thiện hồ sơ trước khi ứng tuyển: ' . $statusData['message']);
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Failed to validate helper profile completeness: ' . $e->getMessage());
+            Log::error('Không thể kiểm tra hoàn thiện hồ sơ người giúp việc: ' . $e->getMessage());
         }
 
         $post = JobPost::where('id', $id)->where('status', 'open')->first();
-        if (!$post) return response()->json(['message' => 'Job post not found or already closed.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc hoặc bài đăng đã đóng.');
 
         if ($post->working_time) {
             $parsedTime = strtotime($post->working_time);
@@ -733,15 +651,13 @@ class JobPostController extends Controller
                 $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
 
                 if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
-                    return response()->json([
-                        'message' => 'Bạn không thể ứng tuyển do trùng ngày giờ hoặc đang trong lịch làm việc ca khác.'
-                    ], Response::HTTP_BAD_REQUEST);
+                    return $this->errorResponse('Bạn không thể ứng tuyển do trùng ngày giờ hoặc đang trong lịch làm việc ca khác.');
                 }
             }
         }
 
         if (JobApplication::where('job_post_id', $id)->where('helper_id', $request->authUser['id'])->exists()) {
-            return response()->json(['message' => 'You have already applied for this job post.'], Response::HTTP_CONFLICT);
+            return $this->errorResponse('Bạn đã nộp hồ sơ ứng tuyển cho công việc này rồi.', Response::HTTP_CONFLICT);
         }
 
         $fields = $request->validate([
@@ -757,19 +673,14 @@ class JobPostController extends Controller
             'status'         => 'pending',
         ]);
 
-        // Gửi thông báo đến customer (chủ bài đăng)
-        try {
-            Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                'user_id' => $post->customer_id,
-                'title'   => 'Có người ứng tuyển mới',
-                'message' => 'Một người giúp việc đã nộp hồ sơ ứng tuyển cho công việc: ' . $post->title . ' (Mã: #' . $id . ')',
-                'type'    => 'booking',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send apply notification: ' . $e->getMessage());
-        }
+        InternalNotificationService::sendToUser(
+            $post->customer_id,
+            'Có người ứng tuyển mới',
+            'Một người giúp việc đã nộp hồ sơ ứng tuyển cho công việc: ' . $post->title . ' (Mã: #' . $id . ')',
+            'booking'
+        );
 
-        return response()->json(['message' => 'Application submitted.', 'data' => $application], Response::HTTP_CREATED);
+        return $this->successResponse($application, 'Nộp hồ sơ ứng tuyển thành công.', Response::HTTP_CREATED);
     }
 
     /**
@@ -777,8 +688,8 @@ class JobPostController extends Controller
      */
     public function myApplications(Request $request)
     {
-        if ($request->authUser['role_id'] !== Role::HELPER) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeHelper($request)) {
+            return $unauthorized;
         }
 
         $query = JobApplication::with(['jobPost'])
@@ -786,10 +697,10 @@ class JobPostController extends Controller
 
         if ($request->filled('status')) $query->where('status', $request->query('status'));
 
-        $limit = (int) $request->query('limit', 20);
+        $limit = $request->integer('limit', 20);
         $apps  = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $apps], Response::HTTP_OK);
+        return $this->successResponse($apps);
     }
 
     /**
@@ -797,8 +708,8 @@ class JobPostController extends Controller
      */
     public function withdraw(Request $request, $applicationId)
     {
-        if ($request->authUser['role_id'] !== Role::HELPER) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeHelper($request)) {
+            return $unauthorized;
         }
 
         $application = JobApplication::where('id', $applicationId)
@@ -806,11 +717,11 @@ class JobPostController extends Controller
                                      ->where('status', 'pending')
                                      ->first();
 
-        if (!$application) return response()->json(['message' => 'Application not found or cannot be withdrawn.'], Response::HTTP_NOT_FOUND);
+        if (!$application) return $this->notFoundResponse('Không tìm thấy đơn ứng tuyển hoặc không thể rút đơn.');
 
         $application->update(['status' => 'withdrawn']);
 
-        return response()->json(['message' => 'Application withdrawn.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã rút đơn ứng tuyển thành công.');
     }
 
     // =====================================================================
@@ -822,8 +733,8 @@ class JobPostController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $query = JobPost::with(['services']);
@@ -837,10 +748,10 @@ class JobPostController extends Controller
         if ($request->filled('city'))        $query->where('city', $request->query('city'));
         if ($request->filled('customer_id')) $query->where('customer_id', $request->query('customer_id'));
 
-        $limit = (int) $request->query('limit', 20);
+        $limit = $request->integer('limit', 20);
         $posts = $query->orderByDesc('created_at')->paginate($limit);
 
-        return response()->json(['data' => $posts], Response::HTTP_OK);
+        return $this->successResponse($posts);
     }
 
     /**
@@ -848,27 +759,27 @@ class JobPostController extends Controller
      */
     public function adminShow(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::with(['services', 'applications', 'reviews', 'reports'])->find($id);
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
-        return response()->json(['data' => $post], Response::HTTP_OK);
+        return $this->successResponse($post);
     }
 
     /**
-     * Admin/Operator overrides job post status (e.g. force close a violating post).
+     * Admin/Operator overrides job post status.
      */
     public function adminUpdateStatus(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::find($id);
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         $fields = $request->validate([
             'status' => 'required|string|in:open,closed,pending,rejected',
@@ -877,50 +788,40 @@ class JobPostController extends Controller
 
         $post->update(['status' => $fields['status']]);
 
-        // Send notifications based on review status
         if ($fields['status'] === 'rejected') {
-            try {
-                Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                    'user_id' => $post->customer_id,
-                    'title'   => 'Bài đăng tuyển dụng bị từ chối',
-                    'message' => 'Bài đăng tuyển dụng "' . $post->title . '" của bạn đã bị từ chối. Lý do: ' . ($fields['note'] ?? 'Không có lý do cụ thể.'),
-                    'type'    => 'recruitment',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Failed to notify customer of rejected job post: ' . $e->getMessage());
-            }
+            InternalNotificationService::sendToUser(
+                $post->customer_id,
+                'Bài đăng tuyển dụng bị từ chối',
+                'Bài đăng tuyển dụng "' . $post->title . '" của bạn đã bị từ chối. Lý do: ' . ($fields['note'] ?? 'Không có lý do cụ thể.'),
+                'recruitment'
+            );
         } elseif ($fields['status'] === 'open') {
-            try {
-                Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                    'user_id' => $post->customer_id,
-                    'title'   => 'Bài đăng tuyển dụng được duyệt',
-                    'message' => 'Bài đăng tuyển dụng "' . $post->title . '" của bạn đã được phê duyệt và hiển thị công khai.',
-                    'type'    => 'recruitment',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Failed to notify customer of approved job post: ' . $e->getMessage());
-            }
+            InternalNotificationService::sendToUser(
+                $post->customer_id,
+                'Bài đăng tuyển dụng được duyệt',
+                'Bài đăng tuyển dụng "' . $post->title . '" của bạn đã được phê duyệt và hiển thị công khai.',
+                'recruitment'
+            );
         }
 
-        return response()->json(['message' => 'Job post status updated.', 'data' => $post->fresh()], Response::HTTP_OK);
+        return $this->successResponse($post->fresh(), 'Đã cập nhật trạng thái bài đăng công việc.');
     }
 
     /**
      * Admin deletes a job post.
-     * Role: admin (1) only
      */
     public function adminDestroy(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $post = JobPost::find($id);
-        if (!$post) return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+        if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
 
         $post->delete();
 
-        return response()->json(['message' => 'Job post deleted.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa bài đăng công việc thành công.');
     }
 
     /**
@@ -935,11 +836,10 @@ class JobPostController extends Controller
 
         $post = JobPost::find($fields['job_post_id']);
         if (!$post) {
-            return response()->json(['message' => 'Job post not found.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
         }
 
         if ($fields['status'] === 'completed') {
-            // Find the confirmed application
             $application = JobApplication::where('job_post_id', $post->id)
                                          ->where('status', 'confirmed')
                                          ->first();
@@ -947,7 +847,6 @@ class JobPostController extends Controller
             if ($application) {
                 $application->update(['status' => 'paid']);
 
-                // Find the associated pending booking
                 $booking = Booking::where('customer_id', $post->customer_id)
                                   ->where('helper_id', $application->helper_id)
                                   ->where('status', 'pending')
@@ -958,57 +857,41 @@ class JobPostController extends Controller
                     $oldStatus = $booking->status;
                     $booking->update(['status' => 'confirmed']);
                     
-                    // Record status history
                     \App\Models\BookingStatusHistory::create([
                         'booking_id' => $booking->id,
                         'old_status' => $oldStatus,
                         'new_status' => 'confirmed',
-                        'changed_by' => 0, // system
+                        'changed_by' => 0,
                         'note'       => 'Thanh toán tin tuyển dụng thành công.',
                     ]);
 
-                    // Send notification to Customer
-                    try {
-                        Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                            'user_id' => $booking->customer_id,
-                            'title'   => 'Thanh toán thành công',
-                            'message' => 'Bạn đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
-                            'type'    => 'payment',
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to notify customer payment success: ' . $e->getMessage());
-                    }
+                    InternalNotificationService::sendToUser(
+                        $booking->customer_id,
+                        'Thanh toán thành công',
+                        'Bạn đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
+                        'payment'
+                    );
 
-                    // Send notification to Helper
-                    try {
-                        Http::post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/notifications', [
-                            'user_id' => $booking->helper_id,
-                            'title'   => 'Công việc đã được xác nhận',
-                            'message' => 'Khách hàng đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
-                            'type'    => 'booking',
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to notify helper payment success: ' . $e->getMessage());
-                    }
+                    InternalNotificationService::sendToUser(
+                        $booking->helper_id,
+                        'Công việc đã được xác nhận',
+                        'Khách hàng đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
+                        'booking'
+                    );
 
-                    // Send socket update
-                    try {
-                        Http::post(env('SOCKET_SERVICE_URL', 'http://socket-service:3000') . '/publish', [
-                            'event' => 'booking_updated',
-                            'data' => [
-                                'booking_id'  => $booking->id,
-                                'status'      => 'confirmed',
-                                'helper_id'   => $booking->helper_id,
-                                'customer_id' => $booking->customer_id
-                            ]
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to publish booking payment update to socket: ' . $e->getMessage());
-                    }
+                    InternalNotificationService::publishSocket([
+                        'event' => 'booking_updated',
+                        'data' => [
+                            'booking_id'  => $booking->id,
+                            'status'      => 'confirmed',
+                            'helper_id'   => $booking->helper_id,
+                            'customer_id' => $booking->customer_id
+                        ]
+                    ]);
                 }
             }
         }
 
-        return response()->json(['message' => 'Job post payment status processed.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xử lý trạng thái thanh toán bài đăng tuyển dụng.');
     }
 }

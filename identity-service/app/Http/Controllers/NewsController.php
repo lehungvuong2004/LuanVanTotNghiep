@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\News;
-use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Str;
 use App\Services\ImageUploadService;
@@ -24,10 +23,10 @@ class NewsController extends Controller
             ->where('status', 'published')
             ->orderBy('created_at', 'desc');
 
-        $limit = (int) $request->query('limit', 9);
+        $limit = $request->integer('limit', 9);
         $news  = $query->paginate($limit);
 
-        return response()->json(['data' => $news], Response::HTTP_OK);
+        return $this->successResponse($news);
     }
 
     /**
@@ -41,14 +40,14 @@ class NewsController extends Controller
             ->first();
 
         if (!$article) {
-            return response()->json(['message' => 'Bài viết không tồn tại hoặc chưa được xuất bản.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Bài viết không tồn tại hoặc chưa được xuất bản.');
         }
 
-        return response()->json(['data' => $article], Response::HTTP_OK);
+        return $this->successResponse($article);
     }
 
     // =====================================================================
-    //  ADMIN — Quản lý News (role_id = 1)
+    //  ADMIN — Quản lý News (bảo vệ bởi AdminMiddleware)
     // =====================================================================
 
     /**
@@ -56,11 +55,6 @@ class NewsController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-        }
-
         $query = News::with('creator:id,full_name,avatar');
 
         if ($request->filled('search')) {
@@ -72,10 +66,10 @@ class NewsController extends Controller
             $query->where('status', $request->query('status'));
         }
 
-        $limit = (int) $request->query('limit', 15);
+        $limit = $request->integer('limit', 15);
         $news  = $query->orderBy('created_at', 'desc')->paginate($limit);
 
-        return response()->json(['data' => $news], Response::HTTP_OK);
+        return $this->successResponse($news);
     }
 
     /**
@@ -83,10 +77,7 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-        }
+        $currentUser = $this->getAuthUser();
 
         $fields = $request->validate([
             'title'     => 'required|string|max:150',
@@ -123,14 +114,9 @@ class NewsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-        }
-
         $article = News::find($id);
         if (!$article) {
-            return response()->json(['message' => 'Không tìm thấy bài viết.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy bài viết.');
         }
 
         $fields = $request->validate([
@@ -156,14 +142,9 @@ class NewsController extends Controller
      */
     public function toggleStatus(Request $request, $id)
     {
-        $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-        }
-
         $article = News::find($id);
         if (!$article) {
-            return response()->json(['message' => 'Không tìm thấy bài viết.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy bài viết.');
         }
 
         $request->validate([
@@ -183,19 +164,14 @@ class NewsController extends Controller
      */
     public function destroy($id)
     {
-        $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-        }
-
         $article = News::find($id);
         if (!$article) {
-            return response()->json(['message' => 'Không tìm thấy bài viết.'], Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponse('Không tìm thấy bài viết.');
         }
 
         $article->delete();
 
-        return response()->json(['message' => 'Xóa bài viết thành công.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Xóa bài viết thành công.');
     }
 
     /**
@@ -203,13 +179,8 @@ class NewsController extends Controller
      */
     public function uploadImage(Request $request, ImageUploadService $imageUploadService)
     {
-        $currentUser = auth('api')->user();
-        if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-        }
-
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // max 2MB
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'image.required' => 'Vui lòng chọn hình ảnh bài viết.',
             'image.image'    => 'File tải lên phải là hình ảnh.',
@@ -227,7 +198,6 @@ class NewsController extends Controller
             ], Response::HTTP_OK);
         }
 
-        return response()->json(['message' => 'Không tìm thấy file hình ảnh.'], Response::HTTP_BAD_REQUEST);
+        return $this->errorResponse('Không tìm thấy file hình ảnh.');
     }
 }
-

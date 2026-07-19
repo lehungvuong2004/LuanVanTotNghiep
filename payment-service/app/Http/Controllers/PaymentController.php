@@ -21,7 +21,7 @@ class PaymentController extends Controller
   {
     $token = $request->header('Authorization');
     if (!$token) {
-      return response()->json(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
+      return $this->unauthorizedResponse('Chưa xác thực danh tính.');
     }
 
     $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
@@ -41,7 +41,7 @@ class PaymentController extends Controller
         $bookingIds = collect($bookingsData)->pluck('id')->toArray();
       }
     } catch (\Exception $e) {
-      Log::error('Failed to fetch user bookings for payments: ' . $e->getMessage());
+      Log::error('Không thể lấy danh sách đơn đặt lịch để tra cứu thanh toán: ' . $e->getMessage());
     }
 
     // 2. Fetch customer's job post IDs (only for customers/admins)
@@ -56,7 +56,7 @@ class PaymentController extends Controller
           $jobPostIds = collect($jobPostsData)->pluck('id')->toArray();
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch user job posts for payments: ' . $e->getMessage());
+        Log::error('Không thể lấy danh sách tin tuyển dụng để tra cứu thanh toán: ' . $e->getMessage());
       }
     }
 
@@ -73,7 +73,7 @@ class PaymentController extends Controller
       ], Response::HTTP_OK);
     }
 
-    $limit = (int) $request->query('limit', 20);
+    $limit = $request->integer('limit', 20);
     $query = Payment::with('refunds');
 
     $query->where(function ($q) use ($bookingIds, $jobPostIds) {
@@ -87,12 +87,11 @@ class PaymentController extends Controller
 
     $payments = $query->orderByDesc('created_at')->paginate($limit);
 
-    // Enrich with user details from the request authUser
     foreach ($payments->items() as $payment) {
       $payment->user = $request->authUser;
     }
 
-    return response()->json(['data' => $payments], Response::HTTP_OK);
+    return $this->successResponse($payments);
   }
 
   /**
@@ -100,8 +99,8 @@ class PaymentController extends Controller
    */
   public function store(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Only customers can initiate payments.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeCustomer($request, 'Chỉ khách hàng mới có thể khởi tạo thanh toán.')) {
+      return $unauthorized;
     }
 
     $fields = $request->validate([
@@ -121,9 +120,7 @@ class PaymentController extends Controller
     }
 
     if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
-      return response()->json([
-        'message' => 'Payment must be associated with a booking or a job post.'
-      ], Response::HTTP_UNPROCESSABLE_ENTITY);
+      return $this->errorResponse('Thanh toán phải gắn liền với một đơn đặt lịch hoặc một tin tuyển dụng.', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     $payment = Payment::create([
@@ -136,10 +133,7 @@ class PaymentController extends Controller
       'paid_at'          => null,
     ]);
 
-    return response()->json([
-      'message' => 'Payment initiated successfully.',
-      'data'    => $payment,
-    ], Response::HTTP_CREATED);
+    return $this->successResponse($payment, 'Khởi tạo thanh toán thành công.', Response::HTTP_CREATED);
   }
 
   /**
@@ -150,13 +144,11 @@ class PaymentController extends Controller
     $payment = Payment::with('refunds')->find($id);
 
     if (!$payment) {
-      return response()->json(['message' => 'Payment not found.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy giao dịch thanh toán.');
     }
 
-    // Ideally, check if the customer owns the booking/job_post here (requires calling order-service or passing ownership data).
-    // For simplicity, we allow Admin/Operator (1, 2) and Customer (4) to view.
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR, Role::CUSTOMER])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeCustomerOrAdmin($request)) {
+      return $unauthorized;
     }
 
     $customerId = $this->getCustomerIdFromOrderService($request, $payment->booking_id, $payment->job_post_id);
@@ -172,11 +164,11 @@ class PaymentController extends Controller
           $payment->user = !empty($users) ? $users[0] : null;
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch user details for show payment: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin người dùng cho giao dịch thanh toán: ' . $e->getMessage());
       }
     }
 
-    return response()->json(['data' => $payment], Response::HTTP_OK);
+    return $this->successResponse($payment);
   }
 
   /**
@@ -187,11 +179,11 @@ class PaymentController extends Controller
     $payment = Payment::find($id);
 
     if (!$payment) {
-      return response()->json(['message' => 'Payment not found.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy giao dịch thanh toán.');
     }
 
     if ($payment->status === 'completed') {
-      return response()->json(['message' => 'Payment already completed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+      return $this->errorResponse('Giao dịch thanh toán đã được hoàn tất trước đó.', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     $payment->update([
@@ -201,10 +193,7 @@ class PaymentController extends Controller
 
     $this->syncPaymentStatusWithOrderService($payment);
 
-    return response()->json([
-      'message' => 'Payment marked as completed.',
-      'data'    => $payment,
-    ], Response::HTTP_OK);
+    return $this->successResponse($payment, 'Đã cập nhật trạng thái thanh toán thành công.');
   }
 
   /**
@@ -212,8 +201,8 @@ class PaymentController extends Controller
    */
   public function adminIndex(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $query = Payment::orderByDesc('created_at');
@@ -234,12 +223,12 @@ class PaymentController extends Controller
       $query->where('job_post_id', $request->query('job_post_id'));
     }
 
-    $limit    = (int) $request->query('limit', 20);
+    $limit    = $request->integer('limit', 20);
     $payments = $query->paginate($limit);
 
     $this->enrichPaymentsWithUsers($payments, $request);
 
-    return response()->json(['data' => $payments], Response::HTTP_OK);
+    return $this->successResponse($payments);
   }
 
   /**
@@ -248,13 +237,13 @@ class PaymentController extends Controller
   public function adminUpdateStatus(Request $request, $id)
   {
     if ($request->authUser['role_id'] !== Role::ADMIN) {
-      return response()->json(['message' => 'Only administrators can update payment status.'], Response::HTTP_FORBIDDEN);
+      return $this->forbiddenResponse('Chỉ quản trị viên mới có quyền cập nhật trạng thái thanh toán.');
     }
 
     $payment = Payment::find($id);
 
     if (!$payment) {
-      return response()->json(['message' => 'Payment not found.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy giao dịch thanh toán.');
     }
 
     $fields = $request->validate([
@@ -268,10 +257,7 @@ class PaymentController extends Controller
 
     $payment->update($updateData);
 
-    return response()->json([
-      'message' => 'Payment status updated.',
-      'data'    => $payment->fresh(),
-    ], Response::HTTP_OK);
+    return $this->successResponse($payment->fresh(), 'Cập nhật trạng thái thanh toán thành công.');
   }
 
   /**
@@ -279,8 +265,8 @@ class PaymentController extends Controller
    */
   public function stats(Request $request)
   {
-    if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
     }
 
     $totalRevenue = Payment::where('status', 'completed')->sum('amount');
@@ -304,14 +290,12 @@ class PaymentController extends Controller
       $changePercent = 100;
     }
 
-    return response()->json([
-      'data' => [
-        'total_revenue' => (float) $totalRevenue,
-        'this_month_revenue' => (float) $thisMonthRevenue,
-        'last_month_revenue' => (float) $lastMonthRevenue,
-        'change_percent' => round($changePercent, 1)
-      ]
-    ], Response::HTTP_OK);
+    return $this->successResponse([
+      'total_revenue'      => (float) $totalRevenue,
+      'this_month_revenue' => (float) $thisMonthRevenue,
+      'last_month_revenue' => (float) $lastMonthRevenue,
+      'change_percent'     => round($changePercent, 1)
+    ]);
   }
 
     // =========================================================
@@ -320,14 +304,11 @@ class PaymentController extends Controller
 
   /**
    * Customer requests a VNPay payment URL.
-   * Creates a pending Payment record, then returns the redirect URL.
-   *
-   * POST /payments/vnpay/create
    */
   public function createVnpayUrl(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::CUSTOMER) {
-      return response()->json(['message' => 'Only customers can initiate payments.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeCustomer($request, 'Chỉ khách hàng mới có thể tạo liên kết thanh toán.')) {
+      return $unauthorized;
     }
 
     $fields = $request->validate([
@@ -342,12 +323,9 @@ class PaymentController extends Controller
     ]);
 
     if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
-      return response()->json([
-        'message' => 'Payment must be associated with a booking or a job post.'
-      ], Response::HTTP_UNPROCESSABLE_ENTITY);
+      return $this->errorResponse('Thanh toán phải gắn liền với một đơn đặt lịch hoặc một tin tuyển dụng.', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    // 1. Create a pending payment record
     $payment = Payment::create([
       'booking_id'       => $fields['booking_id']  ?? null,
       'job_post_id'      => $fields['job_post_id'] ?? null,
@@ -358,7 +336,6 @@ class PaymentController extends Controller
       'paid_at'          => null,
     ]);
 
-    // 2. Fetch customer details for VNPay Billing info
     $billingInfo = [];
     $customerId = $request->authUser['id'] ?? null;
     if ($customerId) {
@@ -388,11 +365,10 @@ class PaymentController extends Controller
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch customer profile for VNPay: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin hồ sơ khách hàng cho VNPay: ' . $e->getMessage());
       }
     }
 
-    // 3. Build VNPay redirect URL
     $vnpay      = new VnpayService();
     $clientIp   = $request->ip() ?? '127.0.0.1';
     $orderInfo  = $fields['order_info'] ?? 'Thanh toan dich vu HomeService #' . $payment->id;
@@ -408,7 +384,7 @@ class PaymentController extends Controller
     );
 
     return response()->json([
-      'message'     => 'VNPay URL generated.',
+      'message'     => 'Khởi tạo đường dẫn thanh toán VNPay thành công.',
       'payment_id'  => $payment->id,
       'payment_url' => $paymentUrl,
     ], Response::HTTP_CREATED);
@@ -416,9 +392,6 @@ class PaymentController extends Controller
 
   /**
    * VNPay Return URL — user is redirected here after paying (GET).
-   * Verifies signature and updates payment status.
-   *
-   * GET /payments/vnpay/return
    */
   public function vnpayReturn(Request $request)
   {
@@ -427,7 +400,7 @@ class PaymentController extends Controller
     $vnpay = new VnpayService();
 
     if (!$vnpay->verifySignature($data)) {
-      Log::warning('VNPay return: invalid signature', $data);
+      Log::warning('VNPay return: chữ ký không hợp lệ', $data);
       return response()->json(['message' => 'Chữ ký không hợp lệ.', 'code' => '97'], Response::HTTP_BAD_REQUEST);
     }
 
@@ -441,10 +414,9 @@ class PaymentController extends Controller
 
     $payment = Payment::find($paymentId);
     if (!$payment) {
-      return response()->json(['message' => 'Không tìm thấy thanh toán.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy thanh toán.');
     }
 
-    // Only update if still pending (guard against duplicate callbacks)
     if ($payment->status === 'pending') {
       if ($responseCode === '00') {
         $payment->update([
@@ -472,10 +444,7 @@ class PaymentController extends Controller
   }
 
   /**
-   * VNPay IPN (Instant Payment Notification) — server-to-server (GET/POST).
-   * Must respond with JSON { RspCode, Message } for VNPay to acknowledge.
-   *
-   * POST /payments/vnpay/ipn
+   * VNPay IPN (Instant Payment Notification).
    */
   public function vnpayIpn(Request $request)
   {
@@ -500,7 +469,6 @@ class PaymentController extends Controller
       return response()->json(['RspCode' => '01', 'Message' => 'Order not found'], Response::HTTP_OK);
     }
 
-    // Check amount matches
     $vnpAmount = (int) ($data['vnp_Amount'] ?? 0);
     if ($vnpAmount !== (int) ($payment->amount * 100)) {
       return response()->json(['RspCode' => '04', 'Message' => 'Invalid amount'], Response::HTTP_OK);
@@ -539,10 +507,9 @@ class PaymentController extends Controller
 
     $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
 
-    // 1. Fetch Bookings in bulk
     if (!empty($bookingIds)) {
       try {
-        $response = \Illuminate\Support\Facades\Http::timeout(3)
+        $response = Http::timeout(3)
           ->withHeaders(['Authorization' => $token])
           ->get($orderUrl . '/api/orders/admin/bookings', [
             'ids' => implode(',', $bookingIds),
@@ -556,11 +523,10 @@ class PaymentController extends Controller
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to bulk fetch bookings: ' . $e->getMessage());
+        Log::error('Không thể lấy danh sách đơn đặt lịch hàng loạt: ' . $e->getMessage());
       }
     }
 
-    // 2. Fetch Job Posts in bulk
     if (!empty($jobPostIds)) {
       try {
         $response = Http::timeout(3)
@@ -577,11 +543,10 @@ class PaymentController extends Controller
           }
         }
       } catch (\Exception $e) {
-        Log::error('Failed to bulk fetch job posts: ' . $e->getMessage());
+        Log::error('Không thể lấy danh sách tin tuyển dụng hàng loạt: ' . $e->getMessage());
       }
     }
 
-    // 3. Map payments to customer IDs and gather unique customer IDs
     $customerIds = [];
     foreach ($payments->items() as $payment) {
       $cId = null;
@@ -602,7 +567,6 @@ class PaymentController extends Controller
       return;
     }
 
-    // 4. Fetch User Details from identity-service in bulk
     try {
       $identityUrl = env('IDENTITY_SERVICE_URL', 'http://identity-service:8000');
       $response = Http::timeout(3)
@@ -623,7 +587,7 @@ class PaymentController extends Controller
         }
       }
     } catch (\Exception $e) {
-      Log::error('Failed to fetch user details for payments: ' . $e->getMessage());
+      Log::error('Không thể lấy thông tin chi tiết người dùng cho danh sách thanh toán: ' . $e->getMessage());
     }
   }
 
@@ -653,13 +617,12 @@ class PaymentController extends Controller
           return $response->json('data.customer_id');
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch booking: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin đơn đặt lịch: ' . $e->getMessage());
       }
     }
 
     if ($jobPostId) {
       try {
-        // Try admin endpoint first
         $response = Http::timeout(3)
           ->withHeaders(['Authorization' => $token])
           ->get($orderUrl . '/api/orders/admin/job-posts/' . $jobPostId);
@@ -668,7 +631,6 @@ class PaymentController extends Controller
           return $response->json('data.customer_id');
         }
 
-        // Public endpoint
         $response = Http::timeout(3)
           ->get($orderUrl . '/api/orders/job-posts/' . $jobPostId);
 
@@ -676,7 +638,7 @@ class PaymentController extends Controller
           return $response->json('data.customer_id');
         }
       } catch (\Exception $e) {
-        Log::error('Failed to fetch job post: ' . $e->getMessage());
+        Log::error('Không thể lấy thông tin tin tuyển dụng: ' . $e->getMessage());
       }
     }
 
@@ -695,7 +657,7 @@ class PaymentController extends Controller
             'status'     => $payment->status,
           ]);
       } catch (\Exception $e) {
-        Log::error('Failed to sync booking payment status: ' . $e->getMessage());
+        Log::error('Không thể đồng bộ trạng thái thanh toán đơn đặt lịch: ' . $e->getMessage());
       }
     }
 
@@ -707,15 +669,15 @@ class PaymentController extends Controller
             'status'      => $payment->status,
           ]);
       } catch (\Exception $e) {
-        Log::error('Failed to sync job post payment status: ' . $e->getMessage());
+        Log::error('Không thể đồng bộ trạng thái thanh toán tin tuyển dụng: ' . $e->getMessage());
       }
     }
   }
 
   public function helperEarningsStats(Request $request)
   {
-    if ($request->authUser['role_id'] !== Role::HELPER) {
-      return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
     }
 
     $bookingIds = $request->input('booking_ids', []);

@@ -4,21 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Permission;
-use App\Constants\Role as RoleConst;
 use Symfony\Component\HttpFoundation\Response;
 
 class PermissionController extends Controller
 {
   /**
-   * Display a listing of the permissions.
+   * Display a listing of the permissions (bảo vệ bởi AdminMiddleware).
    */
   public function index(Request $request)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
-
     $permissions = Permission::all();
     return response()->json($permissions, Response::HTTP_OK);
   }
@@ -28,11 +22,6 @@ class PermissionController extends Controller
    */
   public function store(Request $request)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
-
     $fields = $request->validate([
       'name'        => 'required|string|max:100|unique:permissions,name',
       'module'      => 'required|string|max:50',
@@ -49,14 +38,9 @@ class PermissionController extends Controller
    */
   public function show(Request $request, $id)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
-
     $permission = Permission::find($id);
     if (!$permission) {
-      return response()->json(['message' => 'Không tìm thấy quyền'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy quyền');
     }
 
     return response()->json($permission, Response::HTTP_OK);
@@ -67,14 +51,9 @@ class PermissionController extends Controller
    */
   public function update(Request $request, $id)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
-
     $permission = Permission::find($id);
     if (!$permission) {
-      return response()->json(['message' => 'Không tìm thấy quyền'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy quyền');
     }
 
     $fields = $request->validate([
@@ -93,14 +72,9 @@ class PermissionController extends Controller
    */
   public function destroy(Request $request, $id)
   {
-    $currentUser = $request->user();
-    if (!$currentUser || $currentUser->role_id !== RoleConst::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], Response::HTTP_FORBIDDEN);
-    }
-
     $permission = Permission::find($id);
     if (!$permission) {
-      return response()->json(['message' => 'Không tìm thấy quyền'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy quyền');
     }
 
     $permission->delete();

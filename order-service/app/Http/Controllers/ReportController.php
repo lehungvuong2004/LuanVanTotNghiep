@@ -16,20 +16,11 @@ class ReportController extends Controller
     /**
      * Submit a violation report.
      * Any authenticated user (customer or helper) may report.
-     *
-     * Body:
-     * {
-     *   "booking_id": 10,         // nullable
-     *   "job_post_id": 5,         // nullable (one of booking or job_post is required)
-     *   "reported_user_id": 8,
-     *   "reason": "Rude behavior..."
-     * }
      */
     public function store(Request $request)
     {
-        // All authenticated roles may submit a report (customer=4, helper=3)
-        if (!in_array($request->authUser['role_id'], [Role::CUSTOMER, Role::HELPER])) {
-            return response()->json(['message' => 'Only customers and helpers can submit reports.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeRoles($request, [Role::CUSTOMER, Role::HELPER], 'Chỉ khách hàng và người giúp việc mới có thể gửi báo cáo vi phạm.')) {
+            return $unauthorized;
         }
 
         $fields = $request->validate([
@@ -40,14 +31,12 @@ class ReportController extends Controller
         ]);
 
         if (empty($fields['booking_id']) && empty($fields['job_post_id'])) {
-            return response()->json([
-                'message' => 'A report must be linked to a booking or a job post.'
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Báo cáo phải được gắn với một đơn đặt lịch hoặc bài đăng công việc.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Prevent self-reporting
         if (isset($fields['reported_user_id']) && $fields['reported_user_id'] == $request->authUser['id']) {
-            return response()->json(['message' => 'You cannot report yourself.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Bạn không thể tự báo cáo chính mình.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $report = Report::create([
@@ -59,10 +48,7 @@ class ReportController extends Controller
             'status'           => 'pending',
         ]);
 
-        return response()->json([
-            'message' => 'Report submitted. Our team will review it shortly.',
-            'data'    => $report,
-        ], Response::HTTP_CREATED);
+        return $this->successResponse($report, 'Đã gửi báo cáo. Ban quản trị sẽ kiểm tra và xử lý sớm nhất.', Response::HTTP_CREATED);
     }
 
     // =====================================================================
@@ -72,12 +58,11 @@ class ReportController extends Controller
     /**
      * List all violation reports.
      * Role: admin (1) or operator (4)
-     * Filter: status, report_by, reported_user_id
      */
     public function adminIndex(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $query = Report::orderByDesc('created_at');
@@ -87,41 +72,39 @@ class ReportController extends Controller
         if ($request->filled('reported_user_id'))  $query->where('reported_user_id', $request->query('reported_user_id'));
         if ($request->filled('booking_id'))        $query->where('booking_id', $request->query('booking_id'));
 
-        $limit   = (int) $request->query('limit', 20);
+        $limit   = $request->integer('limit', 20);
         $reports = $query->paginate($limit);
 
-        return response()->json(['data' => $reports], Response::HTTP_OK);
+        return $this->successResponse($reports);
     }
 
     public function adminShow(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $report = Report::with(['booking', 'jobPost'])->find($id);
-        if (!$report) return response()->json(['message' => 'Report not found.'], Response::HTTP_NOT_FOUND);
+        if (!$report) return $this->notFoundResponse('Không tìm thấy báo cáo vi phạm.');
 
-        return response()->json(['data' => $report], Response::HTTP_OK);
+        return $this->successResponse($report);
     }
 
     /**
      * Process (resolve or dismiss) a report.
      * Role: admin (1) or operator (4)
-     *
-     * Body: { "status": "resolved" | "dismissed", "note": "..." }
      */
     public function process(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $report = Report::find($id);
-        if (!$report) return response()->json(['message' => 'Report not found.'], Response::HTTP_NOT_FOUND);
+        if (!$report) return $this->notFoundResponse('Không tìm thấy báo cáo vi phạm.');
 
         if ($report->status !== 'pending') {
-            return response()->json(['message' => "Report is already '{$report->status}'."], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse("Báo cáo đã ở trạng thái '{$report->status}'.", Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $fields = $request->validate([
@@ -131,10 +114,7 @@ class ReportController extends Controller
 
         $report->update(['status' => $fields['status']]);
 
-        return response()->json([
-            'message' => 'Report processed.',
-            'data'    => $report->fresh(),
-        ], Response::HTTP_OK);
+        return $this->successResponse($report->fresh(), 'Đã xử lý báo cáo vi phạm thành công.');
     }
 
     /**
@@ -142,16 +122,16 @@ class ReportController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $report = Report::find($id);
-        if (!$report) return response()->json(['message' => 'Report not found.'], Response::HTTP_NOT_FOUND);
+        if (!$report) return $this->notFoundResponse('Không tìm thấy báo cáo vi phạm.');
 
         $report->delete();
 
-        return response()->json(['message' => 'Report deleted.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa báo cáo vi phạm.');
     }
 
     /**
@@ -159,8 +139,8 @@ class ReportController extends Controller
      */
     public function bulkDestroy(Request $request)
     {
-        if (!in_array($request->authUser['role_id'], [Role::ADMIN, Role::OPERATOR])) {
-            return response()->json(['message' => 'Forbidden.'], Response::HTTP_FORBIDDEN);
+        if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+            return $unauthorized;
         }
 
         $fields = $request->validate([
@@ -170,6 +150,6 @@ class ReportController extends Controller
 
         Report::whereIn('id', $fields['ids'])->delete();
 
-        return response()->json(['message' => 'Reports deleted.'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Đã xóa danh sách báo cáo vi phạm thành công.');
     }
 }

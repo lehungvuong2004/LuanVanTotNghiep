@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Banner;
-use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\DB;
 use App\Services\ImageUploadService;
 
 class BannerController extends Controller
@@ -24,13 +22,11 @@ class BannerController extends Controller
       ->orderBy('id', 'desc')
       ->get();
 
-    return response()->json([
-      'data' => $banners
-    ], Response::HTTP_OK);
+    return $this->successResponse($banners);
   }
 
     // =====================================================================
-    //  ADMIN — Quản lý Banners (Chỉ Admin role_id = 1)
+    //  ADMIN — Quản lý Banners (Chỉ Admin role_id = 1, bảo vệ bởi AdminMiddleware)
     // =====================================================================
 
   /**
@@ -38,30 +34,21 @@ class BannerController extends Controller
    */
   public function adminIndex(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $query = Banner::with('creator:id,full_name,email');
 
-    // Tìm kiếm theo tiêu đề
     if ($request->filled('search')) {
       $search = $request->query('search');
       $query->where('title', 'like', "%{$search}%");
     }
 
-    // Lọc theo status (active | inactive)
     if ($request->filled('status')) {
       $query->where('status', $request->query('status'));
     }
 
-    $limit = (int) $request->query('limit', 15);
+    $limit = $request->integer('limit', 15);
     $banners = $query->orderBy('id', 'desc')->paginate($limit);
 
-    return response()->json([
-      'data' => $banners
-    ], Response::HTTP_OK);
+    return $this->successResponse($banners);
   }
 
   /**
@@ -69,19 +56,12 @@ class BannerController extends Controller
    */
   public function show($id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $banner = Banner::with('creator:id,full_name,email')->find($id);
     if (!$banner) {
-      return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy banner.');
     }
 
-    return response()->json([
-      'data' => $banner
-    ], Response::HTTP_OK);
+    return $this->successResponse($banner);
   }
 
   /**
@@ -89,10 +69,7 @@ class BannerController extends Controller
    */
   public function store(Request $request)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
+    $currentUser = $this->getAuthUser();
 
     $fields = $request->validate([
       'title'  => 'required|string|max:150',
@@ -125,14 +102,9 @@ class BannerController extends Controller
    */
   public function update(Request $request, $id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $banner = Banner::find($id);
     if (!$banner) {
-      return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy banner.');
     }
 
     $fields = $request->validate([
@@ -159,14 +131,9 @@ class BannerController extends Controller
    */
   public function toggleStatus(Request $request, $id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $banner = Banner::find($id);
     if (!$banner) {
-      return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy banner.');
     }
 
     $request->validate([
@@ -188,21 +155,14 @@ class BannerController extends Controller
    */
   public function destroy($id)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $banner = Banner::find($id);
     if (!$banner) {
-      return response()->json(['message' => 'Không tìm thấy banner.'], Response::HTTP_NOT_FOUND);
+      return $this->notFoundResponse('Không tìm thấy banner.');
     }
 
     $banner->delete();
 
-    return response()->json([
-      'message' => 'Xóa banner thành công.'
-    ], Response::HTTP_OK);
+    return $this->successResponse(null, 'Xóa banner thành công.');
   }
 
   /**
@@ -210,13 +170,8 @@ class BannerController extends Controller
    */
   public function uploadImage(Request $request, ImageUploadService $imageUploadService)
   {
-    $currentUser = auth('api')->user();
-    if (!$currentUser || $currentUser->role_id !== Role::ADMIN) {
-      return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này.'], Response::HTTP_FORBIDDEN);
-    }
-
     $request->validate([
-      'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // max 2mb
+      'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
     ], [
       'image.required' => 'Vui lòng chọn hình ảnh banner.',
       'image.image'    => 'File tải lên phải là hình ảnh.',
@@ -234,6 +189,6 @@ class BannerController extends Controller
       ], Response::HTTP_OK);
     }
 
-    return response()->json(['message' => 'Không tìm thấy file tải lên.'], Response::HTTP_BAD_REQUEST);
+    return $this->errorResponse('Không tìm thấy file tải lên.');
   }
 }
