@@ -1,5 +1,5 @@
 import axiosInstance from "../axios";
-import type { Service } from "../services";
+import type { Service } from "../servicesApi/services";
 
 export interface JobPost {
   id: number;

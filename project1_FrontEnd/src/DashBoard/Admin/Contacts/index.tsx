@@ -4,7 +4,7 @@ import { useAdminContacts } from "./useHook";
 import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
-import { getInitials, formatDate, formatDateTime } from "../../../utils";
+import { getInitials, formatDateTime } from "../../../utils";
 
 export const Contacts = () => {
   const { hasPermission } = useAuth();

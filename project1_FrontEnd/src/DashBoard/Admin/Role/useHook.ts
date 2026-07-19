@@ -1,7 +1,6 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import type { Role, Permission } from "../../../api/rolesApi/roles";
 import { getRolesAdmin, createRoleAdmin, updateRoleAdmin, deleteRoleAdmin, getPermissionsAdmin } from "../../../api/rolesApi/roles";
 import { roleValidationSchema } from "../../../api/rolesApi/validation";

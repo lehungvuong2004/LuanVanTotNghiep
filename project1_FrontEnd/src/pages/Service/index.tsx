@@ -26,7 +26,14 @@ const RATINGS = [
   { value: 3.5, label: "3.5+" },
 ];
 
-const CustomSelect = ({ value, onChange, options, placeholder }) => {
+interface CustomSelectProps {
+  value: any;
+  onChange: (val: any) => void;
+  options: { value: any; label: string }[];
+  placeholder?: string;
+}
+
+const CustomSelect = ({ value, onChange, options, placeholder = "" }: CustomSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = options.find((opt) => String(opt.value) === String(value));
 

@@ -1646,10 +1646,10 @@ export const HistoryPage = () => {
             setIsReviewModalOpen(false);
             setReviewTargetBooking(null);
           }}
-          helperId={reviewTargetBooking.helper.idRaw || (reviewTargetBooking.helper as any).id || (reviewTargetBooking as any).helper_id}
+          helperId={(reviewTargetBooking.helper as any)?.idRaw || (reviewTargetBooking.helper as any)?.id || (reviewTargetBooking as any)?.helper_id}
           helperName={reviewTargetBooking.helper.name}
           helperAvatar={reviewTargetBooking.helper.avatar}
-          bookingId={reviewTargetBooking.idRaw || reviewTargetBooking.id}
+          bookingId={Number(reviewTargetBooking.idRaw || reviewTargetBooking.id)}
           onSuccess={refreshBookings}
         />
       )}

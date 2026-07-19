@@ -126,17 +126,7 @@ export const useHome = () => {
       date: "05/01/2024" },
   ];
 
-  const rafRef = useRef<number | null>(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const container = containerRef.current;
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    mouseRef.current = {
-      x: ((e.clientX - rect.left) / rect.width - 0.5) * 2,
-      y: ((e.clientY - rect.top) / rect.height - 0.5) * 2 };
-  }, []);
 
   useEffect(() => {
     const cube = cubeRef.current;
