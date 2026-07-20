@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import { useRecruitment, SALARY_OPTS, URGENCY_OPTS } from "./useHook";
+import { useRecruitment, URGENCY_OPTS } from "./useHook";
+import { PriceFilter } from "../../components/PriceFilter";
 import { Pagination } from "../../components/Pagination";
 import { formatDateTime } from "../../utils";
 
@@ -8,6 +10,7 @@ import { Link } from "react-router-dom";
 
 export const Recruitment = () => {
   const { t } = useTranslation();
+  const [isFilterOpenMobile, setIsFilterOpenMobile] = useState(false);
   const {
     jobs,
     totalItems,
@@ -27,10 +30,10 @@ export const Recruitment = () => {
     clearFilters,
     categories,
     isLoading,
-    
-    
+
     applyJob,
-    appliedJobIds } = useRecruitment();
+    appliedJobIds,
+  } = useRecruitment();
 
   const currentUser = (() => {
     try {
@@ -40,90 +43,87 @@ export const Recruitment = () => {
     }
   })();
   const isHelper = currentUser?.role_id === 3;
-  const isCustomer = currentUser?.role_id === 4;
 
   const renderSidebarFilter = () => {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm sticky top-24 flex flex-col divide-y divide-slate-100 dark:divide-slate-700/50 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4">
+        <div onClick={() => setIsFilterOpenMobile((prev) => !prev)} className="flex items-center justify-between px-5 py-4 cursor-pointer lg:cursor-default">
           <span className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100 text-sm">
             <Icon icon="material-symbols:tune" className="text-lg text-[#026E5F] dark:text-teal-400" />
-            {t("Bộ lọc")}
+            <span>{t("Bộ lọc")}</span>
+            <Icon icon="lsicon:down-filled" className={`text-sm text-slate-500 lg:hidden transition-transform duration-200 ${isFilterOpenMobile ? "rotate-180" : ""}`} />
           </span>
-          <button onClick={clearFilters} className="text-xs font-semibold text-[#026E5F] dark:text-teal-400 hover:underline cursor-pointer">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              clearFilters();
+            }}
+            className="text-xs font-semibold text-[#026E5F] dark:text-teal-400 hover:underline cursor-pointer"
+          >
             {t("Xóa tất cả")}
           </button>
         </div>
 
-        <div className="px-5 py-4 flex flex-col gap-2.5">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t("Loại công việc")}</p>
-          {categories.length > 0 ? (
-            <select
-              value={selectedCategories[0] || "all"}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === "all") {
-                  setSelectedCategories([]);
-                } else if (val === "other") {
-                  setSelectedCategories(["other"]);
-                } else {
-                  setSelectedCategories([Number(val)]);
-                }
-              }}
-              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-750 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#026E5F]/20 focus:border-[#026E5F] transition-all cursor-pointer font-medium"
-            >
-              <option value="all">{t("Tất cả")}</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {t(cat.name)}
-                </option>
+        <div className={`flex flex-col divide-y divide-slate-100 dark:divide-slate-700/50 ${isFilterOpenMobile ? "block" : "hidden lg:block"}`}>
+          <div className="px-5 py-4 flex flex-col gap-2.5">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t("Loại công việc")}</p>
+            {categories.length > 0 ? (
+              <select
+                value={selectedCategories[0] || "all"}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "all") {
+                    setSelectedCategories([]);
+                  } else if (val === "other") {
+                    setSelectedCategories(["other"]);
+                  } else {
+                    setSelectedCategories([Number(val)]);
+                  }
+                }}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-750 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#026E5F]/20 focus:border-[#026E5F] transition-all cursor-pointer font-medium"
+              >
+                <option value="all">{t("Tất cả")}</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {t(cat.name)}
+                  </option>
+                ))}
+                <option value="other">{t("Khác")}</option>
+              </select>
+            ) : (
+              <p className="text-xs text-gray-400 italic">{t("Đang tải danh mục...")}</p>
+            )}
+          </div>
+
+          <div className="px-5 py-4">
+            <PriceFilter
+              title={t("Mức lương")}
+              selectedValue={selectedSalary}
+              onChangeSelectedValue={(val) => setSelectedSalary(val)}
+              showCustomRange={false}
+              t={t}
+              nameGroup="recruitment_salary_filter"
+            />
+          </div>
+
+          {/* Urgency */}
+          <div className="px-5 py-4">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">{t("Độ khẩn cấp")}</p>
+            <div className="flex flex-wrap gap-2">
+              {URGENCY_OPTS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setSelectedUrgency(opt.value)}
+                  className={`px-3.5 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
+                    selectedUrgency === opt.value
+                      ? "border-[#026E5F] bg-teal-50 dark:bg-teal-950/40 text-[#026E5F] dark:text-teal-400 shadow-xs"
+                      : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-[#026E5F] hover:text-[#026E5F]"
+                  }`}
+                >
+                  {t(opt.label)}
+                </button>
               ))}
-              <option value="other">{t("Khác")}</option>
-            </select>
-          ) : (
-            <p className="text-xs text-gray-400 italic">{t("Đang tải danh mục...")}</p>
-          )}
-        </div>
-
-        <div className="px-5 py-4 flex flex-col gap-2.5">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t("Mức lương")}</p>
-          {SALARY_OPTS.map((opt) => (
-            <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-              <input
-                type="radio"
-                name="salary"
-                checked={selectedSalary === opt.value}
-                onChange={() => setSelectedSalary(opt.value)}
-                className="rounded-full border-slate-300 dark:border-slate-650 text-[#026E5F] focus:ring-[#026E5F] dark:bg-slate-900 cursor-pointer h-4 w-4 accent-[#026E5F]"
-              />
-              <span
-                className={`text-sm group-hover:text-[#026E5F] dark:group-hover:text-teal-400 transition-colors font-medium ${
-                  selectedSalary === opt.value ? "text-[#026E5F] dark:text-teal-400 font-bold" : "text-slate-600 dark:text-slate-300"
-                }`}
-              >
-                {t(opt.label)}
-              </span>
-            </label>
-          ))}
-        </div>
-
-        {/* Urgency */}
-        <div className="px-5 py-4">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">{t("Độ khẩn cấp")}</p>
-          <div className="flex flex-wrap gap-2">
-            {URGENCY_OPTS.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setSelectedUrgency(opt.value)}
-                className={`px-3.5 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
-                  selectedUrgency === opt.value
-                    ? "border-[#026E5F] bg-teal-50 dark:bg-teal-950/40 text-[#026E5F] dark:text-teal-400 shadow-xs"
-                    : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-[#026E5F] hover:text-[#026E5F]"
-                }`}
-              >
-                {t(opt.label)}
-              </button>
-            ))}
+            </div>
           </div>
         </div>
       </div>
@@ -210,10 +210,7 @@ export const Recruitment = () => {
 
           {isHelper ? (
             appliedJobIds.includes(job.id) ? (
-              <button
-                disabled
-                className="mt-auto w-full py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-bold rounded-xl cursor-not-allowed select-none"
-              >
+              <button disabled className="mt-auto w-full py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-bold rounded-xl cursor-not-allowed select-none">
                 {t("Đã Ứng Tuyển")}
               </button>
             ) : (
@@ -290,21 +287,11 @@ export const Recruitment = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-8">
-      {/* Title Header */}
       <div className="text-left mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t("Sàn Tuyển Dụng Việc Làm")}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t("Kết nối người giúp việc uy tín và khách hàng nhanh chóng.")}</p>
         </div>
-        {isCustomer && (
-          <Link
-            to="/dang-bai-tuyen"
-            className="px-5 py-2.5 bg-[#026E5F] text-white font-bold rounded-xl shadow-sm hover:bg-[#01564a] active:scale-95 transition flex items-center gap-2 self-start"
-          >
-            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
-            {t("Đăng bài tuyển dụng")}
-          </Link>
-        )}
       </div>
 
       {/* Main Grid View */}
@@ -312,8 +299,6 @@ export const Recruitment = () => {
         <aside className="lg:col-span-3">{renderSidebarFilter()}</aside>
         <main className="lg:col-span-9">{renderJobListPanel()}</main>
       </div>
-
-      
     </div>
   );
 };

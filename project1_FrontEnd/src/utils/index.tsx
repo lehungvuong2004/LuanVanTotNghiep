@@ -1,20 +1,28 @@
 import { ROLES, getUserRole } from "../constants/roles";
+export { exportToExcel } from "./excelExporter";
 
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 
-export function formatNumberVI(value: number | null | undefined): string | null | undefined {
+export function formatNumberVI(value: any) {
   if (value === undefined) return undefined;
   if (value === null) return null;
   return numberFormatter.format(value);
 }
 
-export function fmtVND(value: number | string | null | undefined): string {
+export function fmtVND(value: any) {
   if (value === undefined || value === null) return "0 ₫";
-  const num = typeof value === "string" ? Number(value) : value;
+  const num = typeof value === "string" ? Number(value.replace(/,/g, "")) : value;
+  if (isNaN(num)) return "0 ₫";
+  if (num >= 1_000_000_000) {
+    const ty = num / 1_000_000_000;
+    const rounded = Math.round(ty * 100) / 100;
+    const formatted = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2).replace(".", ",");
+    return `${formatted} tỷ đ`;
+  }
   return `${numberFormatter.format(num)} ₫`;
 }
 
-export const parseUtcDate = (dateStr: string | null | undefined): Date => {
+export const parseUtcDate = (dateStr: any) => {
   if (!dateStr) return new Date();
   if (typeof dateStr === "string" && !dateStr.includes("Z") && !dateStr.includes("+") && !dateStr.includes("T")) {
     return new Date(dateStr.replace(" ", "T") + "Z");
@@ -22,7 +30,7 @@ export const parseUtcDate = (dateStr: string | null | undefined): Date => {
   return new Date(dateStr);
 };
 
-export const formatDateTime = (dateStr: string | null | undefined): any => {
+export const formatDateTime = (dateStr: any) => {
   if (!dateStr) return dateStr === null ? null : "";
   const d = parseUtcDate(dateStr);
   if (isNaN(d.getTime())) return "";
@@ -34,7 +42,7 @@ export const formatDateTime = (dateStr: string | null | undefined): any => {
   return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
 };
 
-export const formatDateTimeLong = (dateStr: string | null | undefined): string => {
+export const formatDateTimeLong = (dateStr: any) => {
   if (!dateStr) return "";
   try {
     const d = parseUtcDate(dateStr);
@@ -56,35 +64,16 @@ export const getRootFontSizePx = () => {
   return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
 };
 
-export function formatMoneyShortVI(value: number | string | null | undefined): string {
-  if (value === undefined || value === null) return "";
-  const num = typeof value === "string" ? Number(value.replace(/,/g, "")) : value;
-  if (isNaN(num)) return "";
-
-  if (num >= 1_000_000_000) {
-    const ty = num / 1_000_000_000;
-    const rounded = Math.round(ty * 10) / 10;
-    const formatted = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1).replace(".", ",");
-    return `${formatted} tỷ`;
-  }
-  if (num >= 1_000_000) {
-    const tr = num / 1_000_000;
-    const rounded = Math.round(tr * 10) / 10;
-    const formatted = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1).replace(".", ",");
-    return `${formatted} triệu`;
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(0)} nghìn`;
-  }
-  return `${num}`;
+export function formatMoneyShortVI(value: any) {
+  return fmtVND(value);
 }
 
-export const formatDate = (dateStr): any => {
+export const formatDate = (dateStr: any) => {
   const d = new Date(dateStr);
   return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 };
 
-export function formatMoneyInput(value: string | number | null | undefined) {
+export function formatMoneyInput(value: any) {
   if (value === undefined || value === null) return "";
   const cleanVal = value.toString().replace(/\D/g, "");
   if (!cleanVal) return "";
@@ -92,7 +81,7 @@ export function formatMoneyInput(value: string | number | null | undefined) {
   return numberFormatter.format(num);
 }
 
-export const sortBookingsByDate = (items: any[]) => {
+export const sortBookingsByDate = (items: any) => {
   return [...items].sort((a, b) => b.id - a.id);
 };
 
@@ -100,7 +89,7 @@ export const formatPrice = fmtVND;
 
 export const formatVietnamDateTime = formatDateTime;
 
-export const getRatingNote = (rating) => {
+export const getRatingNote = (rating: any) => {
   switch (rating) {
     case 5:
       return "Xuất sắc (5/5)";
@@ -117,7 +106,7 @@ export const getRatingNote = (rating) => {
   }
 };
 
-export const getRatingBadgeClass = (rating) => {
+export const getRatingBadgeClass = (rating: any) => {
   switch (rating) {
     case 5:
       return "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400";
@@ -134,18 +123,18 @@ export const getRatingBadgeClass = (rating) => {
   }
 };
 
-export const getInitials = (name?: string | null, fallback: string = "U"): string => {
+export const getInitials = (name?: any, fallback = "U") => {
   if (!name || !name.trim()) return fallback;
   return name
     .trim()
     .split(/\s+/)
-    .map((n) => n[0])
+    .map((n: any) => n[0])
     .join("")
     .substring(0, 2)
     .toUpperCase();
 };
 
-export const getRoleBadge = (role?: number | string | any) => {
+export const getRoleBadge = (role?: any) => {
   if (!role) return null;
   let roleNum: number;
   if (typeof role === "object") {

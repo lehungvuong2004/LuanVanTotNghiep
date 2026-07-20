@@ -368,17 +368,32 @@ class AuthController extends Controller
     }
 
     $fields = $request->validate([
-      'full_name' => 'sometimes|required|string|max:100',
-      'phone'     => 'sometimes|nullable|string|max:20|unique:users,phone,' . $user->id,
-      'avatar'    => 'sometimes|nullable|string',
-      'password'  => ['sometimes', 'required', 'string', 'min:6', 'max:32', new StrongPassword()],
+      'full_name'        => 'sometimes|required|string|max:100',
+      'phone'            => 'sometimes|nullable|string|max:20|unique:users,phone,' . $user->id,
+      'avatar'           => 'sometimes|nullable|string',
+      'current_password' => 'required_with:password|string',
+      'password'         => ['sometimes', 'required', 'string', 'different:current_password', 'min:6', 'max:32', new StrongPassword()],
     ], [
-      'phone.unique' => 'Số điện thoại này đã được đăng ký sử dụng.',
+      'phone.unique'                   => 'Số điện thoại này đã được đăng ký sử dụng.',
+      'current_password.required_with' => 'Vui lòng nhập mật khẩu hiện tại.',
+      'password.different'             => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.',
     ]);
 
     if (isset($fields['password'])) {
+      if ($user->password && !Hash::check($request->input('current_password'), $user->password)) {
+        return response()->json([
+          'message' => 'Mật khẩu hiện tại không chính xác.'
+        ], Response::HTTP_BAD_REQUEST);
+      }
+      if ($user->password && Hash::check($request->input('password'), $user->password)) {
+        return response()->json([
+          'message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'
+        ], Response::HTTP_BAD_REQUEST);
+      }
       $fields['password'] = Hash::make($fields['password']);
     }
+
+    unset($fields['current_password']);
 
     $user->update($fields);
     $user->load('role.permissions');

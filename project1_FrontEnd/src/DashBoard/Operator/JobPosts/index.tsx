@@ -11,6 +11,8 @@ export const ApplicationReview = () => {
   const canApprove = hasPermission("job_posts.approve");
   const canReject = hasPermission("job_posts.reject");
   const canHide = hasPermission("job_posts.hide");
+  const canCreate = hasPermission("job_posts.create");
+  const canDelete = hasPermission("job_posts.delete");
 
   const {
     jobPosts,
@@ -75,13 +77,15 @@ export const ApplicationReview = () => {
           <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight font-sans">Phê Duyệt Tin Tuyển Dụng</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Kênh kiểm duyệt thông tin và trạng thái hiển thị của các bài đăng tìm người giúp việc từ Khách hàng.</p>
         </div>
-        <Link
-          to="/dang-bai-tuyen"
-          className="inline-flex items-center gap-2 bg-[#0d5c63] hover:bg-[#0b4d53] text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition-all hover:shadow-md shrink-0 cursor-pointer"
-        >
-          <Icon icon="material-symbols:add-box-outline-rounded" className="text-xl" />
-          Đăng Tin Tuyển Dụng
-        </Link>
+        {canCreate && (
+          <Link
+            to="/dang-bai-tuyen"
+            className="inline-flex items-center gap-2 bg-[#0d5c63] hover:bg-[#0b4d53] text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition-all hover:shadow-md shrink-0 cursor-pointer"
+          >
+            <Icon icon="material-symbols:add-box-outline-rounded" className="text-xl" />
+            Đăng Tin Tuyển Dụng
+          </Link>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -176,7 +180,7 @@ export const ApplicationReview = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {selectedIds.length > 0 && (
+          {canDelete && selectedIds.length > 0 && (
             <BulkDeleteBar selectedIds={selectedIds} totalCount={jobPosts.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} loading={actionLoading} />
           )}
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs overflow-hidden">
@@ -184,19 +188,21 @@ export const ApplicationReview = () => {
               <table className="w-full text-left border-collapse min-w-4xl">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200/60 dark:border-slate-700 text-slate-550 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                    <th className="py-3.5 px-5 text-center w-12">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.length === jobPosts.length && jobPosts.length > 0}
-                        ref={(el) => {
-                          if (el) {
-                            el.indeterminate = selectedIds.length > 0 && selectedIds.length < jobPosts.length;
-                          }
-                        }}
-                        onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
-                      />
-                    </th>
+                    {canDelete && (
+                      <th className="py-3.5 px-5 text-center w-12">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.length === jobPosts.length && jobPosts.length > 0}
+                          ref={(el) => {
+                            if (el) {
+                              el.indeterminate = selectedIds.length > 0 && selectedIds.length < jobPosts.length;
+                            }
+                          }}
+                          onChange={toggleSelectAll}
+                          className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+                        />
+                      </th>
+                    )}
                     <th className="py-3.5 px-5">Bài Tuyển Dụng</th>
                     <th className="py-3.5 px-5">Khách Hàng</th>
                     <th className="py-3.5 px-5">Mức Lương Đề Xuất</th>
@@ -212,14 +218,16 @@ export const ApplicationReview = () => {
                     return (
                       <tr key={post.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors ${selectedIds.includes(post.id) ? "bg-red-50/20 dark:bg-red-950/10" : ""}`}>
                         {/* Checkbox column */}
-                        <td className="py-3.5 px-5 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.includes(post.id)}
-                            onChange={() => toggleSelectOne(post.id)}
-                            className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
-                          />
-                        </td>
+                        {canDelete && (
+                          <td className="py-3.5 px-5 text-center">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(post.id)}
+                              onChange={() => toggleSelectOne(post.id)}
+                              className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+                            />
+                          </td>
+                        )}
                         {/* Job Title */}
                         <td className="py-3.5 px-5 max-w-xs">
                           <button onClick={() => handleOpenDetail(post)} className="font-extrabold text-blue-650 dark:text-blue-400 hover:underline text-left truncate block w-full cursor-pointer">

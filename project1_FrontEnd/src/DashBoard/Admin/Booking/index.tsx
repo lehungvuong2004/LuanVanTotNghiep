@@ -5,13 +5,14 @@ import { useBooking } from "./useHook";
 import type { BookingItem } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 
-import { formatNumberVI } from "../../../utils";
+import { formatNumberVI, fmtVND, exportToExcel } from "../../../utils";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { useToast } from "../../../contexts/ToastContext";
 
 export const Booking = () => {
   const { showToast } = useToast();
   const {
+    helperList,
     searchQuery,
     setSearchQuery,
     selectedStatus,
@@ -21,6 +22,7 @@ export const Booking = () => {
     currentPage,
     setCurrentPage,
     itemsPerPage,
+    filteredBookings,
     filteredCount,
     paginatedBookings,
     metrics,
@@ -50,18 +52,6 @@ export const Booking = () => {
   const [showCancelInput, setShowCancelInput] = useState<string | null>(null);
   const [cancelReasonText, setCancelReasonText] = useState("");
 
-  // List of mock helpers for assignment dropdown in edit modal
-  const helperList = [
-    { name: "Chưa phân phối", value: "" },
-    { name: "Nguyễn Thị Mai", value: "Nguyễn Thị Mai", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop", phone: "0912345678" },
-    { name: "Trần Văn Hùng", value: "Trần Văn Hùng", avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop", phone: "0933111222" },
-    { name: "Lê Thị Lan", value: "Lê Thị Lan", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop", phone: "0944555666" },
-    { name: "Phạm Văn Nam", value: "Phạm Văn Nam", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop", phone: "0922333444" },
-    { name: "Hoàng Thanh Mai", value: "Hoàng Thanh Mai", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop", phone: "0955666777" },
-    { name: "Lê Văn Nam", value: "Lê Văn Nam", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=80&auto=format&fit=crop", phone: "0966777888" },
-    { name: "Trần Văn Tú", value: "Trần Văn Tú", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop", phone: "0977888999" },
-  ];
-
   // Render Page Header
   const renderHeader = () => (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
@@ -73,7 +63,35 @@ export const Booking = () => {
         <button
           type="button"
           onClick={() => {
-            showToast("success", "Xuất báo cáo", "Báo cáo thống kê đơn đặt lịch đã được xuất thành công!");
+            if (!filteredBookings || filteredBookings.length === 0) {
+              showToast("warning", "Xuất báo cáo", "Không có dữ liệu đơn đặt lịch nào để xuất.");
+              return;
+            }
+            const success = exportToExcel({
+              filename: `Bao_cao_don_dat_lich_${new Date().toISOString().slice(0, 10)}.xlsx`,
+              sheetName: "Đơn đặt lịch",
+              data: filteredBookings,
+              columns: [
+                { key: "bookingCode", label: "Mã Đơn" },
+                { key: "customerName", label: "Khách Hàng" },
+                { key: "customerPhone", label: "SĐT Khách" },
+                { key: "customerEmail", label: "Email Khách" },
+                { key: "helperName", label: "Người Giúp Việc", formatter: (val) => val || "Chưa phân công" },
+                { key: "helperPhone", label: "SĐT NGV", formatter: (val) => val || "—" },
+                { key: "address", label: "Địa Chỉ" },
+                { key: "district", label: "Quận/Huyện" },
+                { key: "city", label: "Thành Phố" },
+                { key: "bookingDate", label: "Ngày Thực Hiện" },
+                { key: "startTime", label: "Giờ Bắt Đầu" },
+                { key: "totalPrice", label: "Tổng Tiền (VNĐ)", formatter: (val) => fmtVND(val) },
+                { key: "status", label: "Trạng Thái Đơn", formatter: (val) => (val === "completed" ? "Hoàn thành" : val === "confirmed" ? "Đã xác nhận" : val === "cancelled" ? "Đã hủy" : "Chờ xử lý") },
+                { key: "paymentStatus", label: "Thanh Toán", formatter: (val) => (val === "paid" ? "Đã thanh toán" : val === "refunded" ? "Đã hoàn tiền" : val === "failed" ? "Thất bại" : "Chờ thanh toán") },
+                { key: "createdAt", label: "Ngày Tạo Đơn" },
+              ],
+            });
+            if (success) {
+              showToast("success", "Xuất báo cáo", "Báo cáo thống kê đơn đặt lịch đã được xuất file .xlsx thành công!");
+            }
           }}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-750 transition-all shadow-xs active:scale-97 cursor-pointer"
         >
@@ -358,7 +376,7 @@ export const Booking = () => {
                     {booking.status === "pending" && (
                       <button
                         onClick={() => handleQuickStatusChange(booking.id, "confirmed")}
-                        className="p-1.5 text-emerald-600 hover:text-white hover:bg-emerald-600 dark:hover:bg-emerald-500 rounded-lg transition-all cursor-pointer"
+                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-all cursor-pointer"
                         title="Duyệt đơn hàng"
                       >
                         <Icon icon="material-symbols:check-circle-outline" className="text-lg" />
@@ -369,7 +387,7 @@ export const Booking = () => {
                     {booking.status === "confirmed" && (
                       <button
                         onClick={() => handleQuickStatusChange(booking.id, "completed")}
-                        className="p-1.5 text-emerald-650 hover:text-white hover:bg-emerald-655 dark:hover:bg-emerald-555 rounded-lg transition-all cursor-pointer"
+                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-all cursor-pointer"
                         title="Hoàn tất đơn đặt"
                       >
                         <Icon icon="material-symbols:task-alt-rounded" className="text-lg" />
@@ -388,7 +406,7 @@ export const Booking = () => {
                               setCancelReasonText("");
                             }
                           }}
-                          className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 dark:hover:bg-amber-500 rounded-lg transition-all cursor-pointer"
+                          className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-lg transition-all cursor-pointer"
                           title="Hủy đơn đặt"
                         >
                           <Icon icon="material-symbols:block-outline-rounded" className="text-lg" />
@@ -939,7 +957,7 @@ export const Booking = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Main Content Scroll Container */}
-      <main className="flex-1 p-6 w-full max-w-350 mx-auto">
+      <main className="flex-1 p-6 w-full max-w-8xl mx-auto">
         {renderHeader()}
         {renderKPICards()}
         {renderCharts()}

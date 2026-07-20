@@ -124,7 +124,7 @@ export const Reviews = () => {
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Giám Sát Đánh Giá</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc. (Quyền đọc & Ghi)</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Hệ thống giám sát và đối soát phản hồi chất lượng dịch vụ của khách hàng và người giúp việc.</p>
       </div>
       {permissions.create && (
         <button

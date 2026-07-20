@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 import { useDashboardOverview } from "./useHook";
 import type { KPICardData, RecentBooking } from "./useHook";
 import { Link } from "react-router-dom";
-import { formatNumberVI, formatMoneyShortVI } from "../../../utils";
+import { formatNumberVI, fmtVND } from "../../../utils";
 
 export const DashboardOverview = () => {
   const { kpis, recentBookings, totalServiceCount, barOption, pieOption, loading, error } = useDashboardOverview();
@@ -42,7 +42,7 @@ export const DashboardOverview = () => {
           <div>
             <span className="block text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{card.title}</span>
             <span className="block text-3xl font-extrabold text-slate-850 dark:text-slate-100">
-              {typeof card.value === "number" ? (idx === 0 ? formatMoneyShortVI(card.value) : card.value.toLocaleString("vi-VN")) : card.value}
+              {typeof card.value === "number" ? (card.type === "revenue" || idx === 0 ? fmtVND(card.value) : card.value.toLocaleString("vi-VN")) : card.value}
             </span>
             <span
               className={`inline-flex items-center gap-0.5 text-xs font-semibold mt-1 ${card.isPositive !== false ? "text-emerald-650 dark:text-emerald-450" : "text-rose-600 dark:text-rose-400"}`}
@@ -155,7 +155,7 @@ export const DashboardOverview = () => {
   );
 
   return (
-    <div className="flex-1 p-5 w-full max-w-350 mx-auto space-y-5">
+    <div className="flex-1 p-5 w-full max-w-8xl mx-auto space-y-5">
       {renderHeader()}
       {renderKPICards(kpis)}
       {renderCharts()}

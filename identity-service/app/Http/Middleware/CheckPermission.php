@@ -9,14 +9,7 @@ use App\Constants\Role;
 
 class CheckPermission
 {
-  /**
-   * Handle an incoming request.
-   *
-   * @param  \Illuminate\Http\Request  $request
-   * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-   * @param  string  $permission
-   * @return \Symfony\Component\HttpFoundation\Response
-   */
+
   public function handle(Request $request, Closure $next, string $permission): Response
   {
     $user = $request->user();
@@ -32,9 +25,9 @@ class CheckPermission
       return $next($request);
     }
 
-    // Check permission list
-    $permissions = $user->permissions ?? [];
-    if (!in_array($permission, $permissions)) {
+    // Check permission list dynamically from DB
+    $userPermissions = $user->role ? $user->role->permissions()->pluck('name')->toArray() : ($user->permissions ?? []);
+    if (!in_array($permission, $userPermissions)) {
       return response()->json([
         'message' => 'Forbidden'
       ], Response::HTTP_FORBIDDEN);

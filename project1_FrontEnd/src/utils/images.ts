@@ -2,7 +2,7 @@
  * Chuyển đổi đường dẫn ảnh tương đối từ database thành URL tuyệt đối để hiển thị trên frontend.
  * Nếu đã là URL tuyệt đối hoặc base64 thì giữ nguyên.
  */
-export const getImageUrl = (imagePath: string | null | undefined): string => {
+export const getImageUrl = (imagePath: any) => {
   if (!imagePath) return "";
   if (
     imagePath.startsWith("http://") ||

@@ -12,6 +12,7 @@ export const NAV_ITEMS = {
     { name: "Quản lý Thanh toán", path: "/admin/payments", icon: "material-symbols:payments-outline-rounded", permission: "payments.view" },
     { name: "Quản lý Hoàn tiền", path: "/admin/refunds", icon: "material-symbols:undo-rounded", permission: "refunds.view" },
     { name: "Quản lý Đánh giá", path: "/admin/reviews", icon: "material-symbols:rate-review-outline-rounded", permission: "reviews.view" },
+    { name: "Quản lý Bài đăng Tuyển dụng", path: "/admin/job-posts", icon: "material-symbols:post-add-rounded", permission: "job_posts.view",},
     { name: "Quản lý Báo cáo", path: "/admin/reports", icon: "material-symbols:report-outline", permission: "reports.view" }, //3
     { name: "Quản lý Tin nhắn", path: "/admin/messages", icon: "material-symbols:chat-outline", permission: "messages.view" }, // 3
     { name: "Gửi thông báo hệ thống", path: "/admin/notifications", icon: "material-symbols:notifications-outline-rounded", permission: "notifications.view" }, // 3

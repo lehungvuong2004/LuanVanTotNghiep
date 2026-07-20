@@ -1,0 +1,75 @@
+{
+  "contact": {
+    "banner": {
+      "badge": "24/7 Customer Support",
+      "title": "We are always ready to support you",
+      "description": "Gia Dinh Viet always listens to your feedback to continuously improve service quality for every family.",
+      "hotlineLabel": "HOTLINE",
+      "emailLabel": "EMAIL",
+      "satisfiedCount": "Over",
+      "satisfiedText": "satisfied customers supported."
+    },
+    "form": {
+      "title": "Submit Support Request",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "phone": "Phone Number",
+      "phonePlaceholder": "0901 234 567",
+      "email": "Email Address",
+      "emailPlaceholder": "example@email.com",
+      "message": "Contact Message / Feedback",
+      "messagePlaceholder": "Describe the details of your issue...",
+      "agreeTerms": "I agree to be contacted by the system",
+      "sending": "Sending...",
+      "submit": "Submit Request",
+      "responseNote": "We usually respond within 24 hours."
+    },
+    "info": {
+      "hotline247": "24/7 HOTLINE",
+      "supportEmail": "SUPPORT EMAIL",
+      "office": "OFFICE",
+      "address": "District 1, Ho Chi Minh City",
+      "expertTeam": "Our expert team is always ready"
+    },
+    "features": {
+      "support": "SUPPORT",
+      "supportDesc": "24/7 support for all your needs",
+      "quality": "QUALITY",
+      "qualityDesc": "Experienced consulting team",
+      "service": "SERVICES",
+      "serviceDesc": "Online consultation",
+      "coverage": "COVERAGE",
+      "coverageDesc": "Nationwide support"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How do I create an account?",
+      "a1": "You can create an account by visiting our website and following the instructions.",
+      "q2": "How do I book a service?",
+      "a2": "You can book via our mobile app or call our hotline directly.",
+      "q3": "Can I cancel a booking?",
+      "a3": "Yes, you can cancel up to 24 hours in advance without any cancellation fee.",
+      "q4": "How long does it take to receive a response?",
+      "a4": "We usually respond within 24 working hours.",
+      "q5": "Can I submit a service complaint?",
+      "a5": "If you are not satisfied, please contact us via email giadinhviet.support@gmail.com or hotline for assistance."
+    },
+    "validation": {
+      "fullNameRequired": "Please enter your full name",
+      "phoneDigitsOnly": "Phone number must contain numbers only",
+      "phoneInvalid": "Invalid phone number",
+      "phoneMax": "Phone number is longer than expected",
+      "phoneRequired": "Please enter your phone number",
+      "emailInvalid": "Invalid email address",
+      "emailRequired": "Please enter your email",
+      "messageRequired": "Please enter your message",
+      "agreeRequired": "You must agree to the terms"
+    },
+    "toast": {
+      "successTitle": "Success",
+      "successMessage": "Contact request submitted successfully!",
+      "errorTitle": "Error",
+      "errorMessage": "Failed to submit request. Please try again later."
+    }
+  }
+}

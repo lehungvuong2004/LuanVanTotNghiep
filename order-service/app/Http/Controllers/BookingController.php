@@ -105,7 +105,7 @@ class BookingController extends Controller
             return $unauthorized;
         }
 
-        $query = Booking::with(['services'])
+        $query = Booking::with(['services', 'reviews', 'reports'])
                         ->where('customer_id', $request->authUser['id']);
 
         if ($request->filled('status'))    $query->where('status', $request->query('status'));
@@ -270,7 +270,7 @@ class BookingController extends Controller
             return $unauthorized;
         }
 
-        $query = Booking::with(['services'])
+        $query = Booking::with(['services', 'reviews', 'reports'])
                         ->where('helper_id', $request->authUser['id']);
 
         if ($request->filled('status'))    $query->where('status', $request->query('status'));
@@ -413,6 +413,9 @@ class BookingController extends Controller
         }
 
         if (!in_array($booking->status, self::HELPER_START_MOVING_FROM)) {
+            if (in_array($booking->status, ['on_the_way', 'in_progress', 'completed'])) {
+                return $this->successResponse($booking, 'Đã di chuyển thành công trước đó.');
+            }
             return $this->errorResponse("Không thể bắt đầu di chuyển cho đơn đặt lịch ở trạng thái '{$booking->status}'.", Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -450,6 +453,9 @@ class BookingController extends Controller
         }
 
         if (!in_array($booking->status, self::HELPER_CHECKIN_FROM)) {
+            if (in_array($booking->status, ['in_progress', 'completed'])) {
+                return $this->successResponse($booking, 'Đã điểm danh (check-in) thành công trước đó.');
+            }
             return $this->errorResponse("Không thể điểm danh (check-in) cho đơn đặt lịch ở trạng thái '{$booking->status}'.", Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -501,6 +507,9 @@ class BookingController extends Controller
         }
 
         if (!in_array($booking->status, self::HELPER_CHECKOUT_FROM)) {
+            if ($booking->status === 'completed') {
+                return $this->successResponse($booking, 'Đã hoàn thành công việc trước đó.');
+            }
             return $this->errorResponse("Không thể hoàn thành (check-out) cho đơn đặt lịch ở trạng thái '{$booking->status}'.", Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -653,16 +662,163 @@ class BookingController extends Controller
         }
 
         $today = now()->toDateString();
+        $totalBookings   = Booking::count();
+        $completedCount  = Booking::where('status', 'completed')->count();
+        $totalRevenue    = (float) Booking::where('status', 'completed')->sum('total_price');
+        $activeHelpers   = Booking::whereNotNull('helper_id')->distinct('helper_id')->count('helper_id');
+        $avgRating       = round((float) (Review::avg('rating') ?: 5.0), 1);
+
+        // Fetch exact total revenue from payment-service stats for 100% cross-service synchronization
+        $token = $request->header('Authorization');
+        try {
+            $paymentUrl = env('PAYMENT_SERVICE_URL', 'http://payment-service:8000');
+            $payRes = Http::timeout(3)
+                ->withHeaders($token ? ['Authorization' => $token] : [])
+                ->get($paymentUrl . '/api/payments/admin/stats');
+            if ($payRes->successful()) {
+                $payStats = $payRes->json('data') ?? [];
+                if (isset($payStats['total_revenue'])) {
+                    $totalRevenue = (float) $payStats['total_revenue'];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('DashboardOverview - Payment stats fetch error: ' . $e->getMessage());
+        }
+
+        // Dynamic Growth Calculation (% change over last 30 days vs prior 30 days)
+        $last30Days = now()->subDays(30);
+        $prev30Days = now()->subDays(60);
+
+        $revenueCurrent = (float) Booking::where('status', 'completed')
+            ->where('created_at', '>=', $last30Days)
+            ->sum('total_price');
+        $revenuePrev    = (float) Booking::where('status', 'completed')
+            ->whereBetween('created_at', [$prev30Days, $last30Days])
+            ->sum('total_price');
+        $revenueChange  = $revenuePrev > 0
+            ? round((($revenueCurrent - $revenuePrev) / $revenuePrev) * 100, 1)
+            : ($revenueCurrent > 0 ? 100.0 : 0.0);
+
+        $bookingsCurrent = Booking::where('created_at', '>=', $last30Days)->count();
+        $bookingsPrev    = Booking::whereBetween('created_at', [$prev30Days, $last30Days])->count();
+        $bookingsChange  = $bookingsPrev > 0
+            ? round((($bookingsCurrent - $bookingsPrev) / $bookingsPrev) * 100, 1)
+            : ($bookingsCurrent > 0 ? 100.0 : 0.0);
+
+        // Fetch Service Titles Map from provider-service
+        $serviceMap = [];
+        try {
+            $svcRes = Http::timeout(3)->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/services');
+            if ($svcRes->successful()) {
+                $svcs = $svcRes->json('data') ?? $svcRes->json() ?? [];
+                if (is_array($svcs)) {
+                    foreach ($svcs as $s) {
+                        if (isset($s['id'])) {
+                            $serviceMap[$s['id']] = $s['title'] ?? $s['name'] ?? ('Dịch vụ #' . $s['id']);
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('DashboardOverview - Service names fetch error: ' . $e->getMessage());
+        }
+
+        $kpis = [
+            [
+                'type'       => 'revenue',
+                'title'      => 'Tổng doanh thu',
+                'value'      => $totalRevenue,
+                'change'     => $revenueChange,
+                'isPositive' => $revenueChange >= 0,
+            ],
+            [
+                'type'       => 'bookings',
+                'title'      => 'Tổng số đặt chỗ',
+                'value'      => $totalBookings,
+                'change'     => $bookingsChange,
+                'isPositive' => $bookingsChange >= 0,
+            ],
+            [
+                'type'       => 'helpers',
+                'title'      => 'Cộng tác viên hoạt động',
+                'value'      => $activeHelpers,
+                'change'     => $activeHelpers,
+                'isPositive' => true,
+            ],
+            [
+                'type'       => 'satisfaction',
+                'title'      => 'Mức độ hài lòng',
+                'value'      => $avgRating . ' / 5.0',
+                'change'     => (string) $avgRating,
+                'isPositive' => true,
+            ],
+        ];
+
+        // Weekly Bookings chart data (by day of week)
+        $weeklyBookings = [];
+        foreach ([2, 3, 4, 5, 6, 7, 1] as $d) {
+            $weeklyBookings[] = [
+                'day'   => $d,
+                'count' => Booking::whereRaw('DAYOFWEEK(created_at) = ?', [$d])->count(),
+            ];
+        }
+
+        // Service shares from real BookingServices in DB
+        $servicesGrouped = BookingService::selectRaw('service_id, count(*) as total')
+            ->groupBy('service_id')
+            ->get();
+        $serviceShares = [];
+        foreach ($servicesGrouped as $sg) {
+            $serviceShares[] = [
+                'name'  => $serviceMap[$sg->service_id] ?? ('Dịch vụ #' . $sg->service_id),
+                'value' => (int) $sg->total,
+            ];
+        }
+
+        // Recent Bookings from DB (top 5)
+        $recentBookings = [];
+        $recentList = Booking::with('services')->latest()->take(5)->get();
+
+        $customerIds = $recentList->pluck('customer_id')->filter()->unique()->toArray();
+        $userMap = [];
+        if (!empty($customerIds)) {
+            try {
+                $response = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => array_values($customerIds)]);
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    foreach ($users as $u) {
+                        $userMap[$u['id']] = $u['full_name'] ?? $u['email'];
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+
+        foreach ($recentList as $b) {
+            $firstService = $b->services->first();
+            $serviceName = $firstService ? ($serviceMap[$firstService->service_id] ?? ('Dịch vụ #' . $firstService->service_id)) : 'Chưa phân loại';
+            $recentBookings[] = [
+                'customer' => $userMap[$b->customer_id] ?? ('Khách hàng #' . $b->customer_id),
+                'service'  => $serviceName,
+                'date'     => $b->booking_date ? \Carbon\Carbon::parse($b->booking_date)->format('Y-m-d') : $b->created_at->format('Y-m-d'),
+                'price'    => (float) $b->total_price,
+                'status'   => ucfirst($b->status),
+            ];
+        }
 
         $data = [
-            'total_bookings'      => Booking::count(),
+            'total_bookings'      => $totalBookings,
             'today_bookings'      => Booking::whereDate('created_at', $today)->count(),
             'pending_bookings'    => Booking::where('status', 'pending')->count(),
             'confirmed_bookings'  => Booking::where('status', 'confirmed')->count(),
             'in_progress_bookings'=> Booking::where('status', 'in_progress')->count(),
-            'completed_bookings'  => Booking::where('status', 'completed')->count(),
+            'completed_bookings'  => $completedCount,
             'cancelled_bookings'  => Booking::where('status', 'cancelled')->count(),
-            'total_revenue'       => (float) Booking::where('status', 'completed')->sum('total_price'),
+            'total_revenue'       => $totalRevenue,
+            'kpis'                => $kpis,
+            'weeklyBookings'      => $weeklyBookings,
+            'serviceShares'       => $serviceShares,
+            'recentBookings'      => $recentBookings,
         ];
 
         return $this->successResponse($data);

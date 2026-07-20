@@ -1,0 +1,75 @@
+{
+  "contact": {
+    "banner": {
+      "badge": "Hỗ trợ khách hàng 24/7",
+      "title": "Chúng tôi luôn sẵn sàng hỗ trợ bạn",
+      "description": "Gia Đình Việt luôn lắng nghe mọi phản hồi, góp ý từ bạn để không ngừng hoàn thiện chất lượng dịch vụ cho mọi gia đình.",
+      "hotlineLabel": "HOTLINE",
+      "emailLabel": "EMAIL",
+      "satisfiedCount": "Hơn",
+      "satisfiedText": "khách hàng đã được hỗ trợ hài lòng."
+    },
+    "form": {
+      "title": "Gửi yêu cầu hỗ trợ",
+      "fullName": "Họ và tên",
+      "fullNamePlaceholder": "Nguyễn Văn Hùng",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "0901 234 567",
+      "email": "Email",
+      "emailPlaceholder": "example@email.com",
+      "message": "Nội dung liên hệ / góp ý",
+      "messagePlaceholder": "Mô tả chi tiết vấn đề bạn đang gặp phải...",
+      "agreeTerms": "Tôi đồng ý cho hệ thống liên hệ lại",
+      "sending": "Đang gửi...",
+      "submit": "Gửi yêu cầu",
+      "responseNote": "Thông thường chúng tôi phản hồi trong vòng 24 giờ."
+    },
+    "info": {
+      "hotline247": "HOTLINE 24/7",
+      "supportEmail": "EMAIL HỖ TRỢ",
+      "office": "VĂN PHÒNG",
+      "address": "Quận 1, TP. Hồ Chí Minh",
+      "expertTeam": "Đội ngũ chuyên gia luôn sẵn sàng"
+    },
+    "features": {
+      "support": "HỖ TRỢ",
+      "supportDesc": "Hỗ trợ 24/24 các vấn đề của bạn",
+      "quality": "CHẤT LƯỢNG",
+      "qualityDesc": "Đội ngũ chuyên viên tư vấn giàu kinh nghiệm",
+      "service": "DỊCH VỤ",
+      "serviceDesc": "Tư vấn trực tuyến",
+      "coverage": "PHẠM VI",
+      "coverageDesc": "Hỗ trợ trên toàn quốc"
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "q1": "Làm thế nào để tạo tài khoản?",
+      "a1": "Bạn có thể tạo tài khoản bằng cách truy cập vào website của chúng tôi và làm theo hướng dẫn.",
+      "q2": "Tôi đặt lịch như thế nào?",
+      "a2": "Bạn có thể đặt lịch thông qua ứng dụng hoặc gọi điện trực tiếp vào hotline của chúng tôi.",
+      "q3": "Tôi có thể hủy lịch không?",
+      "a3": "Có, bạn có thể hủy lịch trước 24h để không bị tính phí.",
+      "q4": "Bao lâu nhận phản hồi?",
+      "a4": "Thông thường chúng tôi sẽ phản hồi trong vòng 24 giờ làm việc.",
+      "q5": "Tôi có thể khiếu nại dịch vụ?",
+      "a5": "Nếu bạn không hài lòng, vui lòng liên hệ qua email giadinhviet.support@gmail.com hoặc hotline để được giải quyết."
+    },
+    "validation": {
+      "fullNameRequired": "Vui lòng nhập họ và tên",
+      "phoneDigitsOnly": "Số điện thoại chỉ bao gồm số",
+      "phoneInvalid": "Số điện thoại không hợp lệ",
+      "phoneMax": "Số điện thoại dài hơn bình thường",
+      "phoneRequired": "Vui lòng nhập số điện thoại",
+      "emailInvalid": "Email không hợp lệ",
+      "emailRequired": "Vui lòng nhập email",
+      "messageRequired": "Vui lòng nhập nội dung",
+      "agreeRequired": "Bạn cần đồng ý với điều khoản"
+    },
+    "toast": {
+      "successTitle": "Thành công",
+      "successMessage": "Gửi yêu cầu liên hệ thành công!",
+      "errorTitle": "Lỗi",
+      "errorMessage": "Gửi yêu cầu thất bại. Vui lòng thử lại sau."
+    }
+  }
+}

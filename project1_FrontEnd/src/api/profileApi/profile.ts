@@ -36,6 +36,7 @@ export interface UpdateProfileRequest {
   phone?: string;
   avatar?: string;
   password?: string;
+  current_password?: string;
 }
 
 export interface UpdateCustomerProfileRequest {

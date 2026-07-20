@@ -39,6 +39,7 @@ import {
   getProfilePasswordSchema,
   getProfileAddressSchema
 } from "../../api/profileApi/validation";
+import { ROLES } from "../../constants/roles";
 
 export const useProfile = () => {
   const { t } = useTranslation();
@@ -130,7 +131,7 @@ export const useProfile = () => {
       setUserProfile(user);
 
       // 2. Fetch Customer profile if user role is Customer (role_id = 4)
-      if (user.role_id === 4) {
+      if (user.role_id === ROLES.CUSTOMER) {
         try {
           const custRes = await getCustomerProfileApi();
           setCustomerProfile(custRes.data);
@@ -141,7 +142,7 @@ export const useProfile = () => {
       }
 
       // 3. Fetch Helper profile if user role is Helper (role_id = 3)
-      if (user.role_id === 3) {
+      if (user.role_id === ROLES.HELPER) {
         try {
           const helperRes = await getHelperProfileApi();
           setHelperProfile(helperRes.data);
@@ -222,7 +223,7 @@ export const useProfile = () => {
         }
 
         // 3. Update helper profile info if they are helper
-        if (userProfile?.role_id === 3) {
+        if (userProfile?.role_id === ROLES.HELPER) {
           await updateHelperProfileApi({
             bio: values.bio,
             experience_year: Number(values.experience_year),
@@ -312,6 +313,7 @@ export const useProfile = () => {
   // Formik for Password Change
   const passwordForm = useFormik({
     initialValues: {
+      currentPassword: "",
       password: "",
       confirmPassword: ""
     },
@@ -322,6 +324,7 @@ export const useProfile = () => {
       setSuccessMessage(null);
       try {
         await updateProfileApi({
+          current_password: values.currentPassword,
           password: values.password
         });
         setSuccessMessage(t("Thay đổi mật khẩu thành công."));

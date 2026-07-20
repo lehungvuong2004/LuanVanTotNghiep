@@ -6,7 +6,7 @@ import { getMyPaymentsApi, createVnpayUrlApi, createPaymentApi, simulatePaymentC
 import { getMyApplicationsApi, respondToSelectionApi } from "../../api/jobPostsApi/jobPosts";
 import { io } from "socket.io-client";
 import { sortBookingsByDate } from "../../utils";
-
+import { ROLES } from "../../constants/roles";
 export interface Booking {
   id: string;
   idRaw: number; // numeric primary key
@@ -42,6 +42,8 @@ export const useHistory = () => {
 
   const [applications, setApplications] = useState<any[]>([]);
   const [isApplicationsLoading, setIsApplicationsLoading] = useState<boolean>(false);
+  const [reviewedBookingIds, setReviewedBookingIds] = useState<number[]>([]);
+  const [reportedBookingIds, setReportedBookingIds] = useState<number[]>([]);
 
   const { showToast } = useToast();
 
@@ -66,7 +68,7 @@ export const useHistory = () => {
       const user = JSON.parse(userStr);
 
       // 3. Call API based on role
-      const response = user.role_id === 3 ? await getHelperBookingsApi({ limit: 1000 }) : await getCustomerBookingsApi({ limit: 1000 });
+      const response = user.role_id === ROLES.HELPER ? await getHelperBookingsApi({ limit: 500 }) : await getCustomerBookingsApi({ limit: 1000 });
 
       // Laravel paginate result has data inside response.data.data.data
       const rawBookingsData = response.data?.data?.data || response.data?.data || [];
@@ -146,6 +148,15 @@ export const useHistory = () => {
           paymentInfo,
         };
       });
+
+      const revIds: number[] = [];
+      const repIds: number[] = [];
+      rawBookings.forEach((b: any) => {
+        if (b.reviews && b.reviews.length > 0) revIds.push(b.id);
+        if (b.reports && b.reports.length > 0) repIds.push(b.id);
+      });
+      if (revIds.length > 0) setReviewedBookingIds((prev) => Array.from(new Set([...prev, ...revIds])));
+      if (repIds.length > 0) setReportedBookingIds((prev) => Array.from(new Set([...prev, ...repIds])));
 
       setBookings(mapped);
     } catch (err) {
@@ -369,7 +380,7 @@ export const useHistory = () => {
     handleRespondToSelection,
 
     isLoading,
-    isHelper: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!).role_id === 3 : false,
+    isHelper: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!).role_id === ROLES.HELPER : false,
     refreshBookings: fetchData,
     applications,
     isApplicationsLoading,
@@ -383,5 +394,9 @@ export const useHistory = () => {
     openPaymentModal,
     closePaymentModal,
     handlePayBooking,
+    reviewedBookingIds,
+    reportedBookingIds,
+    markAsReviewed: (idRaw: number) => setReviewedBookingIds((prev) => Array.from(new Set([...prev, idRaw]))),
+    markAsReported: (idRaw: number) => setReportedBookingIds((prev) => Array.from(new Set([...prev, idRaw]))),
   };
 };

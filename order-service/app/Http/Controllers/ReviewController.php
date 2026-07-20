@@ -153,6 +153,15 @@ class ReviewController extends Controller
 
     $fields['customer_id'] = $request->authUser['id'];
 
+    if (!empty($fields['booking_id'])) {
+      $exists = Review::where('booking_id', $fields['booking_id'])
+        ->where('customer_id', $fields['customer_id'])
+        ->exists();
+      if ($exists) {
+        return $this->errorResponse('Bạn đã gửi đánh giá cho đơn đặt lịch này rồi.', Response::HTTP_BAD_REQUEST);
+      }
+    }
+
     $review = Review::create($fields);
 
     // Update helper rating_avg in provider-service

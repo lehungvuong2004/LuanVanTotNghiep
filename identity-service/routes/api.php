@@ -36,6 +36,7 @@ Route::post('contacts', [ContactController::class, 'store']);
 // API nội bộ cho các service khác gọi
 Route::post('internal/notifications', [NotificationController::class, 'createInternal']);
 Route::post('internal/users/by-ids',  [AuthController::class, 'getUsersByIdsInternal']);
+Route::get('internal/users/search-ids', [AuthController::class, 'searchUserIds']);
 Route::post('internal/customer/profile-status', [CustomerProfileController::class, 'getCustomerProfileStatusInternal']);
 
 Route::middleware('auth:api')->group(function () {

@@ -26,7 +26,7 @@ class AdminMiddleware
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        if ($user->role_id !== Role::ADMIN) {
+        if ($user->role_id !== Role::ADMIN && $user->role_id !== Role::OPERATOR) {
             return response()->json([
                 'message' => 'Bạn không có quyền thực hiện hành động này.'
             ], Response::HTTP_FORBIDDEN);

@@ -9,6 +9,7 @@ export default function useContact() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -28,41 +29,53 @@ export default function useContact() {
           email: values.email,
           message: values.message,
         });
-        showToast("success", t("Thành công"), t("Gửi yêu cầu liên hệ thành công!"));
+        showToast("success", t("contact.toast.successTitle"), t("contact.toast.successMessage"));
         formik.resetForm();
       } catch (error: any) {
-        // console.error("Submit contact error:", error);
-        showToast("error", t("Lỗi"), error?.response?.data?.message || t("Gửi yêu cầu thất bại. Vui lòng thử lại sau."));
+        showToast("error", t("contact.toast.errorTitle"), error?.response?.data?.message || t("contact.toast.errorMessage"));
       } finally {
         setLoading(false);
       }
     },
   });
+
   const questions = [
     {
       id: 1,
-      question: "Làm thế nào để tạo tài khoản?",
-      answer: "Bạn có thể tạo tài khoản bằng cách truy cập vào website của chúng tôi và làm theo hướng dẫn." },
+      question: "contact.faq.q1",
+      answer: "contact.faq.a1",
+    },
     {
       id: 2,
-      question: "Tôi đặt lịch như thế nào?",
-      answer: "Bạn có thể đặt lịch thông qua ứng dụng hoặc gọi điện trực tiếp vào hotline của chúng tôi." },
+      question: "contact.faq.q2",
+      answer: "contact.faq.a2",
+    },
     {
       id: 3,
-      question: "Tôi có thể hủy lịch không?",
-      answer: "Có, bạn có thể hủy lịch trước 24h để không bị tính phí." },
+      question: "contact.faq.q3",
+      answer: "contact.faq.a3",
+    },
     {
       id: 4,
-      question: "Bao lâu nhận phản hồi?",
-      answer: "Thông thường chúng tôi sẽ phản hồi trong vòng 24 giờ làm việc." },
+      question: "contact.faq.q4",
+      answer: "contact.faq.a4",
+    },
     {
       id: 5,
-      question: "Tôi có thể khiếu nại dịch vụ?",
-      answer: "Nếu bạn không hài lòng, vui lòng liên hệ qua email giadinhviet.support@gmail.com hoặc hotline để được giải quyết." },
+      question: "contact.faq.q5",
+      answer: "contact.faq.a5",
+    },
   ];
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
 
   return {
     questions,
     formik,
-    loading };
+    toggleFaq,
+    openFaqIndex,
+    loading,
+  };
 }

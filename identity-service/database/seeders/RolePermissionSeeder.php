@@ -48,6 +48,7 @@ class RolePermissionSeeder extends Seeder
       'services.update_status',
       'bookings.view',
       'bookings.update_status',
+      'contacts.view',
       'contacts.process',
       'reports.process',
       'refunds.process',

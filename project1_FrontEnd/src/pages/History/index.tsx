@@ -44,6 +44,10 @@ export const HistoryPage = () => {
     openPaymentModal,
     closePaymentModal,
     handlePayBooking,
+    reviewedBookingIds,
+    reportedBookingIds,
+    markAsReviewed,
+    markAsReported,
   } = useHistory();
 
   // ── Review states ────────────────────────────────────────
@@ -120,7 +124,9 @@ export const HistoryPage = () => {
         reason: reportReason.trim(),
       });
       showToast("success", t("Gửi báo cáo thành công"), t("Báo cáo vi phạm đã được gửi đến ban quản trị để xử lý."));
+      markAsReported(reportBooking.idRaw);
       handleCloseReportModal();
+      refreshBookings();
     } catch (err: any) {
       showToast("error", t("Lỗi gửi báo cáo"), err.response?.data?.message || t("Không thể gửi báo cáo vi phạm. Vui lòng thử lại."));
     } finally {
@@ -534,26 +540,47 @@ export const HistoryPage = () => {
                   </button>
                 )}
                 {booking.statusRaw === "completed" && (
-                  <button
-                    onClick={() => {
-                      setReviewTargetBooking(booking);
-                      setIsReviewModalOpen(true);
-                    }}
-                    title={t("Đánh giá")}
-                    className="px-3 py-1.5 bg-[#026E5F] hover:bg-[#01564a] text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer hover:scale-105"
-                  >
-                    <Icon icon="material-symbols:star-outline" className="text-sm" />
-                    <span>{t("Đánh giá")}</span>
-                  </button>
+                  reviewedBookingIds.includes(booking.idRaw) ? (
+                    <button
+                      disabled
+                      title={t("Đã đánh giá")}
+                      className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 font-bold rounded-lg text-xs flex items-center gap-1 cursor-not-allowed border border-slate-200/80 dark:border-slate-700/60 opacity-80"
+                    >
+                      <Icon icon="material-symbols:star-rounded" className="text-sm text-amber-400/80" />
+                      <span>{t("Đã đánh giá")}</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setReviewTargetBooking(booking);
+                        setIsReviewModalOpen(true);
+                      }}
+                      title={t("Đánh giá")}
+                      className="px-3 py-1.5 bg-[#026E5F] hover:bg-[#01564a] text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer hover:scale-105"
+                    >
+                      <Icon icon="material-symbols:star-outline" className="text-sm" />
+                      <span>{t("Đánh giá")}</span>
+                    </button>
+                  )
                 )}
                 {["confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && booking.helper?.id && (
-                  <button
-                    onClick={() => handleOpenReportModal(booking)}
-                    title={t("Báo cáo vi phạm")}
-                    className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-600 transition-all cursor-pointer dark:bg-amber-950/30 dark:hover:bg-amber-900/45 dark:text-amber-400 hover:scale-105"
-                  >
-                    <Icon icon="material-symbols:report-outline" className="text-lg" />
-                  </button>
+                  reportedBookingIds.includes(booking.idRaw) ? (
+                    <button
+                      disabled
+                      title={t("Đã báo cáo vi phạm")}
+                      className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-slate-100 text-slate-400 dark:bg-slate-800/60 dark:text-slate-500 cursor-not-allowed border border-slate-200/80 dark:border-slate-700/60 opacity-60"
+                    >
+                      <Icon icon="material-symbols:report-outline" className="text-lg text-amber-500/50" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleOpenReportModal(booking)}
+                      title={t("Báo cáo vi phạm")}
+                      className="w-8.5 h-8.5 rounded-xl flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-600 transition-all cursor-pointer dark:bg-amber-950/30 dark:hover:bg-amber-900/45 dark:text-amber-400 hover:scale-105"
+                    >
+                      <Icon icon="material-symbols:report-outline" className="text-lg" />
+                    </button>
+                  )
                 )}
                 {!["pending", "confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>}
               </div>
@@ -1650,7 +1677,10 @@ export const HistoryPage = () => {
           helperName={reviewTargetBooking.helper.name}
           helperAvatar={reviewTargetBooking.helper.avatar}
           bookingId={Number(reviewTargetBooking.idRaw || reviewTargetBooking.id)}
-          onSuccess={refreshBookings}
+          onSuccess={() => {
+            if (reviewTargetBooking) markAsReviewed(reviewTargetBooking.idRaw);
+            refreshBookings();
+          }}
         />
       )}
 

@@ -103,6 +103,7 @@ function App() {
             <Route path="services" element={<Services />} />
             <Route path="schedules" element={<Schedules />} />
             <Route path="bookings" element={<Booking />} />
+            <Route path="job-posts" element={<ApplicationReview />} />
             <Route path="banners" element={<Banners />} />
             <Route path="news" element={<NewsAdmin />} />
             <Route path="payments" element={<Payments />} />

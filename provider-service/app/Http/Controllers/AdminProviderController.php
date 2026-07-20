@@ -63,7 +63,7 @@ class AdminProviderController extends Controller
             try {
                 $response = Http::withHeaders(['Authorization' => $authHeader])
                     ->timeout(3)
-                    ->get(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users/search-ids', ['query' => $search]);
+                    ->get(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/search-ids', ['query' => $search]);
 
                 if ($response->successful()) {
                     $userIds = $response->json() ?? [];
@@ -88,7 +88,7 @@ class AdminProviderController extends Controller
             try {
                 $usersResponse = Http::withHeaders(['Authorization' => $authHeader])
                     ->timeout(3)
-                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users/by-ids', ['ids' => $userIds]);
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $userIds]);
 
                 if ($usersResponse->successful()) {
                     $users = $usersResponse->json('data') ?? [];
@@ -129,7 +129,7 @@ class AdminProviderController extends Controller
         try {
             $userResponse = Http::withHeaders(['Authorization' => $authHeader])
                 ->timeout(3)
-                ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/admin/users/by-ids', ['ids' => [$helper->user_id]]);
+                ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => [$helper->user_id]]);
 
             if ($userResponse->successful()) {
                 $users = $userResponse->json('data') ?? [];

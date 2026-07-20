@@ -2,10 +2,19 @@ import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useMemo } from "react";
 import { getRootFontSizePx } from "../../../utils";
 import { QUALITATIVE_PALETTE } from "../../../constants/colors";
+import { getUsersAdmin, type User } from "../../../api/usersApi/users";
+import { ROLES } from "../../../constants/roles";
 
-export const getUniqueColor = (index: number): string => {
+const getUniqueColor = (index: number): string => {
   return QUALITATIVE_PALETTE[index % QUALITATIVE_PALETTE.length];
 };
+
+export interface HelperOption {
+  name: string;
+  value: string;
+  avatar: string | null;
+  phone: string | null;
+}
 
 export interface BookingService {
   name: string;
@@ -41,6 +50,7 @@ export interface BookingItem {
   createdAt: string;
 }
 
+// HARDCODED DATA
 const INITIAL_BOOKINGS: BookingItem[] = [
   {
     id: "BK-001",
@@ -299,6 +309,39 @@ export const useBooking = () => {
   const [editingBooking, setEditingBooking] = useState<BookingItem | null>(null);
 
   const { showToast } = useToast();
+
+  // Dynamic helper list fetched from identity-service database
+  const [helperList, setHelperList] = useState<HelperOption[]>([
+    { name: "Chưa phân phối", value: "", avatar: null, phone: null },
+  ]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchHelpers = async () => {
+      try {
+        const res = await getUsersAdmin({ role_id: ROLES.HELPER, limit: 100 });
+        const helpersData = res?.data?.data || [];
+        if (isMounted && Array.isArray(helpersData) && helpersData.length > 0) {
+          const formatted: HelperOption[] = [
+            { name: "Chưa phân phối", value: "", avatar: null, phone: null },
+            ...helpersData.map((u: User) => ({
+              name: u.full_name,
+              value: u.full_name,
+              avatar: u.avatar || null,
+              phone: u.phone || null,
+            })),
+          ];
+          setHelperList(formatted);
+        }
+      } catch (err) {
+        console.error("Dashboard Booking - Failed to fetch helpers from DB:", err);
+      }
+    };
+    fetchHelpers();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -615,6 +658,7 @@ export const useBooking = () => {
 
   return {
     bookings,
+    helperList,
     searchQuery,
     setSearchQuery: handleSearchChange,
     selectedStatus,
@@ -624,6 +668,7 @@ export const useBooking = () => {
     currentPage,
     setCurrentPage,
     itemsPerPage,
+    filteredBookings,
     filteredCount: filteredBookings.length,
     paginatedBookings,
     metrics,

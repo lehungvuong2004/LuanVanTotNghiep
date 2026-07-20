@@ -16,13 +16,8 @@ import {
   getHelperPublicProfileApi,
   type JobPost } from "../../api/jobPostsApi/jobPosts";
 
-export const SALARY_OPTS = [
-  { value: "all", label: "Tất cả" },
-  { value: "under-5m", label: "Dưới 5 triệu" },
-  { value: "5m-10m", label: "5 – 10 triệu" },
-  { value: "10m-15m", label: "10 – 15 triệu" },
-  { value: "over-15m", label: "Trên 15 triệu" },
-];
+import { SALARY_OPTS, isSalaryMatchingRange } from "../../components/PriceFilter/useHook";
+export { SALARY_OPTS };
 
 export const URGENCY_OPTS = [
   { value: "all", label: "Tất cả" },
@@ -109,7 +104,6 @@ export const useRecruitment = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const tabParam = searchParams.get("tab");
-  const postIdParam = searchParams.get("post_id");
 
   // Customer tab: "browse" (default) or "my-posts"
   const [activeTab, setActiveTab] = useState<"browse" | "my-posts">("browse");
@@ -258,10 +252,7 @@ export const useRecruitment = () => {
     // 3. Salary Range filter
     if (selectedSalary !== "all") {
       const salaryNum = Number(job.salary) || 0;
-      if (selectedSalary === "under-5m" && salaryNum >= 5000000) return false;
-      if (selectedSalary === "5m-10m" && (salaryNum < 5000000 || salaryNum > 10000000)) return false;
-      if (selectedSalary === "10m-15m" && (salaryNum < 10000000 || salaryNum > 15000000)) return false;
-      if (selectedSalary === "over-15m" && salaryNum < 15000000) return false;
+      if (!isSalaryMatchingRange(salaryNum, selectedSalary)) return false;
     }
 
     // 4. Urgency filter
@@ -456,16 +447,6 @@ export const useRecruitment = () => {
     setSelectedJobPost(null);
     setApplicants([]);
   }, []);
-
-  // Auto-open applications modal if postIdParam exists in the URL and match is found
-  useEffect(() => {
-    if (postIdParam && myJobPosts.length > 0) {
-      const matched = myJobPosts.find((p) => p.id === Number(postIdParam));
-      if (matched) {
-        openApplications(matched);
-      }
-    }
-  }, [postIdParam, myJobPosts, openApplications]);
 
   // ─── Customer: accept a helper ──────────────────────────
   const acceptHelper = useCallback(async (jobPostId: number, helperId: number) => {

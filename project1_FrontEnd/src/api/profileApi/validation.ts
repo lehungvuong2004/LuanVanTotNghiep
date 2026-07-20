@@ -31,8 +31,11 @@ export const getProfileInfoSchema = (t: any) =>
 
 export const getProfilePasswordSchema = (t: any) =>
   Yup.object({
+    currentPassword: Yup.string()
+      .required(t("Vui lòng nhập mật khẩu hiện tại")),
     password: Yup.string()
       .required(t("Vui lòng nhập mật khẩu mới"))
+      .notOneOf([Yup.ref("currentPassword")], t("Mật khẩu mới không được trùng với mật khẩu hiện tại"))
       .min(6, t("Mật khẩu phải có ít nhất 6 ký tự"))
       .max(32, t("Mật khẩu không được vượt quá 32 ký tự"))
       .test("no-space", t("Mật khẩu không được chứa khoảng trắng"), (val) => !/\s/.test(val || ""))

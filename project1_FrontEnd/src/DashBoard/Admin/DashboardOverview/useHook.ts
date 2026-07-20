@@ -56,18 +56,25 @@ export const useDashboardOverview = () => {
           1: "Chủ Nhật",
         };
 
-        const mappedKpis = data.kpis.map((kpi) => {
-          const meta = kpiMetaMap[kpi.type];
+        const payload = (data as any)?.data || data || {};
+        const rawKpis = payload.kpis ?? [];
+        const rawWeeklyBookings = payload.weeklyBookings ?? [];
+        const rawServiceShares = payload.serviceShares ?? [];
+        const rawRecentBookings = payload.recentBookings ?? [];
+
+        const mappedKpis = rawKpis.map((kpi: any) => {
+          const meta = kpiMetaMap[kpi.type] || {
+            title: kpi.title || kpi.type || "KPI",
+            icon: "material-symbols:analytics-outline",
+            bgColor: "bg-slate-50 dark:bg-slate-900/30",
+            textColor: "text-slate-600 dark:text-slate-400",
+          };
 
           let changeFormatted = kpi.change;
-          if (kpi.type === "revenue" || kpi.type === "bookings") {
+          if (typeof kpi.change === "number") {
             const num = Number(kpi.change);
             const prefix = num >= 0 ? "+" : "";
             changeFormatted = `${prefix}${num.toFixed(1)}%`;
-          } else if (kpi.type === "helpers") {
-            changeFormatted = `+${kpi.change} đang chờ duyệt`;
-          } else if (kpi.type === "satisfaction") {
-            changeFormatted = `TB ${kpi.change}`;
           }
 
           return {
@@ -80,15 +87,15 @@ export const useDashboardOverview = () => {
           };
         });
 
-        const mappedWeeklyBookings = data.weeklyBookings.map((item) => ({
+        const mappedWeeklyBookings = rawWeeklyBookings.map((item: any) => ({
           ...item,
-          day: dayMap[item.day] || `Thứ ${item.day}`,
+          day: dayMap[item.day as keyof typeof dayMap] || `Thứ ${item.day}`,
         }));
 
         setKpis(mappedKpis);
         setWeeklyBookings(mappedWeeklyBookings);
-        setServiceShares(data.serviceShares);
-        setRecentBookings(data.recentBookings);
+        setServiceShares(rawServiceShares);
+        setRecentBookings(rawRecentBookings);
         setError(null);
       } catch (err: any) {
         setError(err.message || "Không thể tải dữ liệu tổng quan");

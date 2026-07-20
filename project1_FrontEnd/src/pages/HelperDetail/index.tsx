@@ -28,7 +28,6 @@ export const HelperDetail = () => {
   const [reviewData, setReviewData] = useState<HelperReviewsResponse | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [reviewPage, setReviewPage] = useState(1);
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -53,7 +52,7 @@ export const HelperDetail = () => {
     if (!id) return;
     const fetchReviews = async () => {
       try {
-        const params: any = { limit: 10, page: reviewPage };
+        const params: any = { limit: 50 };
         if (filterRating) params.rating = filterRating;
         const res = await getHelperReviewsPublic(Number(id), params);
         setReviewData(res);
@@ -63,12 +62,12 @@ export const HelperDetail = () => {
       }
     };
     fetchReviews();
-  }, [id, reviewPage, filterRating]);
+  }, [id, filterRating]);
 
   if (loading) {
     return (
       <div className="min-h-screen dark:bg-slate-900 pt-8">
-        <div className="max-w-5xl mx-auto px-4 animate-pulse space-y-6">
+        <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
           <div className="flex gap-8">
             <div className="w-32 h-32 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0" />
             <div className="flex-1 space-y-4">
@@ -363,29 +362,12 @@ export const HelperDetail = () => {
           </div>
         )}
       </div>
-
-      {/* Pagination */}
-      {reviewData && reviewData.data?.last_page > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          {[...Array(reviewData.data.last_page)].map((_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => setReviewPage(i + 1)}
-              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all cursor-pointer ${
-                reviewPage === i + 1 ? "bg-teal-600 text-white shadow-md" : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-teal-500"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 
   return (
     <div className="min-h-screen dark:bg-slate-900 pt-6 pb-16">
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-384 mx-auto px-4 sm:px-6 lg:px-10">
         {renderBreadcrumb()}
         <div className="grid grid-cols-1 gap-8">
           {renderProfileHeader()}

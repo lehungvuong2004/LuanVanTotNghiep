@@ -39,6 +39,16 @@ class ReportController extends Controller
             return $this->errorResponse('Bạn không thể tự báo cáo chính mình.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
+        // Prevent duplicate report on same booking
+        if (!empty($fields['booking_id'])) {
+            $exists = Report::where('booking_id', $fields['booking_id'])
+                ->where('report_by', $request->authUser['id'])
+                ->exists();
+            if ($exists) {
+                return $this->errorResponse('Bạn đã gửi báo cáo vi phạm cho đơn đặt lịch này rồi.', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
         $report = Report::create([
             'booking_id'       => $fields['booking_id'] ?? null,
             'job_post_id'      => $fields['job_post_id'] ?? null,

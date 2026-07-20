@@ -8,6 +8,7 @@ import type { ServiceCategory } from "../../api/servicesApi/services";
 import { formatNumberVI } from "../../utils";
 import { Pagination } from "../../components/Pagination";
 import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
+import { PriceFilter } from "../../components/PriceFilter";
 
 // ─── 1. Sidebar Filter ──────────────────────────────────────────────────────
 interface SidebarFilterProps {
@@ -82,6 +83,8 @@ const CustomSelect = ({ value, onChange, options, placeholder = "" }: CustomSele
 };
 
 const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }: SidebarFilterProps) => {
+  const [isOpenMobile, setIsOpenMobile] = useState(false);
+
   const handleDistrictChange = (district: string) => {
     onFilterChange({ district: district === "Tất cả" ? undefined : district });
   };
@@ -98,111 +101,116 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
     onFilterChange({ category_id: catId === "Tất cả" ? undefined : Number(catId) || undefined });
   };
 
-  const handleMinPriceChange = (e) => {
-    const val = e.target.value ? Number(e.target.value) : undefined;
-    onFilterChange({ min_price: val });
-  };
+  // const handleMinPriceChange = (e) => {
+  //   const val = e.target.value ? Number(e.target.value) : undefined;
+  //   onFilterChange({ min_price: val });
+  // };
 
-  const handleMaxPriceChange = (e) => {
-    const val = e.target.value ? Number(e.target.value) : undefined;
-    onFilterChange({ max_price: val });
-  };
+  // const handleMaxPriceChange = (e) => {
+  //   const val = e.target.value ? Number(e.target.value) : undefined;
+  //   onFilterChange({ max_price: val });
+  // };
 
   const handleRatingChange = (rating: number) => {
     onFilterChange({ rating_min: rating > 0 ? rating : undefined });
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-6 shadow-sm sticky top-24 flex flex-col gap-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700/50">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-5 lg:p-6 shadow-sm sticky top-24 flex flex-col gap-5 lg:gap-6">
+      <div
+        onClick={() => setIsOpenMobile((prev) => !prev)}
+        className="flex items-center justify-between pb-3 lg:pb-4 border-b border-slate-100 dark:border-slate-700/50 cursor-pointer lg:cursor-default"
+      >
         <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
           <Icon icon="material-symbols:filter-list" className="text-xl text-teal-600" />
-          {t("Bộ lọc dịch vụ")}
+          <span>{t("Bộ lọc dịch vụ")}</span>
+          <Icon
+            icon="lsicon:down-filled"
+            className={`text-sm text-slate-500 lg:hidden transition-transform duration-200 ${isOpenMobile ? "rotate-180" : ""}`}
+          />
         </h3>
-        <button onClick={onReset} className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline cursor-pointer">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onReset();
+          }}
+          className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline cursor-pointer"
+        >
           {t("Xóa bộ lọc")}
         </button>
       </div>
 
-      {/* Giao diện lọc Thành phố */}
-      <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
-        <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={CITIES.map((c) => ({ value: c, label: c }))} />
-      </div>
-
-      {/* Quận / Huyện */}
-      <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Quận / Huyện")}</h4>
-        <CustomSelect value={filterParams.district ?? "Tất cả"} onChange={handleDistrictChange} options={DISTRICTS_HCMC.map((d) => ({ value: d, label: t(d) }))} />
-      </div>
-
-      {/* Danh mục dịch vụ */}
-      <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Danh mục dịch vụ")}</h4>
-        <CustomSelect
-          value={filterParams.category_id ?? "Tất cả"}
-          onChange={handleCategoryChange}
-          options={[{ value: "Tất cả", label: t("Tất cả danh mục") }, ...categories.map((cat) => ({ value: cat.id, label: cat.name }))]}
-        />
-      </div>
-
-      {/* Loại hình giá */}
-      <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Loại hình giá")}</h4>
-        <CustomSelect
-          value={filterParams.price_type ?? "Tất cả"}
-          onChange={handlePriceTypeChange}
-          options={[
-            { value: "Tất cả", label: t("Tất cả loại giá") },
-            { value: "hourly", label: t("Theo giờ") },
-            { value: "fixed", label: t("Cố định") },
-            { value: "daily", label: t("Theo ngày") },
-          ]}
-        />
-      </div>
-
-      {/* Đánh giá tối thiểu */}
-      <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Đánh giá tối thiểu")}</h4>
-        <div className="flex flex-col gap-2">
-          {RATINGS.map((r) => (
-            <label key={r.value} className="flex items-center gap-3 cursor-pointer group">
-              <input
-                type="radio"
-                name="rating_min"
-                checked={(filterParams.rating_min ?? 0) === r.value}
-                onChange={() => handleRatingChange(r.value)}
-                className="border-slate-300 dark:border-slate-700 text-teal-600 focus:ring-teal-500 dark:bg-slate-900 cursor-pointer"
-              />
-              <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1 group-hover:text-slate-800 dark:group-hover:text-white transition-colors font-medium">
-                {r.label}
-                {r.value > 0 && <Icon icon="material-symbols:star" className="text-amber-400 text-base" />}
-              </span>
-            </label>
-          ))}
+      <div className={`flex-col gap-5 lg:gap-6 ${isOpenMobile ? "flex" : "hidden lg:flex"}`}>
+        {/* Giao diện lọc Thành phố */}
+        <div>
+          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
+          <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={CITIES.map((c) => ({ value: c, label: c }))} />
         </div>
-      </div>
 
-      {/* Khoảng giá */}
-      <div>
-        <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Khoảng giá (VNĐ)")}</h4>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            placeholder={t("Từ")}
-            value={filterParams.min_price ?? ""}
-            onChange={handleMinPriceChange}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-          />
-          <span className="text-slate-400 dark:text-slate-500 text-xs">—</span>
-          <input
-            type="number"
-            placeholder={t("Đến")}
-            value={filterParams.max_price ?? ""}
-            onChange={handleMaxPriceChange}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+        {/* Quận / Huyện */}
+        <div>
+          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Quận / Huyện")}</h4>
+          <CustomSelect value={filterParams.district ?? "Tất cả"} onChange={handleDistrictChange} options={DISTRICTS_HCMC.map((d) => ({ value: d, label: t(d) }))} />
+        </div>
+
+        {/* Danh mục dịch vụ */}
+        <div>
+          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Danh mục dịch vụ")}</h4>
+          <CustomSelect
+            value={filterParams.category_id ?? "Tất cả"}
+            onChange={handleCategoryChange}
+            options={[{ value: "Tất cả", label: t("Tất cả danh mục") }, ...categories.map((cat) => ({ value: cat.id, label: cat.name }))]}
           />
         </div>
+
+        {/* Loại hình giá */}
+        <div>
+          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Loại hình giá")}</h4>
+          <CustomSelect
+            value={filterParams.price_type ?? "Tất cả"}
+            onChange={handlePriceTypeChange}
+            options={[
+              { value: "Tất cả", label: t("Tất cả loại giá") },
+              { value: "hourly", label: t("Theo giờ") },
+              { value: "fixed", label: t("Cố định") },
+              { value: "daily", label: t("Theo ngày") },
+            ]}
+          />
+        </div>
+
+        {/* Đánh giá tối thiểu */}
+        <div>
+          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Đánh giá tối thiểu")}</h4>
+          <div className="flex flex-col gap-2">
+            {RATINGS.map((r) => (
+              <label key={r.value} className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="radio"
+                  name="rating_min"
+                  checked={(filterParams.rating_min ?? 0) === r.value}
+                  onChange={() => handleRatingChange(r.value)}
+                  className="border-slate-300 dark:border-slate-700 text-teal-600 focus:ring-teal-500 dark:bg-slate-900 cursor-pointer"
+                />
+                <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1 group-hover:text-slate-800 dark:group-hover:text-white transition-colors font-medium">
+                  {r.label}
+                  {r.value > 0 && <Icon icon="material-symbols:star" className="text-amber-400 text-base" />}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Khoảng giá */}
+        <PriceFilter
+          title={t("Khoảng giá (VNĐ)")}
+          minPrice={filterParams.min_price}
+          maxPrice={filterParams.max_price}
+          onChangeRange={(min, max) => {
+            onFilterChange({ min_price: min, max_price: max });
+          }}
+          t={t}
+          nameGroup="service_price_filter"
+        />
       </div>
     </div>
   );
@@ -241,7 +249,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 overflow-hidden shadow-sm animate-pulse">
-            <div className="aspect-[4/3] bg-slate-200 dark:bg-slate-700" />
+            <div className="aspect-4/3 bg-slate-200 dark:bg-slate-700" />
             <div className="p-6 flex flex-col gap-3">
               <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
               <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
@@ -282,7 +290,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
                 onClick={() => onNavigateService(service.id)}
                 className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group relative cursor-pointer"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-900 relative">{renderServiceImage(service.image, service.title)}</div>
+                <div className="aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-900 relative">{renderServiceImage(service.image, service.title)}</div>
                 <div className="p-6 flex flex-col grow">
                   <div className="flex items-center justify-between mb-2.5">
                     <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{service.category}</span>

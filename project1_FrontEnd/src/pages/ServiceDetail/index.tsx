@@ -78,6 +78,8 @@ const CustomSelect = ({ value, onChange, options, placeholder, className = "" }:
 
 export const ServiceDetail = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState<number | "all">("all");
+  const [hasCommentFilter, setHasCommentFilter] = useState<boolean>(false);
   const {
     navigate,
     t,
@@ -143,7 +145,7 @@ export const ServiceDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen dark:bg-slate-900 pt-8">
-        <div className="max-w-6xl mx-auto px-4 animate-pulse space-y-6">
+        <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
           <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 h-96 bg-slate-200 dark:bg-slate-700 rounded-3xl" />
@@ -419,7 +421,9 @@ export const ServiceDetail = () => {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-6 grid grid-cols-1 md:grid-cols-3 gap-8 items-center shadow-sm">
         <div className="text-center md:col-span-1 w-full">
-          <div className="text-5xl font-extrabold text-slate-800 dark:text-slate-100">{statsToDisplay.avg_rating ? Number(statsToDisplay.avg_rating).toFixed(1) : "0.0"}</div>
+          <div className="text-5xl font-extrabold text-teal-800 dark:text-teal-400">
+            {statsToDisplay.avg_rating ? Number(statsToDisplay.avg_rating).toFixed(1) : "0.0"}
+          </div>
           <div className="flex justify-center gap-0.5 mt-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <Icon
@@ -429,23 +433,22 @@ export const ServiceDetail = () => {
               />
             ))}
           </div>
-          <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {statsToDisplay.total_reviews} {t("đánh giá")}
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
+            {t("Dựa trên")} {statsToDisplay.total_reviews} {t("đánh giá")}
           </div>
         </div>
 
-        <div className="md:col-span-2 space-y-2 w-full">
+        <div className="md:col-span-2 space-y-2.5 w-full">
           {[5, 4, 3, 2, 1].map((star) => {
             const count = statsToDisplay.rating_distribution?.[star] ?? 0;
             const pct = statsToDisplay.total_reviews > 0 ? (count / statsToDisplay.total_reviews) * 100 : 0;
             return (
               <div key={star} className="flex items-center gap-3">
-                <span className="text-sm font-bold text-slate-600 dark:text-slate-300 w-6 text-right">{star}</span>
-                <Icon icon="material-symbols:star" className="text-amber-400 text-sm" />
-                <div className="flex-1 h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 text-left">{star} {t("sao")}</span>
+                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-teal-800 dark:bg-teal-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                 </div>
-                <span className="text-xs text-slate-400 w-8 text-right">{count}</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-8 text-right">{count}</span>
               </div>
             );
           })}
@@ -453,6 +456,58 @@ export const ServiceDetail = () => {
       </div>
     );
   };
+
+  const renderReviewFilters = () => (
+    <div className="flex flex-wrap items-center gap-2.5 my-2">
+      <button
+        type="button"
+        onClick={() => {
+          setRatingFilter("all");
+          setHasCommentFilter(false);
+        }}
+        className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+          ratingFilter === "all" && !hasCommentFilter
+            ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
+            : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+        }`}
+      >
+        {t("Tất cả")}
+      </button>
+
+      {[5, 4].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => {
+            setRatingFilter(ratingFilter === star ? "all" : star);
+            setHasCommentFilter(false);
+          }}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            ratingFilter === star && !hasCommentFilter
+              ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
+              : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+          }`}
+        >
+          {star} {t("sao")}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => {
+          setHasCommentFilter(!hasCommentFilter);
+          setRatingFilter("all");
+        }}
+        className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+          hasCommentFilter
+            ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
+            : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+        }`}
+      >
+        {t("Có bình luận")}
+      </button>
+    </div>
+  );
 
   const renderReviewForm = () => {
     if (!isCustomer || helpers.length === 0) return null;
@@ -514,7 +569,15 @@ export const ServiceDetail = () => {
   };
 
   const renderReviewsList = () => {
-    const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
+    let filtered = reviews;
+    if (ratingFilter !== "all") {
+      filtered = filtered.filter((r) => r.rating === ratingFilter);
+    }
+    if (hasCommentFilter) {
+      filtered = filtered.filter((r) => Boolean(r.comment && r.comment.trim() !== ""));
+    }
+
+    const displayedReviews = showAllReviews ? filtered : filtered.slice(0, 3);
 
     return (
       <div className="space-y-4">
@@ -578,8 +641,7 @@ export const ServiceDetail = () => {
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <h4 className="font-bold text-slate-800 dark:text-slate-100">{review.customer?.full_name ?? `Khách hàng #${review.customer_id}`}</h4>
-                              <span className="text-xs text-slate-400">({review.created_at ? formatVietnamDateTime(review.created_at) : ""})</span>
-                              <span className={`text-xs px-2 py-0.5 rounded font-semibold ${getRatingBadgeClass(review.rating)}`}>{getRatingNote(review.rating)}</span>
+                              <span className={`text-xs px-2.5 py-0.5 rounded font-semibold ${getRatingBadgeClass(review.rating)}`}>{getRatingNote(review.rating)}</span>
                             </div>
                             <div className="flex items-center gap-3">
                               <span className="text-xs text-slate-400">{review.created_at ? timeAgo(review.created_at) : ""}</span>
@@ -599,10 +661,13 @@ export const ServiceDetail = () => {
                               )}
                             </div>
                           </div>
-                          <div className="flex gap-0.5 mb-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Icon key={star} icon="material-symbols:star" className={`text-sm ${star <= review.rating ? "text-amber-400" : "text-slate-200 dark:text-slate-600"}`} />
-                            ))}
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex gap-0.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Icon key={star} icon="material-symbols:star" className={`text-sm ${star <= review.rating ? "text-amber-400" : "text-slate-200 dark:text-slate-600"}`} />
+                              ))}
+                            </div>
+                            <span className="text-xs text-slate-400">({review.created_at ? formatVietnamDateTime(review.created_at) : ""})</span>
                           </div>
                           {review.comment && <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>}
                         </>
@@ -613,7 +678,7 @@ export const ServiceDetail = () => {
               );
             })}
 
-            {reviews.length > 3 && (
+            {filtered.length > 3 && (
               <div className="flex justify-center pt-2">
                 <button
                   type="button"
@@ -649,6 +714,7 @@ export const ServiceDetail = () => {
     <div className="space-y-6 text-left">
       {renderHelperSelector()}
       {renderRatingSummary()}
+      {renderReviewFilters()}
       {renderReviewForm()}
       {renderReviewsList()}
     </div>
@@ -903,12 +969,14 @@ export const ServiceDetail = () => {
   };
 
   return (
-    <div className="min-h-screen dark:bg-slate-900 pt-6 pb-16">
-      {renderBreadcrumb()}
-      {renderHeroSection()}
-      {renderTabNavigation()}
-      {activeTab === "helpers" && renderHelpersTab()}
-      {activeTab === "reviews" && renderReviewsTab()}
+    <div className="min-h-screen dark:bg-slate-900 py-8">
+      <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10">
+        {renderBreadcrumb()}
+        {renderHeroSection()}
+        {renderTabNavigation()}
+        {activeTab === "helpers" && renderHelpersTab()}
+        {activeTab === "reviews" && renderReviewsTab()}
+      </div>
       {renderBookingModal()}
     </div>
   );

@@ -96,7 +96,7 @@ export const PaymentReturn = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-teal-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/20 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center from-slate-50 via-white to-teal-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/20 p-4">
       <PaymentReceipt
         bookingId={txnRef}
         totalPrice={displayAmount}
@@ -109,23 +109,26 @@ export const PaymentReturn = () => {
           <>
             <Link
               to="/"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"
             >
-              <Icon icon="material-symbols:home-outline" className="text-lg" />
-              {t("Về trang chủ")}
+              <Icon icon="material-symbols:home-outline" className="text-base shrink-0" />
+              <span>{t("Trang chủ")}</span>
             </Link>
             {isSuccess && (
               <button
                 onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-750 transition cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-750 transition cursor-pointer whitespace-nowrap"
               >
-                <Icon icon="material-symbols:print-outline" className="text-sm" />
-                {t("In hóa đơn")}
+                <Icon icon="material-symbols:print-outline" className="text-base shrink-0" />
+                <span>{t("In hóa đơn")}</span>
               </button>
             )}
-            <Link to="/lich-su-dat-lich" className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#026E5F] hover:bg-[#01564a] text-white text-xs font-bold transition-all">
-              <Icon icon="material-symbols:calendar-today-outline" className="text-lg" />
-              {t("Lịch đặt của tôi")}
+            <Link
+              to="/lich-su-dat-lich"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#026E5F] hover:bg-[#01564a] text-white text-xs font-bold transition-all whitespace-nowrap"
+            >
+              <Icon icon="material-symbols:calendar-today-outline" className="text-base shrink-0" />
+              <span>{t("Lịch đặt của tôi")}</span>
             </Link>
           </>
         }

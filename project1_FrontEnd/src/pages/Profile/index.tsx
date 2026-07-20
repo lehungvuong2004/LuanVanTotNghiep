@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useProfile } from "./useHook";
+import { ROLES } from "../../constants/roles";
 import { useGeolocation } from "../../hooks/useGeolocation";
 
 export const Profile = () => {
@@ -34,7 +35,8 @@ export const Profile = () => {
     handleRemoveSkill,
     handleAddWorkingArea,
     handleRemoveWorkingArea,
-    handleSubmitVerification } = useProfile();
+    handleSubmitVerification,
+  } = useProfile();
 
   const [workingDistrict, setWorkingDistrict] = useState("");
   const [workingCity, setWorkingCity] = useState("");
@@ -75,16 +77,13 @@ export const Profile = () => {
         }
 
         const districtVal = cityDistrict || suburb || "";
-        const fullAddr = [streetVal, districtVal, cityName]
-          .filter((val) => val && val.trim() !== "")
-          .join(", ");
+        const fullAddr = [streetVal, districtVal, cityName].filter((val) => val && val.trim() !== "").join(", ");
         profileForm.setFieldValue("address", fullAddr);
       }
       setGeoTarget(null);
       clearLocation();
     }
   }, [addressDetails, geoTarget, addressForm, profileForm, clearLocation]);
-
 
   if (loading) {
     return (
@@ -100,13 +99,13 @@ export const Profile = () => {
   // Get user role display name & styles
   const getRoleBadge = (roleId?: number) => {
     switch (roleId) {
-      case 1:
+      case ROLES.ADMIN:
         return { name: t("Quản trị viên"), style: "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50" };
-      case 2:
+      case ROLES.OPERATOR:
         return { name: t("Nhân viên vận hành"), style: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/50" };
-      case 3:
+      case ROLES.HELPER:
         return { name: t("Người giúp việc"), style: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50" };
-      case 4:
+      case ROLES.CUSTOMER:
       default:
         return { name: t("Khách hàng"), style: "bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/50" };
     }
@@ -118,12 +117,8 @@ export const Profile = () => {
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">
-          {t("Hồ sơ cá nhân")}
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {t("Quản lý thông tin cá nhân, địa chỉ liên hệ và bảo mật tài khoản.")}
-        </p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">{t("Hồ sơ cá nhân")}</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("Quản lý thông tin cá nhân, địa chỉ liên hệ và bảo mật tài khoản.")}</p>
       </div>
     </div>
   );
@@ -151,41 +146,57 @@ export const Profile = () => {
   const renderProfileCard = () => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 flex flex-col items-center text-center relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-r from-teal-600 to-[#034d54] dark:from-teal-900 dark:to-slate-800"></div>
-      
-      <div className="relative z-10 mt-6 mb-4">
-        <img
-          src={userProfile?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix"}
-          alt="User Avatar"
-          className="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-md bg-slate-100"
-        />
+
+      <div className="relative z-10 mt-6 mb-4 flex flex-col items-center">
+        <div className="relative">
+          <img
+            src={userProfile?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix"}
+            alt="User Avatar"
+            className={`w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-700 ${
+              avatarUploading ? "opacity-40 blur-xs" : ""
+            }`}
+          />
+          {avatarUploading ? (
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/40">
+              <Icon icon="line-md:loading-twotone-loop" className="text-2xl text-white" />
+            </div>
+          ) : (
+            <label className="absolute bottom-0 right-0 p-2 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 text-white rounded-full shadow-md cursor-pointer transition-all hover:scale-110">
+              <Icon icon="solar:camera-bold" className="text-base" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleAvatarUpload(e.target.files[0]);
+                  }
+                }}
+                disabled={avatarUploading}
+              />
+            </label>
+          )}
+        </div>
       </div>
 
-      <h2 className="text-xl font-bold text-slate-800 dark:text-white leading-tight">
-        {userProfile?.full_name}
-      </h2>
-      
-      {userProfile?.role_id === 3 && helperProfile && (
+      <h2 className="text-xl font-bold text-slate-800 dark:text-white leading-tight">{userProfile?.full_name}</h2>
+
+      {userProfile?.role_id === ROLES.HELPER && helperProfile && (
         <p className="text-xs text-teal-600 dark:text-teal-400 font-semibold mt-1">
           {helperProfile.experience_year} {t("năm kinh nghiệm")}
         </p>
       )}
-      
-      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 break-all px-2">
-        {userProfile?.email}
-      </p>
 
-      <span className={`mt-4 px-3 py-1 rounded-full text-xs font-semibold ${role.style}`}>
-        {role.name}
-      </span>
+      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 break-all px-2">{userProfile?.email}</p>
+
+      <span className={`mt-4 px-3 py-1 rounded-full text-xs font-semibold ${role.style}`}>{role.name}</span>
 
       <div className="w-full border-t border-slate-100 dark:border-slate-700/60 my-6"></div>
 
       <div className="w-full flex justify-center text-center">
         <div className="flex flex-col items-center">
-          <span className="text-xs text-slate-400 dark:text-slate-500 uppercase font-semibold tracking-wider">
-            {t("Trạng thái tài khoản")}
-          </span>
-          {userProfile?.role_id === 3 ? (
+          <span className="text-xs text-slate-400 dark:text-slate-500 uppercase font-semibold tracking-wider">{t("Trạng thái tài khoản")}</span>
+          {userProfile?.role_id === ROLES.HELPER ? (
             (() => {
               const status = helperProfile?.status || "pending";
               let text = t("Chờ xét duyệt");
@@ -229,9 +240,7 @@ export const Profile = () => {
         <button
           onClick={() => setActiveTab("info")}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-            activeTab === "info"
-              ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400"
-              : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+            activeTab === "info" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
           }`}
         >
           <div className="flex items-center gap-3">
@@ -241,13 +250,11 @@ export const Profile = () => {
           <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "info" ? "translate-x-1" : "opacity-0"}`} />
         </button>
 
-        {userProfile?.role_id === 4 && (
+        {userProfile?.role_id === ROLES.CUSTOMER && (
           <button
             onClick={() => setActiveTab("address")}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-              activeTab === "address"
-                ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400"
-                : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+              activeTab === "address" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
             }`}
           >
             <div className="flex items-center gap-3">
@@ -258,14 +265,12 @@ export const Profile = () => {
           </button>
         )}
 
-        {userProfile?.role_id === 3 && (
+        {userProfile?.role_id === ROLES.HELPER && (
           <>
             <button
               onClick={() => setActiveTab("working_areas")}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                activeTab === "working_areas"
-                  ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                activeTab === "working_areas" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -280,9 +285,7 @@ export const Profile = () => {
         <button
           onClick={() => setActiveTab("password")}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-            activeTab === "password"
-              ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400"
-              : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+            activeTab === "password" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
           }`}
         >
           <div className="flex items-center gap-3">
@@ -298,72 +301,14 @@ export const Profile = () => {
   // 5. RENDER PERSONAL INFORMATION TAB FORM
   const renderProfileInfoTab = () => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 md:p-8 transition-all duration-300">
-      <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">
-        {t("Thông tin cá nhân")}
-      </h3>
-      
-      <form onSubmit={profileForm.handleSubmit} className="space-y-6">
-        {/* Avatar Upload Container */}
-        <div className="space-y-3">
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-            {t("Ảnh đại diện")}
-          </label>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-6 p-5 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-700/40">
-            {/* Avatar Preview */}
-            <div className="relative group shrink-0">
-              <img
-                src={profileForm.values.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix"}
-                alt="Avatar Preview"
-                className={`w-20 h-20 rounded-full object-cover border-2 border-teal-500 shadow-md bg-slate-100 dark:bg-slate-800 ${
-                  avatarUploading ? "opacity-40 blur-xs" : ""
-                }`}
-              />
-              {avatarUploading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Icon icon="line-md:loading-twotone-loop" className="text-2xl text-teal-600 dark:text-teal-400" />
-                </div>
-              )}
-            </div>
-            
-            {/* File Upload Area */}
-            <div className="flex-1 text-center sm:text-left">
-              <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
-                {t("Ảnh đại diện tài khoản")}
-              </h4>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                {t("Hỗ trợ JPG, PNG, GIF. Dung lượng tối đa 2MB.")}
-              </p>
-              
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 cursor-pointer shadow-xs transition-all hover:scale-[1.02] disabled:opacity-50">
-                <Icon icon="solar:upload-bold-duotone" className="text-base" />
-                <span>{t("Tải ảnh mới")}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      handleAvatarUpload(e.target.files[0]);
-                    }
-                  }}
-                  disabled={avatarUploading}
-                />
-              </label>
-            </div>
-          </div>
-          {profileForm.touched.avatar && profileForm.errors.avatar && (
-            <div className="text-red-500 text-xs mt-1">{profileForm.errors.avatar}</div>
-          )}
-        </div>
+      <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">{t("Thông tin cá nhân")}</h3>
 
+      <form onSubmit={profileForm.handleSubmit} className="space-y-6">
         {/* Info Grid (Email, Name, Phone) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Email */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              {t("Địa chỉ Email")}
-            </label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Địa chỉ Email")}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Icon icon="solar:letter-bold" className="text-lg" />
@@ -375,9 +320,7 @@ export const Profile = () => {
                 value={userProfile?.email || ""}
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-1.5">
-              {t("Email định danh không thể thay đổi.")}
-            </p>
+            <p className="text-[11px] text-slate-400 mt-1.5">{t("Email định danh không thể thay đổi.")}</p>
           </div>
 
           {/* Name */}
@@ -402,16 +345,12 @@ export const Profile = () => {
                 value={profileForm.values.full_name}
               />
             </div>
-            {profileForm.touched.full_name && profileForm.errors.full_name && (
-              <div className="text-red-500 text-xs mt-1">{profileForm.errors.full_name}</div>
-            )}
+            {profileForm.touched.full_name && profileForm.errors.full_name && <div className="text-red-500 text-xs mt-1">{profileForm.errors.full_name}</div>}
           </div>
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              {t("Số điện thoại")}
-            </label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Số điện thoại")}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Icon icon="solar:phone-bold" className="text-lg" />
@@ -430,25 +369,19 @@ export const Profile = () => {
                 value={profileForm.values.phone}
               />
             </div>
-            {profileForm.touched.phone && profileForm.errors.phone && (
-              <div className="text-red-500 text-xs mt-1">{profileForm.errors.phone}</div>
-            )}
+            {profileForm.touched.phone && profileForm.errors.phone && <div className="text-red-500 text-xs mt-1">{profileForm.errors.phone}</div>}
           </div>
         </div>
 
         {/* Customer Extended Info (Gender, Birthday, Note) */}
-        {userProfile?.role_id === 4 && (
+        {userProfile?.role_id === ROLES.CUSTOMER && (
           <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-700/60">
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
-              {t("Thông tin mở rộng")}
-            </h4>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">{t("Thông tin mở rộng")}</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Gender */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  {t("Giới tính")}
-                </label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Giới tính")}</label>
                 <div className="grid grid-cols-3 gap-3">
                   {["male", "female", "other"].map((g) => (
                     <button
@@ -461,16 +394,7 @@ export const Profile = () => {
                           : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
                       }`}
                     >
-                      <Icon
-                        icon={
-                          g === "male"
-                            ? "ph:gender-male-bold"
-                            : g === "female"
-                            ? "ph:gender-female-bold"
-                            : "ph:gender-neuter-bold"
-                        }
-                        className="text-lg"
-                      />
+                      <Icon icon={g === "male" ? "ph:gender-male-bold" : g === "female" ? "ph:gender-female-bold" : "ph:gender-neuter-bold"} className="text-lg" />
                       {g === "male" ? t("Nam") : g === "female" ? t("Nữ") : t("Khác")}
                     </button>
                   ))}
@@ -479,9 +403,7 @@ export const Profile = () => {
 
               {/* Birthday */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  {t("Ngày sinh")}
-                </label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Ngày sinh")}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:calendar-bold" className="text-lg" />
@@ -499,17 +421,13 @@ export const Profile = () => {
                     value={profileForm.values.birthday}
                   />
                 </div>
-                {profileForm.touched.birthday && profileForm.errors.birthday && (
-                  <div className="text-red-500 text-xs mt-1">{profileForm.errors.birthday}</div>
-                )}
+                {profileForm.touched.birthday && profileForm.errors.birthday && <div className="text-red-500 text-xs mt-1">{profileForm.errors.birthday}</div>}
               </div>
             </div>
 
             {/* Note */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                {t("Ghi chú cá nhân")}
-              </label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Ghi chú cá nhân")}</label>
               <div className="relative">
                 <textarea
                   name="note"
@@ -525,19 +443,15 @@ export const Profile = () => {
                   value={profileForm.values.note}
                 />
               </div>
-              {profileForm.touched.note && profileForm.errors.note && (
-                <div className="text-red-500 text-xs mt-1">{profileForm.errors.note}</div>
-              )}
+              {profileForm.touched.note && profileForm.errors.note && <div className="text-red-500 text-xs mt-1">{profileForm.errors.note}</div>}
             </div>
           </div>
         )}
 
         {/* Helper Extended Info (Gender, Birthday, Experience Year, Address, Bio) */}
-        {userProfile?.role_id === 3 && (
+        {userProfile?.role_id === ROLES.HELPER && (
           <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-700/60">
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
-              {t("Thông tin mở rộng cho Người giúp việc")}
-            </h4>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">{t("Thông tin mở rộng cho Người giúp việc")}</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Gender */}
@@ -557,16 +471,7 @@ export const Profile = () => {
                           : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
                       }`}
                     >
-                      <Icon
-                        icon={
-                          g === "male"
-                            ? "ph:gender-male-bold"
-                            : g === "female"
-                            ? "ph:gender-female-bold"
-                            : "ph:gender-neuter-bold"
-                        }
-                        className="text-lg"
-                      />
+                      <Icon icon={g === "male" ? "ph:gender-male-bold" : g === "female" ? "ph:gender-female-bold" : "ph:gender-neuter-bold"} className="text-lg" />
                       {g === "male" ? t("Nam") : g === "female" ? t("Nữ") : t("Khác")}
                     </button>
                   ))}
@@ -595,16 +500,12 @@ export const Profile = () => {
                     value={profileForm.values.birthday}
                   />
                 </div>
-                {profileForm.touched.birthday && profileForm.errors.birthday && (
-                  <div className="text-red-500 text-xs mt-1">{profileForm.errors.birthday}</div>
-                )}
+                {profileForm.touched.birthday && profileForm.errors.birthday && <div className="text-red-500 text-xs mt-1">{profileForm.errors.birthday}</div>}
               </div>
 
               {/* Experience Year */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  {t("Kinh nghiệm (Năm)")}
-                </label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Kinh nghiệm (Năm)")}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:ranking-bold" className="text-lg" />
@@ -644,9 +545,7 @@ export const Profile = () => {
                     {t("Định vị")}
                   </button>
                 </div>
-                {geoError && geoTarget === "residential" && (
-                  <p className="text-red-500 text-[10px] font-semibold mb-2 text-right">{geoError}</p>
-                )}
+                {geoError && geoTarget === "residential" && <p className="text-red-500 text-[10px] font-semibold mb-2 text-right">{geoError}</p>}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:map-point-bold" className="text-lg" />
@@ -661,9 +560,7 @@ export const Profile = () => {
                     value={profileForm.values.address}
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1.5">
-                  {t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}
-                </p>
+                <p className="text-[11px] text-slate-400 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
               </div>
             </div>
 
@@ -693,9 +590,7 @@ export const Profile = () => {
               </h4>
 
               <div>
-                <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3">
-                  {t("Kỹ năng hiện tại của bạn")}
-                </h5>
+                <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3">{t("Kỹ năng hiện tại của bạn")}</h5>
                 {helperSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
                     {helperSkills.map((sk) => (
@@ -723,15 +618,11 @@ export const Profile = () => {
               </div>
 
               <div>
-                <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-4">
-                  {t("Thêm kỹ năng mới")}
-                </h5>
+                <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-4">{t("Thêm kỹ năng mới")}</h5>
                 <div className="space-y-6">
                   {allCategories.map((category) => (
                     <div key={category.id} className="border-b border-slate-100 dark:border-slate-700/40 pb-4 last:border-0 last:pb-0">
-                      <h6 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">
-                        {category.name}
-                      </h6>
+                      <h6 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">{category.name}</h6>
                       <div className="flex flex-wrap gap-2.5">
                         {category.services?.map((svc) => {
                           const isAdded = helperSkills.some((sk) => sk.service_id === svc.id);
@@ -739,7 +630,7 @@ export const Profile = () => {
                             <button
                               key={svc.id}
                               type="button"
-                              onClick={() => isAdded ? handleRemoveSkill(svc.id) : handleAddSkill(svc.id)}
+                              onClick={() => (isAdded ? handleRemoveSkill(svc.id) : handleAddSkill(svc.id))}
                               disabled={updating}
                               className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
                                 isAdded
@@ -768,11 +659,7 @@ export const Profile = () => {
             disabled={updating}
             className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 disabled:opacity-50 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-teal-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
           >
-            {updating ? (
-              <Icon icon="line-md:loading-twotone-loop" className="text-lg" />
-            ) : (
-              <Icon icon="solar:diskette-bold" className="text-lg" />
-            )}
+            {updating ? <Icon icon="line-md:loading-twotone-loop" className="text-lg" /> : <Icon icon="solar:diskette-bold" className="text-lg" />}
             {t("Lưu thay đổi")}
           </button>
         </div>
@@ -784,9 +671,7 @@ export const Profile = () => {
   const renderAddressTab = () => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 md:p-8 transition-all duration-300">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">
-        <h3 className="text-lg font-bold text-slate-850 dark:text-white">
-          {t("Sổ địa chỉ")}
-        </h3>
+        <h3 className="text-lg font-bold text-slate-850 dark:text-white">{t("Sổ địa chỉ")}</h3>
         <button
           onClick={handleAddAddressClick}
           className="flex items-center gap-1.5 bg-teal-50 text-teal-600 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-2 px-4 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer"
@@ -808,18 +693,14 @@ export const Profile = () => {
               }`}
             >
               <div className="flex gap-3">
-                <div className={`p-2.5 rounded-xl mt-0.5 shrink-0 ${
-                  addressItem.is_default === 1 
-                    ? "bg-teal-500/10 text-teal-600 dark:text-teal-400" 
-                    : "bg-slate-100 dark:bg-slate-700 text-slate-400"
-                }`}>
+                <div
+                  className={`p-2.5 rounded-xl mt-0.5 shrink-0 ${addressItem.is_default === 1 ? "bg-teal-500/10 text-teal-600 dark:text-teal-400" : "bg-slate-100 dark:bg-slate-700 text-slate-400"}`}
+                >
                   <Icon icon="solar:map-point-bold-duotone" className="text-2xl" />
                 </div>
                 <div>
                   <div className="flex items-center flex-wrap gap-2">
-                    <span className="font-bold text-slate-800 dark:text-slate-250 text-sm">
-                      {addressItem.address}
-                    </span>
+                    <span className="font-bold text-slate-800 dark:text-slate-250 text-sm">{addressItem.address}</span>
                     {addressItem.is_default === 1 && (
                       <span className="bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/50 rounded-md text-[10px] font-extrabold px-1.5 py-0.5 uppercase tracking-wider shrink-0">
                         {t("Mặc định")}
@@ -863,9 +744,7 @@ export const Profile = () => {
         ) : (
           <div className="text-center py-10 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl">
             <Icon icon="solar:streets-map-point-broken" className="text-5xl text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-              {t("Bạn chưa lưu địa chỉ nào.")}
-            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t("Bạn chưa lưu địa chỉ nào.")}</p>
             <button
               onClick={handleAddAddressClick}
               className="mt-4 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all duration-200 cursor-pointer shadow-sm"
@@ -881,11 +760,35 @@ export const Profile = () => {
   // 7. RENDER PASSWORD CHANGE FORM TAB
   const renderPasswordTab = () => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 md:p-8 transition-all duration-300">
-      <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">
-        {t("Đổi mật khẩu tài khoản")}
-      </h3>
+      <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">{t("Đổi mật khẩu tài khoản")}</h3>
 
       <form onSubmit={passwordForm.handleSubmit} className="space-y-6">
+        {/* Current Password */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            {t("Mật khẩu hiện tại")} <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Icon icon="solar:lock-bold" className="text-lg" />
+            </div>
+            <input
+              type="password"
+              name="currentPassword"
+              placeholder="••••••••"
+              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+                passwordForm.touched.currentPassword && passwordForm.errors.currentPassword
+                  ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
+                  : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+              }`}
+              onChange={passwordForm.handleChange}
+              onBlur={passwordForm.handleBlur}
+              value={passwordForm.values.currentPassword}
+            />
+          </div>
+          {passwordForm.touched.currentPassword && passwordForm.errors.currentPassword && <div className="text-red-500 text-xs mt-1">{passwordForm.errors.currentPassword}</div>}
+        </div>
+
         {/* New Password */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -909,9 +812,7 @@ export const Profile = () => {
               value={passwordForm.values.password}
             />
           </div>
-          {passwordForm.touched.password && passwordForm.errors.password && (
-            <div className="text-red-500 text-xs mt-1">{passwordForm.errors.password}</div>
-          )}
+          {passwordForm.touched.password && passwordForm.errors.password && <div className="text-red-500 text-xs mt-1">{passwordForm.errors.password}</div>}
         </div>
 
         {/* Confirm Password */}
@@ -937,9 +838,7 @@ export const Profile = () => {
               value={passwordForm.values.confirmPassword}
             />
           </div>
-          {passwordForm.touched.confirmPassword && passwordForm.errors.confirmPassword && (
-            <div className="text-red-500 text-xs mt-1">{passwordForm.errors.confirmPassword}</div>
-          )}
+          {passwordForm.touched.confirmPassword && passwordForm.errors.confirmPassword && <div className="text-red-500 text-xs mt-1">{passwordForm.errors.confirmPassword}</div>}
         </div>
 
         {/* Guidelines */}
@@ -964,11 +863,7 @@ export const Profile = () => {
             disabled={updating}
             className="bg-[#B2451C] hover:bg-orange-800 dark:bg-orange-600 dark:hover:bg-orange-500 disabled:opacity-50 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-orange-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
           >
-            {updating ? (
-              <Icon icon="line-md:loading-twotone-loop" className="text-lg" />
-            ) : (
-              <Icon icon="solar:key-bold" className="text-lg" />
-            )}
+            {updating ? <Icon icon="line-md:loading-twotone-loop" className="text-lg" /> : <Icon icon="solar:key-bold" className="text-lg" />}
             {t("Đổi mật khẩu")}
           </button>
         </div>
@@ -982,12 +877,10 @@ export const Profile = () => {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={() => setIsAddressModalOpen(false)}></div>
-        
+
         <div className="relative bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-700 animate-scale-up">
           <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
-            <h3 className="font-bold text-slate-800 dark:text-white text-base">
-              {editingAddress ? t("Chỉnh sửa địa chỉ") : t("Thêm địa chỉ mới")}
-            </h3>
+            <h3 className="font-bold text-slate-800 dark:text-white text-base">{editingAddress ? t("Chỉnh sửa địa chỉ") : t("Thêm địa chỉ mới")}</h3>
             <button
               onClick={() => setIsAddressModalOpen(false)}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
@@ -1009,16 +902,10 @@ export const Profile = () => {
                   disabled={geoLoading}
                   className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
                 >
-                  {geoLoading && geoTarget === "address" ? (
-                    <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" />
-                  ) : (
-                    <Icon icon="solar:gps-bold" className="text-sm" />
-                  )}
+                  {geoLoading && geoTarget === "address" ? <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" /> : <Icon icon="solar:gps-bold" className="text-sm" />}
                   {t("Định vị vị trí hiện tại của tôi")}
                 </button>
-                {geoError && geoTarget === "address" && (
-                  <p className="text-red-500 text-[10px] font-semibold mt-1 text-center">{geoError}</p>
-                )}
+                {geoError && geoTarget === "address" && <p className="text-red-500 text-[10px] font-semibold mt-1 text-center">{geoError}</p>}
               </div>
 
               {/* Address detail */}
@@ -1039,9 +926,7 @@ export const Profile = () => {
                   onBlur={addressForm.handleBlur}
                   value={addressForm.values.address}
                 />
-                {addressForm.touched.address && addressForm.errors.address && (
-                  <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.address}</div>
-                )}
+                {addressForm.touched.address && addressForm.errors.address && <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.address}</div>}
               </div>
 
               {/* District */}
@@ -1062,9 +947,7 @@ export const Profile = () => {
                   onBlur={addressForm.handleBlur}
                   value={addressForm.values.district}
                 />
-                {addressForm.touched.district && addressForm.errors.district && (
-                  <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.district}</div>
-                )}
+                {addressForm.touched.district && addressForm.errors.district && <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.district}</div>}
               </div>
 
               {/* City */}
@@ -1085,9 +968,7 @@ export const Profile = () => {
                   onBlur={addressForm.handleBlur}
                   value={addressForm.values.city}
                 />
-                {addressForm.touched.city && addressForm.errors.city && (
-                  <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.city}</div>
-                )}
+                {addressForm.touched.city && addressForm.errors.city && <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.city}</div>}
               </div>
 
               {/* Default checkbox */}
@@ -1135,24 +1016,17 @@ export const Profile = () => {
   const renderWorkingAreasTab = () => {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 md:p-8 transition-all duration-300">
-        <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-2">
-          {t("Khu vực hoạt động")}
-        </h3>
+        <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-2">{t("Khu vực hoạt động")}</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
           {t("Chọn các Quận/Huyện và Tỉnh/Thành phố nơi bạn sẵn sàng di chuyển đến để nhận công việc. Khách hàng sẽ tìm thấy bạn dựa trên danh sách này.")}
         </p>
 
         <div className="mb-8">
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            {t("Khu vực đang hoạt động")}
-          </h4>
+          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">{t("Khu vực đang hoạt động")}</h4>
           {helperWorkingAreas.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {helperWorkingAreas.map((wa) => (
-                <div
-                  key={wa.id}
-                  className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 rounded-2xl"
-                >
+                <div key={wa.id} className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 rounded-2xl">
                   <div className="flex items-center gap-2.5">
                     <Icon icon="solar:map-point-bold-duotone" className="text-xl text-teal-550" />
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-350">
@@ -1178,9 +1052,7 @@ export const Profile = () => {
 
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {t("Thêm khu vực hoạt động mới")}
-            </h4>
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("Thêm khu vực hoạt động mới")}</h4>
             <button
               type="button"
               onClick={() => {
@@ -1190,17 +1062,11 @@ export const Profile = () => {
               disabled={geoLoading}
               className="flex items-center gap-1.5 bg-teal-50 text-teal-650 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              {geoLoading && geoTarget === "workingArea" ? (
-                <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" />
-              ) : (
-                <Icon icon="solar:gps-bold" className="text-sm" />
-              )}
+              {geoLoading && geoTarget === "workingArea" ? <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" /> : <Icon icon="solar:gps-bold" className="text-sm" />}
               {t("Định vị vị trí")}
             </button>
           </div>
-          {geoError && geoTarget === "workingArea" && (
-            <p className="text-red-500 text-[10px] font-semibold mb-2">{geoError}</p>
-          )}
+          {geoError && geoTarget === "workingArea" && <p className="text-red-500 text-[10px] font-semibold mb-2">{geoError}</p>}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -1246,11 +1112,7 @@ export const Profile = () => {
                 disabled={updating}
                 className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 disabled:opacity-50 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all duration-300 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                {updating ? (
-                  <Icon icon="line-md:loading-twotone-loop" className="text-sm" />
-                ) : (
-                  <Icon icon="solar:add-circle-bold" className="text-sm" />
-                )}
+                {updating ? <Icon icon="line-md:loading-twotone-loop" className="text-sm" /> : <Icon icon="solar:add-circle-bold" className="text-sm" />}
                 {t("Thêm khu vực")}
               </button>
             </div>
@@ -1263,7 +1125,7 @@ export const Profile = () => {
   // Render Helper verification status & submission card
   const renderHelperVerificationWidget = () => {
     const status = helperProfile?.status || "pending";
-    
+
     // Check missing items
     const missingItems = [];
     if (!helperProfile?.bio || helperProfile.bio.trim() === "") {
@@ -1288,9 +1150,7 @@ export const Profile = () => {
     const isComplete = missingItems.length === 0;
 
     // Get latest verification note
-    const latestVerification = helperProfile?.verifications && helperProfile.verifications.length > 0
-      ? [...helperProfile.verifications].sort((a: any, b: any) => b.id - a.id)[0]
-      : null;
+    const latestVerification = helperProfile?.verifications && helperProfile.verifications.length > 0 ? [...helperProfile.verifications].sort((a: any, b: any) => b.id - a.id)[0] : null;
 
     if (status === "active") {
       return (
@@ -1299,9 +1159,7 @@ export const Profile = () => {
             <Icon icon="solar:verified-check-bold-duotone" className="text-3xl" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
-              {t("Hồ sơ đã hoạt động")}
-            </h4>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">{t("Hồ sơ đã hoạt động")}</h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               {t("Hồ sơ người giúp việc của bạn đã được duyệt và kích hoạt thành công. Bạn đã có thể nhận các lịch đặt dịch vụ từ khách hàng trên hệ thống.")}
             </p>
@@ -1317,9 +1175,7 @@ export const Profile = () => {
             <Icon icon="solar:hourglass-line-dynamic-bold-duotone" className="text-3xl animate-pulse" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
-              {t("Hồ sơ đang chờ xét duyệt")}
-            </h4>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">{t("Hồ sơ đang chờ xét duyệt")}</h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               {t("Thông tin hồ sơ và kỹ năng của bạn đang được nhân viên vận hành (Operator) kiểm tra. Vui lòng chờ phản hồi trong vòng 24h làm việc.")}
             </p>
@@ -1335,9 +1191,7 @@ export const Profile = () => {
             <Icon icon="solar:shield-close-bold-duotone" className="text-3xl" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-850 dark:text-white mb-1">
-              {t("Tài khoản đang bị tạm ngưng")}
-            </h4>
+            <h4 className="text-sm font-bold text-slate-850 dark:text-white mb-1">{t("Tài khoản đang bị tạm ngưng")}</h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
               {t("Hồ sơ của bạn đã bị khóa tạm thời bởi ban quản lý. Vui lòng liên hệ Operator để giải quyết thắc mắc.")}
             </p>
@@ -1355,27 +1209,17 @@ export const Profile = () => {
     return (
       <div className="bg-slate-50/50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-6 flex flex-col gap-5 shadow-xs">
         <div className="flex flex-col sm:flex-row items-start gap-4">
-          <div className={`p-3 rounded-2xl shrink-0 ${
-            status === "rejected" 
-              ? "bg-rose-500/10 text-rose-600 dark:text-rose-450" 
-              : "bg-teal-500/10 text-teal-600 dark:text-teal-400"
-          }`}>
-            <Icon 
-              icon={status === "rejected" ? "solar:shield-warning-bold-duotone" : "solar:cloud-upload-bold-duotone"} 
-              className="text-3xl" 
-            />
+          <div className={`p-3 rounded-2xl shrink-0 ${status === "rejected" ? "bg-rose-500/10 text-rose-600 dark:text-rose-450" : "bg-teal-500/10 text-teal-600 dark:text-teal-400"}`}>
+            <Icon icon={status === "rejected" ? "solar:shield-warning-bold-duotone" : "solar:cloud-upload-bold-duotone"} className="text-3xl" />
           </div>
           <div className="flex-1">
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
-              {status === "rejected" ? t("Hồ sơ bị từ chối xét duyệt") : t("Nộp hồ sơ xét duyệt")}
-            </h4>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">{status === "rejected" ? t("Hồ sơ bị từ chối xét duyệt") : t("Nộp hồ sơ xét duyệt")}</h4>
             <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed">
-              {status === "rejected" 
+              {status === "rejected"
                 ? t("Hồ sơ của bạn đã bị từ chối phê duyệt. Vui lòng cập nhật các thông tin thiếu sót dưới đây và gửi lại yêu cầu xét duyệt.")
-                : t("Bạn cần gửi hồ sơ thông tin và kỹ năng của mình cho nhân viên vận hành (Operator) phê duyệt trước khi có thể hiển thị trên ứng dụng và nhận lịch đặt.")
-              }
+                : t("Bạn cần gửi hồ sơ thông tin và kỹ năng của mình cho nhân viên vận hành (Operator) phê duyệt trước khi có thể hiển thị trên ứng dụng và nhận lịch đặt.")}
             </p>
-            
+
             {status === "rejected" && latestVerification?.note && (
               <div className="mt-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 p-3 rounded-xl text-xs text-rose-700 dark:text-rose-400 italic">
                 <strong>{t("Lý do từ chối:")} </strong>"{latestVerification.note}"
@@ -1386,54 +1230,39 @@ export const Profile = () => {
 
         {/* Requirements status checklist */}
         <div className="bg-white dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4">
-          <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">
-            {t("Danh sách điều kiện cần hoàn thiện:")}
-          </h5>
+          <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">{t("Danh sách điều kiện cần hoàn thiện:")}</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div className="flex items-center gap-2 text-xs">
-              <Icon 
-                icon={helperProfile?.bio ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
-                className={helperProfile?.bio ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
-              />
-              <span className={helperProfile?.bio ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
-                {t("Giới thiệu bản thân")}
-              </span>
+              <Icon icon={helperProfile?.bio ? "solar:check-circle-bold" : "solar:close-circle-bold"} className={helperProfile?.bio ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} />
+              <span className={helperProfile?.bio ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>{t("Giới thiệu bản thân")}</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <Icon 
-                icon={(helperProfile?.gender && helperProfile?.birthday) ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
-                className={(helperProfile?.gender && helperProfile?.birthday) ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              <Icon
+                icon={helperProfile?.gender && helperProfile?.birthday ? "solar:check-circle-bold" : "solar:close-circle-bold"}
+                className={helperProfile?.gender && helperProfile?.birthday ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"}
               />
-              <span className={(helperProfile?.gender && helperProfile?.birthday) ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
-                {t("Giới tính & Ngày sinh")}
-              </span>
+              <span className={helperProfile?.gender && helperProfile?.birthday ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>{t("Giới tính & Ngày sinh")}</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <Icon 
-                icon={helperProfile?.address ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
-                className={helperProfile?.address ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              <Icon
+                icon={helperProfile?.address ? "solar:check-circle-bold" : "solar:close-circle-bold"}
+                className={helperProfile?.address ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"}
               />
-              <span className={helperProfile?.address ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
-                {t("Địa chỉ cư trú")}
-              </span>
+              <span className={helperProfile?.address ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>{t("Địa chỉ cư trú")}</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <Icon 
-                icon={helperSkills.length > 0 ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
-                className={helperSkills.length > 0 ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              <Icon
+                icon={helperSkills.length > 0 ? "solar:check-circle-bold" : "solar:close-circle-bold"}
+                className={helperSkills.length > 0 ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"}
               />
-              <span className={helperSkills.length > 0 ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
-                {t("Kỹ năng chuyên môn ({count})", { count: helperSkills.length })}
-              </span>
+              <span className={helperSkills.length > 0 ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>{t("Kỹ năng chuyên môn ({count})", { count: helperSkills.length })}</span>
             </div>
             <div className="flex items-center gap-2 text-xs sm:col-span-2">
-              <Icon 
-                icon={helperWorkingAreas.length > 0 ? "solar:check-circle-bold" : "solar:close-circle-bold"} 
-                className={helperWorkingAreas.length > 0 ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"} 
+              <Icon
+                icon={helperWorkingAreas.length > 0 ? "solar:check-circle-bold" : "solar:close-circle-bold"}
+                className={helperWorkingAreas.length > 0 ? "text-emerald-500" : "text-slate-300 dark:text-slate-650"}
               />
-              <span className={helperWorkingAreas.length > 0 ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>
-                {t("Khu vực hoạt động ({count})", { count: helperWorkingAreas.length })}
-              </span>
+              <span className={helperWorkingAreas.length > 0 ? "text-slate-600 dark:text-slate-350" : "text-slate-400"}>{t("Khu vực hoạt động ({count})", { count: helperWorkingAreas.length })}</span>
             </div>
           </div>
         </div>
@@ -1446,11 +1275,7 @@ export const Profile = () => {
             disabled={updating || !isComplete}
             className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 dark:bg-teal-50 dark:hover:bg-teal-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-xl text-xs transition-all duration-300 shadow-sm hover:shadow-teal-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
           >
-            {updating ? (
-              <Icon icon="line-md:loading-twotone-loop" className="text-sm" />
-            ) : (
-              <Icon icon="solar:shield-check-bold" className="text-sm" />
-            )}
+            {updating ? <Icon icon="line-md:loading-twotone-loop" className="text-sm" /> : <Icon icon="solar:shield-check-bold" className="text-sm" />}
             {status === "rejected" ? t("Gửi lại hồ sơ xét duyệt") : t("Nộp hồ sơ xét duyệt")}
           </button>
         </div>
@@ -1462,7 +1287,6 @@ export const Profile = () => {
   return (
     <div className="w-full min-h-screen transition-colors duration-300 py-8 md:px-16">
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        
         {/* Page Header */}
         {renderHeader()}
 
@@ -1471,7 +1295,6 @@ export const Profile = () => {
 
         {/* 12-column Grid Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
           {/* Left Navigation Panel (4 Columns) */}
           <div className="lg:col-span-4 flex flex-col gap-6">
             {renderProfileCard()}
@@ -1480,15 +1303,13 @@ export const Profile = () => {
 
           {/* Right Main Content (8 Columns) */}
           <div className="lg:col-span-8 flex flex-col gap-6">
-            {userProfile?.role_id === 3 && renderHelperVerificationWidget()}
+            {userProfile?.role_id === ROLES.HELPER && renderHelperVerificationWidget()}
             {activeTab === "info" && renderProfileInfoTab()}
-            {activeTab === "address" && userProfile?.role_id === 4 && renderAddressTab()}
-            {activeTab === "working_areas" && userProfile?.role_id === 3 && renderWorkingAreasTab()}
+            {activeTab === "address" && userProfile?.role_id === ROLES.CUSTOMER && renderAddressTab()}
+            {activeTab === "working_areas" && userProfile?.role_id === ROLES.HELPER && renderWorkingAreasTab()}
             {activeTab === "password" && renderPasswordTab()}
           </div>
-
         </div>
-
       </div>
 
       {/* Address Book Modal Portal Overlay */}
