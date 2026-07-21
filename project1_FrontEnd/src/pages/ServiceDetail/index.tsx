@@ -295,19 +295,37 @@ export const ServiceDetail = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
+                {/* 
+                  Code cũ nút Nhắn tin (đã ghi chú lại, không xóa):
+                  {selectedHelperObj && (
+                    <button
+                      onClick={() => {
+                        const helperUserId = selectedHelperObj.user?.id || selectedHelperObj.user_id;
+                        if (helperUserId) {
+                          navigate(`/messages/${helperUserId}`);
+                        }
+                      }}
+                      className="flex-1 sm:flex-initial bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 text-base shadow-sm"
+                    >
+                      <Icon icon="material-symbols:chat-outline" className="text-xl" />
+                      {t("Nhắn tin")}
+                    </button>
+                  )}
+                */}
                 {selectedHelperObj && (
-                  <button
-                    onClick={() => {
-                      const helperUserId = selectedHelperObj.user?.id || selectedHelperObj.user_id;
-                      if (helperUserId) {
-                        navigate(`/messages/${helperUserId}`);
+                  <a
+                    href={selectedHelperObj.user?.phone ? `tel:${selectedHelperObj.user.phone}` : "javascript:void(0)"}
+                    onClick={(e) => {
+                      if (!selectedHelperObj.user?.phone) {
+                        e.preventDefault();
+                        alert(t("Nhân viên này chưa cập nhật số điện thoại."));
                       }
                     }}
                     className="flex-1 sm:flex-initial bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 text-base shadow-sm"
                   >
-                    <Icon icon="material-symbols:chat-outline" className="text-xl" />
-                    {t("Nhắn tin")}
-                  </button>
+                    <Icon icon="material-symbols:call-outline" className="text-xl text-teal-600" />
+                    {t("Liên hệ")}
+                  </a>
                 )}
                 <button
                   onClick={openBookingModal}

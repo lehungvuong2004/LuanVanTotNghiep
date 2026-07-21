@@ -545,19 +545,22 @@ export const Header = () => {
                 <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105">
                   <Icon icon="boxicons:location" className="text-xl" />
                 </div>
-                {isLoggedIn && (
-                  <button
-                    onClick={handleChatIconClick}
-                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 relative"
-                  >
-                    <Icon icon="material-symbols:chat-outline" className="text-xl" />
-                    {chatUnreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
-                        {chatUnreadCount}
-                      </span>
-                    )}
-                  </button>
-                )}
+                {/* 
+                  Code cũ nút Tin nhắn / Chat trên Header (đã ghi chú lại, không xóa):
+                  {isLoggedIn && (
+                    <button
+                      onClick={handleChatIconClick}
+                      className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 relative"
+                    >
+                      <Icon icon="material-symbols:chat-outline" className="text-xl" />
+                      {chatUnreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
+                          {chatUnreadCount}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                */}
                 <div className="relative group h-full flex items-center cursor-pointer">
                   <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs self-center hover:scale-105 relative">
                     <Icon icon="mdi:bell-outline" className="text-xl" />

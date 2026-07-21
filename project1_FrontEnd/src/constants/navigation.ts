@@ -14,7 +14,7 @@ export const NAV_ITEMS = {
     { name: "Quản lý Đánh giá", path: "/admin/reviews", icon: "material-symbols:rate-review-outline-rounded", permission: "reviews.view" },
     { name: "Quản lý Bài đăng Tuyển dụng", path: "/admin/job-posts", icon: "material-symbols:post-add-rounded", permission: "job_posts.view",},
     { name: "Quản lý Báo cáo", path: "/admin/reports", icon: "material-symbols:report-outline", permission: "reports.view" }, //3
-    { name: "Quản lý Tin nhắn", path: "/admin/messages", icon: "material-symbols:chat-outline", permission: "messages.view" }, // 3
+    // { name: "Quản lý Tin nhắn", path: "/admin/messages", icon: "material-symbols:chat-outline", permission: "messages.view" }, // 3
     { name: "Gửi thông báo hệ thống", path: "/admin/notifications", icon: "material-symbols:notifications-outline-rounded", permission: "notifications.view" }, // 3
     { name: "Quản lý Liên hệ", path: "/admin/contacts", icon: "material-symbols:contact-phone-outline-rounded", permission: "contacts.view" }, // 3
     { name: "Quản lý Tin tức", path: "/admin/news", icon: "material-symbols:news", permission: "news.view" },
@@ -34,7 +34,7 @@ export const NAV_ITEMS = {
     { name: "Quản lý Đánh giá", path: "/operator/reviews", icon: "material-symbols:rate-review-outline-rounded", permission: "reviews.view" }, 
     { name: "Quản lý Báo cáo", path: "/operator/reports", icon: "material-symbols:report-outline", permission: "reports.process" }, // 3
     { name: "Quản lý Liên hệ", path: "/operator/contacts", icon: "material-symbols:contact-phone-outline-rounded", permission: "contacts.process" }, // 3
-    { name: "Quản lý Tin nhắn", path: "/operator/messages", icon: "material-symbols:chat-outline", permission: "messages.view" }, // 0
+    // { name: "Quản lý Tin nhắn", path: "/operator/messages", icon: "material-symbols:chat-outline", permission: "messages.view" }, // 0
     // { name: "Quản lý Thông báo", path: "/operator/notifications", icon: "material-symbols:notifications-outline-rounded", permission: "notifications.view" }, // 3
   ],
 
@@ -48,7 +48,7 @@ export const NAV_ITEMS = {
     { name: "Hồ sơ Ứng tuyển", path: "/helper/dashboard", icon: "fluent-mdl2:recruitment-management", permission: "job_applications.view" },
     { name: "Quản lý Đặt lịch", path: "/lich-su-dat-lich", icon: "material-symbols:calendar-month-outline-rounded", permission: "bookings.view" },
     { name: "Nhật ký Công việc", path: "/helper/work-logs", icon: "material-symbols:history-edu-outline", permission: "work_logs.checkin" },
-    { name: "Tin nhắn", path: "/helper/messages", icon: "material-symbols:chat-outline", permission: "messages.view" },
+    // { name: "Tin nhắn", path: "/helper/messages", icon: "material-symbols:chat-outline", permission: "messages.view" },
     { name: "Đánh giá", path: "/helper/reviews", icon: "material-symbols:rate-review-outline-rounded", permission: "reviews.view" },
   ],
 

@@ -6,6 +6,9 @@ import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } 
 import { createJobPostApi } from "../../api/jobPostsApi/jobPosts";
 import { getPostJobSchema } from "../../api/jobPostsApi/validation";
 
+import { useGeolocation } from "../../hooks/useGeolocation";
+import { parseVietnamAddress } from "../../types/location";
+
 export const getUrgencyFromDates = (workingTime: string, expirationDate: string) => {
   if (!workingTime || !expirationDate) return null;
   const diffDays =
@@ -43,7 +46,28 @@ export const usePostAJobHook = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<number | string>("new");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isGeoActive, setIsGeoActive] = useState(false);
   const { showToast } = useToast();
+
+  const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
+
+  useEffect(() => {
+    if ((addressDetails || rawAddress) && isGeoActive) {
+      const parsed = parseVietnamAddress(addressDetails, rawAddress);
+
+      if (parsed.specificAddress) formik.setFieldValue("specificAddress", parsed.specificAddress);
+      if (parsed.district) formik.setFieldValue("district", parsed.district);
+      if (parsed.city) formik.setFieldValue("city", parsed.city);
+
+      setIsGeoActive(false);
+      clearLocation();
+    }
+  }, [addressDetails, rawAddress, isGeoActive, clearLocation]);
+
+  const handleGeoLocation = () => {
+    setIsGeoActive(true);
+    getCurrentLocation();
+  };
 
   const validationSchema = getPostJobSchema(t);
 
@@ -200,5 +224,9 @@ export const usePostAJobHook = () => {
     handleAddressChange,
     isLoading,
     errorMsg,
-    computedUrgency };
+    computedUrgency,
+    geoLoading,
+    geoError,
+    handleGeoLocation,
+  };
 };

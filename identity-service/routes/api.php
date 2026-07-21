@@ -10,7 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\MessageController;
+// use App\Http\Controllers\MessageController;
 
 //  PUBLIC — Không cần token
 Route::prefix('auth')->group(function () {
@@ -65,6 +65,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('{id}',            [NotificationController::class, 'destroy'])->middleware('permission:notifications.view');
   });
 
+/*
   // -- Messages (Chat 1-1) --
   Route::prefix('messages')->group(function () {
     Route::post('/',                  [MessageController::class, 'send'])->middleware('permission:messages.send');
@@ -73,6 +74,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('read/{userId}',       [MessageController::class, 'markRead'])->middleware('permission:messages.view');
     Route::delete('{id}',             [MessageController::class, 'destroy'])->middleware('permission:messages.delete');
   });
+*/
 
 
 
@@ -138,8 +140,10 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('contacts/{id}/process', [ContactController::class, 'process'])->middleware('permission:contacts.process');
     Route::delete('contacts/{id}',       [ContactController::class, 'destroy'])->middleware('permission:contacts.delete');
 
+/*
     // Messages Management
     Route::get('messages',               [MessageController::class, 'adminIndex'])->middleware('permission:messages.view');
     Route::delete('messages/{id}',       [MessageController::class, 'adminDestroy'])->middleware('permission:messages.delete');
+*/
   });
 });

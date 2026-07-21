@@ -227,13 +227,30 @@ export const HelperDetail = () => {
             </div>
           )}
 
-          <button
-            onClick={() => navigate(`/messages/${user?.id}`)}
-            className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-2xl font-bold hover:border-teal-500 transition-all cursor-pointer flex items-center justify-center gap-2 w-full text-sm"
+          {/* 
+            Code cũ nút Nhắn tin (đã ghi chú lại, không xóa):
+            <button
+              onClick={() => navigate(`/messages/${user?.id}`)}
+              className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-2xl font-bold hover:border-teal-500 transition-all cursor-pointer flex items-center justify-center gap-2 w-full text-sm"
+            >
+              <Icon icon="material-symbols:chat-outline" className="text-xl" />
+              {t("Nhắn tin")}
+            </button>
+          */}
+
+          <a
+            href={user?.phone ? `tel:${user.phone}` : "javascript:void(0)"}
+            onClick={(e) => {
+              if (!user?.phone) {
+                e.preventDefault();
+                alert(t("Nhân viên này chưa cập nhật số điện thoại."));
+              }
+            }}
+            className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 w-full text-sm"
           >
-            <Icon icon="material-symbols:chat-outline" className="text-xl" />
-            {t("Nhắn tin")}
-          </button>
+            <Icon icon="material-symbols:call-outline" className="text-xl text-teal-600" />
+            {t("Liên hệ")}
+          </a>
         </div>
       </div>
     </div>

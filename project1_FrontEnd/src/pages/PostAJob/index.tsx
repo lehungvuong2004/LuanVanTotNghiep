@@ -17,7 +17,7 @@ const formatWorkingTime = (timeStr: string | null) => {
 };
 
 export const PostAJob = () => {
-  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency } = usePostAJobHook();
+  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency, geoLoading, geoError, handleGeoLocation } = usePostAJobHook();
   const { t } = useTranslation();
 
   const renderAddressForm = () => (
@@ -187,6 +187,22 @@ export const PostAJob = () => {
                   <Icon icon="mdi:chevron-down" className="w-5 h-5" />
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Geolocation Autocomplete Button */}
+          {isNewAddress && (
+            <div className="mb-5">
+              <button
+                type="button"
+                onClick={handleGeoLocation}
+                disabled={geoLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 px-5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
+              >
+                {geoLoading ? <Icon icon="line-md:loading-twotone-loop" className="text-lg animate-spin" /> : <Icon icon="solar:gps-bold" className="text-lg" />}
+                {t("Định vị vị trí hiện tại của tôi")}
+              </button>
+              {geoError && <p className="text-red-500 text-xs font-semibold mt-1.5 text-center">{geoError}</p>}
             </div>
           )}
 
@@ -387,8 +403,6 @@ export const PostAJob = () => {
         <div className="col-span-7">{renderAddressForm()}</div>
         <div className="col-span-5">{renderInformationForm()}</div>
       </div>
-
-      
     </div>
   );
-}
+};

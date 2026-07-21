@@ -3,6 +3,8 @@ import { Icon } from "@iconify/react";
 import { useProfile } from "./useHook";
 import { ROLES } from "../../constants/roles";
 import { useGeolocation } from "../../hooks/useGeolocation";
+import { parseVietnamAddress } from "../../types/location";
+import { getRoleBadge } from "../../utils";
 
 export const Profile = () => {
   const {
@@ -42,48 +44,27 @@ export const Profile = () => {
   const [workingCity, setWorkingCity] = useState("");
   const [geoTarget, setGeoTarget] = useState<"address" | "workingArea" | "residential" | null>(null);
 
-  const { getCurrentLocation, addressDetails, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
+  const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
 
   useEffect(() => {
-    if (addressDetails && geoTarget) {
-      const houseNumber = addressDetails.house_number || "";
-      const road = addressDetails.road || addressDetails.highway || "";
-      const suburb = addressDetails.suburb || addressDetails.neighbourhood || addressDetails.quarter || "";
-      const cityDistrict = addressDetails.city_district || addressDetails.county || "";
-      const cityName = addressDetails.city || addressDetails.town || addressDetails.village || addressDetails.state || "";
+    if ((addressDetails || rawAddress) && geoTarget) {
+      const parsed = parseVietnamAddress(addressDetails, rawAddress);
 
       if (geoTarget === "address") {
-        let streetVal = "";
-        if (houseNumber && road) {
-          streetVal = `${houseNumber} ${road}`;
-        } else if (road) {
-          streetVal = road;
-        }
-
-        const districtVal = cityDistrict || suburb || "";
-        addressForm.setFieldValue("address", streetVal);
-        addressForm.setFieldValue("district", districtVal);
-        addressForm.setFieldValue("city", cityName);
+        addressForm.setFieldValue("address", parsed.specificAddress);
+        addressForm.setFieldValue("district", parsed.district);
+        addressForm.setFieldValue("city", parsed.city);
       } else if (geoTarget === "workingArea") {
-        const districtVal = cityDistrict || suburb || "";
-        setWorkingDistrict(districtVal);
-        setWorkingCity(cityName);
+        setWorkingDistrict(parsed.district);
+        setWorkingCity(parsed.city);
       } else if (geoTarget === "residential") {
-        let streetVal = "";
-        if (houseNumber && road) {
-          streetVal = `${houseNumber} ${road}`;
-        } else if (road) {
-          streetVal = road;
-        }
-
-        const districtVal = cityDistrict || suburb || "";
-        const fullAddr = [streetVal, districtVal, cityName].filter((val) => val && val.trim() !== "").join(", ");
+        const fullAddr = [parsed.specificAddress, parsed.district, parsed.city].filter((val) => val && val.trim() !== "").join(", ");
         profileForm.setFieldValue("address", fullAddr);
       }
       setGeoTarget(null);
       clearLocation();
     }
-  }, [addressDetails, geoTarget, addressForm, profileForm, clearLocation]);
+  }, [addressDetails, rawAddress, geoTarget, addressForm, profileForm, clearLocation]);
 
   if (loading) {
     return (
@@ -95,23 +76,6 @@ export const Profile = () => {
       </div>
     );
   }
-
-  // Get user role display name & styles
-  const getRoleBadge = (roleId?: number) => {
-    switch (roleId) {
-      case ROLES.ADMIN:
-        return { name: t("Quản trị viên"), style: "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50" };
-      case ROLES.OPERATOR:
-        return { name: t("Nhân viên vận hành"), style: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/50" };
-      case ROLES.HELPER:
-        return { name: t("Người giúp việc"), style: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50" };
-      case ROLES.CUSTOMER:
-      default:
-        return { name: t("Khách hàng"), style: "bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/50" };
-    }
-  };
-
-  const role = getRoleBadge(userProfile?.role_id);
 
   // 1. RENDER HEADER (TITLE & DESCRIPTION)
   const renderHeader = () => (
@@ -189,7 +153,7 @@ export const Profile = () => {
 
       <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 break-all px-2">{userProfile?.email}</p>
 
-      <span className={`mt-4 px-3 py-1 rounded-full text-xs font-semibold ${role.style}`}>{role.name}</span>
+      <div className="mt-4">{getRoleBadge(userProfile?.role_id)}</div>
 
       <div className="w-full border-t border-slate-100 dark:border-slate-700/60 my-6"></div>
 
@@ -900,12 +864,12 @@ export const Profile = () => {
                     getCurrentLocation();
                   }}
                   disabled={geoLoading}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
                 >
-                  {geoLoading && geoTarget === "address" ? <Icon icon="line-md:loading-twotone-loop" className="text-sm animate-spin" /> : <Icon icon="solar:gps-bold" className="text-sm" />}
+                  {geoLoading && geoTarget === "address" ? <Icon icon="line-md:loading-twotone-loop" className="text-lg animate-spin" /> : <Icon icon="solar:gps-bold" className="text-lg" />}
                   {t("Định vị vị trí hiện tại của tôi")}
                 </button>
-                {geoError && geoTarget === "address" && <p className="text-red-500 text-[10px] font-semibold mt-1 text-center">{geoError}</p>}
+                {geoError && geoTarget === "address" && <p className="text-red-500 text-xs font-semibold mt-1.5 text-center">{geoError}</p>}
               </div>
 
               {/* Address detail */}
