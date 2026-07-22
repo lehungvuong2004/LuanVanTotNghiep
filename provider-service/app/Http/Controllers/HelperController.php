@@ -504,6 +504,23 @@ class HelperController extends Controller
     return $this->successResponse(null, 'Đã xóa lịch rảnh.');
   }
 
+  public function clearAllAvailability(Request $request)
+  {
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
+    }
+
+    $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
+    if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
+
+    // Only delete 'available' slots, preserve 'booked' (active work)
+    $deletedCount = HelperAvailability::where('helper_id', $profile->id)
+      ->where('status', 'available')
+      ->delete();
+
+    return $this->successResponse(['deleted_count' => $deletedCount], 'Đã xóa toàn bộ lịch rảnh.');
+  }
+
   // =====================================================================
   //  VERIFICATION — Helper nộp hồ sơ xét duyệt (role: helper)
   // =====================================================================

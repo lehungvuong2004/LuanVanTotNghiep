@@ -118,7 +118,7 @@ class ServiceController extends Controller
       ->count();
 
     // Lấy danh sách helpers có kỹ năng dịch vụ này (top 8, sắp xếp theo rating)
-    $helpers = HelperProfile::with(['skills.service', 'workingAreas'])
+    $helpers = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities'])
       ->where('status', 'active')
       ->whereHas('skills', fn($q) => $q->where('service_id', $id))
       ->whereHas('workingAreas')
@@ -186,7 +186,7 @@ class ServiceController extends Controller
       return $this->notFoundResponse('Không tìm thấy dịch vụ.');
     }
 
-    $query = HelperProfile::with(['skills.service', 'workingAreas'])
+    $query = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities'])
       ->where('status', 'active')
       ->whereHas('skills', fn($q) => $q->where('service_id', $id));
 

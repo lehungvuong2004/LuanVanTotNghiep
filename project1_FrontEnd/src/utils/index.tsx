@@ -69,8 +69,13 @@ export function formatMoneyShortVI(value: any) {
 }
 
 export const formatDate = (dateStr: any) => {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  if (!dateStr) return "";
+  const d = parseUtcDate(dateStr);
+  if (isNaN(d.getTime())) return "";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 };
 
 export function formatMoneyInput(value: any) {

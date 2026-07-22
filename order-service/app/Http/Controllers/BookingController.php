@@ -912,11 +912,11 @@ class BookingController extends Controller
     {
         if (preg_match('/\[Bài tuyển dụng:\s*([^\]]+)\]/', $booking->note ?? '', $matches)) {
             $jobTitle = trim($matches[1]);
-            $jobPost  = \App\Models\JobPost::where('title', $jobTitle)
+            $jobPost  = JobPost::where('title', $jobTitle)
                                           ->where('customer_id', $booking->customer_id)
                                           ->first();
             if ($jobPost) {
-                \App\Models\JobApplication::where('job_post_id', $jobPost->id)
+                JobApplication::where('job_post_id', $jobPost->id)
                                           ->where('helper_id', $booking->helper_id)
                                           ->update(['status' => 'completed']);
             }

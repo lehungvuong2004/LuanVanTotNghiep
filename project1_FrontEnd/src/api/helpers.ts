@@ -178,10 +178,6 @@ export const getHelperDashboardStats = async (): Promise<any> => {
   return response.data;
 };
 
-// ============================================================
-//  HELPER — Quản lý lịch rảnh (Availabilities)
-// ============================================================
-
 export interface HelperAvailability {
   id: number;
   helper_id: number;
@@ -191,16 +187,21 @@ export interface HelperAvailability {
 }
 
 export const getMyAvailability = async (): Promise<{ data: HelperAvailability[] }> => {
-  const response = await axiosInstance.get<{ data: HelperAvailability[] }>("/providers/helper/availabilities");
+  const response = await axiosInstance.get<{ data: HelperAvailability[] }>("/providers/helper/availability");
   return response.data;
 };
 
 export const addMyAvailability = async (data: { available_date: string; start_time: string }): Promise<{ message: string; data: HelperAvailability }> => {
-  const response = await axiosInstance.post<{ message: string; data: HelperAvailability }>("/providers/helper/availabilities", data);
+  const response = await axiosInstance.post<{ message: string; data: HelperAvailability }>("/providers/helper/availability", data);
   return response.data;
 };
 
 export const removeMyAvailability = async (id: number): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/availabilities/${id}`);
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/availability/${id}`);
+  return response.data;
+};
+
+export const clearAllMyAvailability = async (): Promise<{ message: string; data?: { deleted_count: number } }> => {
+  const response = await axiosInstance.delete<{ message: string; data?: { deleted_count: number } }>("/providers/helper/availability");
   return response.data;
 };

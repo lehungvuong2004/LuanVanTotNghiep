@@ -41,6 +41,7 @@ import { ApplicationReview } from "./DashBoard/Operator/JobPosts";
 import { Reports } from "./DashBoard/Admin/Reports";
 import { StaffRecruitmentDashboard } from "./DashBoard/Staff";
 import { HelperOverview } from "./DashBoard/Helper/Overview";
+import { HelperAvailabilityPage } from "./DashBoard/Helper/Availabilities";
 import { Contacts } from "./DashBoard/Admin/Contacts";
 import { Notifications } from "./DashBoard/Admin/Notifications";
 // import { AdminMessages } from "./DashBoard/Admin/Messages";
@@ -139,6 +140,7 @@ function App() {
           <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>
             <Route index element={<HelperOverview />} />
             <Route path="dashboard" element={<StaffRecruitmentDashboard />} />
+            <Route path="availabilities" element={<HelperAvailabilityPage />} />
             {/* <Route path="messages" element={<ChatPage />} /> */}
             {/* <Route path="messages/:partnerId" element={<ChatPage />} /> */}
           </Route>

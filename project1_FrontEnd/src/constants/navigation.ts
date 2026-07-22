@@ -40,11 +40,11 @@ export const NAV_ITEMS = {
 // hình như thiếu đăng lịch cho khách hàng đặt lịch 
   [ROLES.HELPER]: [
     { name: "Thanh toán & Thu nhập", path: "/helper/payments", icon: "material-symbols:payments-outline-rounded", permission: "payments.history" },
+    { name: "Lịch Rảnh", path: "/helper/availabilities", icon: "material-symbols:calendar-today-outline-rounded" },
     // { name: "Hồ sơ Cá nhân", path: "/ho-so", icon: "material-symbols:person-outline-rounded", permission: "helper_profile.view" },
     // { name: "Khu vực Làm việc", path: "/helper/areas", icon: "material-symbols:map-outline", permission: "working_areas.view" },
     // { name: "Thông báo", path: "/helper/notifications", icon: "material-symbols:notifications-outline-rounded", permission: "notifications.view" },
     // { name: "Kỹ năng", path: "/helper/skills", icon: "material-symbols:star-outline", permission: "skills.view" },
-    // { name: "Lịch Rảnh", path: "/helper/availabilities", icon: "material-symbols:calendar-today-outline-rounded", permission: "availabilities.view" },
     // { name: "Hồ sơ Ứng tuyển", path: "/helper/dashboard", icon: "fluent-mdl2:recruitment-management", permission: "job_applications.view" },
     // { name: "Quản lý Đặt lịch", path: "/lich-su-dat-lich", icon: "material-symbols:calendar-month-outline-rounded", permission: "bookings.view" },
     // { name: "Nhật ký Công việc", path: "/helper/work-logs", icon: "material-symbols:history-edu-outline", permission: "work_logs.checkin" },

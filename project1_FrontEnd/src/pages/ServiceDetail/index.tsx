@@ -140,6 +140,8 @@ export const ServiceDetail = () => {
     handleCreateBooking,
   } = useServiceDetail();
 
+  const selectedHelperObj = helpers.find((h: any) => h.id === selectedHelperId);
+
   if (loading) {
     return (
       <div className="min-h-screen dark:bg-slate-900 pt-8">
@@ -912,6 +914,57 @@ export const ServiceDetail = () => {
                 />
               </div>
             </div>
+
+            {/* Helper's Registered Free Slots suggestion */}
+            {selectedHelperObj && (
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-150 dark:border-slate-700 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  <Icon icon="material-symbols:event-available-outline-rounded" className="text-emerald-500 text-base" />
+                  <span>{t("Lịch rảnh của")} {selectedHelperObj.user?.full_name || t("Người giúp việc")}</span>
+                </div>
+                {(() => {
+                  const daySlots = (selectedHelperObj.availabilities || []).filter(
+                    (av: any) => av.available_date === bookingDate && av.status === "available"
+                  );
+
+                  if (daySlots.length === 0) {
+                    return (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 font-medium leading-relaxed">
+                        ⚠️ {t("Người giúp việc chưa mở ca rảnh trong ngày này. Bạn hãy thử chọn ngày khác mà họ có lịch rảnh.")}
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-1.5">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {t("Chọn nhanh khung giờ rảnh đã đăng ký:")}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {daySlots.map((av: any) => {
+                          const timeStr = av.start_time.substring(0, 5); // "08:00:00" -> "08:00"
+                          const isSelected = bookingTime === timeStr;
+                          return (
+                            <button
+                              key={av.id}
+                              type="button"
+                              onClick={() => setBookingTime(timeStr)}
+                              className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                                isSelected
+                                  ? "bg-emerald-600 border-emerald-600 text-white shadow-xs"
+                                  : "bg-white dark:bg-slate-800 border-slate-205 dark:border-slate-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50/50"
+                              }`}
+                            >
+                              {timeStr}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             {/* Duration Select */}
             <div className="space-y-1.5">
