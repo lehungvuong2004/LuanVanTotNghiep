@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { useLogout } from "../../hooks/useLogout";
+import { updateUser } from "../../redux/authSlice";
 import {
   getProfileApi,
   updateProfileApi,
@@ -43,8 +45,9 @@ import { ROLES } from "../../constants/roles";
 
 export const useProfile = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { logout } = useLogout();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [activeTab, setActiveTab] = useState<"info" | "address" | "password" | "skills" | "working_areas">("info");
   const [loading, setLoading] = useState<boolean>(true);
@@ -78,6 +81,7 @@ export const useProfile = () => {
         const updated = { ...userProfile, avatar: res.url };
         setUserProfile(updated);
         localStorage.setItem("user", JSON.stringify(updated));
+        dispatch(updateUser(updated));
       }
       setSuccessMessage(t("Tải ảnh đại diện lên thành công."));
     } catch (error: any) {
@@ -211,6 +215,7 @@ export const useProfile = () => {
         // Update local storage representation of the user
         const updatedUser = userUpdateRes.data;
         localStorage.setItem("user", JSON.stringify(updatedUser));
+        dispatch(updateUser(updatedUser));
         setUserProfile(updatedUser);
 
         // 2. Update customer profile info if they are customer

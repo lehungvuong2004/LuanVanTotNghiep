@@ -1,40 +1,23 @@
-import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export const useAuth = () => {
-  const [token, setToken] = useState(() => localStorage.getItem("access_token"));
-  const [user, setUser] = useState(() => {
-    const userString = localStorage.getItem("user");
-    return userString ? JSON.parse(userString) : null;
-  });
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setToken(localStorage.getItem("access_token"));
-      const userString = localStorage.getItem("user");
-      setUser(userString ? JSON.parse(userString) : null);
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  const auth = useSelector((state: any) => state.auth);
 
   const hasPermission = (permissionName: string): boolean => {
-    if (!user) return false;
-
-    // Remove hardcoded Admin bypass so RBAC is strictly driven by the database
+    if (!auth.user) return false;
 
     // Check flat permissions array at user root level first
-    if (Array.isArray(user.permissions) && user.permissions.includes(permissionName)) {
+    if (Array.isArray(auth.user.permissions) && auth.user.permissions.includes(permissionName)) {
       return true;
     }
 
     // Check nested role.permissions as fallback
-    const permissions = user.role?.permissions || [];
+    const permissions = auth.user.role?.permissions || [];
     return permissions.some((p: any) => {
       if (typeof p === "string") return p === permissionName;
       return p?.name === permissionName;
     });
   };
 
-  return { token, user, isLoggedIn: !!token, hasPermission };
+  return { token: auth.token, user: auth.user, isLoggedIn: !!auth.token, hasPermission };
 };

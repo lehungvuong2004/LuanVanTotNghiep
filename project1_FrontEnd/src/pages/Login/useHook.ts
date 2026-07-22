@@ -3,14 +3,17 @@ import { useTranslation } from "react-i18next";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { loginApi, googleLoginApi } from "../../api/authApi/auth";
 import { getLoginSchema } from "../../api/authApi/validation";
 import { getRoleDashboard, getUserRole } from "../../constants/roles";
+import { loginSuccess } from "../../redux/authSlice";
 
 export const useLogin = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const state = location.state as { email?: string } | null;
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -39,8 +42,10 @@ export const useLogin = () => {
         const response = await loginApi({
           email: values.email,
           password: values.password });
+        
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        dispatch(loginSuccess(response));
         sessionStorage.setItem("show_login_toast", "true");
 
         // Redirect based on role
@@ -66,6 +71,7 @@ export const useLogin = () => {
         localStorage.setItem("remember_me", "true");
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        dispatch(loginSuccess(response));
         sessionStorage.setItem("show_login_toast", "true");
 
         // Redirect to Home (or specific role route if desired)

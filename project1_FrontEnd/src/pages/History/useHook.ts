@@ -195,9 +195,10 @@ export const useHistory = () => {
     setIsApplicationsLoading(true);
     try {
       const res = await getMyApplicationsApi({ limit: 1000 });
-      const rawApps = res.data?.data || res.data || [];
-      // Normalize array if nested in paginator object
-      setApplications(Array.isArray(rawApps) ? rawApps : rawApps.data || []);
+      const rawApps = res.data?.data ?? res.data ?? [];
+      // Normalize array if nested in paginator object using ES6
+      const appList = Array.isArray(rawApps) ? rawApps : (rawApps?.data ?? []);
+      setApplications(appList);
     } catch (err) {
       console.error("Error fetching helper applications:", err);
     } finally {
