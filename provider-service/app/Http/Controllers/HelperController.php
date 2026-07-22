@@ -53,6 +53,7 @@ class HelperController extends Controller
     }
 
     $limit   = $request->integer('limit', 20);
+
     $helpers = $query->orderByDesc('rating_avg')
       ->orderByDesc('total_reviews')
       ->paginate($limit);
@@ -321,6 +322,12 @@ class HelperController extends Controller
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
     if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
+    // Limit to maximum 3 skills
+    $currentCount = HelperSkill::where('helper_id', $profile->id)->count();
+    if ($currentCount >= 3) {
+      return $this->errorResponse('Bạn chỉ được chọn tối đa 3 kỹ năng.', Response::HTTP_BAD_REQUEST);
+    }
+
     $fields = $request->validate([
       'service_id' => 'required|integer|exists:services,id',
     ]);
@@ -338,7 +345,14 @@ class HelperController extends Controller
       'service_id' => $fields['service_id'],
     ]);
 
-    return $this->successResponse($skill->load('service'), 'Thêm kỹ năng thành công.', Response::HTTP_CREATED);
+    // Reset status to pending and create verification request
+    $profile->update(['status' => 'pending']);
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $profile->id, 'status' => 'pending'],
+      ['created_at' => now(), 'note' => 'Cập nhật danh sách kỹ năng']
+    );
+
+    return $this->successResponse($skill->load('service'), 'Thêm kỹ năng thành công. Hồ sơ của bạn đã chuyển về trạng thái chờ xét duyệt.', Response::HTTP_CREATED);
   }
 
   public function removeSkill(Request $request, $serviceId)
@@ -357,7 +371,15 @@ class HelperController extends Controller
     if (!$skill) return $this->notFoundResponse('Không tìm thấy kỹ năng.');
 
     $skill->delete();
-    return $this->successResponse(null, 'Đã xóa kỹ năng.');
+
+    // Reset status to pending and create verification request
+    $profile->update(['status' => 'pending']);
+    HelperVerification::updateOrCreate(
+      ['helper_id' => $profile->id, 'status' => 'pending'],
+      ['created_at' => now(), 'note' => 'Cập nhật danh sách kỹ năng']
+    );
+
+    return $this->successResponse(null, 'Đã xóa kỹ năng. Hồ sơ của bạn đã chuyển về trạng thái chờ xét duyệt.');
   }
 
   // =====================================================================
@@ -567,7 +589,8 @@ class HelperController extends Controller
         ->get(env('ORDER_SERVICE_URL', 'http://order-service:8000') . '/api/orders/helper/stats');
 
       if ($orderResponse->successful()) {
-        $orderStats = $orderResponse->json();
+        $res = $orderResponse->json();
+        $orderStats = isset($res['data']) ? $res['data'] : $res;
       }
     } catch (\Exception $e) {
       Log::error('Không thể lấy thống kê từ dịch vụ đặt lịch: ' . $e->getMessage());

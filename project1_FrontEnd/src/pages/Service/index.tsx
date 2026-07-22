@@ -296,7 +296,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
                     <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{service.category}</span>
                     <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300">
                       <Icon icon="material-symbols:star" className="text-amber-400 text-base" />
-                      {service.rating.toFixed(1)} <span className="text-slate-400 dark:text-slate-500 font-normal">({service.reviewsCount})</span>
+                      {(Number(service.rating) || 0).toFixed(1)} <span className="text-slate-400 dark:text-slate-500 font-normal">({service.reviewsCount || 0})</span>
                     </div>
                   </div>
                   <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{service.title}</h3>
@@ -428,9 +428,9 @@ const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helper
               <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">{helper.name}</h3>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-500 mb-1">
                 <Icon icon="material-symbols:star" className="text-base" />
-                {Number(helper.rating).toFixed(1)}
+                {(Number(helper.rating) || 0).toFixed(1)}
                 <span className="text-slate-400 dark:text-slate-500 font-normal">
-                  ({helper.reviewsCount} {t("đánh giá")})
+                  ({helper.reviewsCount || 0} {t("đánh giá")})
                 </span>
               </div>
               <span className="text-xs text-slate-500 dark:text-slate-400 mb-3">

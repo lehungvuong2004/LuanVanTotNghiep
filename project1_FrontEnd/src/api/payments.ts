@@ -172,6 +172,15 @@ export const simulatePaymentCallbackApi = async (
   return response.data;
 };
 
+export const confirmCashReceiptApi = async (
+  id: number
+): Promise<{ message: string; data: Payment }> => {
+  const response = await axiosInstance.post<{ message: string; data: Payment }>(
+    `/payments/${id}/confirm-cash`
+  );
+  return response.data;
+};
+
 export interface CreateRefundPayload {
   payment_id: number;
   amount: number;

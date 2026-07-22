@@ -43,7 +43,6 @@ export const Profile = () => {
   const [workingDistrict, setWorkingDistrict] = useState("");
   const [workingCity, setWorkingCity] = useState("");
   const [geoTarget, setGeoTarget] = useState<"address" | "workingArea" | "residential" | null>(null);
-
   const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
 
   useEffect(() => {
@@ -116,9 +115,7 @@ export const Profile = () => {
           <img
             src={userProfile?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix"}
             alt="User Avatar"
-            className={`w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-700 ${
-              avatarUploading ? "opacity-40 blur-xs" : ""
-            }`}
+            className={`w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-700 ${avatarUploading ? "opacity-40 blur-xs" : ""}`}
           />
           {avatarUploading ? (
             <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/40">
@@ -550,18 +547,26 @@ export const Profile = () => {
             <div className="space-y-6 pt-6 border-t border-slate-100 dark:border-slate-700/60">
               <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
                 <Icon icon="solar:star-ring-bold-duotone" className="text-teal-600 dark:text-teal-400 text-lg" />
-                {t("Kỹ năng chuyên môn")}
+                {t("Kỹ năng chuyên môn")}{" "}
+                <span className="text-xs text-slate-400 font-normal">
+                  ({t("Tối đa 3 kỹ năng, hiện tại:")} {helperSkills.length}/3)
+                </span>
               </h4>
 
               <div>
-                <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3">{t("Kỹ năng hiện tại của bạn")}</h5>
+                <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3">{t("Kỹ năng hiện tại của bạn (kỹ năng đầu tiên là kỹ năng chính)")}</h5>
                 {helperSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
-                    {helperSkills.map((sk) => (
+                    {helperSkills.map((sk, idx) => (
                       <div
                         key={sk.id}
-                        className="flex items-center gap-2 bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 border border-teal-200/50 dark:border-teal-900/50 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
+                        className="flex items-center gap-2 bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 border border-teal-200/50 dark:border-teal-900/50 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all animate-fade-in"
                       >
+                        {idx === 0 && (
+                          <span title={t("Kỹ năng chính")}>
+                            <Icon icon="solar:star-bold" className="text-amber-500 text-sm" />
+                          </span>
+                        )}
                         <span>{sk.service?.name}</span>
                         <button
                           type="button"
@@ -1250,7 +1255,7 @@ export const Profile = () => {
   // MAIN PAGE LAYOUT (GRID STRUCTURE)
   return (
     <div className="w-full min-h-screen transition-colors duration-300 py-8 md:px-16">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* Page Header */}
         {renderHeader()}
 

@@ -164,7 +164,7 @@ export const Payment = () => {
         </div>
 
         {/* Actions */}
-        {payment.status === "pending" && (
+        {payment.status === "pending" && payment.payment_method === "vnpay" && (
           <div className="px-6 pb-5 flex gap-3 flex-wrap">
             <button
               onClick={handleSimulate}

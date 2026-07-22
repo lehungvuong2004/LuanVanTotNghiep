@@ -67,13 +67,7 @@ export const HelperOverview = () => {
   const renderStars = (rating: number) => {
     const stars = [];
     [...Array(5)].forEach((_, i) => {
-      stars.push(
-        <Icon
-          key={i}
-          icon="material-symbols:star-rounded"
-          className={`text-xs ${i < rating ? "text-amber-400" : "text-slate-300"}`}
-        />
-      );
+      stars.push(<Icon key={i} icon="material-symbols:star-rounded" className={`text-xs ${i < rating ? "text-amber-400" : "text-slate-300"}`} />);
     });
     return stars;
   };
@@ -82,9 +76,7 @@ export const HelperOverview = () => {
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
       <div>
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Bảng Điều Khiển Helper</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Chào mừng trở lại! Theo dõi thu nhập, hiệu quả công việc và các hoạt động vận hành của bạn tại đây.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Chào mừng trở lại! Theo dõi thu nhập, hiệu quả công việc và các hoạt động vận hành của bạn tại đây.</p>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-slate-450 dark:text-slate-500 font-medium">Trạng thái tài khoản:</span>
@@ -98,12 +90,8 @@ export const HelperOverview = () => {
       {/* KPI 1: Tổng thu nhập */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
         <div>
-          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
-            Tổng Thu Nhập
-          </span>
-          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">
-            {formatNumberVI(earnings.total_income)} ₫
-          </span>
+          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Tổng Thu Nhập</span>
+          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{formatNumberVI(earnings.total_income)} ₫</span>
           <span className="inline-flex items-center gap-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-1">
             <Icon icon="material-symbols:trending-up-rounded" />
             Doanh thu hoàn tất
@@ -117,12 +105,8 @@ export const HelperOverview = () => {
       {/* KPI 2: Số công việc hoàn thành */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
         <div>
-          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
-            Công Việc Hoàn Thành
-          </span>
-          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">
-            {jobs.completed_jobs}
-          </span>
+          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Công Việc Hoàn Thành</span>
+          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{jobs.completed_jobs}</span>
           <span className="inline-flex items-center gap-0.5 text-xs font-medium text-blue-600 dark:text-blue-400 mt-1">
             <Icon icon="material-symbols:task-alt-rounded" />
             Đơn hàng thành công
@@ -136,12 +120,8 @@ export const HelperOverview = () => {
       {/* KPI 3: Đánh giá trung bình */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
         <div>
-          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
-            Đánh Giá Trung Bình
-          </span>
-          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">
-            {reviews.rating_avg} / 5
-          </span>
+          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Đánh Giá Trung Bình</span>
+          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">{reviews.rating_avg} / 5</span>
           <span className="inline-flex items-center gap-0.5 text-xs font-medium text-amber-500 mt-1">
             <Icon icon="material-symbols:star-rounded" />
             {reviews.total_reviews} lượt đánh giá
@@ -149,25 +129,6 @@ export const HelperOverview = () => {
         </div>
         <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-500">
           <Icon icon="material-symbols:star-outline-rounded" className="text-2xl" />
-        </div>
-      </div>
-
-      {/* KPI 4: Lịch rảnh tuần này */}
-      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
-        <div>
-          <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
-            Lịch Rảnh Đã Đăng
-          </span>
-          <span className="block text-2xl font-bold text-slate-800 dark:text-slate-100">
-            {operations.availabilities_this_week}
-          </span>
-          <span className="inline-flex items-center gap-0.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 mt-1">
-            <Icon icon="material-symbols:date-range-outline-rounded" />
-            Trong tuần này
-          </span>
-        </div>
-        <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400">
-          <Icon icon="material-symbols:calendar-month-outline-rounded" className="text-2xl" />
         </div>
       </div>
     </div>
@@ -213,9 +174,7 @@ export const HelperOverview = () => {
       {/* Performance metrics & Operations */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
         <div>
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
-            Chỉ Số Hiệu Suất Công Việc
-          </h3>
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Chỉ Số Hiệu Suất Công Việc</h3>
           <div className="space-y-5">
             {/* Job progress statuses count */}
             <div className="grid grid-cols-3 gap-3 text-center">
@@ -240,10 +199,7 @@ export const HelperOverview = () => {
                 <span className="font-bold text-emerald-600">{jobs.acceptance_rate}%</span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                  style={{ width: `${jobs.acceptance_rate}%` }}
-                />
+                <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${jobs.acceptance_rate}%` }} />
               </div>
             </div>
 
@@ -254,10 +210,7 @@ export const HelperOverview = () => {
                 <span className="font-bold text-rose-600">{jobs.cancel_rate}%</span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div
-                  className="bg-rose-500 h-full rounded-full transition-all duration-500"
-                  style={{ width: `${jobs.cancel_rate}%` }}
-                />
+                <div className="bg-rose-500 h-full rounded-full transition-all duration-500" style={{ width: `${jobs.cancel_rate}%` }} />
               </div>
             </div>
           </div>
@@ -266,13 +219,16 @@ export const HelperOverview = () => {
         <div className="mt-6 border-t border-slate-100 dark:border-slate-700 pt-4 grid grid-cols-2 gap-4 text-sm text-slate-650 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <Icon icon="material-symbols:location-on-outline-rounded" className="text-lg text-slate-400" />
-            <span>Khu vực hoạt động: <strong className="text-slate-800 dark:text-slate-200">{operations.active_working_areas}</strong></span>
+            <span>
+              Khu vực hoạt động: <strong className="text-slate-800 dark:text-slate-200">{operations.active_working_areas}</strong>
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Icon icon="material-symbols:verified-user-outline-rounded" className="text-lg text-slate-400" />
-            <span>Xét duyệt: <strong className="text-slate-800 dark:text-slate-200">
-              {operations.verification_status === "approved" || operations.verification_status === "active" ? "Đã đạt" : "Chưa đạt"}
-            </strong></span>
+            <span>
+              Xét duyệt:{" "}
+              <strong className="text-slate-800 dark:text-slate-200">{operations.verification_status === "approved" || operations.verification_status === "active" ? "Đã đạt" : "Chưa đạt"}</strong>
+            </span>
           </div>
         </div>
       </div>
@@ -280,9 +236,7 @@ export const HelperOverview = () => {
       {/* Recent Reviews list */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
         <div>
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
-            Đánh Giá Mới Nhất
-          </h3>
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Đánh Giá Mới Nhất</h3>
           {reviews.recent_reviews.length === 0 ? (
             <div className="text-center py-10 text-slate-400 flex flex-col items-center justify-center">
               <Icon icon="material-symbols:rate-review-outline" className="text-4xl mb-2 text-slate-350" />
@@ -295,32 +249,20 @@ export const HelperOverview = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       {rev.customer?.avatar ? (
-                        <img
-                          src={rev.customer.avatar}
-                          alt={rev.customer.full_name}
-                          className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                        />
+                        <img src={rev.customer.avatar} alt={rev.customer.full_name} className="w-8 h-8 rounded-full object-cover border border-slate-200" />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs">
                           {rev.customer?.full_name?.charAt(0).toUpperCase() || "?"}
                         </div>
                       )}
                       <div>
-                        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">
-                          {rev.customer?.full_name || "Khách hàng ẩn danh"}
-                        </h4>
-                        <span className="text-xxs text-slate-400">
-                          {new Date(rev.created_at).toLocaleDateString("vi-VN")}
-                        </span>
+                        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">{rev.customer?.full_name || "Khách hàng ẩn danh"}</h4>
+                        <span className="text-xxs text-slate-400">{new Date(rev.created_at).toLocaleDateString("vi-VN")}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-0.5">
-                      {renderStars(rev.rating)}
-                    </div>
+                    <div className="flex items-center gap-0.5">{renderStars(rev.rating)}</div>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed">
-                    "{rev.comment || "Không có bình luận"}"
-                  </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed">"{rev.comment || "Không có bình luận"}"</p>
                 </div>
               ))}
             </div>
@@ -331,7 +273,7 @@ export const HelperOverview = () => {
   );
 
   return (
-    <div className="flex-1 p-5 w-full max-w-7xl mx-auto space-y-6">
+    <div className="flex-1 p-5 w-full max-w-8xl mx-auto space-y-6">
       {renderHeader()}
       {renderKPICards()}
       {renderCharts()}

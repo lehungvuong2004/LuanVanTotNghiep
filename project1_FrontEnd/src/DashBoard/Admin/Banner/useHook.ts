@@ -1,14 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import type { Banner } from "../../../api/bannersApi/banners";
-import { getBannersAdmin, createBannerAdmin, updateBannerAdmin, toggleBannerStatusAdmin, deleteBannerAdmin, uploadBannerImage } from "../../../api/bannersApi/banners";
+import { getBannersAdmin, createBannerAdmin, updateBannerAdmin, toggleBannerStatusAdmin, deleteBannerAdmin } from "../../../api/bannersApi/banners";
 import { bannerValidationSchema } from "../../../api/bannersApi/validation";
 import { useToast } from "../../../contexts/ToastContext";
 
 export const useBanner = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -163,20 +162,6 @@ export const useBanner = () => {
     }
   };
 
-  const handleUploadImage = async (file: File) => {
-    setUploadingImage(true);
-    try {
-      const res = await uploadBannerImage(file);
-      formik.setFieldValue("image", res.path);
-      showToast("success", "Thành công", "Tải ảnh lên thành công!");
-    } catch (err: any) {
-      console.error(err);
-      showToast("error", "Lỗi tải ảnh", err.response?.data?.message || "Không thể tải ảnh lên server");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   return {
     banners,
     loading,
@@ -196,7 +181,6 @@ export const useBanner = () => {
     formik,
     handleDeleteBanner,
     handleToggleStatus,
-    uploadingImage,
-    handleUploadImage };
+  };
 };
 

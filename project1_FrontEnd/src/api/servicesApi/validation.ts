@@ -11,25 +11,25 @@ export const getServiceValidationSchema = (t: (key: string) => string = (key) =>
         if (value === undefined || value === null) return false;
         const { price_type } = this.parent;
         if (price_type === "hourly") {
-          if (value < 30000) {
-            return this.createError({ message: t("Giá theo giờ tối thiểu là 30.000 VNĐ/giờ") });
+          if (value < 10000) {
+            return this.createError({ message: t("Giá theo giờ tối thiểu là 10.000 VNĐ/giờ") });
           }
-          if (value > 1000000) {
-            return this.createError({ message: t("Giá theo giờ tối đa là 1.000.000 VNĐ/giờ") });
+          if (value > 1000000000) {
+            return this.createError({ message: t("Giá theo giờ tối đa là 1.000.000.000 VNĐ/giờ") });
           }
         } else if (price_type === "daily") {
-          if (value < 100000) {
-            return this.createError({ message: t("Giá theo ngày tối thiểu là 100.000 VNĐ/ngày") });
+          if (value < 10000) {
+            return this.createError({ message: t("Giá theo ngày tối thiểu là 10.000 VNĐ/ngày") });
           }
-          if (value > 10000000) {
-            return this.createError({ message: t("Giá theo ngày tối đa là 10.000.000 VNĐ/ngày") });
+          if (value > 1000000000) {
+            return this.createError({ message: t("Giá theo ngày tối đa là 1.000.000.000 VNĐ/ngày") });
           }
         } else {
           if (value < 10000) {
             return this.createError({ message: t("Giá cố định tối thiểu là 10.000 VNĐ") });
           }
-          if (value > 50000000) {
-            return this.createError({ message: t("Giá cố định tối đa là 50.000.000 VNĐ") });
+          if (value > 1000000000) {
+            return this.createError({ message: t("Giá cố định tối đa là 1.000.000.000 VNĐ") });
           }
         }
         return true;

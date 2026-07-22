@@ -177,3 +177,30 @@ export const getHelperDashboardStats = async (): Promise<any> => {
   const response = await axiosInstance.get<any>("/providers/helper/dashboard-stats");
   return response.data;
 };
+
+// ============================================================
+//  HELPER — Quản lý lịch rảnh (Availabilities)
+// ============================================================
+
+export interface HelperAvailability {
+  id: number;
+  helper_id: number;
+  available_date: string;
+  start_time: string;
+  status: "available" | "booked";
+}
+
+export const getMyAvailability = async (): Promise<{ data: HelperAvailability[] }> => {
+  const response = await axiosInstance.get<{ data: HelperAvailability[] }>("/providers/helper/availabilities");
+  return response.data;
+};
+
+export const addMyAvailability = async (data: { available_date: string; start_time: string }): Promise<{ message: string; data: HelperAvailability }> => {
+  const response = await axiosInstance.post<{ message: string; data: HelperAvailability }>("/providers/helper/availabilities", data);
+  return response.data;
+};
+
+export const removeMyAvailability = async (id: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/availabilities/${id}`);
+  return response.data;
+};

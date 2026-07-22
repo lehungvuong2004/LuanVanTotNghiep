@@ -62,6 +62,7 @@ export const createServiceAdmin = async (data: {
   base_price: number;
   price_type: "hourly" | "fixed" | "daily";
   status?: "active" | "inactive";
+  image?: string | null;
 }): Promise<{ message: string; data: Service }> => {
   const response = await axiosInstance.post<{ message: string; data: Service }>("/providers/admin/services", data);
   return response.data;
@@ -76,6 +77,7 @@ export const updateServiceAdmin = async (
     base_price?: number;
     price_type?: "hourly" | "fixed" | "daily";
     status?: "active" | "inactive";
+    image?: string | null;
   },
 ): Promise<{ message: string; data: Service }> => {
   const response = await axiosInstance.put<{ message: string; data: Service }>(`/providers/admin/services/${id}`, data);
@@ -84,6 +86,18 @@ export const updateServiceAdmin = async (
 
 export const deleteServiceAdmin = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/providers/admin/services/${id}`);
+  return response.data;
+};
+
+export const uploadServiceImageAdmin = async (file: File): Promise<{ message: string; data: { url: string; path: string } }> => {
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("file", file);
+  const response = await axiosInstance.post<{ message: string; data: { url: string; path: string } }>("/providers/admin/services/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 

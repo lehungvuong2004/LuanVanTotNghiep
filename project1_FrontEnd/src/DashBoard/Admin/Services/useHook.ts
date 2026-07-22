@@ -71,6 +71,7 @@ export const useServicesAdmin = () => {
       category_id: "" as unknown as number,
       name: "",
       description: "",
+      image: "",
       base_price: "" as unknown as number,
       price_type: "hourly" as "hourly" | "fixed" | "daily",
       status: "active" as "active" | "inactive",
@@ -84,6 +85,7 @@ export const useServicesAdmin = () => {
             category_id: Number(values.category_id),
             name: values.name,
             description: values.description || null,
+            image: values.image || null,
             base_price: Number(values.base_price),
             price_type: values.price_type,
             status: values.status,
@@ -94,6 +96,7 @@ export const useServicesAdmin = () => {
             category_id: Number(values.category_id),
             name: values.name,
             description: values.description || null,
+            image: values.image || null,
             base_price: Number(values.base_price),
             price_type: values.price_type,
             status: values.status,
@@ -113,7 +116,7 @@ export const useServicesAdmin = () => {
   const openAddModal = () => {
     setModalMode("add");
     setCurrentService(null);
-    formik.resetForm({ values: { category_id: "" as any, name: "", description: "", base_price: "" as any, price_type: "hourly", status: "active" } });
+    formik.resetForm({ values: { category_id: "" as any, name: "", description: "", image: "", base_price: "" as any, price_type: "hourly", status: "active" } });
     setIsModalOpen(true);
   };
 
@@ -125,6 +128,7 @@ export const useServicesAdmin = () => {
         category_id: item.category_id,
         name: item.name,
         description: item.description || "",
+        image: item.image || "",
         base_price: Number(item.base_price),
         price_type: item.price_type,
         status: item.status,

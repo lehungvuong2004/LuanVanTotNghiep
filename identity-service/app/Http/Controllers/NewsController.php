@@ -91,9 +91,15 @@ class NewsController extends Controller
             'content.required' => 'Vui lòng nhập nội dung bài viết.',
         ]);
 
+        $slug = $fields['slug'] ?? Str::slug($fields['title']);
+        $originalSlug = $slug;
+        while (News::where('slug', $slug)->exists()) {
+            $slug = "{$originalSlug}-" . substr(uniqid(), -4);
+        }
+
         $article = News::create([
             'title'      => $fields['title'],
-            'slug'       => $fields['slug'] ?? Str::slug($fields['title']),
+            'slug'       => $slug,
             'thumbnail'  => $fields['thumbnail'] ?? null,
             'summary'    => $fields['summary']   ?? null,
             'content'    => $fields['content'],

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -43,7 +44,7 @@ class User extends Authenticatable implements JWTSubject
     ];
   }
 
-  protected $appends = ['permissions'];
+  protected $appends = ['permissions', 'avatar_url'];
 
   public function getPermissionsAttribute()
   {
@@ -56,6 +57,21 @@ class User extends Authenticatable implements JWTSubject
   public function role()
   {
     return $this->belongsTo(Role::class);
+  }
+
+  /**
+   * Sinh URL công khai cho avatar từ Filesystem storage mà không làm mất path gốc trong DB.
+   */
+  public function getAvatarUrlAttribute(): ?string
+  {
+    $path = $this->getRawOriginal('avatar');
+    if (!$path) {
+      return null;
+    }
+    if (filter_var($path, FILTER_VALIDATE_URL)) {
+      return $path;
+    }
+    return Storage::url($path);
   }
 
   /**

@@ -9,8 +9,10 @@ use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\HelperProfile;
 use App\Models\HelperSkill;
+use App\Services\ImageUploadService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceController extends Controller
 {
@@ -109,15 +111,17 @@ class ServiceController extends Controller
       return $this->notFoundResponse('Không tìm thấy dịch vụ.');
     }
 
-    // Đếm số helpers active có kỹ năng dịch vụ này
-    $helpersCount = HelperProfile::where('status', 'active')
+    // Đếm số helpers active, đã đăng ký kỹ năng & có khu vực hoạt động cho dịch vụ này
+    $availableHelpersCount = HelperProfile::where('status', 'active')
       ->whereHas('skills', fn($q) => $q->where('service_id', $id))
+      ->whereHas('workingAreas')
       ->count();
 
     // Lấy danh sách helpers có kỹ năng dịch vụ này (top 8, sắp xếp theo rating)
     $helpers = HelperProfile::with(['skills.service', 'workingAreas'])
       ->where('status', 'active')
       ->whereHas('skills', fn($q) => $q->where('service_id', $id))
+      ->whereHas('workingAreas')
       ->orderByDesc('rating_avg')
       ->orderByDesc('total_reviews')
       ->limit(8)
@@ -164,7 +168,9 @@ class ServiceController extends Controller
 
     return response()->json([
       'data' => $service,
-      'helpers_count' => $helpersCount,
+      'helpers_count' => $availableHelpersCount,
+      'available_helpers' => $availableHelpersCount,
+      'booking_available' => ($service->status === 'active') && ($availableHelpersCount > 0),
       'helpers' => $helpers,
       'rating_stats' => $ratingStats,
     ], Response::HTTP_OK);
@@ -244,11 +250,16 @@ class ServiceController extends Controller
     $limit = $request->integer('limit', 50);
     $services = $query->orderBy('name')->paginate($limit);
 
-    // Enrich each service with helpers_count
+    // Enrich each service with helpers_count, available_helpers, and booking_available
     foreach ($services->items() as $service) {
-      $service->helpers_count = HelperProfile::where('status', 'active')
+      $availableCount = HelperProfile::where('status', 'active')
         ->whereHas('skills', fn($q) => $q->where('service_id', $service->id))
+        ->whereHas('workingAreas')
         ->count();
+
+      $service->helpers_count = $availableCount;
+      $service->available_helpers = $availableCount;
+      $service->booking_available = ($service->status === 'active') && ($availableCount > 0);
     }
 
     // Fetch review stats from order-service for all services at once
@@ -408,6 +419,7 @@ class ServiceController extends Controller
       'base_price'  => 'required|numeric|min:0',
       'price_type'  => 'required|string|in:hourly,fixed,daily',
       'status'      => 'sometimes|string|in:active,inactive',
+      'image'       => 'nullable|string',
     ]);
 
     $service = Service::create($fields);
@@ -441,6 +453,7 @@ class ServiceController extends Controller
       'base_price'  => 'sometimes|required|numeric|min:0',
       'price_type'  => 'sometimes|string|in:hourly,fixed,daily',
       'status'      => 'sometimes|string|in:active,inactive',
+      'image'       => 'sometimes|nullable|string',
     ]);
 
     $service->update($fields);
@@ -457,7 +470,40 @@ class ServiceController extends Controller
     $service = Service::find($id);
     if (!$service) return $this->notFoundResponse('Không tìm thấy dịch vụ.');
 
+    // Kiểm tra dịch vụ có đang nằm trong danh sách kỹ năng của người giúp việc không
+    if (HelperSkill::where('service_id', $id)->exists()) {
+      return $this->errorResponse('Không thể xóa dịch vụ này vì đã có Người giúp việc đăng ký kỹ năng. Vui lòng đổi trạng thái sang ngưng hoạt động (inactive) thay vì xóa.', Response::HTTP_CONFLICT);
+    }
+
     $service->delete();
     return $this->successResponse(null, 'Xóa dịch vụ thành công.');
+  }
+
+  public function uploadImage(Request $request, ImageUploadService $imageUploadService)
+  {
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
+    }
+
+    $file = $request->file('image') ?? $request->file('file');
+
+    if (!$file) {
+      return $this->errorResponse('Vui lòng chọn file hình ảnh hợp lệ (image hoặc file).', Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    $validator = Validator::make(['file' => $file], [
+      'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+    ]);
+
+    if ($validator->fails()) {
+      return $this->errorResponse($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    $result = $imageUploadService->upload($file, 'services');
+
+    return $this->successResponse([
+      'url'  => $result['url'],
+      'path' => $result['path'],
+    ], 'Tải ảnh dịch vụ lên thành công.');
   }
 }

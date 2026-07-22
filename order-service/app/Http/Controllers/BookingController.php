@@ -11,6 +11,8 @@ use App\Models\BookingService;
 use App\Models\BookingStatusHistory;
 use App\Models\BookingWorkLog;
 use App\Models\Review;
+use App\Models\JobPost;
+use App\Models\JobApplication;
 use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -468,14 +470,14 @@ class BookingController extends Controller
         $booking->status = 'in_progress';
         $booking->save();
 
-        BookingWorkLog::create([
-            'booking_id'    => $booking->id,
-            'log_type'      => 'checkin',
-            'logged_time'   => now(),
-            'photo_url'     => $fields['photo_url'] ?? null,
-            'note'          => $fields['note'] ?? null,
-            'logged_by_user'=> $request->authUser['id'],
-        ]);
+        BookingWorkLog::updateOrCreate(
+            ['booking_id' => $booking->id, 'helper_id' => $booking->helper_id],
+            [
+                'checkin_time' => now(),
+                'status'       => 'in_progress',
+                'note'         => $fields['note'] ?? null,
+            ]
+        );
 
         $this->recordStatusHistory($booking->id, $oldStatus, 'in_progress', $request->authUser['id'], 'Người giúp việc đã check-in và bắt đầu làm việc.');
 
@@ -522,14 +524,14 @@ class BookingController extends Controller
         $booking->status = 'completed';
         $booking->save();
 
-        BookingWorkLog::create([
-            'booking_id'    => $booking->id,
-            'log_type'      => 'checkout',
-            'logged_time'   => now(),
-            'photo_url'     => $fields['photo_url'] ?? null,
-            'note'          => $fields['note'] ?? null,
-            'logged_by_user'=> $request->authUser['id'],
-        ]);
+        BookingWorkLog::updateOrCreate(
+            ['booking_id' => $booking->id, 'helper_id' => $booking->helper_id],
+            [
+                'checkout_time' => now(),
+                'status'        => 'completed',
+                'note'          => $fields['note'] ?? null,
+            ]
+        );
 
         $this->recordStatusHistory($booking->id, $oldStatus, 'completed', $request->authUser['id'], 'Người giúp việc đã hoàn thành công việc.');
         $this->syncJobApplicationStatus($booking);
@@ -830,8 +832,9 @@ class BookingController extends Controller
     public function updatePaymentStatus(Request $request)
     {
         $fields = $request->validate([
-            'booking_id' => 'required|integer',
-            'status'     => 'required|string',
+            'booking_id'     => 'required|integer',
+            'status'         => 'required|string',
+            'payment_method' => 'nullable|string',
         ]);
 
         $booking = Booking::find($fields['booking_id']);
@@ -839,17 +842,37 @@ class BookingController extends Controller
             return $this->notFoundResponse('Không tìm thấy đơn đặt lịch.');
         }
 
-        if ($fields['status'] === 'completed' && $booking->status === 'pending') {
+        $paymentMethod = $fields['payment_method'] ?? null;
+        $shouldConfirm = false;
+        $note = '';
+        $notificationTitle = '';
+        $notificationBody = '';
+
+        if ($booking->status === 'pending') {
+            if ($fields['status'] === 'completed') {
+                $shouldConfirm = true;
+                $note = 'Thanh toán VNPay thành công.';
+                $notificationTitle = 'Thanh toán thành công';
+                $notificationBody = "Đơn đặt lịch #{$booking->booking_code} đã được thanh toán thành công.";
+            } elseif ($paymentMethod === 'cash') {
+                $shouldConfirm = true;
+                $note = 'Khách hàng chọn thanh toán bằng tiền mặt.';
+                $notificationTitle = 'Xác nhận dịch vụ';
+                $notificationBody = "Đơn đặt lịch #{$booking->booking_code} đã chọn thanh toán bằng tiền mặt.";
+            }
+        }
+
+        if ($shouldConfirm) {
             $oldStatus       = $booking->status;
             $booking->status = 'confirmed';
             $booking->save();
 
-            $this->recordStatusHistory($booking->id, $oldStatus, 'confirmed', 0, 'Thanh toán VNPay thành công.');
+            $this->recordStatusHistory($booking->id, $oldStatus, 'confirmed', 0, $note);
 
             InternalNotificationService::sendToUser(
                 $booking->customer_id,
-                'Thanh toán thành công',
-                "Đơn đặt lịch #{$booking->booking_code} đã được thanh toán thành công.",
+                $notificationTitle,
+                $notificationBody,
                 'payment'
             );
 
@@ -857,7 +880,9 @@ class BookingController extends Controller
                 InternalNotificationService::sendToUser(
                     $booking->helper_id,
                     'Công việc mới được xác nhận',
-                    "Khách hàng đã thanh toán thành công cho đơn #{$booking->booking_code}.",
+                    ($paymentMethod === 'cash')
+                        ? "Khách hàng đã chọn thanh toán bằng tiền mặt cho đơn #{$booking->booking_code}."
+                        : "Khách hàng đã thanh toán thành công cho đơn #{$booking->booking_code}.",
                     'booking'
                 );
             }
@@ -901,19 +926,89 @@ class BookingController extends Controller
     /**
      * Internal endpoint: get stats for a helper (called by provider-service).
      */
-    public function helperStats(Request $request, $helperId)
+    public function helperStats(Request $request, $helperId = null)
     {
-        $completedCount = Booking::where('helper_id', $helperId)
-                                 ->where('status', 'completed')
-                                 ->count();
+        $hId = $helperId ?: ($request->authUser['id'] ?? null);
+        if (!$hId) {
+            return $this->errorResponse('Missing helper ID', Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        $cancelledCount = Booking::where('helper_id', $helperId)
-                                 ->where('status', 'cancelled')
-                                 ->count();
+        // 1. Get booking_ids
+        $bookingIds = Booking::where('helper_id', $hId)->pluck('id')->toArray();
+
+        // 2. Get job_post_ids
+        $jobPostIds = JobPost::where('selected_helper_id', $hId)->pluck('id')->toArray();
+        $appJobPostIds = JobApplication::where('helper_id', $hId)
+            ->whereIn('status', ['selected', 'completed', 'accepted', 'approved'])
+            ->pluck('job_post_id')
+            ->toArray();
+        $jobPostIds = array_unique(array_merge($jobPostIds, $appJobPostIds));
+
+        // 3. Metrics
+        $completedJobs = Booking::where('helper_id', $hId)->where('status', 'completed')->count();
+        $inProgressJobs = Booking::where('helper_id', $hId)->whereIn('status', ['confirmed', 'on_the_way', 'in_progress'])->count();
+        $waitingConfirmationJobs = Booking::where('helper_id', $hId)->where('status', 'pending')->count();
+
+        $totalAssigned = Booking::where('helper_id', $hId)->count();
+        $acceptanceRate = 100.0;
+        $cancelRate = 0.0;
+        if ($totalAssigned > 0) {
+            $cancelledCount = Booking::where('helper_id', $hId)->where('status', 'cancelled')->count();
+            $cancelRate = round(($cancelledCount / $totalAssigned) * 100, 1);
+
+            $rejectedCount = BookingStatusHistory::whereIn('booking_id', $bookingIds)
+                ->where('new_status', 'cancelled')
+                ->where('changed_by', $hId)
+                ->count();
+            $acceptanceRate = round((($totalAssigned - $rejectedCount) / $totalAssigned) * 100, 1);
+            if ($acceptanceRate < 0) $acceptanceRate = 0.0;
+        }
+
+        // 4. Reviews stats
+        $ratingAvg = (float) Review::where('helper_id', $hId)->avg('rating') ?: 0.0;
+        $totalReviews = Review::where('helper_id', $hId)->count();
+
+        $recentReviews = Review::where('helper_id', $hId)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $customerIds = $recentReviews->pluck('customer_id')->filter()->unique()->toArray();
+        $userMap = [];
+        if (!empty($customerIds)) {
+            try {
+                $response = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => array_values($customerIds)]);
+                if ($response->successful()) {
+                    $users = $response->json('data') ?? [];
+                    foreach ($users as $u) {
+                        $userMap[$u['id']] = $u;
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('helperStats - Customer details fetch error: ' . $e->getMessage());
+            }
+        }
+
+        foreach ($recentReviews as $rev) {
+            $rev->customer = $userMap[$rev->customer_id] ?? null;
+        }
 
         return $this->successResponse([
-            'completed_bookings' => $completedCount,
-            'cancelled_bookings' => $cancelledCount,
+            'booking_ids' => array_values($bookingIds),
+            'job_post_ids' => array_values($jobPostIds),
+            'metrics' => [
+                'completed_jobs' => $completedJobs,
+                'in_progress_jobs' => $inProgressJobs,
+                'waiting_confirmation_jobs' => $waitingConfirmationJobs,
+                'acceptance_rate' => $acceptanceRate,
+                'cancel_rate' => $cancelRate,
+            ],
+            'reviews_stats' => [
+                'rating_avg' => round($ratingAvg, 1),
+                'total_reviews' => $totalReviews,
+                'recent_reviews' => $recentReviews,
+            ]
         ]);
     }
 }

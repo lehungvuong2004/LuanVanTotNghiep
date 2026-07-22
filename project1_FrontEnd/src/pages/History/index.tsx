@@ -29,6 +29,7 @@ export const HistoryPage = () => {
     handleCheckin,
     handleCheckout,
     handleRespondToSelection,
+    handleConfirmCashPayment,
 
     isLoading,
     isHelper,
@@ -139,27 +140,31 @@ export const HistoryPage = () => {
   const tabParam = searchParams.get("tab");
 
   useEffect(() => {
-    if (tabParam === "job-posts" || tabParam === "my-posts") {
-      setCurrentTab("job-posts");
-      setActiveMainTab("job-posts");
-    } else if (tabParam === "helper-applications") {
-      setCurrentTab("helper-applications");
-      setActiveMainTab("helper-applications");
-    } else if (tabParam && ["all", "completed", "cancelled"].includes(tabParam)) {
-      setCurrentTab(tabParam);
-      setActiveMainTab("bookings");
-      setStatusFilter(tabParam as StatusFilter);
-    } else {
-      setCurrentTab("bookings");
-      setActiveMainTab("bookings");
-      setStatusFilter("all");
-    }
+    Promise.resolve().then(() => {
+      if (tabParam === "job-posts" || tabParam === "my-posts") {
+        setCurrentTab("job-posts");
+        setActiveMainTab("job-posts");
+      } else if (tabParam === "helper-applications") {
+        setCurrentTab("helper-applications");
+        setActiveMainTab("helper-applications");
+      } else if (tabParam && ["all", "completed", "cancelled"].includes(tabParam)) {
+        setCurrentTab(tabParam);
+        setActiveMainTab("bookings");
+        setStatusFilter(tabParam as StatusFilter);
+      } else {
+        setCurrentTab("bookings");
+        setActiveMainTab("bookings");
+        setStatusFilter("all");
+      }
+    });
   }, [tabParam, setStatusFilter]);
 
   useEffect(() => {
     if (activeMainTab === "job-posts") {
-      setActiveTab("my-posts");
-      fetchMyJobPosts();
+      Promise.resolve().then(() => {
+        setActiveTab("my-posts");
+        fetchMyJobPosts();
+      });
     }
   }, [activeMainTab, setActiveTab, fetchMyJobPosts]);
 
@@ -193,15 +198,17 @@ export const HistoryPage = () => {
         }
       };
 
-      setEditForm({
-        title: editingJobPost.title || "",
-        description: cleanDesc,
-        salary: editingJobPost.salary ? String(editingJobPost.salary) : "",
-        address: editingJobPost.address || "",
-        district: editingJobPost.district || "",
-        city: editingJobPost.city || "",
-        working_time: formatToDateTimeLocal(editingJobPost.working_time),
-        expired_at: formatToDateTimeLocal(editingJobPost.expired_at),
+      Promise.resolve().then(() => {
+        setEditForm({
+          title: editingJobPost.title || "",
+          description: cleanDesc,
+          salary: editingJobPost.salary ? String(editingJobPost.salary) : "",
+          address: editingJobPost.address || "",
+          district: editingJobPost.district || "",
+          city: editingJobPost.city || "",
+          working_time: formatToDateTimeLocal(editingJobPost.working_time),
+          expired_at: formatToDateTimeLocal(editingJobPost.expired_at),
+        });
       });
     }
   }, [editingJobPost]);
@@ -614,7 +621,19 @@ export const HistoryPage = () => {
                     <span>{t("Hoàn thành")}</span>
                   </button>
                 )}
-                {!["confirmed", "on_the_way", "in_progress"].includes(booking.statusRaw) && <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>}
+                {booking.statusRaw === "completed" && booking.paymentStatus !== "completed" && (
+                  <button
+                    onClick={() => handleConfirmCashPayment(booking)}
+                    className="px-3 py-1.5 bg-[#026E5F] hover:bg-[#01564a] text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer hover:scale-105 shadow-sm"
+                  >
+                    <Icon icon="material-symbols:payments" className="text-sm" />
+                    <span>{t("Xác nhận nhận tiền")}</span>
+                  </button>
+                )}
+                {!["confirmed", "on_the_way", "in_progress"].includes(booking.statusRaw) &&
+                  !(booking.statusRaw === "completed" && booking.paymentStatus !== "completed") && (
+                    <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>
+                  )}
               </>
             )}
           </div>
@@ -1600,9 +1619,15 @@ export const HistoryPage = () => {
 
                     {/* VNPay notice */}
                     {paymentMethod === "vnpay" && !isPaymentProcessing && (
-                      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs">
-                        <Icon icon="material-symbols:open-in-new" className="shrink-0 text-sm mt-0.5" />
-                        <span>{t("Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất giao dịch an toàn.")}</span>
+                      <div className="flex flex-col gap-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs">
+                        <div className="flex items-start gap-2.5">
+                          <Icon icon="material-symbols:open-in-new" className="shrink-0 text-sm mt-0.5" />
+                          <span>{t("Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất giao dịch an toàn.")}</span>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <Icon icon="material-symbols:warning-amber-outline-rounded" className="shrink-0 text-sm mt-0.5 text-amber-600 dark:text-amber-500" />
+                          <span className="font-semibold text-amber-700 dark:text-amber-400">{t("Lưu ý: Quý khách vui lòng thanh toán trong vòng 30 phút, nếu không đơn đặt lịch sẽ tự động bị hủy.")}</span>
+                        </div>
                       </div>
                     )}
 

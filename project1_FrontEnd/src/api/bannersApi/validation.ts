@@ -15,7 +15,7 @@ export const bannerValidationSchema = Yup.object().shape({
         const hasValidExtension = /\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(value);
         if (!hasValidExtension) return false;
 
-        if (value.startsWith("uploads/")) return true;
+        if (!value.startsWith("http://") && !value.startsWith("https://")) return true;
         try {
           new URL(value);
           return true;

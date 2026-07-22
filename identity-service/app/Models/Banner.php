@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Banner extends Model
 {
@@ -14,22 +15,25 @@ class Banner extends Model
     'created_by',
   ];
 
+  protected $appends = ['image_url'];
+
   public function creator()
   {
     return $this->belongsTo(User::class, 'created_by');
   }
 
   /**
-   * Tự động format path tương đối thành URL tuyệt đối khi lấy thông tin.
+   * Sinh URL công khai cho thuộc tính image từ Filesystem storage mà không làm mất path gốc trong DB.
    */
-  public function getImageAttribute($value)
+  public function getImageUrlAttribute(): ?string
   {
-    if (empty($value)) {
-      return $value;
+    $path = $this->getRawOriginal('image');
+    if (!$path) {
+      return null;
     }
-    if (filter_var($value, FILTER_VALIDATE_URL)) {
-      return $value;
+    if (filter_var($path, FILTER_VALIDATE_URL)) {
+      return $path;
     }
-    return asset($value);
+    return Storage::url($path);
   }
 }

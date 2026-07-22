@@ -2,13 +2,12 @@ import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import type { NewsItem } from "../../../api/newsApi/news";
-import { getNewsAdmin, createNewsAdmin, updateNewsAdmin, toggleNewsStatusAdmin, deleteNewsAdmin, uploadNewsImage } from "../../../api/newsApi/news";
+import { getNewsAdmin, createNewsAdmin, updateNewsAdmin, toggleNewsStatusAdmin, deleteNewsAdmin } from "../../../api/newsApi/news";
 import { newsValidationSchema } from "../../../api/newsApi/validation";
 
 export const useNewsAdmin = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -168,19 +167,6 @@ export const useNewsAdmin = () => {
     }
   };
 
-  const handleUploadImage = async (file: File) => {
-    setUploadingImage(true);
-    try {
-      const response = await uploadNewsImage(file);
-      formik.setFieldValue("thumbnail", response.path);
-      showToast("success", "Tải ảnh lên thành công");
-    } catch (err: any) {
-      showToast("error", "Lỗi tải ảnh lên", err.response?.data?.message || "Không thể tải hình ảnh lên");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   return {
     news,
     loading,
@@ -202,7 +188,5 @@ export const useNewsAdmin = () => {
     formik,
     handleDeleteNews,
     handleToggleStatus,
-    uploadingImage,
-    handleUploadImage,
   };
 };

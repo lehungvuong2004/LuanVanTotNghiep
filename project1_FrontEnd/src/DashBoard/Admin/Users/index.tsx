@@ -7,6 +7,8 @@ import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
 import { ROLES } from "../../../constants/roles";
 import { getInitials, getRoleBadge } from "../../../utils";
+import ImageUpload from "../../../components/ImageUpload";
+import { uploadUserAvatarAdmin } from "../../../api/usersApi/users";
 
 export const Users = () => {
   const { hasPermission } = useAuth();
@@ -57,7 +59,6 @@ export const Users = () => {
     handleToggleSelectAll,
     handleBulkDeleteUsers,
     uploadingImage,
-    handleUploadAvatar,
     formik,
   } = useUsers();
 
@@ -559,52 +560,18 @@ export const Users = () => {
               </div>
             )}
 
-            {/* Avatar input */}
+            {/* Image Upload Component for Avatar */}
             {!isViewMode && (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hình Ảnh Đại Diện</label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      name="avatar"
-                      placeholder="Nhập link ảnh hoặc tải lên từ máy..."
-                      value={formik.values.avatar}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className={`w-full pl-4 pr-10 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
-                        formik.touched.avatar && formik.errors.avatar ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                      }`}
-                    />
-                    {uploadingImage && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin block"></span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* File Upload Button */}
-                  <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
-                    <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.currentTarget.files?.[0];
-                        if (file) {
-                          handleUploadAvatar(file).then((path) => {
-                            if (path) {
-                              formik.setFieldValue("avatar", path);
-                            }
-                          });
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-                {formik.touched.avatar && formik.errors.avatar && <p className="text-red-500 text-xs mt-1">{String(formik.errors.avatar)}</p>}
-              </div>
+              <ImageUpload
+                label="Hình Ảnh Đại Diện"
+                value={formik.values.avatar || ""}
+                onChange={(val) => formik.setFieldValue("avatar", val)}
+                onUpload={uploadUserAvatarAdmin}
+                error={String(formik.errors.avatar || "")}
+                touched={!!formik.touched.avatar}
+                aspectRatio="square"
+                placeholder="Nhập link avatar hoặc bấm chọn tệp để tải lên..."
+              />
             )}
 
             {/* Form actions */}

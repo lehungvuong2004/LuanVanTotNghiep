@@ -35,6 +35,7 @@ Route::prefix('payments')->group(function () {
     Route::post('/',                [PaymentController::class, 'store']);
     Route::get('/{id}',             [PaymentController::class, 'show']);
     Route::post('/{id}/callback',   [PaymentController::class, 'callback']); // Simulate callback
+    Route::post('/{id}/confirm-cash', [PaymentController::class, 'confirmCashReceipt']);
 
     // ---- REFUNDS ----
     // Customer

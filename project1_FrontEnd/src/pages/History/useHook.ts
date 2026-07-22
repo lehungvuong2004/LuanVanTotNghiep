@@ -2,7 +2,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { getCustomerBookingsApi, getHelperBookingsApi, cancelBookingApi, startMovingApi, checkinApi, checkoutApi } from "../../api/bookings";
 import { getServicesApi } from "../../api/servicesApi/services";
-import { getMyPaymentsApi, createVnpayUrlApi, createPaymentApi, simulatePaymentCallbackApi } from "../../api/payments";
+import { getMyPaymentsApi, createVnpayUrlApi, createPaymentApi, confirmCashReceiptApi } from "../../api/payments";
 import { getMyApplicationsApi, respondToSelectionApi } from "../../api/jobPostsApi/jobPosts";
 import { io } from "socket.io-client";
 import { sortBookingsByDate } from "../../utils";
@@ -47,10 +47,11 @@ export const useHistory = () => {
 
   const { showToast } = useToast();
 
-  // Reset page when filter changes
-  useEffect(() => {
+  // Wrapped status filter setter to reset page
+  const handleSetStatusFilter = useCallback((filter: StatusFilter) => {
+    setStatusFilter(filter);
     setCurrentPage(1);
-  }, [statusFilter]);
+  }, []);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -135,7 +136,7 @@ export const useHistory = () => {
           serviceName,
           helper: {
             id: partner?.id || null,
-            name: partner?.full_name || (isHelper ? "Khách hàng" : "Hệ thống đang tìm..."),
+            name: partner?.full_name || "",
             avatar: avatarUrl,
             phone: partner?.phone || "",
           },
@@ -168,7 +169,11 @@ export const useHistory = () => {
 
   // Fetch bookings on mount
   useEffect(() => {
-    fetchData();
+    const init = async () => {
+      await Promise.resolve();
+      fetchData();
+    };
+    init();
   }, [fetchData]);
 
   // Filter bookings
@@ -204,7 +209,11 @@ export const useHistory = () => {
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr && JSON.parse(userStr).role_id === 3) {
-      fetchApplications();
+      const init = async () => {
+        await Promise.resolve();
+        fetchApplications();
+      };
+      init();
     }
   }, [fetchApplications]);
 
@@ -242,7 +251,7 @@ export const useHistory = () => {
     return () => {
       socket.disconnect();
     };
-  }, [fetchData, fetchApplications]);
+  }, [fetchData, fetchApplications, showToast]);
 
   // Actions
   const handleCancelBooking = async (booking: Booking) => {
@@ -349,14 +358,13 @@ export const useHistory = () => {
         closePaymentModal();
         window.location.href = res.payment_url;
       } else {
-        const createRes = await createPaymentApi({
+        await createPaymentApi({
           payment_method: "cash",
           amount,
           booking_id: paymentBooking.idRaw,
         });
-        await simulatePaymentCallbackApi(createRes.data.id);
         closePaymentModal();
-        showToast("success", "Thanh toán thành công", "Đã xác nhận thanh toán bằng tiền mặt. Lịch hẹn đã được xác nhận.");
+        showToast("success", "Xác nhận chọn Tiền mặt", "Bạn đã chọn thanh toán bằng tiền mặt. Vui lòng thanh toán cho người giúp việc sau khi hoàn thành.");
         fetchData();
       }
     } catch (err: any) {
@@ -365,9 +373,37 @@ export const useHistory = () => {
     }
   };
 
+  const handleConfirmCashPayment = async (booking: Booking) => {
+    if (window.confirm("Xác nhận bạn đã nhận đủ tiền mặt từ khách hàng?")) {
+      try {
+        let paymentId = booking.paymentInfo?.id;
+
+        if (!paymentId) {
+          const amount = parseFloat(booking.totalPrice.replace(/[^0-9]/g, ""));
+          if (!amount || amount <= 0) {
+            showToast("error", "Lỗi", "Số tiền thanh toán không hợp lệ.");
+            return;
+          }
+          const createRes = await createPaymentApi({
+            payment_method: "cash",
+            amount,
+            booking_id: booking.idRaw,
+          });
+          paymentId = createRes.data.id;
+        }
+
+        await confirmCashReceiptApi(paymentId);
+        showToast("success", "Thành công", "Đã xác nhận nhận tiền mặt. Giao dịch hoàn tất!");
+        fetchData();
+      } catch (err: any) {
+        showToast("error", "Lỗi", err.response?.data?.message || "Không thể xác nhận thanh toán.");
+      }
+    }
+  };
+
   return {
     statusFilter,
-    setStatusFilter,
+    setStatusFilter: handleSetStatusFilter,
     currentPage,
     setCurrentPage,
     paginatedBookings,
@@ -378,6 +414,7 @@ export const useHistory = () => {
     handleCheckin,
     handleCheckout,
     handleRespondToSelection,
+    handleConfirmCashPayment,
 
     isLoading,
     isHelper: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!).role_id === ROLES.HELPER : false,

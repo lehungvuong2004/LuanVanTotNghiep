@@ -133,6 +133,8 @@ class PaymentController extends Controller
       'paid_at'          => null,
     ]);
 
+    $this->syncPaymentStatusWithOrderService($payment);
+
     return $this->successResponse($payment, 'Khởi tạo thanh toán thành công.', Response::HTTP_CREATED);
   }
 
@@ -653,8 +655,9 @@ class PaymentController extends Controller
       try {
         Http::timeout(3)
           ->post($orderUrl . '/api/orders/internal/bookings/update-payment-status', [
-            'booking_id' => $payment->booking_id,
-            'status'     => $payment->status,
+            'booking_id'     => $payment->booking_id,
+            'status'         => $payment->status,
+            'payment_method' => $payment->payment_method,
           ]);
       } catch (\Exception $e) {
         Log::error('Không thể đồng bộ trạng thái thanh toán đơn đặt lịch: ' . $e->getMessage());
@@ -665,8 +668,9 @@ class PaymentController extends Controller
       try {
         Http::timeout(3)
           ->post($orderUrl . '/api/orders/internal/job-posts/update-payment-status', [
-            'job_post_id' => $payment->job_post_id,
-            'status'      => $payment->status,
+            'job_post_id'    => $payment->job_post_id,
+            'status'         => $payment->status,
+            'payment_method' => $payment->payment_method,
           ]);
       } catch (\Exception $e) {
         Log::error('Không thể đồng bộ trạng thái thanh toán tin tuyển dụng: ' . $e->getMessage());
@@ -742,5 +746,62 @@ class PaymentController extends Controller
       'job_post_income' => (float)$jobPostIncome,
       'monthly_income' => $monthlyIncome,
     ], Response::HTTP_OK);
+  }
+
+  /**
+   * Helper confirms receipt of cash for a completed booking (POST).
+   */
+  public function confirmCashReceipt(Request $request, $id)
+  {
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
+    }
+
+    $payment = Payment::find($id);
+
+    if (!$payment) {
+      return $this->notFoundResponse('Không tìm thấy giao dịch thanh toán.');
+    }
+
+    if ($payment->status === 'completed') {
+      return $this->errorResponse('Giao dịch thanh toán đã được hoàn tất trước đó.', Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    if ($payment->payment_method !== 'cash') {
+      return $this->errorResponse('Chỉ có thể xác nhận thanh toán trực tiếp đối với phương thức Tiền mặt.', Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    $token = $request->header('Authorization');
+    $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
+    $helperId = $request->authUser['id'] ?? null;
+    $bookingId = $payment->booking_id;
+
+    if ($bookingId) {
+      try {
+        $response = Http::timeout(3)
+          ->withHeaders(['Authorization' => $token])
+          ->get($orderUrl . '/api/orders/bookings/' . $bookingId);
+
+        if ($response->successful()) {
+          $booking = $response->json('data');
+          if (!$booking || (int)($booking['helper_id'] ?? 0) !== (int)$helperId) {
+            return $this->forbiddenResponse('Bạn không phải là người giúp việc được giao cho lịch hẹn này.');
+          }
+        } else {
+          Log::warning("confirmCashReceipt: status from order service: " . $response->status());
+        }
+      } catch (\Exception $e) {
+        Log::error('Lỗi khi kiểm tra thông tin người giúp việc của booking: ' . $e->getMessage());
+      }
+    }
+
+    $payment->update([
+      'status'  => 'completed',
+      'paid_at' => now(),
+    ]);
+
+    $this->syncPaymentStatusWithOrderService($payment);
+
+    return $this->successResponse($payment, 'Đã xác nhận nhận tiền mặt và hoàn tất giao dịch.');
   }
 }

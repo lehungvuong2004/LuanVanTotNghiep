@@ -7,23 +7,16 @@ use Illuminate\Support\Facades\Log;
 
 class ImageUploadService
 {
-  /**
-   * Upload an image to Cloudflare R2 (S3) with capacity check, or fallback to local.
-   *
-   * @param \Illuminate\Http\UploadedFile $file
-   * @param string $folder
-   * @return array
-   */
+ 
   public function upload($file, string $folder): array
   {
     $bucket = config('filesystems.disks.s3.bucket');
     $key    = config('filesystems.disks.s3.key');
 
-    // Nếu đã cấu hình thông tin Cloudflare R2 (S3) -> Tải lên Cloudflare
-    if ($key && $bucket) {
-      $s3Disk = Storage::disk('s3');
-
+    // Nếu đã cấu hình thông tin Cloudflare R2 (S3) và có cài đặt SDK AwsS3V3 -> Tải lên Cloudflare
+    if ($key && $bucket && (class_exists('League\Flysystem\AwsS3V3\PortableVisibilityConverter') || class_exists('Aws\S3\S3Client'))) {
       try {
+        $s3Disk = Storage::disk('s3');
         $s3Client = $s3Disk->getClient();
 
         // 1. Liệt kê các file trong Bucket để tính tổng dung lượng
@@ -45,22 +38,19 @@ class ImageUploadService
         if ($totalGB > 9.5) {
           abort(400, 'Bộ nhớ hệ thống Cloudflare R2 đã đầy (vượt ngưỡng 9.5 GB), không thể upload thêm!');
         }
-      } catch (\Exception $e) {
-        // Log lỗi kiểm tra dung lượng nhưng cho phép tiến hành upload tiếp hoặc ngắt tuỳ bạn cấu hình
-        Log::error('Cloudflare R2 capacity check error: ' . $e->getMessage());
-        // Nếu muốn nghiêm ngặt chặn khi lỗi check dung lượng, bỏ comment dòng dưới:
-        // abort(400, 'Lỗi kết nối bộ lưu trữ Cloudflare R2, không thể kiểm tra dung lượng.');
+
+        // 4. Upload lên R2
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $path = $s3Disk->putFileAs($folder, $file, $filename);
+        $url = $s3Disk->url($path);
+
+        return [
+          'path' => $path,
+          'url'  => $url,
+        ];
+      } catch (\Throwable $e) {
+        Log::error('Cloudflare R2 capacity/upload error, falling back to local: ' . $e->getMessage());
       }
-
-      // 4. Upload lên R2
-      $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-      $path = $s3Disk->putFileAs($folder, $file, $filename);
-      $url = $s3Disk->url($path);
-
-      return [
-        'path' => $path,
-        'url'  => $url,
-      ];
     }
 
     // Fallback: Tải lên thư mục Local public nếu chưa cấu hình R2

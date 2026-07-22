@@ -830,8 +830,9 @@ class JobPostController extends Controller
     public function updatePaymentStatus(Request $request)
     {
         $fields = $request->validate([
-            'job_post_id' => 'required|integer',
-            'status'      => 'required|string',
+            'job_post_id'    => 'required|integer',
+            'status'         => 'required|string',
+            'payment_method' => 'nullable|string',
         ]);
 
         $post = JobPost::find($fields['job_post_id']);
@@ -839,12 +840,16 @@ class JobPostController extends Controller
             return $this->notFoundResponse('Không tìm thấy bài đăng công việc.');
         }
 
-        if ($fields['status'] === 'completed') {
+        $paymentMethod = $fields['payment_method'] ?? null;
+        $shouldConfirm = ($fields['status'] === 'completed' || $paymentMethod === 'cash');
+
+        if ($shouldConfirm) {
             $application = JobApplication::where('job_post_id', $post->id)
                                          ->where('status', 'confirmed')
                                          ->first();
 
             if ($application) {
+                // Update applications to 'paid' so they don't block
                 $application->update(['status' => 'paid']);
 
                 $booking = Booking::where('customer_id', $post->customer_id)
@@ -862,20 +867,24 @@ class JobPostController extends Controller
                         'old_status' => $oldStatus,
                         'new_status' => 'confirmed',
                         'changed_by' => 0,
-                        'note'       => 'Thanh toán tin tuyển dụng thành công.',
+                        'note'       => ($paymentMethod === 'cash') ? 'Khách hàng chọn thanh toán bằng tiền mặt cho tin tuyển dụng.' : 'Thanh toán tin tuyển dụng thành công.',
                     ]);
 
                     InternalNotificationService::sendToUser(
                         $booking->customer_id,
-                        'Thanh toán thành công',
-                        'Bạn đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
+                        'Xác nhận tuyển dụng',
+                        ($paymentMethod === 'cash')
+                            ? 'Bạn đã chọn thanh toán bằng tiền mặt cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.'
+                            : 'Bạn đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
                         'payment'
                     );
 
                     InternalNotificationService::sendToUser(
                         $booking->helper_id,
                         'Công việc đã được xác nhận',
-                        'Khách hàng đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
+                        ($paymentMethod === 'cash')
+                            ? 'Khách hàng đã chọn thanh toán bằng tiền mặt cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.'
+                            : 'Khách hàng đã thanh toán thành công cho tin tuyển dụng ' . $post->title . '. Công việc đã được xác nhận.',
                         'booking'
                     );
 

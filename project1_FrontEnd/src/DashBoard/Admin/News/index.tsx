@@ -4,6 +4,8 @@ import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { getImageUrl } from "../../../utils/images";
 import Toggle from "../../../components/Toggle";
+import ImageUpload from "../../../components/ImageUpload";
+import { uploadNewsImage } from "../../../api/newsApi/news";
 
 export const NewsAdmin = () => {
   const { hasPermission } = useAuth();
@@ -30,8 +32,6 @@ export const NewsAdmin = () => {
     formik,
     handleDeleteNews,
     handleToggleStatus,
-    uploadingImage,
-    handleUploadImage,
   } = useNewsAdmin();
 
   const renderHeader = () => {
@@ -267,63 +267,17 @@ export const NewsAdmin = () => {
               {formik.touched.title && formik.errors.title && <p className="text-red-500 text-xs mt-1">{formik.errors.title}</p>}
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hình Ảnh Thu Nhỏ (URL)</label>
-              <div className="flex gap-3 items-center">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    name="thumbnail"
-                    placeholder="https://example.com/image.jpg hoặc tải lên từ máy..."
-                    value={formik.values.thumbnail}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all ${
-                      formik.touched.thumbnail && formik.errors.thumbnail ? "border-red-500 focus:border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                    }`}
-                  />
-                  {uploadingImage && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin block"></span>
-                    </div>
-                  )}
-                </div>
-
-                {/* File Upload Button */}
-                <label className="flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 cursor-pointer active:scale-95 transition-all shrink-0">
-                  <Icon icon="material-symbols:photo-camera-outline-rounded" className="text-xl" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.currentTarget.files?.[0];
-                      if (file) {
-                        handleUploadImage(file);
-                      }
-                    }}
-                  />
-                </label>
-              </div>
-              {formik.touched.thumbnail && formik.errors.thumbnail && <p className="text-red-500 text-xs mt-1">{formik.errors.thumbnail}</p>}
-            </div>
-
-            {/* Live Preview section */}
-            {formik.values.thumbnail && !formik.errors.thumbnail && (
-              <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hình Ảnh Xem Trước</span>
-                <div className="aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 relative bg-slate-100 dark:bg-slate-900">
-                  <img
-                    src={getImageUrl(formik.values.thumbnail)}
-                    alt="News Preview"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://placehold.co/800x450/e2e8f0/64748b?text=Đường+dẫn+ảnh+không+hợp+lệ";
-                    }}
-                  />
-                </div>
-              </div>
-            )}
+            {/* Image Upload Component */}
+            <ImageUpload
+              label="Hình Ảnh Thu Nhỏ (Thumbnail)"
+              value={formik.values.thumbnail || ""}
+              onChange={(val) => formik.setFieldValue("thumbnail", val)}
+              onUpload={uploadNewsImage}
+              error={formik.errors.thumbnail}
+              touched={formik.touched.thumbnail}
+              aspectRatio="video"
+              placeholder="Nhập link ảnh hoặc bấm chọn tệp để tải lên..."
+            />
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mô Tả Ngắn (Summary)</label>

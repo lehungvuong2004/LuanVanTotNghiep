@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useLogout } from "../hooks/useLogout";
-import { Sidebar } from "../components/Sidebar";
+import { Sidebar } from "../components/SidebarDashboard";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../hooks/useAuth";
 import { ROLES, getUserRole } from "../constants/roles";

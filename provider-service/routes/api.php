@@ -88,6 +88,7 @@ Route::prefix('providers')->group(function () {
       // Services
       Route::get('services',          [ServiceController::class, 'adminListServices'])->middleware('permission:services.view');
       Route::post('services',         [ServiceController::class, 'createService'])->middleware('permission:services.create');
+      Route::post('services/upload',  [ServiceController::class, 'uploadImage']);
       Route::put('services/{id}',     [ServiceController::class, 'updateService']);
       Route::delete('services/{id}',  [ServiceController::class, 'deleteService'])->middleware('permission:services.delete');
     });

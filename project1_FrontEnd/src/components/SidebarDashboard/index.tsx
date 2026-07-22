@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../../hooks/useAuth";
 import { useLogout } from "../../hooks/useLogout";
@@ -31,6 +31,28 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
   return (
     <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col justify-between overflow-hidden">
       <div className={`px-4 mb-4 mt-4 shrink-0 ${isCollapsed ? "flex flex-col items-center" : ""}`}>
+        {/* Trở về trang chủ */}
+        <div className="w-full mb-4">
+          <Link
+            to="/"
+            className={`flex items-center ${
+              isCollapsed ? "justify-center p-2" : "gap-3 px-4 py-2.5"
+            } bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700/50 transition-all duration-150 cursor-pointer group`}
+            title="Trở về trang chủ"
+          >
+            <Icon
+              icon="material-symbols:home-outline"
+              className="text-xl text-slate-600 dark:text-slate-350 group-hover:scale-110 transition-transform shrink-0"
+            />
+            {!isCollapsed && (
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
+                Trở về trang chủ
+              </span>
+            )}
+          </Link>
+        </div>
+
+        {/* Brand Logo Wrapper */}
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl ${theme.brandBg} flex items-center justify-center shadow-xs shrink-0`}>
             <Icon icon="icon-park-outline:family" className="text-xl text-white" />

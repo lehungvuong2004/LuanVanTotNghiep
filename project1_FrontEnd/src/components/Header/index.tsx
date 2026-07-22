@@ -28,7 +28,6 @@ export const Header = () => {
     user,
     notifications,
     unreadCount,
-    chatUnreadCount,
     markAllAsRead,
     toggleRead,
     removeNotification,
@@ -51,23 +50,6 @@ export const Header = () => {
   } = useHeader();
 
   const navigate = useNavigate();
-
-  const handleChatIconClick = () => {
-    if (!user) {
-      navigate("/dang-nhap");
-      return;
-    }
-    const role = getUserRole(user);
-    if (role === ROLES.ADMIN) {
-      navigate("/admin/messages");
-    } else if (role === ROLES.OPERATOR) {
-      navigate("/operator/messages");
-    } else if (role === ROLES.HELPER) {
-      navigate("/helper/messages");
-    } else {
-      navigate("/messages");
-    }
-  };
 
   const handleNotificationClick = (notif: Notification) => {
     toggleRead(notif.id);
@@ -146,7 +128,7 @@ export const Header = () => {
                 </div>
 
                 {/* Submenu Dropdown */}
-                <div className="absolute top-full left-0 w-max max-w-screen-xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50">
+                <div className="absolute top-full left-0 w-max max-w-7xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50">
                   <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5 h-120">
                     {/* Left Sidebar */}
                     <div className="w-56 shrink-0 flex flex-col gap-3 pr-4">
@@ -386,16 +368,9 @@ export const Header = () => {
                                 <div className="flex flex-col flex-1 text-left min-w-0">
                                   <div className="flex items-start justify-between gap-2">
                                     <span className="text-sm text-gray-800 dark:text-gray-100 leading-snug font-bold">{notif.title}</span>
-                                    {isUnread && (
-                                      <span className="w-2 h-2 bg-teal-600 dark:bg-teal-400 rounded-full shrink-0 mt-1.5" />
-                                    )}
+                                    {isUnread && <span className="w-2 h-2 bg-teal-600 dark:bg-teal-400 rounded-full shrink-0 mt-1.5" />}
                                   </div>
-                                  {notif.message && (
-                                    <span
-                                      className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed line-clamp-3"
-                                      dangerouslySetInnerHTML={{ __html: notif.message }}
-                                    />
-                                  )}
+                                  {notif.message && <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: notif.message }} />}
                                   {notif.type === "booking" && (
                                     <span className="text-xs text-[#026E5F] dark:text-teal-400 font-bold mt-2 flex items-center gap-0.5">
                                       <Icon icon="material-symbols:arrow-forward-rounded" className="text-xs" />
@@ -657,7 +632,7 @@ export const Header = () => {
 
                                   {/* Content */}
                                   <div className="flex-1 min-w-0">
-                                    <p className={`text-sm leading-snug break-words ${isUnread ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-700 dark:text-gray-300"}`}>
+                                    <p className={`text-sm leading-snug wrap-break-word ${isUnread ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-700 dark:text-gray-300"}`}>
                                       {notif.title}
                                     </p>
                                     {notif.message && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug line-clamp-2" dangerouslySetInnerHTML={{ __html: notif.message }} />}

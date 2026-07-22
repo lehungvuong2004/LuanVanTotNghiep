@@ -1,23 +1,12 @@
 import { ROLES } from "./roles";
-export type RoleValue = typeof ROLES[keyof typeof ROLES];
 
-export interface RoleTheme {
-  brandBg: string;
-  brandText: string;
-  subtitle: string;
-  activeClass: string;
-  hoverClass: string;
-  defaultAvatar: string;
-}
-
-// Default avatar URLs — keep URLs out of components
 const AVATAR_ADMIN =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuA0N8i3T-XVxB0b6flIZ774aHkRfqFllMvUfRdy1LQw_83z4ofWxUYNv2aLhJnGD_5fPRnO332KHfQoRiV1rmIFLIZP_Alu_ycjAZ-bp_BJ56lQIHjdEQiRF1GrvUAifRjvxFW2VKYcd2hZZAkQpGLXHq4dY73aIpLd2CN9JgCoOfhdd1I6KA6bA4oScjHl1kD4PpgE4KvYNxHMyxcXAksasxtYSW7FP3gtuPhMPDzj3bsmXEjGZvpPZ-Q8lRdW_Xyfbfebl0e1Gw";
 
 const AVATAR_DEFAULT =
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop";
 
-export const ROLE_THEME: Record<RoleValue, RoleTheme> = {
+export const ROLE_THEME = {
   [ROLES.ADMIN]: {
     brandBg: "bg-cyan-900",
     brandText: "text-cyan-900 dark:text-cyan-400",

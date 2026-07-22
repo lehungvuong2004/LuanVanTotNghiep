@@ -199,9 +199,12 @@ export const useService = () => {
     setFilterParams((prev) => ({ ...prev, page }));
   }, []);
 
-  // Lọc và sắp xếp services client-side
+  // Lọc và sắp xếp services client-side (chỉ hiển thị dịch vụ có thợ khả dụng cho Khách hàng)
   const filteredAndSortedServices = [...services]
     .filter((s) => {
+      if (s.helpersCount <= 0) {
+        return false;
+      }
       if (filterParams.rating_min && s.rating < filterParams.rating_min) {
         return false;
       }

@@ -6,6 +6,8 @@ import { useServicesAdmin } from "./useHook";
 import { formatPrice } from "../../../utils";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import Toggle from "../../../components/Toggle";
+import ImageUpload from "../../../components/ImageUpload";
+import { uploadServiceImageAdmin } from "../../../api/servicesApi/services";
 
 export const Services = () => {
   const { hasPermission } = useAuth();
@@ -228,7 +230,6 @@ export const Services = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
-                            {item.description && <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-xs mt-0.5">{item.description}</p>}
                           </div>
                         </div>
                       </td>
@@ -371,6 +372,18 @@ export const Services = () => {
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all resize-none"
               />
             </div>
+
+            {/* Image Upload Component */}
+            <ImageUpload
+              label="Hình Ảnh Dịch Vụ"
+              value={formik.values.image || ""}
+              onChange={(val) => formik.setFieldValue("image", val)}
+              onUpload={uploadServiceImageAdmin}
+              error={formik.errors.image}
+              touched={formik.touched.image}
+              aspectRatio="video"
+              placeholder="Nhập link ảnh dịch vụ hoặc bấm chọn tệp để tải lên..."
+            />
 
             {/* Price + Type */}
             <div className="grid grid-cols-2 gap-4">

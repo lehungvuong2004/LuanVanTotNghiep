@@ -53,7 +53,6 @@ export const useServiceDetail = () => {
   const [bookingTime, setBookingTime] = useState("08:00");
   const [durationHours, setDurationHours] = useState<number>(2);
   const [bookingNote, setBookingNote] = useState("");
-  const [preferSelectedHelper, setPreferSelectedHelper] = useState(true);
   const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
 
   // Add address inline states
@@ -143,8 +142,16 @@ export const useServiceDetail = () => {
       const serviceObj = detail?.data;
       if (!serviceObj) return;
 
+      const isHourly = serviceObj.price_type === "hourly";
+      const actualPrice = isHourly
+        ? (Number(serviceObj.base_price) || 0) * durationHours
+        : (Number(serviceObj.base_price) || 0);
+
+      const selectedHelperObj = helpers.find((h: any) => h.id === selectedHelperId);
+      const helperUserId = selectedHelperObj?.user_id || selectedHelperId;
+
       const payload = {
-        helper_id: preferSelectedHelper ? selectedHelperId : null,
+        helper_id: helperUserId,
         address_id: selectedAddressId,
         booking_date: bookingDate,
         start_time: bookingTime,
@@ -152,10 +159,12 @@ export const useServiceDetail = () => {
         services: [
           {
             service_id: serviceObj.id,
-            price: Number(serviceObj.base_price) || 0,
+            price: actualPrice,
             duration_hours: durationHours,
-            quantity: 1 },
-        ] };
+            quantity: 1,
+          },
+        ],
+      };
 
       await createBookingApi(payload);
       showToast("success", t("Thành công"), t("Đặt lịch thành công! Đang chuyển hướng sang trang thanh toán..."),);
@@ -210,7 +219,9 @@ export const useServiceDetail = () => {
 
   useEffect(() => {
     if (selectedHelperId) {
-      fetchHelperReviews(selectedHelperId);
+      Promise.resolve().then(() => {
+        fetchHelperReviews(selectedHelperId);
+      });
     }
   }, [selectedHelperId]);
 
@@ -325,8 +336,6 @@ export const useServiceDetail = () => {
     setDurationHours,
     bookingNote,
     setBookingNote,
-    preferSelectedHelper,
-    setPreferSelectedHelper,
     isBookingSubmitting,
     isAddingNewAddress,
     setIsAddingNewAddress,

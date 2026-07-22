@@ -245,6 +245,10 @@ export const useProfile = () => {
   });
 
   const handleAddSkill = async (serviceId: number) => {
+    if (helperSkills.length >= 3) {
+      setErrorMessage(t("Bạn chỉ được chọn tối đa 3 kỹ năng."));
+      return;
+    }
     setUpdating(true);
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -252,6 +256,7 @@ export const useProfile = () => {
       await addHelperSkillApi(serviceId);
       setSuccessMessage(t("Thêm kỹ năng thành công."));
       await fetchHelperSkills();
+      await fetchAllData();
     } catch (err: any) {
       setErrorMessage(err?.response?.data?.message || t("Thêm kỹ năng thất bại."));
     } finally {
@@ -268,6 +273,7 @@ export const useProfile = () => {
       await removeHelperSkillApi(serviceId);
       setSuccessMessage(t("Xóa kỹ năng thành công."));
       await fetchHelperSkills();
+      await fetchAllData();
     } catch (err: any) {
       setErrorMessage(err?.response?.data?.message || t("Xóa kỹ năng thất bại."));
     } finally {

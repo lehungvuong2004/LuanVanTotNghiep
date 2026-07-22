@@ -125,8 +125,6 @@ export const ServiceDetail = () => {
     setDurationHours,
     bookingNote,
     setBookingNote,
-    preferSelectedHelper,
-    setPreferSelectedHelper,
     isBookingSubmitting,
     isAddingNewAddress,
     setIsAddingNewAddress,
@@ -145,7 +143,7 @@ export const ServiceDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen dark:bg-slate-900 pt-8">
-        <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
           <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 h-96 bg-slate-200 dark:bg-slate-700 rounded-3xl" />
@@ -226,8 +224,8 @@ export const ServiceDetail = () => {
           {selectedHelperObj && (
             <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-2.5 text-left">
               <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-2">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("Nhân viên đang chọn")}</span>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400">
+                <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("Nhân viên đang chọn")}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
                   {selectedHelperObj.experience_year} {t("năm kinh nghiệm")}
                 </span>
               </div>
@@ -327,16 +325,32 @@ export const ServiceDetail = () => {
                     {t("Liên hệ")}
                   </a>
                 )}
-                <button
-                  onClick={openBookingModal}
-                  className={`flex-1 sm:flex-initial bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg hover:shadow-teal-600/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
-                    !selectedHelperObj ? "w-full" : ""
-                  }`}
-                >
-                  {t("Đặt ngay")}
-                </button>
+                {detail.helpers_count > 0 ? (
+                  <button
+                    onClick={openBookingModal}
+                    className={`flex-1 sm:flex-initial bg-teal-600 hover:bg-teal-700 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg hover:shadow-teal-600/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center ${
+                      !selectedHelperObj ? "w-full" : ""
+                    }`}
+                  >
+                    {t("Đặt ngay")}
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="flex-1 sm:flex-initial bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 px-6 py-3.5 rounded-2xl font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Icon icon="material-symbols:info-outline" className="text-lg" />
+                    {t("TẠM NGƯNG NHẬN ĐƠN (Chưa có nhân viên)")}
+                  </button>
+                )}
               </div>
             </div>
+            {detail.helpers_count === 0 && (
+              <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-2xl flex items-center gap-3 text-amber-800 dark:text-amber-300 text-sm font-medium">
+                <Icon icon="material-symbols:warning-outline" className="text-xl shrink-0 text-amber-500" />
+                <span>{t("Dịch vụ này hiện chưa có Người giúp việc sẵn sàng nhận ca. Hệ thống đang tích cực bổ sung nhân sự, vui lòng quay lại sau!")}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -741,10 +755,10 @@ export const ServiceDetail = () => {
   const renderBookingModal = () => {
     if (!isBookingModalOpen) return null;
 
-    const selectedHelperObj = helpers.find((h) => h.id === selectedHelperId);
-    const selectedHelperName = selectedHelperObj?.user?.full_name ?? t("Nhân viên");
-
-    const totalPrice = Number(service.base_price) * durationHours;
+    const isHourly = service.price_type === "hourly";
+    const totalPrice = isHourly
+      ? Number(service.base_price) * durationHours
+      : Number(service.base_price);
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -914,25 +928,7 @@ export const ServiceDetail = () => {
               />
             </div>
 
-            {/* Helper Preference */}
-            {selectedHelperId && (
-              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={preferSelectedHelper}
-                    onChange={(e) => setPreferSelectedHelper(e.target.checked)}
-                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500/20 border-slate-300 accent-teal-600 cursor-pointer"
-                  />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    {t("Yêu cầu đích danh nhân viên")}: <span className="text-teal-600 font-extrabold">{selectedHelperName}</span>
-                  </span>
-                </label>
-                <p className="text-xs text-slate-400 ml-6 leading-relaxed">
-                  {t("Hệ thống sẽ gửi yêu cầu trực tiếp đến nhân viên này. Nếu bỏ chọn, hệ thống sẽ tự động tìm nhân viên phù hợp gần nhất.")}
-                </p>
-              </div>
-            )}
+
 
             {/* Booking Note */}
             <div className="space-y-1.5">
@@ -951,7 +947,11 @@ export const ServiceDetail = () => {
               <div>
                 <p className="text-xs font-bold text-teal-800 dark:text-teal-400 uppercase tracking-wider">{t("Tổng cộng (tạm tính)")}</p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {formatNumberVI(Number(service.base_price))}đ x {durationHours} {t("giờ")}
+                  {isHourly ? (
+                    `${formatNumberVI(Number(service.base_price))}đ x ${durationHours} ${t("giờ")}`
+                  ) : (
+                    `${formatNumberVI(Number(service.base_price))}đ (${t("Trọn gói")})`
+                  )}
                 </p>
               </div>
               <p className="text-xl font-extrabold text-teal-600 dark:text-teal-400">{formatNumberVI(totalPrice)}đ</p>
@@ -988,7 +988,7 @@ export const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 py-8">
-      <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10">
         {renderBreadcrumb()}
         {renderHeroSection()}
         {renderTabNavigation()}
