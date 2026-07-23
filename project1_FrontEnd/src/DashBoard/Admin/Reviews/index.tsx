@@ -5,7 +5,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useState } from "react";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
-import { getInitials, formatNumberVI, formatMoneyShortVI } from "../../../utils";
+import { getInitials, formatNumberVI, formatMoneyShortVI, renderStars } from "../../../utils";
 
 export const Reviews = () => {
   const { hasPermission } = useAuth();
@@ -58,20 +58,6 @@ export const Reviews = () => {
 
   const customersList = Object.values(usersMap).filter((u) => u.role_id === 4);
   const helpersList = Object.values(usersMap).filter((u) => u.role_id === 3);
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Icon
-          key={i}
-          icon={i <= rating ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
-          className={`text-lg ${i <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-650"}`}
-        />,
-      );
-    }
-    return <div className="flex items-center gap-0.5">{stars}</div>;
-  };
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();

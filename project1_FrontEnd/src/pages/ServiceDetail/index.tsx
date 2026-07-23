@@ -2,25 +2,14 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import { useServiceDetail } from "./useHook";
-import { formatVietnamDateTime, getRatingNote, formatNumberVI, parseUtcDate, getRatingBadgeClass } from "../../utils";
+import { formatNumberVI } from "../../utils";
+import { RatingDistributionRow } from "../../components/Reviews/RatingDistributionRow";
+import { ReviewCard } from "../../components/Reviews/ReviewCard";
 
 function priceTypeLabel(pt: string) {
   if (pt === "hourly") return "giờ";
   if (pt === "daily") return "ngày";
   return "lần";
-}
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - parseUtcDate(dateStr).getTime();
-  if (diff < 60000) return "Vừa xong";
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return `${minutes} phút trước`;
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 24) return `${hours} giờ trước`;
-  const days = Math.floor(diff / 86400000);
-  if (days === 1) return "Hôm qua";
-  if (days < 30) return `${days} ngày trước`;
-  return `${Math.floor(days / 30)} tháng trước`;
 }
 
 interface CustomSelectProps {
@@ -103,7 +92,6 @@ export const ServiceDetail = () => {
     submitting,
     editingReviewId,
     setEditingReviewId,
-    editRating,
     editComment,
     setEditComment,
     helpers,
@@ -473,19 +461,15 @@ export const ServiceDetail = () => {
         </div>
 
         <div className="md:col-span-2 space-y-2.5 w-full">
-          {[5, 4, 3, 2, 1].map((star) => {
-            const count = statsToDisplay.rating_distribution?.[star] ?? 0;
-            const pct = statsToDisplay.total_reviews > 0 ? (count / statsToDisplay.total_reviews) * 100 : 0;
-            return (
-              <div key={star} className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-10 text-left">{star} {t("sao")}</span>
-                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-teal-800 dark:bg-teal-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
-                </div>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-8 text-right">{count}</span>
-              </div>
-            );
-          })}
+          {[5, 4, 3, 2, 1].map((star) => (
+            <RatingDistributionRow
+              key={star}
+              star={star}
+              count={statsToDisplay.rating_distribution?.[star] ?? 0}
+              total={statsToDisplay.total_reviews}
+              colorClass="bg-teal-805 dark:bg-teal-400"
+            />
+          ))}
         </div>
       </div>
     );
@@ -584,7 +568,7 @@ export const ServiceDetail = () => {
             value={formComment}
             onChange={(e) => setFormComment(e.target.value)}
             placeholder={t("Hãy chia sẻ trải nghiệm của bạn về nhân viên này...")}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-750 dark:text-slate-350 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-750 dark:text-slate-350 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all resize-none"
             required
           />
         </div>
@@ -622,93 +606,20 @@ export const ServiceDetail = () => {
               const isOwner = currentUser && review.customer_id === currentUser.id;
 
               return (
-                <div key={review.id} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-6 shadow-sm">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-slate-100 dark:border-slate-700">
-                      {review.customer?.avatar ? (
-                        <img src={review.customer.avatar} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
-                          {(review.customer?.full_name ?? "K").charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <div className="space-y-4 w-full">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Số sao đánh giá:")}</span>
-                            <div className="flex items-center gap-0.5">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Icon key={star} icon="material-symbols:star" className={`text-lg ${star <= editRating ? "text-amber-400" : "text-slate-200 dark:text-slate-700"}`} />
-                              ))}
-                            </div>
-                          </div>
-
-                          <textarea
-                            rows={3}
-                            value={editComment}
-                            onChange={(e) => setEditComment(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-                            required
-                          />
-
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              type="button"
-                              onClick={() => setEditingReviewId(null)}
-                              className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer"
-                            >
-                              {t("Hủy")}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateReview(review.id)}
-                              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-teal-600/10 transition-all cursor-pointer"
-                            >
-                              {t("Lưu")}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="font-bold text-slate-800 dark:text-slate-100">{review.customer?.full_name ?? `Khách hàng #${review.customer_id}`}</h4>
-                              <span className={`text-xs px-2.5 py-0.5 rounded font-semibold ${getRatingBadgeClass(review.rating)}`}>{getRatingNote(review.rating)}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-slate-400">{review.created_at ? timeAgo(review.created_at) : ""}</span>
-                              {isOwner && (
-                                <div className="flex items-center gap-1.5">
-                                  <button onClick={() => startEdit(review)} className="text-slate-400 hover:text-teal-600 transition-colors cursor-pointer" title={t("Sửa đánh giá")}>
-                                    <Icon icon="material-symbols:edit-outline" className="text-lg" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteReview(review.id)}
-                                    className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer"
-                                    title={t("Xóa đánh giá")}
-                                  >
-                                    <Icon icon="material-symbols:delete-outline" className="text-lg" />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="flex gap-0.5">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Icon key={star} icon="material-symbols:star" className={`text-sm ${star <= review.rating ? "text-amber-400" : "text-slate-200 dark:text-slate-600"}`} />
-                              ))}
-                            </div>
-                            <span className="text-xs text-slate-400">({review.created_at ? formatVietnamDateTime(review.created_at) : ""})</span>
-                          </div>
-                          {review.comment && <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  isOwner={isOwner}
+                  isEditing={isEditing}
+                  editComment={editComment}
+                  onStartEdit={() => startEdit(review)}
+                  onCancelEdit={() => setEditingReviewId(null)}
+                  onSaveEdit={() => handleUpdateReview(review.id)}
+                  onChangeEditComment={setEditComment}
+                  onDelete={() => handleDeleteReview(review.id)}
+                  variant="card"
+                  t={t}
+                />
               );
             })}
 

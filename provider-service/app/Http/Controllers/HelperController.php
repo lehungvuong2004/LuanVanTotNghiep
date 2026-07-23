@@ -12,6 +12,7 @@ use App\Models\HelperAvailability;
 use App\Models\HelperVerification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\AvailabilityService;
 
 class HelperController extends Controller
 {
@@ -519,6 +520,61 @@ class HelperController extends Controller
       ->delete();
 
     return $this->successResponse(['deleted_count' => $deletedCount], 'Đã xóa toàn bộ lịch rảnh.');
+  }
+
+  public function bulkAvailability(Request $request, AvailabilityService $availabilityService)
+  {
+    if ($unauthorized = $this->authorizeHelper($request)) {
+      return $unauthorized;
+    }
+
+    // Tối ưu 1: Chỉ lấy 'id' giúp query nhẹ và nhanh hơn
+    $profile = HelperProfile::select('id')
+      ->where('user_id', $request->authUser['id'])
+      ->first();
+
+    if (!$profile) {
+      return $this->notFoundResponse('Bạn chưa có hồ sơ.');
+    }
+
+    $action = $request->input('action');
+    $maxDate = now()->addDays(60)->toDateString();
+
+    $dateRule = 'required|date';
+    if ($action === 'create') {
+      $dateRule .= "|after_or_equal:today|before_or_equal:{$maxDate}";
+    }
+
+    // Tối ưu 2: Validate chặt chẽ
+    $validated = $request->validate([
+      'action'                 => 'required|string|in:create,delete',
+      'slots'                  => 'required|array|min:1|max:300',
+      'slots.*.available_date' => $dateRule,
+      'slots.*.start_time'     => 'required|date_format:H:i',
+    ]);
+
+    try {
+      $stats = $availabilityService->bulkOperation(
+        $profile->id,
+        $validated['action'],
+        $validated['slots']
+      );
+
+      return $this->successResponse(
+        $stats,
+        'Bulk operation completed'
+      );
+    } catch (\Exception $e) {
+      // Tối ưu 4: Log thêm profile_id để dễ truy vết sự cố
+      Log::error("Bulk availability error [Profile ID: {$profile->id}]: " . $e->getMessage(), [
+        'exception' => $e
+      ]);
+
+      return $this->errorResponse(
+        'Operation failed, please try again.',
+        Response::HTTP_INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   // =====================================================================

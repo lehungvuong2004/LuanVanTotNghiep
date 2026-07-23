@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useToast } from "../../../contexts/ToastContext";
-import { getMyAvailability, addMyAvailability, removeMyAvailability, clearAllMyAvailability } from "../../../api/helpers";
+import { getMyAvailability, addMyAvailability, removeMyAvailability, clearAllMyAvailability, bulkMyAvailability } from "../../../api/helpers";
 import type { HelperAvailability } from "../../../api/helpers";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -130,7 +130,6 @@ export const useHelperAvailability = () => {
       return;
     }
     setBulkSubmitting(true);
-    let added = 0, skipped = 0, deleted = 0;
     try {
       const cur = new Date(start);
       // Safety limits
@@ -142,45 +141,61 @@ export const useHelperAvailability = () => {
         cur.setDate(cur.getDate() + 1);
       }
 
-      if (datesToProcess.length * bulkTimes.length > 500) {
-        showToast("warning", "Quá quy mô", "Số lượng ca thay đổi vượt quá 500. Vui lòng chọn khoảng thời gian ngắn hơn.");
+      if (datesToProcess.length * bulkTimes.length > 300) {
+        showToast("warning", "Quá quy mô", "Số lượng ca thay đổi vượt quá 300. Vui lòng chọn khoảng thời gian ngắn hơn.");
         setBulkSubmitting(false);
         return;
       }
 
+      const slotsToSubmit: { available_date: string; start_time: string }[] = [];
+
       for (const d of datesToProcess) {
         const dStr = toDateStr(d);
         for (const time of bulkTimes) {
-          if (isSlotPast(dStr, time)) { skipped++; continue; }
-          const key = `${dStr}|${time}`;
-          const existing = slotMap.get(key);
+          if (isSlotPast(dStr, time)) continue;
 
           if (bulkMode === "create") {
-            if (existing) { skipped++; continue; }
-            try {
-              await addMyAvailability({ available_date: dStr, start_time: time });
-              added++;
-            } catch { skipped++; }
+            const key = `${dStr}|${time}`;
+            if (slotMap.has(key)) continue;
+            slotsToSubmit.push({ available_date: dStr, start_time: time });
           } else {
-            // Delete mode
-            if (!existing) { skipped++; continue; }
-            if (existing.status === "booked") { skipped++; continue; } // Keep booked slots
-            try {
-              await removeMyAvailability(existing.id);
-              deleted++;
-            } catch { skipped++; }
+            const key = `${dStr}|${time}`;
+            const existing = slotMap.get(key);
+            if (!existing || existing.status === "booked") continue;
+            slotsToSubmit.push({ available_date: dStr, start_time: time });
           }
         }
       }
 
+      if (slotsToSubmit.length === 0) {
+        showToast("info", "Thông báo", "Không có thay đổi nào cần thiết lập.");
+        setBulkSubmitting(false);
+        return;
+      }
+
+      const res = await bulkMyAvailability({
+        action: bulkMode,
+        slots: slotsToSubmit,
+      });
+
+      const { created, ignored, deleted } = res.data;
+
       if (bulkMode === "create") {
-        showToast("success", "Kích hoạt thành công", `Đã mở ${added} ca rảnh (bỏ qua ${skipped} ca trùng/quá hạn).`);
+        showToast(
+          "success",
+          "Kích hoạt thành công",
+          `Đã tạo ${created} ca. ${ignored} ca bị bỏ qua do trùng.`
+        );
       } else {
-        showToast("success", "Hủy lịch thành công", `Đã đóng ${deleted} ca rảnh (bỏ qua ${skipped} ca trống/quá hạn hoặc đã bị đặt).`);
+        showToast(
+          "success",
+          "Hủy lịch thành công",
+          `Đã hủy thành công ${deleted} ca rảnh.`
+        );
       }
       setRefreshTick((p) => p + 1);
-    } catch {
-      showToast("error", "Lỗi hệ thống", "Không thể cập nhật lịch hàng loạt.");
+    } catch (err: any) {
+      showToast("error", "Lỗi hệ thống", err?.response?.data?.message ?? "Không thể cập nhật lịch hàng loạt.");
     } finally {
       setBulkSubmitting(false);
     }

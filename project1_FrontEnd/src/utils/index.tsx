@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react";
 import { ROLES, getUserRole } from "../constants/roles";
 export { exportToExcel } from "./excelExporter";
 
@@ -10,7 +11,7 @@ export function formatNumberVI(value: any) {
 }
 
 export function fmtVND(value: any) {
-  if (value === undefined || value === null) return "0 ₫";
+  if (value === undefined || value === null) return "0";
   const num = typeof value === "string" ? Number(value.replace(/,/g, "")) : value;
   if (isNaN(num)) return "0 ₫";
   if (num >= 1_000_000_000) {
@@ -65,7 +66,7 @@ export const getRootFontSizePx = () => {
 };
 
 export function formatMoneyShortVI(value: any) {
-  return fmtVND(value);
+  return fmtVND(value) || 0;
 }
 
 export const formatDate = (dateStr: any) => {
@@ -177,3 +178,18 @@ export const getRoleBadge = (role?: any) => {
       );
   }
 };
+
+export const renderStars = (rating: number, sizeClass = "text-lg") => {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <Icon
+        key={i}
+        icon={i <= rating ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
+        className={`${sizeClass} ${i <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}`}
+      />,
+    );
+  }
+  return <div className="flex items-center gap-0.5">{stars}</div>;
+};
+

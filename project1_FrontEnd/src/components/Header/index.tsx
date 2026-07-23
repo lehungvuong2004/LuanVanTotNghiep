@@ -129,9 +129,9 @@ export const Header = () => {
 
                 {/* Submenu Dropdown */}
                 <div className="absolute top-full left-0 w-max max-w-7xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50">
-                  <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5 h-120">
+                  <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5 h-144">
                     {/* Left Sidebar */}
-                    <div className="w-56 shrink-0 flex flex-col gap-3 pr-4">
+                    <div className="w-56 shrink-0 flex flex-col gap-3 pr-4 border-r border-slate-100 dark:border-slate-700/50">
                       {/* Service Categories (Scrollable) */}
                       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                         {/* Top 4 Navigation Links */}
@@ -139,14 +139,14 @@ export const Header = () => {
                           <Link
                             key={navLink.name}
                             to={navLink.to}
-                            className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-between text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                            className="w-full text-left px-3 py-2 rounded-xl text-base font-semibold flex items-center justify-between text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
                           >
                             {t(navLink.name)}
                             <Icon icon="material-symbols:chevron-right" className="text-base opacity-0 group-hover:opacity-100" />
                           </Link>
                         ))}
 
-                        <div className="h-px bg-slate-100 dark:bg-slate-700/50 my-1" />
+                        <div className="h-px bg-slate-100 dark:bg-slate-700/50 my-1.5" />
 
                         {categories.map((cat) => {
                           const isActive = activeCategory === cat.name;
@@ -154,7 +154,7 @@ export const Header = () => {
                             <button
                               key={cat.name}
                               onMouseEnter={() => setActiveCategory(cat.name)}
-                              className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                              className={`w-full text-left px-3 py-2 rounded-xl text-base font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                                 isActive
                                   ? "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400"
                                   : "hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400"
@@ -173,7 +173,7 @@ export const Header = () => {
                           <Link
                             key={link.name}
                             to={link.to}
-                            className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all"
+                            className="w-full text-left px-3 py-2 rounded-xl text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all"
                           >
                             {t(link.name)}
                           </Link>
@@ -182,36 +182,38 @@ export const Header = () => {
                     </div>
 
                     {/* Right Content Area */}
-                    <div className="flex-1 flex flex-col gap-4">
+                    <div className="flex-1 flex flex-col gap-4 min-w-140">
                       {/* Search bar inside submenu */}
                       <div className="relative">
-                        <Icon icon="material-symbols:search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+                        <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
                         <input
                           type="text"
                           placeholder={t("Tìm dịch vụ, người giúp việc...")}
-                          className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:border-teal-500"
+                          className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 text-slate-800 dark:text-slate-100"
                         />
                       </div>
 
                       <div className="flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 flex flex-col gap-4">
                         {/* Active Category detail */}
                         {categoryDetails[activeCategory] && (
-                          <div className="col-span-2">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-bold text-xs text-slate-800 dark:text-slate-100">{t(activeCategory)}</span>
-                              <Link to="/dich-vu" className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline flex items-center gap-0.5">
+                          <div>
+                            <div className="flex justify-between items-end mb-2">
+                              <h1 className="font-black text-xl text-slate-900 dark:text-white leading-tight">{t(activeCategory)}</h1>
+                              <Link to="/dich-vu" className="text-sm text-teal-600 dark:text-teal-400 font-bold hover:underline flex items-center gap-0.5">
                                 {t("Xem tất cả")} <Icon icon="material-symbols:open-in-new" className="text-xs" />
                               </Link>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-3.5">
                               {categoryDetails[activeCategory].services.map((service) => (
-                                <div key={service.name} className="p-3 border border-slate-100 dark:border-slate-700/50 rounded-xl hover:border-teal-500 dark:hover:border-teal-500 transition-colors">
-                                  <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/40 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-2">
-                                    <Icon icon={service.icon} className="text-lg" />
+                                <div key={service.name} className="p-3.5 border border-slate-100 dark:border-slate-700/50 rounded-2xl hover:border-teal-500 dark:hover:border-teal-500 bg-white dark:bg-slate-900/30 transition-all duration-300 shadow-xs flex flex-col justify-between">
+                                  <div>
+                                    <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-2 shrink-0">
+                                      <Icon icon={service.icon} className="text-xl" />
+                                    </div>
+                                    <h4 className="font-extrabold text-lg text-slate-800 dark:text-slate-200 mb-1">{t(service.name)}</h4>
+                                    <p className="text-sm text-slate-450 dark:text-slate-400 leading-relaxed mb-2.5 line-clamp-2">{t(service.desc)}</p>
                                   </div>
-                                  <h4 className="font-bold text-base text-slate-800 dark:text-slate-200 mb-1">{t(service.name)}</h4>
-                                  <p className="text-xs text-teal-600 dark:text-teal-400 font-bold mb-1">{service.price}</p>
-                                  <p className="text-xs text-slate-400 dark:text-slate-500 leading-normal line-clamp-2">{t(service.desc)}</p>
+                                  <p className="text-sm text-teal-600 dark:text-teal-400 font-extrabold">{service.price}</p>
                                 </div>
                               ))}
                             </div>
@@ -220,24 +222,24 @@ export const Header = () => {
 
                         {/* Featured Helpers */}
                         {categoryDetails[activeCategory] && (
-                          <div className="col-span-2">
-                            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Người giúp việc nổi bật")}</h4>
-                            <div className="flex flex-col gap-2">
+                          <div>
+                            <h2 className="font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Người giúp việc nổi bật")}</h2>
+                            <div className="grid grid-cols-2 gap-3.5">
                               {categoryDetails[activeCategory].helpers.map((helper) => (
-                                <div key={helper.name} className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                                  <img src={helper.avatar} alt={helper.name} className="w-10 h-10 rounded-full object-cover" />
+                                <div key={helper.name} className="flex gap-3 p-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-700/50 items-start">
+                                  <img src={helper.avatar} alt={helper.name} className="w-12 h-12 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-700" />
                                   <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-center mb-0.5">
-                                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200">{helper.name}</span>
-                                      <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500">
-                                        <Icon icon="material-symbols:star" className="text-sm" />
+                                      <span className="font-extrabold text-base text-slate-800 dark:text-slate-200 truncate">{helper.name}</span>
+                                      <span className="flex items-center gap-0.5 text-sm font-bold text-amber-500 shrink-0">
+                                        <Icon icon="material-symbols:star" className="text-base" />
                                         {helper.rating}
                                       </span>
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-0.5">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-0.5">
                                       {helper.exp} • {helper.area}
                                     </p>
-                                    <p className="text-xs text-slate-400 dark:text-slate-500 italic truncate">"{t(helper.desc)}"</p>
+                                    <p className="text-xs text-slate-450 dark:text-slate-500 italic line-clamp-1">"{t(helper.desc)}"</p>
                                   </div>
                                 </div>
                               ))}
@@ -247,9 +249,9 @@ export const Header = () => {
                       </div>
                     </div>
 
-                    <div className="w-60 shrink-0 pl-5 flex flex-col gap-4">
+                    <div className="w-60 shrink-0 pl-5 flex flex-col gap-4 border-l border-slate-100 dark:border-slate-700/50">
                       {/* Promotion Banner */}
-                      <div className="relative rounded-xl overflow-hidden aspect-4/3 bg-slate-900 flex items-end p-3 border border-slate-800">
+                      <div className="relative rounded-xl overflow-hidden aspect-4/3 bg-slate-900 flex items-end p-3 border border-slate-800 shrink-0">
                         <img
                           src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=300&auto=format&fit=crop"
                           className="absolute inset-0 w-full h-full object-cover opacity-60"
@@ -257,17 +259,17 @@ export const Header = () => {
                         />
                         <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/40 to-transparent" />
                         <div className="relative z-10 text-left">
-                          <span className="bg-teal-500 text-white text-xs font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider mb-1 inline-block">{t("Khuyến mãi")}</span>
-                          <h4 className="text-white font-bold text-xs leading-snug">{t("Giảm 20% cho khách hàng mới")}</h4>
+                          <span className="bg-teal-500 text-white text-xs font-black px-2 py-0.5 rounded uppercase tracking-wider mb-2.5 inline-block">{t("Khuyến mãi")}</span>
+                          <h4 className="text-white font-extrabold text-xs leading-snug">{t("Giảm 20% cho khách hàng mới")}</h4>
                         </div>
                       </div>
 
                       {/* News list */}
-                      <div className="text-left">
+                      <div className="text-left flex-1 min-h-0 overflow-y-auto pr-1">
                         <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t("Tin tức & kinh nghiệm")}</h4>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2.5">
                           {newsItems.map((item) => (
-                            <div key={item.title} className="flex flex-col gap-0.5 pb-2 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0">
+                            <div key={item.title} className="flex flex-col gap-1 pb-2.5 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0">
                               <Link
                                 to={`/tin-tuc/${item.slug}`}
                                 className="font-bold text-xs text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 transition-colors leading-snug line-clamp-2"

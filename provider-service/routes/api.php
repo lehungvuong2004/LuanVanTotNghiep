@@ -51,6 +51,7 @@ Route::prefix('providers')->group(function () {
 
       Route::get('availability',         [HelperController::class, 'listAvailability']);
       Route::post('availability',        [HelperController::class, 'addAvailability']);
+      Route::post('availability/bulk',   [HelperController::class, 'bulkAvailability']);
       Route::delete('availability',      [HelperController::class, 'clearAllAvailability']);
       Route::delete('availability/{id}', [HelperController::class, 'removeAvailability']);
 

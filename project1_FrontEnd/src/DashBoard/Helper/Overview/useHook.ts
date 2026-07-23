@@ -98,31 +98,33 @@ export const useHelperOverview = () => {
         formatter: (params: any) => {
           const item = params[0];
           const val = Number(item.value).toLocaleString("vi-VN") + " ₫";
-          return `<div class="font-sans text-xs p-1">
+          return `<div class="font-sans text-base p-1.5">
             <span class="text-slate-400 block mb-0.5">${item.name}</span>
-            <span class="text-blue-600 font-bold text-sm">${val}</span>
+            <span class="text-blue-600 font-bold text-lg">${val}</span>
           </div>`;
         }
       },
       grid: {
-        left: "4%",
+        left: "3%",
         right: "4%",
-        bottom: "10%",
-        top: "12%",
+        bottom: "8%",
+        top: "10%",
         containLabel: true },
       xAxis: {
         type: "category",
-        boundaryGap: monthlyMonths.length > 1 ? false : true,
+        boundaryGap: false,
         data: monthlyMonths.length > 0 ? monthlyMonths : ["Chưa có dữ liệu"],
         axisLabel: {
-          fontSize: 0.75 * rem,
-          color: "#64748b" },
+          fontSize: 1.0 * rem,
+          color: "#64748b",
+          margin: 0.75 * rem },
         axisLine: { lineStyle: { color: "#e2e8f0" } } },
       yAxis: {
         type: "value",
         axisLabel: {
-          fontSize: 0.75 * rem,
+          fontSize: 1.0 * rem,
           color: "#64748b",
+          margin: 0.75 * rem,
           formatter: (val: number) => {
             if (val >= 1000000) return (val / 1000000).toFixed(1) + "M ₫";
             if (val >= 1000) return (val / 1000).toFixed(0) + "k ₫";
@@ -169,7 +171,7 @@ export const useHelperOverview = () => {
         trigger: "item",
         formatter: (params: any) => {
           const val = Number(params.value).toLocaleString("vi-VN") + " ₫";
-          return `<div class="font-sans text-xs">
+          return `<div class="font-sans text-base">
             <span class="font-bold block">${params.name}</span>
             <span class="text-blue-500 font-semibold">${val} (${params.percent}%)</span>
           </div>`;
@@ -179,10 +181,10 @@ export const useHelperOverview = () => {
         bottom: "0%",
         left: "center",
         icon: "circle",
-        itemWidth: 8,
-        itemHeight: 8,
+        itemWidth: 10,
+        itemHeight: 10,
         textStyle: {
-          fontSize: 0.75 * rem,
+          fontSize: 1.05 * rem,
           color: "#64748b" } },
       series: [
         {

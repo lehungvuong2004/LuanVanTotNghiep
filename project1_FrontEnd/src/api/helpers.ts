@@ -42,7 +42,7 @@ export interface HelperProfile {
   rating_avg: number;
   total_reviews: number;
   skills?: HelperSkill[];
-  workingAreas?: HelperWorkingArea[]; 
+  workingAreas?: HelperWorkingArea[];
   verifications?: HelperVerification[];
   user?: User; // Joined user record
 }
@@ -106,6 +106,27 @@ export interface PublicPaginatedHelpersResponse {
   };
 }
 
+export interface BulkAvailabilityResponse {
+  message: string;
+  data: {
+    created: number;
+    ignored: number;
+    deleted: number;
+  };
+}
+
+export interface HelperAvailability {
+  id: number;
+  helper_id: number;
+  available_date: string;
+  start_time: string;
+  status: "available" | "booked";
+}
+
+export interface BulkAvailabilityParams {
+  action: "create" | "delete";
+  slots: { available_date: string; start_time: string }[];
+}
 
 export const getHelpersAdmin = async (params: GetHelpersParams): Promise<PaginatedHelpersResponse> => {
   const response = await axiosInstance.get<PaginatedHelpersResponse>("/providers/admin/helpers", { params });
@@ -146,14 +167,11 @@ export const bulkDeleteHelpersAdmin = async (ids: number[]): Promise<{ message: 
 //  PUBLIC — Tìm kiếm nhân viên (không cần đăng nhập)
 // ============================================================
 
-
 /**
  * Tìm kiếm danh sách helper công khai.
  * Endpoint: GET /providers/helpers
  */
-export const getHelpersPublic = async (
-  params?: PublicGetHelpersParams
-): Promise<PublicPaginatedHelpersResponse> => {
+export const getHelpersPublic = async (params?: PublicGetHelpersParams): Promise<PublicPaginatedHelpersResponse> => {
   const response = await axiosInstance.get<PublicPaginatedHelpersResponse>("/providers/helpers", { params });
   return response.data;
 };
@@ -162,9 +180,7 @@ export const getHelpersPublic = async (
  * Xem hồ sơ chi tiết của một helper công khai.
  * Endpoint: GET /providers/helpers/:id
  */
-export const getHelperPublic = async (
-  id: number
-): Promise<{ data: HelperProfile }> => {
+export const getHelperPublic = async (id: number): Promise<{ data: HelperProfile }> => {
   const response = await axiosInstance.get<{ data: HelperProfile }>(`/providers/helpers/${id}`);
   return response.data;
 };
@@ -177,14 +193,6 @@ export const getHelperDashboardStats = async (): Promise<any> => {
   const response = await axiosInstance.get<any>("/providers/helper/dashboard-stats");
   return response.data;
 };
-
-export interface HelperAvailability {
-  id: number;
-  helper_id: number;
-  available_date: string;
-  start_time: string;
-  status: "available" | "booked";
-}
 
 export const getMyAvailability = async (): Promise<{ data: HelperAvailability[] }> => {
   const response = await axiosInstance.get<{ data: HelperAvailability[] }>("/providers/helper/availability");
@@ -203,5 +211,10 @@ export const removeMyAvailability = async (id: number): Promise<{ message: strin
 
 export const clearAllMyAvailability = async (): Promise<{ message: string; data?: { deleted_count: number } }> => {
   const response = await axiosInstance.delete<{ message: string; data?: { deleted_count: number } }>("/providers/helper/availability");
+  return response.data;
+};
+
+export const bulkMyAvailability = async (data: BulkAvailabilityParams): Promise<BulkAvailabilityResponse> => {
+  const response = await axiosInstance.post<BulkAvailabilityResponse>("/providers/helper/availability/bulk", data);
   return response.data;
 };

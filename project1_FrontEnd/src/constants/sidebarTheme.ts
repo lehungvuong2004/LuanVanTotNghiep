@@ -14,7 +14,7 @@ export const ROLE_THEME = {
     activeClass:
       "text-cyan-700 bg-cyan-50 dark:text-cyan-400 dark:bg-cyan-950/30 border-l-4 border-cyan-700 dark:border-cyan-400 rounded-l-none",
     hoverClass:
-      "text-slate-600 dark:text-slate-300 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
+      "text-gray-600 dark:text-slate-300 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
     defaultAvatar: AVATAR_ADMIN },
   [ROLES.OPERATOR]: {
     brandBg: "bg-emerald-800",
@@ -23,7 +23,7 @@ export const ROLE_THEME = {
     activeClass:
       "text-emerald-800 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30 border-l-4 border-emerald-800 dark:border-emerald-400 rounded-l-none",
     hoverClass:
-      "text-slate-600 dark:text-slate-300 hover:text-emerald-800 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
+      "text-gray-600 dark:text-slate-300 hover:text-emerald-800 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
     defaultAvatar: AVATAR_DEFAULT },
   [ROLES.HELPER]: {
     brandBg: "bg-emerald-700",
@@ -32,7 +32,7 @@ export const ROLE_THEME = {
     activeClass:
       "text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30 border-l-4 border-emerald-700 dark:border-emerald-400 rounded-l-none",
     hoverClass:
-      "text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
+      "text-gray-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
     defaultAvatar: AVATAR_DEFAULT },
   [ROLES.CUSTOMER]: {
     brandBg: "bg-violet-700",
@@ -41,5 +41,5 @@ export const ROLE_THEME = {
     activeClass:
       "text-violet-700 bg-violet-50 dark:text-violet-400 dark:bg-violet-950/30 border-l-4 border-violet-700 dark:border-violet-400 rounded-l-none",
     hoverClass:
-      "text-slate-600 dark:text-slate-300 hover:text-violet-700 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
+      "text-gray-600 dark:text-slate-300 hover:text-violet-700 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-slate-700/50",
     defaultAvatar: AVATAR_DEFAULT } };

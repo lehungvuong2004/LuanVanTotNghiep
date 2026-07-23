@@ -104,7 +104,7 @@ export const DashboardLayout = ({ allowedRole }) => {
       <div className="flex flex-1 overflow-hidden relative">
         <div
           className={`hidden md:block bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 h-screen sticky top-0 transition-all duration-300 relative shrink-0 ${
-            isCollapsed ? "w-20" : "w-64"
+            isCollapsed ? "w-20" : "w-80"
           }`}
         >
           <Sidebar isCollapsed={isCollapsed} />
@@ -121,7 +121,7 @@ export const DashboardLayout = ({ allowedRole }) => {
         {isMobileDrawerOpen && (
           <div className="fixed inset-0 z-50 md:hidden flex">
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300" onClick={() => setIsMobileDrawerOpen(false)} />
-            <div className="relative flex flex-col w-64 max-w-xs h-full bg-white dark:bg-slate-800 shadow-2xl z-50 animate-fade-in-left">
+            <div className="relative flex flex-col w-80 max-w-xs h-full bg-white dark:bg-slate-800 shadow-2xl z-50 animate-fade-in-left">
               <button
                 onClick={() => setIsMobileDrawerOpen(false)}
                 className="absolute top-4 right-4 z-50 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"

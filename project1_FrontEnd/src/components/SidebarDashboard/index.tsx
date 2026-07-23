@@ -30,22 +30,22 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
 
   return (
     <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col justify-between overflow-hidden">
-      <div className={`px-4 mb-4 mt-4 shrink-0 ${isCollapsed ? "flex flex-col items-center" : ""}`}>
+      <div className={`px-5 mb-5 mt-5 shrink-0 ${isCollapsed ? "flex flex-col items-center" : ""}`}>
         {/* Trở về trang chủ */}
-        <div className="w-full mb-4">
+        <div className="w-full mb-5">
           <Link
             to="/"
             className={`flex items-center ${
-              isCollapsed ? "justify-center p-2" : "gap-3 px-4 py-2.5"
-            } bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700/50 transition-all duration-150 cursor-pointer group`}
+              isCollapsed ? "justify-center p-3" : "gap-4 px-5 py-3.5"
+            } bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all duration-150 cursor-pointer group`}
             title="Trở về trang chủ"
           >
             <Icon
               icon="material-symbols:home-outline"
-              className="text-xl text-slate-600 dark:text-slate-350 group-hover:scale-110 transition-transform shrink-0"
+              className="text-2xl text-slate-600 dark:text-slate-350 group-hover:scale-110 transition-transform shrink-0"
             />
             {!isCollapsed && (
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
+              <span className="text-xl font-bold text-slate-700 dark:text-slate-200 truncate">
                 Trở về trang chủ
               </span>
             )}
@@ -53,36 +53,36 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
         </div>
 
         {/* Brand Logo Wrapper */}
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl ${theme.brandBg} flex items-center justify-center shadow-xs shrink-0`}>
-            <Icon icon="icon-park-outline:family" className="text-xl text-white" />
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-2xl ${theme.brandBg} flex items-center justify-center shadow-sm shrink-0`}>
+            <Icon icon="icon-park-outline:family" className="text-2xl text-white" />
           </div>
           {!isCollapsed && (
             <div>
-              <h1 className={`font-bold text-base ${theme.brandText} leading-tight truncate max-w-32`}>
+              <h1 className={`font-black text-2xl ${theme.brandText} leading-tight truncate max-w-44`}>
                 Gia Đình Việt
               </h1>
-              <p className="text-xxs text-slate-500 dark:text-slate-400 truncate">{theme.subtitle}</p>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{theme.subtitle}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Nav Menu */}
-      <nav className="flex-1 overflow-y-auto px-3 mb-4 min-h-0 custom-sidebar-scroll">
-        <ul className="space-y-1">
+      <nav className="flex-1 overflow-y-auto px-3 mb-5 min-h-0 custom-sidebar-scroll">
+        <ul className="space-y-2">
           {navItems.map((item) => (
             <li key={item.path}>
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center ${isCollapsed ? "justify-center px-2" : "gap-3 px-4"} py-3 rounded-lg font-medium text-sm transition-all duration-150 active:scale-[0.98] ${
+                  `flex items-center ${isCollapsed ? "justify-center px-3" : "gap-3 px-4"} py-3 rounded-xl font-semibold text-base transition-all duration-150 active:scale-[0.98] ${
                     isActive ? theme.activeClass : theme.hoverClass
                   }`
                 }
                 title={isCollapsed ? item.name : undefined}
               >
-                <Icon icon={item.icon} className="text-xl shrink-0" />
+                <Icon icon={item.icon} className="text-2xl shrink-0" />
                 {!isCollapsed && <span>{item.name}</span>}
               </NavLink>
             </li>
@@ -91,34 +91,34 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
       </nav>
 
       {/* Bottom Profile and Logout Section */}
-      <div className="shrink-0 border-t border-slate-100 dark:border-slate-700/50 pt-3 bg-white dark:bg-slate-800">
-        <div className="px-3 mb-2">
+      <div className="shrink-0 border-t border-slate-100 dark:border-slate-700/50 pt-5 bg-white dark:bg-slate-800">
+        <div className="px-4 mb-3">
           <div
-            className={`flex items-center ${isCollapsed ? "justify-center p-2" : "gap-3 p-3"} bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-xs`}
+            className={`flex items-center ${isCollapsed ? "justify-center p-3" : "gap-4 p-4"} bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm`}
           >
             <img
               alt="Profile"
-              className="w-9 h-9 rounded-full object-cover shadow-xs shrink-0"
+              className="w-12 h-12 rounded-full object-cover shadow-sm shrink-0"
               src={avatar}
               title={isCollapsed ? `${fullName} (${email})` : undefined}
             />
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{fullName}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{email}</p>
+                <p className="text-xl font-bold text-slate-800 dark:text-slate-200 truncate">{fullName}</p>
+                <p className="text-base font-semibold text-slate-500 dark:text-slate-400 truncate">{email}</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Logout Button */}
-        <div className="px-3 pt-1 mb-4">
+        <div className="px-4 pt-1 mb-5">
           <button
             onClick={logout}
-            className={`w-full flex items-center ${isCollapsed ? "justify-center px-2" : "gap-3 px-4"} py-3 rounded-lg font-medium text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-150 active:scale-[0.98] cursor-pointer`}
+            className={`w-full flex items-center ${isCollapsed ? "justify-center px-3" : "gap-4 px-5"} py-4 rounded-xl font-black text-xl text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-150 active:scale-[0.98] cursor-pointer`}
             title={isCollapsed ? "Đăng xuất" : undefined}
           >
-            <Icon icon="material-symbols:logout-rounded" className="text-xl shrink-0" />
+            <Icon icon="material-symbols:logout-rounded" className="text-2xl shrink-0" />
             {!isCollapsed && <span>Đăng xuất</span>}
           </button>
         </div>

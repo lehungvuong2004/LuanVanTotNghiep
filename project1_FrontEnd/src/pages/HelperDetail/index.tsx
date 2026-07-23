@@ -4,20 +4,9 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { getHelperPublic, type HelperProfile } from "../../api/helpers";
 import { getHelperReviewsPublic, type Review, type HelperReviewsResponse } from "../../api/reviews";
-import { formatVietnamDateTime, getRatingNote, parseUtcDate, getRatingBadgeClass } from "../../utils";
+import { ReviewCard } from "../../components/Reviews/ReviewCard";
+import { RatingDistributionRow } from "../../components/Reviews/RatingDistributionRow";
 
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - parseUtcDate(dateStr).getTime();
-  if (diff < 60000) return "Vừa xong";
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return `${minutes} phút trước`;
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 24) return `${hours} giờ trước`;
-  const days = Math.floor(diff / 86400000);
-  if (days === 1) return "Hôm qua";
-  if (days < 30) return `${days} ngày trước`;
-  return `${Math.floor(days / 30)} tháng trước`;
-}
 
 export const HelperDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -67,7 +56,7 @@ export const HelperDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen dark:bg-slate-900 pt-8">
-        <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
+        <div className="max-w-384 mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
           <div className="flex gap-8">
             <div className="w-32 h-32 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0" />
             <div className="flex-1 space-y-4">
@@ -280,26 +269,16 @@ export const HelperDetail = () => {
             </div>
           </div>
           <div className="flex-1 space-y-1.5 w-full">
-            {[5, 4, 3, 2, 1].map((star) => {
-              const count = ratingDist[star] ?? 0;
-              const pct = reviewData.total_reviews > 0 ? (count / reviewData.total_reviews) * 100 : 0;
-              return (
-                <button
-                  key={star}
-                  onClick={() => setFilterRating(filterRating === star ? null : star)}
-                  className={`flex items-center gap-3 w-full cursor-pointer rounded-lg px-2 py-0.5 transition-colors ${
-                    filterRating === star ? "bg-amber-50 dark:bg-amber-950/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <span className="text-sm font-bold text-slate-600 dark:text-slate-300 w-4 text-right">{star}</span>
-                  <Icon icon="material-symbols:star" className="text-amber-400 text-sm" />
-                  <div className="flex-1 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
-                  </div>
-                  <span className="text-xs text-slate-400 w-6 text-right">{count}</span>
-                </button>
-              );
-            })}
+            {[5, 4, 3, 2, 1].map((star) => (
+              <RatingDistributionRow
+                key={star}
+                star={star}
+                count={ratingDist[star] ?? 0}
+                total={reviewData.total_reviews}
+                isActive={filterRating === star}
+                onClick={() => setFilterRating(filterRating === star ? null : star)}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -320,35 +299,7 @@ export const HelperDetail = () => {
       <div className="space-y-4">
         {(showAllReviews ? reviews : reviews.slice(0, 3)).length > 0 ? (
           (showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => (
-            <div key={review.id} className="border-b border-slate-100 dark:border-slate-700/50 pb-5 last:border-b-0 last:pb-0">
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border-2 border-slate-100 dark:border-slate-700">
-                  {review.customer?.avatar ? (
-                    <img src={review.customer.avatar} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                      {(review.customer?.full_name ?? "K").charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100">{review.customer?.full_name ?? `Khách hàng #${review.customer_id}`}</h4>
-                      <span className="text-xs text-slate-400">({review.created_at ? formatVietnamDateTime(review.created_at) : ""})</span>
-                      <span className={`text-xs px-2 py-0.5 rounded font-semibold ${getRatingBadgeClass(review.rating)}`}>{getRatingNote(review.rating)}</span>
-                    </div>
-                    <span className="text-xs text-slate-400">{review.created_at ? timeAgo(review.created_at) : ""}</span>
-                  </div>
-                  <div className="flex gap-0.5 mb-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Icon key={star} icon="material-symbols:star" className={`text-sm ${star <= review.rating ? "text-amber-400" : "text-slate-200 dark:text-slate-600"}`} />
-                    ))}
-                  </div>
-                  {review.comment && <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>}
-                </div>
-              </div>
-            </div>
+            <ReviewCard key={review.id} review={review} variant="line" t={t} />
           ))
         ) : (
           <div className="text-center py-12 text-slate-400">

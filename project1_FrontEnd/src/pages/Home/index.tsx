@@ -58,7 +58,7 @@ export const Home = () => {
           modules={[Pagination, Autoplay, Navigation]}
           pagination={bannerList.length > 1 ? { clickable: true } : false}
           navigation={bannerList.length > 1}
-          autoplay={bannerList.length > 1 ? { delay: 5000, disableOnInteraction: false } : false}
+          /* autoplay={bannerList.length > 1 ? { delay: 5000, disableOnInteraction: false } : false} */
           loop={bannerList.length > 1}
           className="w-full h-full hero-swiper"
         >
@@ -410,7 +410,7 @@ export const Home = () => {
             1024: { slidesPerView: 3 },
           }}
           pagination={{ clickable: true }}
-          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          /* autoplay={{ delay: 4000, disableOnInteraction: false }} */
           style={{ paddingBottom: "3rem" }}
         >
           {reviewData.map((item) => (

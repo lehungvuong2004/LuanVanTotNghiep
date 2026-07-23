@@ -39,7 +39,7 @@ export const NAV_ITEMS = {
   ],
 // hình như thiếu đăng lịch cho khách hàng đặt lịch 
   [ROLES.HELPER]: [
-    { name: "Thanh toán & Thu nhập", path: "/helper/payments", icon: "material-symbols:payments-outline-rounded", permission: "payments.history" },
+    { name: "Thanh toán & Thu nhập", path: "/helper", icon: "material-symbols:payments-outline-rounded", permission: "payments.history" },
     { name: "Lịch Rảnh", path: "/helper/availabilities", icon: "material-symbols:calendar-today-outline-rounded" },
     // { name: "Hồ sơ Cá nhân", path: "/ho-so", icon: "material-symbols:person-outline-rounded", permission: "helper_profile.view" },
     // { name: "Khu vực Làm việc", path: "/helper/areas", icon: "material-symbols:map-outline", permission: "working_areas.view" },

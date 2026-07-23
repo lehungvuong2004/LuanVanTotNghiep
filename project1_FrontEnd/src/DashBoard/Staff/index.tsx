@@ -1,9 +1,10 @@
 import { Icon } from "@iconify/react";
 import { useStaffRecruitment } from "./useHook";
+import { formatDate as utilsFormatDate, formatPrice as utilsFormatPrice } from "../../utils";
 
 import { Pagination } from "../../components/Pagination";
 
-export const StaffRecruitmentDashboard= () => {
+export const StaffRecruitmentDashboard = () => {
   const {
     activeTab,
     setActiveTab,
@@ -40,20 +41,11 @@ export const StaffRecruitmentDashboard= () => {
 
   const formatPrice = (price: number | string | null) => {
     if (!price) return "Thỏa thuận";
-    const num = typeof price === "string" ? parseFloat(price) : price;
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(num);
+    return utilsFormatPrice(price);
   };
 
   const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return utilsFormatDate(dateStr) || "N/A";
   };
 
   const renderStatusBadge = (status: string) => {

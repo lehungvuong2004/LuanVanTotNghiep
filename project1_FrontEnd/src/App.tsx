@@ -39,18 +39,14 @@ import { PermissionsMatrix } from "./DashBoard/Admin/Permissions";
 import { ActivityLogs } from "./DashBoard/Admin/Log";
 import { ApplicationReview } from "./DashBoard/Operator/JobPosts";
 import { Reports } from "./DashBoard/Admin/Reports";
-import { StaffRecruitmentDashboard } from "./DashBoard/Staff";
 import { HelperOverview } from "./DashBoard/Helper/Overview";
 import { HelperAvailabilityPage } from "./DashBoard/Helper/Availabilities";
+import { HelperReviewsPage } from "./DashBoard/Helper/Reviews";
 import { Contacts } from "./DashBoard/Admin/Contacts";
 import { Notifications } from "./DashBoard/Admin/Notifications";
-// import { AdminMessages } from "./DashBoard/Admin/Messages";
-// import { ChatPage } from "./pages/Chat";
 
 function App() {
   useEffect(() => {
-    // VNPay strips hashes from returnUrl, resulting in query parameters before hash.
-    // We detect and route them to HashRouter's /thanh-toan/ket-qua route.
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.has("vnp_ResponseCode") && searchParams.has("vnp_TxnRef")) {
       const hashQuery = searchParams.toString();
@@ -87,8 +83,6 @@ function App() {
             <Route path="/ho-so" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
-            {/* <Route path="/messages" element={<ChatPage />} /> */}
-            {/* <Route path="/messages/:partnerId" element={<ChatPage />} /> */}
           </Route>
           <Route element={<LoginLayout />}>
             <Route path="/dang-nhap" element={<Login />} />
@@ -116,9 +110,6 @@ function App() {
             <Route path="roles" element={<RolePage />} />
             <Route path="permissions" element={<PermissionsMatrix />} />
             <Route path="activity-logs" element={<ActivityLogs />} />
-            {/* <Route path="messages" element={<AdminMessages />} /> */}
-            {/* <Route path="chat" element={<ChatPage />} /> */}
-            {/* <Route path="chat/:partnerId" element={<ChatPage />} /> */}
           </Route>
           <Route path="/operator" element={<DashboardLayout allowedRole={ROLES.OPERATOR} />}>
             <Route index element={<Reviews />} />
@@ -133,18 +124,12 @@ function App() {
             <Route path="services" element={<Services />} />
             <Route path="contacts" element={<Contacts />} />
             <Route path="activity-logs" element={<ActivityLogs />} />
-            {/* <Route path="messages" element={<AdminMessages />} /> */}
-            {/* <Route path="chat" element={<ChatPage />} /> */}
-            {/* <Route path="chat/:partnerId" element={<ChatPage />} /> */}
           </Route>
           <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>
             <Route index element={<HelperOverview />} />
-            <Route path="dashboard" element={<StaffRecruitmentDashboard />} />
             <Route path="availabilities" element={<HelperAvailabilityPage />} />
-            {/* <Route path="messages" element={<ChatPage />} /> */}
-            {/* <Route path="messages/:partnerId" element={<ChatPage />} /> */}
+            <Route path="reviews" element={<HelperReviewsPage />} />
           </Route>
-
           <Route path="*" element={<Errors404 />} />
         </Routes>
       </HashRouter>
