@@ -64,7 +64,7 @@ export const AdminMessages = () => {
     const initials = getInitials(user.full_name);
 
     return (
-      <div className="flex items-center gap-3 min-w-[200px]">
+      <div className="flex items-center gap-3 min-w-52">
         {user.avatar ? (
           <img
             src={user.avatar}
@@ -127,7 +127,7 @@ export const AdminMessages = () => {
                 <th className="py-4 px-6 w-16">ID</th>
                 <th className="py-4 px-6">{t("Người gửi")}</th>
                 <th className="py-4 px-6">{t("Người nhận")}</th>
-                <th className="py-4 px-6 min-w-[300px]">{t("Nội dung tin nhắn")}</th>
+                <th className="py-4 px-6 min-w-80">{t("Nội dung tin nhắn")}</th>
                 <th className="py-4 px-6 w-48">{t("Thời gian gửi")}</th>
                 <th className="py-4 px-6 w-24 text-center">{t("Hành động")}</th>
               </tr>

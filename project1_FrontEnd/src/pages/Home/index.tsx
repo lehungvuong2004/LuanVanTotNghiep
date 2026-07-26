@@ -245,25 +245,25 @@ export const Home = () => {
           </div>
         </div>
 
-        <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "1200px" }}>
+        <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "75rem" }}>
           <div ref={cubeRef} className="w-40 h-52 relative" style={{ transformStyle: "preserve-3d" }}>
             {/* Card 1 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(0deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(0deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={neatlyClothe} alt="Service 1" className="w-full h-full object-cover" />
             </div>
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(90deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(90deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={repairCondition} alt="Service 2" className="w-full h-full object-cover" />
             </div>
 
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(180deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(180deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={repairLight} alt="Service 3" className="w-full h-full object-cover" />
             </div>
@@ -271,7 +271,7 @@ export const Home = () => {
             {/* Card 4 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(270deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(270deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={repairPlumber} alt="Service 4" className="w-full h-full object-cover" />
             </div>
