@@ -125,6 +125,7 @@ function App() {
             <Route path="refunds" element={<Refunds />} />
             <Route path="services" element={<Services />} />
             <Route path="contacts" element={<Contacts />} />
+            <Route path="chatbot-knowledge" element={<ChatbotKnowledgeBase />} />
             <Route path="activity-logs" element={<ActivityLogs />} />
           </Route>
           <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>

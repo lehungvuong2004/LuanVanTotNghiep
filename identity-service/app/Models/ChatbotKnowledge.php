@@ -15,5 +15,11 @@ class ChatbotKnowledge extends Model
         'keyword',
         'question',
         'content',
+        'created_by',
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

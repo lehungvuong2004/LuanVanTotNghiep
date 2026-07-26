@@ -57,7 +57,11 @@ class RolePermissionSeeder extends Seeder
       'messages.view',
       'messages.send',
       'messages.delete',
-      'notifications.view'
+      'notifications.view',
+      'chatbot_knowledge.view',
+      'chatbot_knowledge.create',
+      'chatbot_knowledge.update',
+      'chatbot_knowledge.delete'
     ];
 
     $operatorPermIds = Permission::whereIn('name', $operatorPerms)->pluck('id')->toArray();

@@ -79,6 +79,11 @@ export const formatDate = (dateStr: any) => {
   return `${dd}/${mm}/${yyyy}`;
 };
 
+export const formatTimeOnly = (date?: Date) => {
+  const d = date || new Date();
+  return d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+};
+
 export function formatMoneyInput(value: any) {
   if (value === undefined || value === null) return "";
   const cleanVal = value.toString().replace(/\D/g, "");

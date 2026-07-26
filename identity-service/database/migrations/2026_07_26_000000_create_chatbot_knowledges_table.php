@@ -17,7 +17,13 @@ return new class extends Migration
             $table->string('keyword', 100)->nullable()->index();
             $table->text('question');
             $table->text('content');
+            $table->integer('created_by')->nullable();
             $table->timestamps();
+
+            $table->foreign('created_by')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('set null');
         });
     }
 

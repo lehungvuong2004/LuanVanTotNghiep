@@ -34,6 +34,7 @@ export const NAV_ITEMS = {
     { name: "Quản lý Đánh giá", path: "/operator/reviews", icon: "material-symbols:rate-review-outline-rounded", permission: "reviews.view" }, // cp
     { name: "Quản lý Báo cáo", path: "/operator/reports", icon: "material-symbols:report-outline", permission: "reports.process" }, // c
     { name: "Quản lý Liên hệ", path: "/operator/contacts", icon: "material-symbols:contact-phone-outline-rounded", permission: "contacts.process" }, // c
+    { name: "Quản lý Tri thức Chatbot", path: "/operator/chatbot-knowledge", icon: "material-symbols:smart-toy-outline-rounded", permission: "chatbot_knowledge.view" },
   ],
 // hình như thiếu đăng lịch cho khách hàng đặt lịch 
   [ROLES.HELPER]: [

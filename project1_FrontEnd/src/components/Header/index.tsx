@@ -118,7 +118,7 @@ export const Header = () => {
         <div className="w-full px-4 md:px-16 mx-auto">
           <div className="flex items-stretch justify-between w-full transition-all duration-300">
             <div className={`flex-1 lg:hidden flex items-center ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
-              <Icon icon="gg:menu-round" className="text-4xl text-white cursor-pointer" onClick={toggleMobileMenu} />
+              <Icon icon="lucide:menu" className="text-2xl text-white cursor-pointer" onClick={toggleMobileMenu} />
             </div>
 
             <nav className="hidden lg:flex flex-1 items-stretch text-white font-medium text-base">
@@ -288,19 +288,22 @@ export const Header = () => {
             </nav>
 
             <div className={`flex items-center justify-center shrink-0 ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
-              <Link to="/" className="text-white font-bold text-2xl md:text-3xl">
+              <Link to="/" className="text-white font-bold text-xl md:text-3xl whitespace-nowrap">
                 Gia Đình Việt
               </Link>
             </div>
 
-            <div className="flex-1 lg:hidden flex justify-end items-center gap-4 text-white">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={toggleDarkMode}
-                  className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer hover:scale-105"
-                >
-                  <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-xl" />
-                </button>
+            <div className="flex-1 lg:hidden flex justify-end items-center gap-2 text-white">
+              {/* Dark mode toggle — always visible, clean borderless style on mobile */}
+              <button
+                onClick={toggleDarkMode}
+                className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all duration-300 cursor-pointer hover:scale-105"
+              >
+                <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-xl" />
+              </button>
+
+              {/* Notification bell — only when logged in */}
+              {isLoggedIn && (
                 <div className="relative cursor-pointer flex items-center justify-center">
                   <div
                     onClick={(e) => {
@@ -308,11 +311,11 @@ export const Header = () => {
                       setIsMobileNotifOpen(!isMobileNotifOpen);
                       setIsMobileUserMenuOpen(false);
                     }}
-                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs hover:scale-105 relative"
+                    className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all duration-300 cursor-pointer hover:scale-105 relative"
                   >
                     <Icon icon="mdi:bell-outline" className="text-xl" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">
+                      <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
                         {unreadCount}
                       </span>
                     )}
@@ -394,7 +397,9 @@ export const Header = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              )}
+
+              {/* Avatar / Login */}
               {isLoggedIn ? (
                 <div className="relative flex items-center cursor-pointer">
                   <div
@@ -403,12 +408,12 @@ export const Header = () => {
                       setIsMobileUserMenuOpen(!isMobileUserMenuOpen);
                       setIsMobileNotifOpen(false);
                     }}
-                    className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer"
+                    className="border-2 border-white/50 hover:border-white rounded-full p-0.5 transition-all duration-300 flex items-center justify-center cursor-pointer"
                   >
                     {user?.avatar ? (
-                      <img src={user.avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+                      <img src={user.avatar} alt="User Avatar" className="w-9 h-9 rounded-full object-cover" />
                     ) : (
-                      <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
+                      <Icon icon="lucide:circle-user" className="text-3xl cursor-pointer" />
                     )}
                   </div>
 
@@ -476,13 +481,16 @@ export const Header = () => {
                   )}
                 </div>
               ) : (
-                <div className="relative h-full flex items-center cursor-pointer">
-                  <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
-                    <Icon icon="lucide:circle-user" className="text-4xl md:text-2xl cursor-pointer" />
-                  </Link>
-                </div>
+                <Link
+                  to="/dang-nhap"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold text-white bg-white/10 hover:bg-white/20 whitespace-nowrap transition-all duration-200"
+                >
+                  <Icon icon="lucide:log-in" className="text-base shrink-0" />
+                  <span>{t("Đăng nhập")}</span>
+                </Link>
               )}
             </div>
+
 
             <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
               {/* Language picker — own py = full header height */}
@@ -688,11 +696,11 @@ export const Header = () => {
                 </div>
                 {isLoggedIn ? (
                   <div className="relative group h-full flex items-center cursor-pointer">
-                    <div className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
+                    <div className="border-2 border-white/50 hover:border-white rounded-full p-0.5 transition-all duration-300 flex items-center justify-center cursor-pointer">
                       {user?.avatar ? (
-                        <img src={user.avatar} alt="User Avatar" className="w-6 h-6 rounded-full object-cover" />
+                        <img src={user.avatar} alt="User Avatar" className="w-9 h-9 rounded-full object-cover" />
                       ) : (
-                        <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+                        <Icon icon="lucide:circle-user" className="text-3xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
                       )}
                     </div>
 
@@ -749,9 +757,20 @@ export const Header = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="relative h-full flex items-center cursor-pointer">
-                    <Link to="/dang-nhap" className="border-2 border-white/50 hover:border-white rounded-full p-1 -m-1 transition-all duration-300 flex items-center justify-center cursor-pointer">
-                      <Icon icon="lucide:circle-user" className="text-2xl cursor-pointer hover:text-teal-200 hover:scale-110 drop-shadow-sm" />
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/dang-nhap"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white border border-white/40 hover:bg-white/15 transition-all duration-200"
+                    >
+                      <Icon icon="lucide:log-in" className="text-base" />
+                      <span>{t("Đăng nhập")}</span>
+                    </Link>
+                    <Link
+                      to="/dang-ky"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-white text-teal-700 hover:bg-teal-50 shadow-sm transition-all duration-200"
+                    >
+                      <Icon icon="lucide:user-plus" className="text-base" />
+                      <span>{t("Đăng ký")}</span>
                     </Link>
                   </div>
                 )}
@@ -837,9 +856,11 @@ export const Header = () => {
         )}
       </header>
       {/* Spacer — invisible clone of header row so height matches perfectly without hardcoded values */}
-      <div className="w-full px-4 md:px-16 mx-auto pointer-events-none select-none" aria-hidden="true">
-        <div className={`flex items-center justify-center transition-all duration-300 ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
-          <span className="text-white font-bold text-2xl md:text-3xl invisible">Gia Đình Việt</span>
+      <div className="w-full bg-[#066d72] dark:bg-slate-800 pointer-events-none select-none" aria-hidden="true">
+        <div className="w-full px-4 md:px-16 mx-auto">
+          <div className={`flex items-center justify-center transition-all duration-300 ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
+            <span className="text-white font-bold text-xl md:text-3xl invisible">Gia Đình Việt</span>
+          </div>
         </div>
       </div>
     </>

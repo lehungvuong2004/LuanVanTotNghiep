@@ -24,7 +24,7 @@ export const Home = () => {
   const renderBanner = () => {
     if (loadingBanners) {
       return (
-        <div className="relative w-full overflow-hidden flex items-center justify-center bg-gray-900/10" style={{ height: "85vh" }}>
+        <div className="relative w-full overflow-hidden flex items-center justify-center bg-gray-900/10 h-[60vh] md:h-[85vh]">
           {/* Skeleton Overlay */}
           <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
           <div className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10 animate-pulse">
@@ -53,7 +53,7 @@ export const Home = () => {
           ];
 
     return (
-      <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center hero-swiper-container" style={{ height: "85vh" }}>
+      <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center hero-swiper-container h-[60vh] md:h-[85vh]">
         <Swiper
           modules={[Pagination, Autoplay, Navigation]}
           pagination={bannerList.length > 1 ? { clickable: true } : false}

@@ -169,7 +169,7 @@ Câu hỏi của khách hàng: {$message}"]
   public function adminIndex(Request $request)
   {
     $q = $request->query('query');
-    $query = ChatbotKnowledge::query();
+    $query = ChatbotKnowledge::with('creator:id,full_name');
 
     if (!empty($q)) {
       $query->where('keyword', 'LIKE', "%{$q}%")
@@ -188,14 +188,17 @@ Câu hỏi của khách hàng: {$message}"]
   {
     $fields = $request->validate([
       'keyword' => 'nullable|string|max:100',
-      'question' => 'required|string',
+      'question' => 'required|string|unique:chatbot_knowledges,question',
       'content' => 'required|string',
+    ], [
+      'question.unique' => 'Câu hỏi này đã tồn tại trong cơ sở dữ liệu tri thức.',
     ]);
 
     $knowledge = ChatbotKnowledge::create([
       'keyword' => $fields['keyword'] ?: null,
       'question' => $fields['question'],
       'content' => $fields['content'],
+      'created_by' => $request->user()?->id,
     ]);
 
     return $this->successResponse($knowledge, 'Thêm tri thức thành công.');
@@ -210,8 +213,10 @@ Câu hỏi của khách hàng: {$message}"]
 
     $fields = $request->validate([
       'keyword' => 'nullable|string|max:100',
-      'question' => 'required|string',
+      'question' => 'required|string|unique:chatbot_knowledges,question,' . $id,
       'content' => 'required|string',
+    ], [
+      'question.unique' => 'Câu hỏi này đã tồn tại trong cơ sở dữ liệu tri thức.',
     ]);
 
     $knowledge->update([
@@ -286,11 +291,14 @@ Câu hỏi của khách hàng: {$message}"]
         $content = count($fields) > 2 ? trim($fields[2]) : trim($fields[1]);
 
         if (!empty($question) && !empty($content)) {
-          ChatbotKnowledge::create([
-            'keyword' => $keyword ?: null,
-            'question' => $question,
-            'content' => $content,
-          ]);
+          ChatbotKnowledge::updateOrCreate(
+            ['question' => $question],
+            [
+              'keyword' => $keyword ?: null,
+              'content' => $content,
+              'created_by' => $request->user()?->id,
+            ]
+          );
           $importedCount++;
         }
       }

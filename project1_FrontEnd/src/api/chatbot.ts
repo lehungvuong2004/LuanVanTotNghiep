@@ -11,6 +11,11 @@ export interface ChatbotKnowledge {
   keyword: string | null;
   question: string;
   content: string;
+  created_by?: number | null;
+  creator?: {
+    id: number;
+    full_name: string;
+  } | null;
   created_at: string;
   updated_at: string;
 }
