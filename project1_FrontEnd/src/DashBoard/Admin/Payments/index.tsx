@@ -2,7 +2,7 @@ import ReactECharts from "echarts-for-react";
 import { Icon } from "@iconify/react";
 import { usePaymentsHook, PAYMENT_METHODS_LABELS, PAYMENT_METHODS_ICONS } from "./usePaymentsHook";
 import { Pagination } from "../../../components/Pagination";
-import { fmtVND } from "../../../utils";
+import { fmtVND, getStatusBadge } from "../../../utils";
 import { useAuth } from "../../../hooks/useAuth";
 
 export const Payments = () => {
@@ -35,25 +35,7 @@ export const Payments = () => {
 
   const fmtPct = (n: number) => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 
-  const getStatusBadgeCls = (status: string) => {
-    const map = {
-      completed: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
-      pending: "bg-amber-50  dark:bg-amber-950/30  text-amber-600  dark:text-amber-400",
-      failed: "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400",
-      refunded: "bg-slate-100 dark:bg-slate-800     text-slate-600  dark:text-slate-400",
-    };
-    return map[status] ?? "bg-slate-100 text-slate-500";
-  };
 
-  const getStatusDotCls = (status: string) => {
-    const map = {
-      completed: "bg-emerald-500",
-      pending: "bg-amber-500",
-      failed: "bg-rose-500",
-      refunded: "bg-slate-400",
-    };
-    return map[status] ?? "bg-slate-400";
-  };
 
   const renderHeader = () => {
     return (
@@ -270,10 +252,7 @@ export const Payments = () => {
                         </td>
                         <td className="px-5 py-4 font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">{Number(p.amount || 0).toLocaleString("vi-VN")} ₫</td>
                         <td className="px-5 py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeCls(p.status)}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotCls(p.status)}`} />
-                            {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
-                          </span>
+                          {getStatusBadge(p.status, "payment")}
                         </td>
                         <td className="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">{p.paid_at ? new Date(p.paid_at).toLocaleString("vi-VN") : "—"}</td>
                         <td className="px-5 py-4 text-right">

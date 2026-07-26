@@ -138,6 +138,12 @@ Route::any('/api/contacts/{any?}', function (Request $request, $any = '') {
     return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
+// Chatbot — proxy sang Identity Service
+Route::any('/api/chatbot/{any?}', function (Request $request, $any = '') {
+    $targetUrl = 'http://identity-service:8000/api/chatbot' . ($any !== '' ? '/' . $any : '');
+    return proxyTo($targetUrl, $request);
+})->where('any', '.*');
+
 // 3. Định tuyến cho Order Service (Quản lý đơn đặt dịch vụ)
 Route::any('/api/orders/{any?}', function (Request $request, $any = '') {
     $targetUrl = 'http://order-service:8000/api/orders/' . $any;

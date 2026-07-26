@@ -17,6 +17,7 @@ use Database\Seeders\Permissions\PaymentAndRefundPermissionSeeder;
 use Database\Seeders\Permissions\MessageAndNotificationPermissionSeeder;
 use Database\Seeders\Permissions\NewsAndBannerPermissionSeeder;
 use Database\Seeders\Permissions\ServicePermissionSeeder;
+use Database\Seeders\Permissions\ChatbotPermissionSeeder;
 
 class PermissionSeeder extends Seeder
 {
@@ -37,6 +38,7 @@ class PermissionSeeder extends Seeder
     MessageAndNotificationPermissionSeeder::class,
     NewsAndBannerPermissionSeeder::class,
     ServicePermissionSeeder::class,
+    ChatbotPermissionSeeder::class,
   ];
 
   public function run(): void

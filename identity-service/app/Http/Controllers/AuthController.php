@@ -677,8 +677,14 @@ class AuthController extends Controller
 
     ActivityLogService::log($currentUser->id, 'DELETE_USER', "Xóa tài khoản người dùng: {$user->full_name} ({$user->email}).");
 
-    DB::table('user_tokens')->where('user_id', $id)->delete();
-    $user->delete();
+    DB::transaction(function () use ($id, $user) {
+      DB::table('user_tokens')->where('user_id', $id)->delete();
+      DB::table('activity_logs')->where('user_id', $id)->delete();
+      DB::table('banners')->where('created_by', $id)->update(['created_by' => null]);
+      DB::table('news')->where('created_by', $id)->update(['created_by' => null]);
+      DB::table('contacts')->where('processed_by', $id)->update(['processed_by' => null]);
+      $user->delete();
+    });
 
     return response()->json(['message' => 'Xóa người dùng thành công.'], Response::HTTP_OK);
   }
@@ -707,6 +713,10 @@ class AuthController extends Controller
 
     DB::transaction(function () use ($ids) {
       DB::table('user_tokens')->whereIn('user_id', $ids)->delete();
+      DB::table('activity_logs')->whereIn('user_id', $ids)->delete();
+      DB::table('banners')->whereIn('created_by', $ids)->update(['created_by' => null]);
+      DB::table('news')->whereIn('created_by', $ids)->update(['created_by' => null]);
+      DB::table('contacts')->whereIn('processed_by', $ids)->update(['processed_by' => null]);
       User::whereIn('id', $ids)->delete();
     });
 

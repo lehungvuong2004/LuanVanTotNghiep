@@ -31,31 +31,10 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
   return (
     <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col justify-between overflow-hidden">
       <div className={`px-5 mb-5 mt-5 shrink-0 ${isCollapsed ? "flex flex-col items-center" : ""}`}>
-        {/* Trở về trang chủ */}
-        <div className="w-full mb-5">
-          <Link
-            to="/"
-            className={`flex items-center ${
-              isCollapsed ? "justify-center p-3" : "gap-4 px-5 py-3.5"
-            } bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all duration-150 cursor-pointer group`}
-            title="Trở về trang chủ"
-          >
-            <Icon
-              icon="material-symbols:home-outline"
-              className="text-2xl text-slate-600 dark:text-slate-350 group-hover:scale-110 transition-transform shrink-0"
-            />
-            {!isCollapsed && (
-              <span className="text-xl font-bold text-slate-700 dark:text-slate-200 truncate">
-                Trở về trang chủ
-              </span>
-            )}
-          </Link>
-        </div>
-
-        {/* Brand Logo Wrapper */}
-        <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-2xl ${theme.brandBg} flex items-center justify-center shadow-sm shrink-0`}>
-            <Icon icon="icon-park-outline:family" className="text-2xl text-white" />
+        {/* Brand Logo Wrapper - acts as Home link */}
+        <Link to="/" className="flex items-center gap-4 hover:opacity-90 active:scale-98 transition-all group">
+          <div className={`w-12 h-12 rounded-2xl ${theme.brandBg} flex items-center justify-center shadow-sm shrink-0 group-hover:scale-105 transition-transform`}>
+            <Icon icon="material-symbols:home-rounded" className="text-2xl text-white" />
           </div>
           {!isCollapsed && (
             <div>
@@ -65,7 +44,7 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{theme.subtitle}</p>
             </div>
           )}
-        </div>
+        </Link>
       </div>
 
       {/* Nav Menu */}
@@ -92,35 +71,39 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
 
       {/* Bottom Profile and Logout Section */}
       <div className="shrink-0 border-t border-slate-100 dark:border-slate-700/50 pt-5 bg-white dark:bg-slate-800">
-        <div className="px-4 mb-3">
+        <div className="px-4 mb-5">
           <div
-            className={`flex items-center ${isCollapsed ? "justify-center p-3" : "gap-4 p-4"} bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm`}
+            className={`flex ${
+              isCollapsed ? "flex-col gap-3 justify-center items-center" : "items-center justify-between gap-4"
+            } p-4 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-700/30 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm transition-all duration-150 group`}
           >
-            <img
-              alt="Profile"
-              className="w-12 h-12 rounded-full object-cover shadow-sm shrink-0"
-              src={avatar}
-              title={isCollapsed ? `${fullName} (${email})` : undefined}
-            />
-            {!isCollapsed && (
-              <div className="min-w-0 flex-1">
-                <p className="text-xl font-bold text-slate-800 dark:text-slate-200 truncate">{fullName}</p>
-                <p className="text-base font-semibold text-slate-500 dark:text-slate-400 truncate">{email}</p>
-              </div>
-            )}
-          </div>
-        </div>
+            <div className={`flex ${isCollapsed ? "flex-col items-center gap-2" : "items-center gap-4"} min-w-0 flex-1`}>
+              <img
+                alt="Profile"
+                className="w-12 h-12 rounded-full object-cover shadow-sm shrink-0"
+                src={avatar}
+                title={isCollapsed ? `${fullName} (${email})` : undefined}
+              />
+              {!isCollapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="text-xl font-bold text-slate-800 dark:text-slate-205 truncate" title={fullName}>
+                    {fullName}
+                  </p>
+                  <p className="text-base font-semibold text-slate-500 dark:text-slate-400 truncate" title={email}>
+                    {email}
+                  </p>
+                </div>
+              )}
+            </div>
 
-        {/* Logout Button */}
-        <div className="px-4 pt-1 mb-5">
-          <button
-            onClick={logout}
-            className={`w-full flex items-center ${isCollapsed ? "justify-center px-3" : "gap-4 px-5"} py-4 rounded-xl font-black text-xl text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-150 active:scale-[0.98] cursor-pointer`}
-            title={isCollapsed ? "Đăng xuất" : undefined}
-          >
-            <Icon icon="material-symbols:logout-rounded" className="text-2xl shrink-0" />
-            {!isCollapsed && <span>Đăng xuất</span>}
-          </button>
+            <button
+              onClick={logout}
+              className="flex items-center justify-center p-2 rounded-xl text-red-650 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 transition-all duration-150 active:scale-[0.98] cursor-pointer shrink-0"
+              title="Đăng xuất"
+            >
+              <Icon icon="material-symbols:logout-rounded" className="text-2xl shrink-0" />
+            </button>
+          </div>
         </div>
       </div>
     </aside>

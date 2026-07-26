@@ -193,3 +193,107 @@ export const renderStars = (rating: number, sizeClass = "text-lg") => {
   return <div className="flex items-center gap-0.5">{stars}</div>;
 };
 
+export type BadgeType = "contact" | "helper" | "user" | "report" | "payment" | "refund";
+
+export const getStatusBadge = (status: string, type?: BadgeType) => {
+  const s = (status || "").toLowerCase();
+  let text = status;
+  let bgCls = "bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/50";
+  let dotCls = "bg-slate-400";
+  let pulse = false;
+
+  if (type === "contact") {
+    if (s === "pending") {
+      text = "Chờ xử lý";
+      bgCls = "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30";
+      dotCls = "bg-amber-500";
+      pulse = true;
+    } else if (s === "processed") {
+      text = "Đã xử lý";
+      bgCls = "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30";
+      dotCls = "bg-emerald-500";
+    }
+  } else if (type === "helper") {
+    if (s === "active") {
+      text = "Hoạt động";
+      bgCls = "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30";
+      dotCls = "bg-emerald-500";
+      pulse = true;
+    } else if (s === "pending") {
+      text = "Chờ duyệt";
+      bgCls = "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30";
+      dotCls = "bg-amber-500";
+      pulse = true;
+    } else if (s === "suspended") {
+      text = "Tạm ngưng";
+      bgCls = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/30";
+      dotCls = "bg-slate-400";
+    } else {
+      text = "Từ chối";
+      bgCls = "bg-rose-50 dark:bg-rose-955/20 text-rose-600 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30";
+      dotCls = "bg-rose-500";
+    }
+  } else if (type === "user") {
+    if (s === "active") {
+      text = "Hoạt động";
+      bgCls = "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30";
+      dotCls = "bg-emerald-500";
+      pulse = true;
+    } else if (s === "inactive" || s === "pending") {
+      text = "Tạm khóa";
+      bgCls = "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30";
+      dotCls = "bg-amber-500";
+    } else {
+      text = "Bị khóa";
+      bgCls = "bg-rose-50 dark:bg-rose-955/20 text-rose-600 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30";
+      dotCls = "bg-rose-500";
+    }
+  } else if (type === "report") {
+    if (s === "pending") {
+      text = "Chờ xử lý";
+      bgCls = "bg-amber-50 text-amber-700 dark:bg-amber-955/20 dark:text-amber-450 border border-amber-100 dark:border-amber-900/30";
+      dotCls = "bg-amber-500";
+      pulse = true;
+    } else if (s === "resolved") {
+      text = "Đã giải quyết";
+      bgCls = "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30";
+      dotCls = "bg-emerald-500";
+    } else if (s === "dismissed") {
+      text = "Đã bỏ qua";
+      bgCls = "bg-slate-50 text-slate-650 dark:bg-slate-800/40 dark:text-slate-400 border border-slate-205 dark:border-slate-700/50";
+      dotCls = "bg-slate-400";
+    }
+  } else {
+    // Payment or Refund (borderless, rounded-full)
+    text = status.charAt(0).toUpperCase() + status.slice(1);
+    if (s === "completed") {
+      bgCls = "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400";
+      dotCls = "bg-emerald-500";
+    } else if (s === "pending") {
+      bgCls = "bg-amber-50 dark:bg-amber-955/30 text-amber-600 dark:text-amber-400";
+      dotCls = "bg-amber-500";
+    } else if (s === "failed") {
+      bgCls = "bg-rose-50 dark:bg-rose-955/30 text-rose-600 dark:text-rose-455";
+      dotCls = "bg-rose-500";
+    } else if (s === "refunded") {
+      bgCls = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400";
+      dotCls = "bg-slate-400";
+    } else if (s === "approved") {
+      bgCls = "bg-sky-50 dark:bg-sky-955/30 text-sky-600 dark:text-sky-400";
+      dotCls = "bg-sky-500";
+    } else if (s === "rejected") {
+      bgCls = "bg-rose-50 dark:bg-rose-955/30 text-rose-600 dark:text-rose-455";
+      dotCls = "bg-rose-500";
+    }
+  }
+
+  const roundedCls = type === "report" || type === "payment" || type === "refund" ? "rounded-full" : "rounded-lg";
+  const fontCls = type === "payment" || type === "refund" ? "font-semibold" : "font-bold";
+
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 ${roundedCls} text-xs ${fontCls} ${bgCls} w-fit whitespace-nowrap`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${dotCls} mr-1.5 shrink-0 ${pulse ? "animate-pulse" : ""}`} />
+      {text}
+    </span>
+  );
+};

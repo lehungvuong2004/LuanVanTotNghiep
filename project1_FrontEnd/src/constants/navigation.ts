@@ -18,6 +18,7 @@ export const NAV_ITEMS = {
     { name: "Quản lý Liên hệ", path: "/admin/contacts", icon: "material-symbols:contact-phone-outline-rounded", permission: "contacts.view" }, // có
     { name: "Quản lý Tin tức", path: "/admin/news", icon: "material-symbols:news", permission: "news.view" }, // có 
     { name: "Quản lý Banner", path: "/admin/banners", icon: "material-symbols:ad-units-outline-rounded", permission: "banners.view" }, // có 
+    { name: "Quản lý Tri thức Chatbot", path: "/admin/chatbot-knowledge", icon: "material-symbols:smart-toy-outline-rounded", permission: "chatbot_knowledge.view" },
     { name: "Ma trận quyền hạn", path: "/admin/permissions", icon: "dinkie-icons:display-dot-matrix", permission: "permissions.view" },  // ko 
     { name: "Quản lý Phân quyền", path: "/admin/roles", icon: "material-symbols:shield-person-outline-rounded", permission: "roles.view" }, // có 
     { name: "Lịch sử Hoạt động", path: "/admin/activity-logs", icon: "material-symbols:history-rounded", permission: "activity_logs.view" }, // có

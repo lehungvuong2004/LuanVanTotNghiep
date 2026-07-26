@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { usePaymentsRefunds, PAYMENT_METHODS_LABELS, PAYMENT_METHODS_ICONS } from "./useHook";
 
 import { Pagination } from "../../../components/Pagination";
+import { getStatusBadge } from "../../../utils";
 
 interface PaymentsRefundsProps {
   defaultTab?: "payments" | "refunds";
@@ -44,31 +45,7 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
   const fmtVND = (n: number) => n.toLocaleString("vi-VN") + " ₫";
   const fmtPct = (n: number) => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 
-  // ─── Status Class Mappings ────────────────────────────────────────────────
 
-  const getStatusBadgeCls = (status: string) => {
-    const map = {
-      completed: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
-      pending: "bg-amber-50  dark:bg-amber-950/30  text-amber-600  dark:text-amber-400",
-      failed: "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400",
-      refunded: "bg-slate-100 dark:bg-slate-800     text-slate-600  dark:text-slate-400",
-      approved: "bg-sky-50    dark:bg-sky-950/30    text-sky-600    dark:text-sky-400",
-      rejected: "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400",
-    };
-    return map[status] ?? "bg-slate-100 text-slate-500";
-  };
-
-  const getStatusDotCls = (status: string) => {
-    const map = {
-      completed: "bg-emerald-500",
-      pending: "bg-amber-500",
-      failed: "bg-rose-500",
-      refunded: "bg-slate-400",
-      approved: "bg-sky-500",
-      rejected: "bg-rose-500",
-    };
-    return map[status] ?? "bg-slate-400";
-  };
 
   // ─── Render Functions ─────────────────────────────────────────────────────
 
@@ -327,10 +304,7 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
                         </td>
                         <td className="px-5 py-4 font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">{Number(p.amount || 0).toLocaleString("vi-VN")} ₫</td>
                         <td className="px-5 py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeCls(p.status)}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotCls(p.status)}`} />
-                            {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
-                          </span>
+                          {getStatusBadge(p.status, "payment")}
                         </td>
                         <td className="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">{p.paid_at ? new Date(p.paid_at).toLocaleString("vi-VN") : "—"}</td>
                         <td className="px-5 py-4 text-right">
@@ -380,10 +354,7 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
                       <td className="px-5 py-4 text-xs font-semibold text-slate-500">PAY-{r.payment_id}</td>
                       <td className="px-5 py-4 font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">{Number(r.amount || 0).toLocaleString("vi-VN")} ₫</td>
                       <td className="px-5 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeCls(r.status)}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotCls(r.status)}`} />
-                          {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                        </span>
+                        {getStatusBadge(r.status, "refund")}
                       </td>
                       <td className="px-5 py-4 max-w-xs">
                         <p className="text-xs text-slate-500 truncate" title={r.reason || ""}>

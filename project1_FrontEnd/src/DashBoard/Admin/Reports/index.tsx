@@ -4,7 +4,7 @@ import { useAdminReports } from "./useHook";
 import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
-import { getInitials, getRoleBadge } from "../../../utils";
+import { getInitials, getRoleBadge, getStatusBadge } from "../../../utils";
 
 export const Reports = () => {
   const { hasPermission } = useAuth();
@@ -68,40 +68,14 @@ export const Reports = () => {
       await handleProcessReport(selectedReport.id, processStatus, processNote);
       handleCloseProcess();
       handleCloseDetail();
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "pending":
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-955/20 dark:text-amber-450 border border-amber-100 dark:border-amber-900/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
-            Chờ xử lý
-          </span>
-        );
-      case "resolved":
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-            Đã giải quyết
-          </span>
-        );
-      case "dismissed":
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-650 dark:bg-slate-800/40 dark:text-slate-400 border border-slate-200 dark:border-slate-700/50">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5" />
-            Đã bỏ qua
-          </span>
-        );
-      default:
-        return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">{status}</span>;
-    }
-  };
+
 
   if (!permissions.view) {
     return (
@@ -275,7 +249,7 @@ export const Reports = () => {
                         {report.reason}
                       </span>
                     </td>
-                    <td className="px-6 py-4.5 whitespace-nowrap text-center">{getStatusBadge(report.status)}</td>
+                    <td className="px-6 py-4.5 whitespace-nowrap text-center">{getStatusBadge(report.status, "report")}</td>
                     <td className="px-6 py-4.5 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
@@ -355,7 +329,7 @@ export const Reports = () => {
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-xs text-slate-400 block">Trạng thái</span>
-                <div className="mt-1">{getStatusBadge(selectedReport.status)}</div>
+                <div className="mt-1">{getStatusBadge(selectedReport.status, "report")}</div>
               </div>
               <div className="text-right">
                 <span className="text-xs text-slate-400 block">Thời gian tạo</span>
