@@ -6,10 +6,10 @@ import { formatNumberVI } from "../../utils";
 import { RatingDistributionRow } from "../../components/Reviews/RatingDistributionRow";
 import { ReviewCard } from "../../components/Reviews/ReviewCard";
 
-function priceTypeLabel(pt: string) {
-  if (pt === "hourly") return "giờ";
-  if (pt === "daily") return "ngày";
-  return "lần";
+function priceTypeLabel(pt: string, t: any) {
+  if (pt === "hourly") return t("giờ");
+  if (pt === "daily") return t("ngày");
+  return t("lần");
 }
 
 interface CustomSelectProps {
@@ -201,7 +201,7 @@ export const ServiceDetail = () => {
           )}
           <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-6 left-6">
-            <span className="bg-teal-600 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">{service.category?.name ?? "Dịch vụ"}</span>
+            <span className="bg-teal-600 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">{service.category?.name ? t(service.category.name) : t("Dịch vụ")}</span>
           </div>
         </div>
 
@@ -233,11 +233,11 @@ export const ServiceDetail = () => {
                 <div>
                   <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">{selectedHelperObj.user?.full_name ?? `Helper #${selectedHelperObj.id}`}</h4>
                   <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                    <span className="font-semibold">Giới tính: {selectedHelperObj.gender === "male" ? t("Nam") : t("Nữ")}</span>
+                    <span className="font-semibold">{t("Giới tính")}: {selectedHelperObj.gender === "male" ? t("Nam") : t("Nữ")}</span>
                     {selectedHelperObj.user?.phone && (
                       <>
                         <span>•</span>
-                        <span>Số điện thoại: {selectedHelperObj.user.phone}</span>
+                        <span>{t("Số điện thoại")}: {selectedHelperObj.user.phone}</span>
                       </>
                     )}
                   </div>
@@ -247,7 +247,7 @@ export const ServiceDetail = () => {
               {selectedHelperObj.address && (
                 <div className="flex items-start gap-1.5 pt-1 text-xs text-slate-500 dark:text-slate-400 border-t border-dashed border-slate-200 dark:border-slate-700">
                   <Icon icon="material-symbols:location-on-outline" className="text-base text-slate-400 shrink-0 mt-0.5" />
-                  <span className="leading-relaxed">Địa chỉ:{selectedHelperObj.address}</span>
+                  <span className="leading-relaxed">{t("Địa chỉ")}: {selectedHelperObj.address}</span>
                 </div>
               )}
             </div>
@@ -279,7 +279,7 @@ export const ServiceDetail = () => {
                 <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">{t("Giá từ")}</span>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-3xl font-extrabold text-teal-600 dark:text-teal-400">{formatNumberVI(Number(service.base_price))}đ</span>
-                  <span className="text-sm text-slate-400">/{priceTypeLabel(service.price_type)}</span>
+                  <span className="text-sm text-slate-400">/{priceTypeLabel(service.price_type, t)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -402,7 +402,7 @@ export const ServiceDetail = () => {
             <div className="flex flex-wrap gap-1.5 justify-center mt-auto">
               {(helper.skills ?? []).slice(0, 2).map((skill: any) => (
                 <span key={skill.id} className="text-xs font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded">
-                  {skill.service?.name}
+                  {t(skill.service?.name)}
                 </span>
               ))}
             </div>
@@ -747,7 +747,7 @@ export const ServiceDetail = () => {
                           "Bình Tân",
                         ].map((d) => ({
                           value: d === "Bình Thạnh" || d === "Gò Vấp" || d === "Tân Bình" || d === "Tân Phú" || d === "Phú Nhuận" || d === "Thủ Đức" || d === "Bình Tân" ? `Quận ${d}` : d,
-                          label: d,
+                          label: t(d),
                         }))}
                       />
                     </div>

@@ -69,7 +69,7 @@ export const PaymentReceipt = ({
 
     const formattedMethod =
       paymentMethod === "vnpay"
-        ? "Cổng VNPay"
+        ? t("Cổng VNPay")
         : paymentMethod === "cash"
         ? t("Tiền mặt")
         : t("Ví điện tử / Thẻ");

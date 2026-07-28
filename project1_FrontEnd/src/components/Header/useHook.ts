@@ -13,21 +13,21 @@ export interface Category {
   name: string;
 }
 
-export interface ServiceDetail {
-  name: string;
-  price: string;
-  desc: string;
-  icon: string;
-}
+// export interface ServiceDetail {
+//   name: string;
+//   price: string;
+//   desc: string;
+//   icon: string;
+// }
 
-export interface FeaturedHelper {
-  name: string;
-  rating: number;
-  exp: string;
-  desc: string;
-  area: string;
-  avatar: string;
-}
+// export interface FeaturedHelper {
+//   name: string;
+//   rating: number;
+//   exp: string;
+//   desc: string;
+//   area: string;
+//   avatar: string;
+// }
 
 export interface NewsItem {
   title: string;
@@ -224,13 +224,7 @@ export const useHeader = () => {
       .catch(() => {});
   }, []);
 
-  const categoryDetails: Record<
-    string,
-    {
-      services: ServiceDetail[];
-      helpers: FeaturedHelper[];
-    }
-  > = {
+  const categoryDetails = {
     "Giúp việc theo giờ": {
       services: [
         { name: "Dọn nhà", price: "120k/h", desc: "Dịch vụ dọn dẹp cơ bản, vệ sinh phòng ngủ, phòng khách.", icon: "material-symbols:home-outline" },

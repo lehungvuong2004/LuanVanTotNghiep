@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import type { Pagination as PaginationType } from "../../types/tableData";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   pagination?: PaginationType;
@@ -10,6 +11,7 @@ interface PaginationProps {
 }
 
 export const Pagination = ({ pagination, currentPage, totalItems, itemsPerPage, onPageChange }: PaginationProps) => {
+  const { t } = useTranslation();
   // Extract values, falling back to flat props if pagination object is not passed
   const activePage = pagination ? pagination.pageNumber : (currentPage ?? 1);
   const itemsCount = pagination ? pagination.countItems : (totalItems ?? 0);
@@ -25,11 +27,11 @@ export const Pagination = ({ pagination, currentPage, totalItems, itemsPerPage, 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-5 px-5 border-t border-slate-100 dark:border-slate-700/50">
       <div className="text-sm text-slate-500 dark:text-slate-400">
-        Hiển thị{" "}
+        {t("Hiển thị")}{" "}
         <span className="font-semibold text-slate-700 dark:text-slate-200">
           {startIndex}-{endIndex}
         </span>{" "}
-        của <span className="font-semibold text-slate-700 dark:text-slate-200">{itemsCount}</span>
+        {t("của")} <span className="font-semibold text-slate-700 dark:text-slate-200">{itemsCount}</span>
       </div>
 
       <div className="flex items-center gap-1.5">

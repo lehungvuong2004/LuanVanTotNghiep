@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import gsap from "gsap";
+import { useTranslation } from "react-i18next";
 import careImg from "../../assets/images/home_produce/care.webp";
 import cleaningImg from "../../assets/images/home_produce/cleaning.webp";
 import cookingImg from "../../assets/images/home_produce/cooking.webp";
@@ -9,6 +10,7 @@ import { getBannersPublic } from "../../api/bannersApi/banners";
 import type { Banner } from "../../api/bannersApi/banners";
 
 export const useHome = () => {
+  const { t } = useTranslation();
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const contentRef = useRef(null);
@@ -18,6 +20,7 @@ export const useHome = () => {
   const [loadingBanners, setLoadingBanners] = useState<boolean>(true);
 
   const fetchBanners = useCallback(async () => {
+    await Promise.resolve();
     setLoadingBanners(true);
     try {
       const res = await getBannersPublic();
@@ -34,96 +37,113 @@ export const useHome = () => {
   }, [fetchBanners]);
 
   const bannerData = {
-    title: "Bình tĩnh vì mọi việc gia đình luôn có người",
-    highlightTitle: "đồng hành.",
+    title: t("home.banner.title"),
+    highlightTitle: t("home.banner.highlightTitle"),
     searchPlaceholders: {
-      service: "Bạn cần dịch vụ gì?",
-      location: "Khu vực của bạn" } };
+      service: t("home.banner.placeholderService"),
+      location: t("home.banner.placeholderLocation")
+    }
+  };
+
   const produceData = [
     {
       id: 1,
       image: careImg,
-      title: "Chăm Sóc Y Tế",
-      description: "Dịch vụ chăm sóc sức khỏe chuyên nghiệp" },
+      title: t("home.produce.care.title"),
+      description: t("home.produce.care.description")
+    },
     {
       id: 2,
       image: cleaningImg,
-      title: "Vệ Sinh Nhà Cửa",
-      description: "Làm sạch không gian sống của bạn" },
+      title: t("home.produce.cleaning.title"),
+      description: t("home.produce.cleaning.description")
+    },
     {
       id: 3,
       image: cookingImg,
-      title: "Nấu Ăn Tận Nhà",
-      description: "Bữa ăn ngon miệng, đảm bảo dinh dưỡng" },
+      title: t("home.produce.cooking.title"),
+      description: t("home.produce.cooking.description")
+    },
     {
       id: 4,
       image: designerImg,
-      title: "Thiết Kế Nội Thất",
-      description: "Không gian sống hiện đại, tiện nghi" },
+      title: t("home.produce.interior.title"),
+      description: t("home.produce.interior.description")
+    },
     {
       id: 5,
       image: gradenImg,
-      title: "Chăm Sóc Sân Vườn",
-      description: "Không gian xanh mát, thư giãn" },
+      title: t("home.produce.garden.title"),
+      description: t("home.produce.garden.description")
+    },
   ];
 
   const serviceData = {
-    title: "Dịch vụ chuyên nghiệp, tận tâm",
-    description:
-      "Đội ngũ chuyên gia của chúng tôi được tuyển chọn kỹ lưỡng, đào tạo bài bản và luôn đặt sự hài lòng của khách hàng lên hàng đầu. Với HomeHelper, mọi vấn đề trong ngôi nhà của bạn đều được giải quyết một cách nhanh chóng, hiệu quả và an toàn nhất.",
-    features: ["Đội ngũ giàu kinh nghiệm và chuyên môn cao", "Phục vụ tận tâm 24/7, luôn có mặt khi bạn cần", "Chất lượng dịch vụ được đảm bảo 100%"] };
+    title: t("home.services.title"),
+    description: t("home.services.description"),
+    features: [
+      t("home.services.feature1"),
+      t("home.services.feature2"),
+      t("home.services.feature3")
+    ]
+  };
 
   const reviewData = [
     {
       id: 1,
       name: "Nguyễn Thùy Linh",
-      location: "Phường Thảo Điền, Q.2",
+      location: t("home.reviews.r1.location"),
       avatar: "https://i.pravatar.cc/150?img=5",
-      service: "Dọn dẹp nhà",
+      service: t("home.reviews.r1.service"),
       rating: 5,
-      comment: "Dịch vụ rất chuyên nghiệp. Chị giúp việc tên Lan dọn dẹp rất kỹ các ngóc ngách, thái độ lại vô cùng nhã nhặn. Tôi sẽ tiếp tục sử dụng Gia Đình Việt cho căn hộ của mình.",
-      workerName: "Giúp việc: Chị Lan",
-      date: "20/10/2023" },
+      comment: t("home.reviews.r1.comment"),
+      workerName: t("home.reviews.r1.workerName"),
+      date: "20/10/2023"
+    },
     {
       id: 2,
       name: "Trần Minh Hoàng",
-      location: "Quận 7, TP.HCM",
+      location: t("home.reviews.r2.location"),
       avatar: "https://i.pravatar.cc/150?img=11",
-      service: "Sửa chữa điện",
+      service: t("home.reviews.r2.service"),
       rating: 5,
-      comment: "Anh thợ sửa điện đến rất đúng giờ và xử lý sự cố rò rỉ điện nhanh chóng. Chi phí minh bạch, không phát sinh thêm. Rất yên tâm khi giao nhà cho đội ngũ Gia Đình Việt.",
-      workerName: "Kỹ thuật: Anh Hùng",
-      date: "15/11/2023" },
+      comment: t("home.reviews.r2.comment"),
+      workerName: t("home.reviews.r2.workerName"),
+      date: "15/11/2023"
+    },
     {
       id: 3,
       name: "Lê Phương Thảo",
-      location: "Quận Cầu Giấy, HN",
+      location: t("home.reviews.r3.location"),
       avatar: "https://i.pravatar.cc/150?img=9",
-      service: "Nấu ăn tại gia",
+      service: t("home.reviews.r3.service"),
       rating: 5,
-      comment: "Món ăn rất hợp khẩu vị gia đình, chị giúp việc rất sạch sẽ và ngăn nắp. Bữa tối của gia đình tôi trở nên ấm cúng hơn rất nhiều nhờ sự hỗ trợ của các bạn.",
-      workerName: "Đầu bếp: Chị Nga",
-      date: "02/12/2023" },
+      comment: t("home.reviews.r3.comment"),
+      workerName: t("home.reviews.r3.workerName"),
+      date: "02/12/2023"
+    },
     {
       id: 4,
       name: "Phạm Văn Đức",
-      location: "Quận 1, TP.HCM",
+      location: t("home.reviews.r4.location"),
       avatar: "https://i.pravatar.cc/150?img=8",
-      service: "Vệ sinh máy lạnh",
+      service: t("home.reviews.r4.service"),
       rating: 5,
-      comment: "Nhân viên nhiệt tình, tư vấn rõ ràng và làm việc rất cẩn thận. Máy lạnh nhà tôi sau khi vệ sinh hoạt động tốt và không còn tiếng ồn.",
-      workerName: "Kỹ thuật: Anh Tuấn",
-      date: "10/12/2023" },
+      comment: t("home.reviews.r4.comment"),
+      workerName: t("home.reviews.r4.workerName"),
+      date: "10/12/2023"
+    },
     {
       id: 5,
       name: "Hoàng Mai Anh",
-      location: "Quận 3, TP.HCM",
+      location: t("home.reviews.r5.location"),
       avatar: "https://i.pravatar.cc/150?img=16",
-      service: "Chăm sóc sân vườn",
+      service: t("home.reviews.r5.service"),
       rating: 5,
-      comment: "Khu vườn nhà tôi được cắt tỉa rất gọn gàng và đẹp mắt. Nhân viên có kiến thức tốt về các loại cây cảnh và đã hướng dẫn tôi cách chăm sóc rất tận tình.",
-      workerName: "Thợ vườn: Chú Bình",
-      date: "05/01/2024" },
+      comment: t("home.reviews.r5.comment"),
+      workerName: t("home.reviews.r5.workerName"),
+      date: "05/01/2024"
+    },
   ];
 
 

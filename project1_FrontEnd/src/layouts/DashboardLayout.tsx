@@ -24,7 +24,7 @@ export const DashboardLayout = ({ allowedRole }) => {
       logout();
       navigate("/dang-nhap");
     }
-  }, [token, user, allowedRole, navigate]);
+  }, [token, user, allowedRole, navigate, logout]);
 
   useEffect(() => {
     const showLoginToast = sessionStorage.getItem("show_login_toast");
@@ -111,8 +111,8 @@ export const DashboardLayout = ({ allowedRole }) => {
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`absolute top-1/2 -right-3 -translate-y-1/2 z-50 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 hover:scale-110 active:scale-95 transition-all text-slate-500 ${getHoverClass()}`}
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            className={`absolute top-1/2 -right-3 -translate-y-1/2 z-50 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 hover:scale-110 active:scale-[0.95] transition-all text-slate-500 ${getHoverClass()}`}
+            title={isCollapsed ? t("Mở rộng Sidebar") : t("Thu gọn Sidebar")}
           >
             <Icon icon={isCollapsed ? "material-symbols:chevron-right-rounded" : "material-symbols:chevron-left-rounded"} className="text-base" />
           </button>
@@ -165,7 +165,7 @@ export const DashboardLayout = ({ allowedRole }) => {
               >
                 <Icon icon={item.icon} className="text-xl" />
               </div>
-              <span className={`text-sm font-bold mt-0.5 tracking-tight ${isActive ? "text-[#066d72] dark:text-emerald-400" : ""}`}>{item.label}</span>
+              <span className={`text-sm font-bold mt-0.5 tracking-tight ${isActive ? "text-[#066d72] dark:text-emerald-400" : ""}`}>{t(item.label)}</span>
             </button>
           );
         })}

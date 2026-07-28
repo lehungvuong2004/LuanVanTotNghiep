@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  getHelpersPublic,
-  type HelperProfile } from "../../api/helpers";
+import { useTranslation } from "react-i18next";
+import { getHelpersPublic, type HelperProfile } from "../../api/helpers";
 import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/servicesApi/services";
 
 // Shape dùng trong UI cho Service Card
@@ -65,7 +64,8 @@ function priceTypeLabel(priceType: string): string {
 }
 
 // Chuyển HelperProfile từ API → HelperItem cho UI
-function mapHelperProfile(profile: HelperProfile): HelperItem {
+function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
+  const trans = t || ((s: string) => s);
   const skillTags =
     profile.skills
       ?.map((s) => s.service?.name ?? "")
@@ -78,8 +78,8 @@ function mapHelperProfile(profile: HelperProfile): HelperItem {
 
   const area =
     rawAreas.length > 0
-      ? rawAreas.map((a: any) => a.district).filter(Boolean).join(", ")
-      : "TP.HCM";
+      ? rawAreas.map((a: any) => trans(a.district)).filter(Boolean).join(", ")
+      : trans("TP.HCM");
 
   return {
     id: profile.id,
@@ -96,23 +96,25 @@ function mapHelperProfile(profile: HelperProfile): HelperItem {
 }
 
 // Chuyển Service từ API → ServiceItem cho UI (sử dụng dữ liệu thực từ enriched API)
-function mapService(service: Service): ServiceItem {
+function mapService(service: Service, t?: any): ServiceItem {
+  const trans = t || ((s: string) => s);
   return {
     id: service.id,
     title: service.name,
-    category: service.category?.name ?? "Dịch vụ",
+    category: service.category?.name ?? trans("Dịch vụ"),
     rating: Number((service as any).avg_rating) || 0,
     reviewsCount: Number((service as any).total_reviews) || 0,
     price: Number(service.base_price) || 0,
     priceType: priceTypeLabel(service.price_type),
-    area: "TP.HCM",
+    area: trans("TP.HCM"),
     helpersCount: Number((service as any).helpers_count) || 0,
-    description: service.description ?? "Dịch vụ chuyên nghiệp, chất lượng cao.",
+    description: service.description ?? trans("Dịch vụ chuyên nghiệp, chất lượng cao."),
     image: service.image || undefined,
     isFavorite: false };
 }
 
 export const useService = () => {
+  const { t } = useTranslation();
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [helpers, setHelpers] = useState<HelperItem[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -151,14 +153,14 @@ export const useService = () => {
         min_price: params.min_price,
         max_price: params.max_price });
       const rawServices = res?.data?.data ?? [];
-      setServices(rawServices.map((s) => mapService(s)));
+      setServices(rawServices.map((s) => mapService(s, t)));
     } catch (err) {
       console.error("[useService] fetchServices failed:", err);
       setServices([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Fetch helpers công khai từ API
   const fetchHelpers = useCallback(async (params: ServiceFilterParams) => {
@@ -171,7 +173,7 @@ export const useService = () => {
       const pagination = res?.data;
       const rawHelpers: HelperProfile[] = pagination?.data ?? [];
 
-      setHelpers(rawHelpers.map(mapHelperProfile));
+      setHelpers(rawHelpers.map((h) => mapHelperProfile(h, t)));
       setTotalHelpers(pagination?.total ?? 0);
       setHelperPage(pagination?.current_page ?? 1);
       setHelperLastPage(pagination?.last_page ?? 1);
@@ -181,12 +183,14 @@ export const useService = () => {
     } finally {
       setHelperLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Trigger fetch khi bộ lọc thay đổi
   useEffect(() => {
-    fetchServices(filterParams);
-    fetchHelpers(filterParams);
+    Promise.resolve().then(() => {
+      fetchServices(filterParams);
+      fetchHelpers(filterParams);
+    });
   }, [filterParams, fetchServices, fetchHelpers]);
 
   // Cập nhật filter (gộp, không ghi đè)

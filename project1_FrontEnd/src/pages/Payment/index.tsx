@@ -280,7 +280,7 @@ export const Payment = () => {
                     {m.label}
                     {m.value === "vnpay" && form.payment_method === "vnpay" && (
                       <span className="ml-auto text-[10px] font-bold bg-[#006eed] text-white px-1.5 py-0.5 rounded">
-                        Cổng trực tiếp
+                        {t("Cổng trực tiếp")}
                       </span>
                     )}
                   </button>
@@ -314,7 +314,7 @@ export const Payment = () => {
                   min={1}
                   value={form.booking_id}
                   readOnly
-                  placeholder="Booking ID"
+                  placeholder={t("Mã đặt lịch")}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-855 text-sm text-slate-500 dark:text-slate-400 outline-none cursor-not-allowed select-none"
                 />
               </div>
@@ -327,7 +327,7 @@ export const Payment = () => {
                   min={1}
                   value={form.job_post_id}
                   readOnly
-                  placeholder="Job Post ID"
+                  placeholder={t("Mã bài tuyển")}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-855 text-sm text-slate-500 dark:text-slate-400 outline-none cursor-not-allowed select-none"
                 />
               </div>
@@ -345,14 +345,16 @@ export const Payment = () => {
             {form.payment_method === "vnpay" && !isVnpayLoading && (
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-sm">
                 <Icon icon="material-symbols:open-in-new" className="shrink-0 text-lg mt-0.5" />
-                <span>Bạn sẽ được chuyển đến cổng thanh toán <strong>VNPay</strong> để hoàn tất giao dịch an toàn.</span>
+                <span>
+                  {t("Bạn sẽ được chuyển đến cổng thanh toán")} <strong>VNPay</strong> {t("để hoàn tất giao dịch an toàn.")}
+                </span>
               </div>
             )}
 
             {isVnpayLoading && (
               <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
                 <Icon icon="svg-spinners:3-dots-fade" className="text-2xl text-blue-600" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Đang tạo liên kết VNPay...</span>
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{t("Đang tạo liên kết VNPay...")}</span>
               </div>
             )}
 

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { useLogout } from "../../hooks/useLogout";
 import { ROLES, getUserRole } from "../../constants/roles";
@@ -10,6 +11,7 @@ import { ROLE_THEME } from "../../constants/sidebarTheme";
 export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { user, hasPermission } = useAuth();
   const { logout } = useLogout();
+  const { t } = useTranslation();
 
   const role = getUserRole(user);
 
@@ -38,7 +40,7 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
             className={`flex items-center ${
               isCollapsed ? "justify-center p-3" : "gap-4 px-5 py-3.5"
             } bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all duration-150 cursor-pointer group`}
-            title="Trở về trang chủ"
+            title={t("Trở về trang chủ")}
           >
             <Icon
               icon="material-symbols:home-outline"
@@ -46,7 +48,7 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
             />
             {!isCollapsed && (
               <span className="text-xl font-bold text-slate-700 dark:text-slate-200 truncate">
-                Trở về trang chủ
+                {t("Trở về trang chủ")}
               </span>
             )}
           </Link>
@@ -62,7 +64,7 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
               <h1 className={`font-black text-2xl ${theme.brandText} leading-tight truncate max-w-44`}>
                 Gia Đình Việt
               </h1>
-              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{theme.subtitle}</p>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{t(theme.subtitle)}</p>
             </div>
           )}
         </div>
@@ -80,10 +82,10 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                     isActive ? theme.activeClass : theme.hoverClass
                   }`
                 }
-                title={isCollapsed ? item.name : undefined}
+                title={isCollapsed ? t(item.name) : undefined}
               >
                 <Icon icon={item.icon} className="text-2xl shrink-0" />
-                {!isCollapsed && <span>{item.name}</span>}
+                {!isCollapsed && <span>{t(item.name)}</span>}
               </NavLink>
             </li>
           ))}
@@ -116,10 +118,10 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
           <button
             onClick={logout}
             className={`w-full flex items-center ${isCollapsed ? "justify-center px-3" : "gap-4 px-5"} py-4 rounded-xl font-black text-xl text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-150 active:scale-[0.98] cursor-pointer`}
-            title={isCollapsed ? "Đăng xuất" : undefined}
+            title={isCollapsed ? t("Đăng xuất") : undefined}
           >
             <Icon icon="material-symbols:logout-rounded" className="text-2xl shrink-0" />
-            {!isCollapsed && <span>Đăng xuất</span>}
+            {!isCollapsed && <span>{t("Đăng xuất")}</span>}
           </button>
         </div>
       </div>

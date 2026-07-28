@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { getNewsList } from "../../api/newsApi/news";
 import type { NewsItem } from "../../api/newsApi/news";
 
 export const useNews = () => {
+  const { t } = useTranslation();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +13,7 @@ export const useNews = () => {
   const [total, setTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchNews = async (page = 1) => {
+  const fetchNews = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
@@ -21,18 +23,18 @@ export const useNews = () => {
       setTotalPages(res.data.last_page);
       setTotal(res.data.total);
     } catch {
-      setError("Không thể tải tin tức. Vui lòng thử lại.");
+      setError(t("Không thể tải tin tức. Vui lòng thử lại."));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchNews(1);
     }, 0);
     return () => clearTimeout(timer);
-  }, []);
+  }, [fetchNews]);
 
   const filteredNews = news.filter(
     (item) =>

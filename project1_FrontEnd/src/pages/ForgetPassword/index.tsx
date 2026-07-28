@@ -2,8 +2,10 @@ import { useForgetPassword } from "./useHook";
 import { Link } from "react-router-dom";
 import forgetPasswordImg from "../../assets/images/forgetPassword.webp";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 
 export const ForgetPassword = () => {
+  const { t } = useTranslation();
   const {
     step,
     setStep,
@@ -26,8 +28,8 @@ export const ForgetPassword = () => {
       onSubmit={formikStep1.handleSubmit}
       className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md w-full mx-auto transition-colors duration-300"
     >
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Quên mật khẩu?</h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Nhập email của bạn để nhận mã xác thực khôi phục mật khẩu (chỉ sử dụng Gmail).</p>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{t("Quên mật khẩu?")}</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{t("Nhập email của bạn để nhận mã xác thực khôi phục mật khẩu (chỉ sử dụng Gmail).")}</p>
 
       {errorMessage && (
         <div className="bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 p-3 rounded-lg mb-4 text-sm flex items-center gap-2">
@@ -37,7 +39,7 @@ export const ForgetPassword = () => {
       )}
 
       <div className="mb-6">
-        <label className="block text-base font-medium text-gray-700 dark:text-gray-200 mb-2">Email</label>
+        <label className="block text-base font-medium text-gray-700 dark:text-gray-200 mb-2">{t("Email")}</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
             <Icon icon="mdi:gmail" className="text-2xl" />
@@ -65,7 +67,7 @@ export const ForgetPassword = () => {
           <Icon icon="line-md:loading-twotone-loop" className="text-xl" />
         ) : (
           <>
-            Gửi mã xác thực
+            {t("Gửi mã xác thực")}
             <Icon icon="solar:arrow-right-outline" className="text-xl" />
           </>
         )}
@@ -74,12 +76,12 @@ export const ForgetPassword = () => {
       <div className="text-center">
         <Link to="/dang-nhap" className="text-base text-[rgb(0,92,97)] dark:text-teal-400 font-medium hover:underline inline-flex items-center gap-1 mb-4">
           <Icon icon="solar:arrow-left-outline" className="text-xl" />
-          Quay lại đăng nhập
+          {t("Quay lại đăng nhập")}
         </Link>
         <p className="text-base text-gray-500 dark:text-gray-400">
-          Chưa có tài khoản?{" "}
+          {t("Chưa có tài khoản?")}{" "}
           <Link to="/dang-ky" className="text-orange-600 dark:text-orange-400 font-semibold hover:underline">
-            Đăng ký ngay
+            {t("Đăng ký ngay")}
           </Link>
         </p>
       </div>
@@ -101,8 +103,8 @@ export const ForgetPassword = () => {
         </div>
       )}
       <form onSubmit={formikStep2.handleSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Xác thực mã OTP</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Mã xác thực đã được gửi đến email của bạn. Vui lòng nhập mã 6 chữ số bên dưới.</p>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{t("Xác thực mã OTP")}</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{t("Mã xác thực đã được gửi đến email của bạn. Vui lòng nhập mã 6 chữ số bên dưới.")}</p>
 
         <div className="flex justify-between gap-2 mb-2">
           {formikStep2.values.otp.map((digit, index) => (
@@ -125,16 +127,16 @@ export const ForgetPassword = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#B2451C] hover:bg-orange-800 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-medium py-3 rounded-lg transition-colors mb-6 text-base flex justify-center items-center font-semibold disabled:opacity-50"
+          className="w-full bg-[#B2451C] hover:bg-orange-800 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-medium py-3 rounded-lg transition-colors mb-6 text-base flex justify-center items-center font-semibold disabled:opacity-50 cursor-pointer"
         >
-          {loading ? <Icon icon="line-md:loading-twotone-loop" className="text-xl" /> : "Xác thực mã"}
+          {loading ? <Icon icon="line-md:loading-twotone-loop" className="text-xl" /> : t("Xác thực mã")}
         </button>
 
         <div className="text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Không nhận được mã?{" "}
+            {t("Không nhận được mã?")}{" "}
             <button type="button" onClick={handleResendOtp} disabled={loading} className="text-[#005C61] dark:text-teal-400 font-medium hover:underline cursor-pointer disabled:opacity-50">
-              Gửi lại mã OTP
+              {t("Gửi lại mã OTP")}
             </button>
           </p>
           <button
@@ -143,7 +145,7 @@ export const ForgetPassword = () => {
             className="text-sm text-gray-500 dark:text-gray-400 font-medium hover:text-gray-800 dark:hover:text-white inline-flex items-center gap-1 cursor-pointer"
           >
             <Icon icon="solar:arrow-left-outline" className="text-lg" />
-            Quay lại bước 1
+            {t("Quay lại bước 1")}
           </button>
         </div>
       </form>
@@ -157,19 +159,19 @@ export const ForgetPassword = () => {
     >
       <div className="inline-flex items-center gap-2 text-[#005C61] dark:text-teal-400 font-semibold text-sm mb-4 bg-teal-50 dark:bg-teal-500/10 px-3 py-1 rounded-full">
         <Icon icon="heroicons-outline:lock-closed" className="text-lg" />
-        BƯỚC 3/3
+        {t("BƯỚC 3/3")}
       </div>
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Đặt lại mật khẩu</h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Vui lòng tạo mật khẩu mới an toàn để bảo vệ tài khoản của bạn.</p>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{t("Đặt lại mật khẩu")}</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{t("Vui lòng tạo mật khẩu mới an toàn để bảo vệ tài khoản của bạn.")}</p>
 
       {successMessage && (
-        <div className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-3 rounded-lg mb-4 text-sm flex items-center gap-2">
+        <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg text-emerald-650 dark:text-emerald-400 p-3.5 mb-4 text-sm flex items-center gap-2">
           <Icon icon="heroicons-outline:check-circle" className="text-xl shrink-0" />
           <span>{successMessage}</span>
         </div>
       )}
       {errorMessage && (
-        <div className="bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 p-3 rounded-lg mb-4 text-sm flex items-center gap-2">
+        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg text-red-650 dark:text-red-400 p-3.5 mb-4 text-sm flex items-center gap-2">
           <Icon icon="heroicons-outline:exclamation-circle" className="text-xl shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -177,7 +179,7 @@ export const ForgetPassword = () => {
 
       <div className="space-y-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Mật khẩu mới</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t("Mật khẩu mới")}</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
               <Icon icon="heroicons-outline:lock-closed" className="text-xl" />
@@ -195,7 +197,7 @@ export const ForgetPassword = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
             >
               <Icon icon={showPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
@@ -204,7 +206,7 @@ export const ForgetPassword = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Xác nhận mật khẩu</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t("Xác nhận mật khẩu")}</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
               <Icon icon="heroicons-outline:shield-check" className="text-xl" />
@@ -222,7 +224,7 @@ export const ForgetPassword = () => {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
             >
               <Icon icon={showConfirmPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
@@ -234,23 +236,23 @@ export const ForgetPassword = () => {
       <div className="bg-[#EEF2FF] dark:bg-indigo-500/10 rounded-lg p-4 mb-6 border border-transparent dark:border-indigo-500/20">
         <div className="flex items-start gap-2 text-sm text-indigo-900 dark:text-indigo-300 mb-2">
           <Icon icon="heroicons-outline:information-circle" className="text-lg mt-0.5 shrink-0" />
-          <span className="font-medium">Mật khẩu mới phải có ít nhất:</span>
+          <span className="font-medium">{t("Mật khẩu mới phải có ít nhất:")}</span>
         </div>
         <ul className="text-sm text-indigo-800 dark:text-indigo-300 list-disc list-inside space-y-1 ml-6">
-          <li>6 ký tự trở lên</li>
+          <li>{t("6 ký tự trở lên")}</li>
         </ul>
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#005C61] hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base font-semibold disabled:opacity-50"
+        className="w-full bg-[#005C61] hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base font-semibold disabled:opacity-50 cursor-pointer"
       >
         {loading ? (
           <Icon icon="line-md:loading-twotone-loop" className="text-xl" />
         ) : (
           <>
-            Cập nhật mật khẩu
+            {t("Cập nhật mật khẩu")}
             <Icon icon="solar:arrow-right-outline" className="text-xl" />
           </>
         )}
@@ -258,7 +260,7 @@ export const ForgetPassword = () => {
 
       <div className="text-center">
         <Link to="/dang-nhap" className="text-base text-[#005C61] dark:text-teal-400 font-medium hover:underline">
-          Quay lại trang Đăng nhập
+          {t("Quay lại trang Đăng nhập")}
         </Link>
       </div>
     </form>
@@ -274,8 +276,8 @@ export const ForgetPassword = () => {
             </div>
             {step === 3 && (
               <div className="text-center max-w-sm mt-8">
-                <h3 className="text-[#005C61] dark:text-teal-400 text-xl font-bold mb-3">Bảo mật là ưu tiên hàng đầu</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Chúng tôi sử dụng mã hóa đa lớp để đảm bảo thông tin và các yêu cầu dịch vụ của bạn luôn được bảo vệ tuyệt đối.</p>
+                <h3 className="text-[#005C61] dark:text-teal-400 text-xl font-bold mb-3">{t("Bảo mật là ưu tiên hàng đầu")}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t("Chúng tôi sử dụng mã hóa đa lớp để đảm bảo thông tin và các yêu cầu dịch vụ của bạn luôn được bảo vệ tuyệt đối.")}</p>
               </div>
             )}
           </div>

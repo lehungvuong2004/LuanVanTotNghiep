@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { getImageUrl } from "../../utils/images";
 
 export const ImageUpload = ({
-  label = "Hình Ảnh",
+  label,
   value = "",
   onChange = () => {},
   onUpload = async () => ({}),
   error = "",
-  placeholder = "Nhập link ảnh hoặc chọn file tải lên...",
+  placeholder,
   aspectRatio = "video",
   disabled = false,
 }: any) => {
+  const { t } = useTranslation();
+  const displayLabel = label !== undefined ? label : t("Hình Ảnh");
+  const displayPlaceholder = placeholder !== undefined ? placeholder : t("Nhập link ảnh hoặc chọn file tải lên...");
   const [loading, setLoading] = useState(false);
 
   // Xử lý upload file ảnh
@@ -43,9 +47,9 @@ export const ImageUpload = ({
 
   return (
     <div className="space-y-1.5">
-      {label && (
+      {displayLabel && (
         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-          {label}
+          {displayLabel}
         </label>
       )}
 
@@ -55,7 +59,7 @@ export const ImageUpload = ({
           <input
             type="text"
             value={value || ""}
-            placeholder={placeholder}
+            placeholder={displayPlaceholder}
             disabled={disabled || loading}
             onChange={(e) => onChange(e.target.value)}
             className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-hidden"
@@ -80,7 +84,7 @@ export const ImageUpload = ({
             icon={loading ? "line-md:loading-loop" : "solar:camera-bold"}
             className="text-lg"
           />
-          <span>{loading ? "Đang tải..." : "Tải ảnh"}</span>
+          <span>{loading ? t("Đang tải...") : t("Tải ảnh")}</span>
           <input
             type="file"
             accept="image/*"
@@ -102,7 +106,7 @@ export const ImageUpload = ({
             alt="Preview"
             className="w-full h-full object-cover"
             onError={(e: any) => {
-              e.target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Anh+loi";
+              e.target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=" + encodeURIComponent(t("Ảnh lỗi"));
             }}
           />
         </div>

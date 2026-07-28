@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useLogout } from "../../hooks/useLogout";
 import { updateUser } from "../../redux/authSlice";
+import { useToast } from "../../contexts/ToastContext";
 import {
   getProfileApi,
   updateProfileApi,
@@ -45,6 +46,7 @@ import { ROLES } from "../../constants/roles";
 
 export const useProfile = () => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const { logout } = useLogout();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -239,10 +241,14 @@ export const useProfile = () => {
         }
 
         await fetchAllData();
-        setSuccessMessage(t("Cập nhật thông tin cá nhân thành công."));
+        const msg = t("Cập nhật thông tin cá nhân thành công.");
+        setSuccessMessage(msg);
+        showToast("success", t("Thành công"), msg);
       } catch (error: any) {
         console.error("Update profile failed:", error);
-        setErrorMessage(error?.response?.data?.message || t("Cập nhật thông tin thất bại. Vui lòng thử lại."));
+        const msg = error?.response?.data?.message || t("Cập nhật thông tin thất bại. Vui lòng thử lại.");
+        setErrorMessage(msg);
+        showToast("error", t("Thất bại"), msg);
       } finally {
         setUpdating(false);
       }
@@ -338,11 +344,15 @@ export const useProfile = () => {
           current_password: values.currentPassword,
           password: values.password
         });
-        setSuccessMessage(t("Thay đổi mật khẩu thành công."));
+        const msg = t("Thay đổi mật khẩu thành công.");
+        setSuccessMessage(msg);
+        showToast("success", t("Thành công"), msg);
         resetForm();
       } catch (error: any) {
         console.error("Change password failed:", error);
-        setErrorMessage(error?.response?.data?.message || t("Đổi mật khẩu thất bại. Vui lòng thử lại."));
+        const msg = error?.response?.data?.message || t("Đổi mật khẩu thất bại. Vui lòng thử lại.");
+        setErrorMessage(msg);
+        showToast("error", t("Thất bại"), msg);
       } finally {
         setUpdating(false);
       }
@@ -374,7 +384,9 @@ export const useProfile = () => {
         });
 
         if (isDuplicate) {
-          setErrorMessage(t("Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn."));
+          const msg = t("Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn.");
+          setErrorMessage(msg);
+          showToast("warning", t("Cảnh báo"), msg);
           setUpdating(false);
           return;
         }
@@ -392,7 +404,9 @@ export const useProfile = () => {
             await setDefaultCustomerAddressApi(editingAddress.id);
           }
 
-          setSuccessMessage(t("Cập nhật địa chỉ thành công."));
+          const msg = t("Cập nhật địa chỉ thành công.");
+          setSuccessMessage(msg);
+          showToast("success", t("Thành công"), msg);
         } else {
           // Create new address
           await addCustomerAddressApi({
@@ -401,7 +415,9 @@ export const useProfile = () => {
             city: values.city,
             is_default: values.is_default
           });
-          setSuccessMessage(t("Thêm địa chỉ mới thành công."));
+          const msg = t("Thêm địa chỉ mới thành công.");
+          setSuccessMessage(msg);
+          showToast("success", t("Thành công"), msg);
         }
 
         setIsAddressModalOpen(false);
@@ -410,7 +426,9 @@ export const useProfile = () => {
         await fetchAddresses();
       } catch (error: any) {
         console.error("Address operation failed:", error);
-        setErrorMessage(error?.response?.data?.message || t("Lỗi thao tác địa chỉ. Vui lòng thử lại."));
+        const msg = error?.response?.data?.message || t("Lỗi thao tác địa chỉ. Vui lòng thử lại.");
+        setErrorMessage(msg);
+        showToast("error", t("Thất bại"), msg);
       } finally {
         setUpdating(false);
       }
@@ -444,11 +462,15 @@ export const useProfile = () => {
     setSuccessMessage(null);
     try {
       await deleteCustomerAddressApi(id);
-      setSuccessMessage(t("Xóa địa chỉ thành công."));
+      const msg = t("Xóa địa chỉ thành công.");
+      setSuccessMessage(msg);
+      showToast("success", t("Thành công"), msg);
       await fetchAddresses();
     } catch (err: any) {
       console.error("Failed to delete address:", err);
-      setErrorMessage(err?.response?.data?.message || t("Xóa địa chỉ thất bại."));
+      const msg = err?.response?.data?.message || t("Xóa địa chỉ thất bại.");
+      setErrorMessage(msg);
+      showToast("error", t("Thất bại"), msg);
     } finally {
       setUpdating(false);
     }
@@ -461,11 +483,15 @@ export const useProfile = () => {
     setSuccessMessage(null);
     try {
       await setDefaultCustomerAddressApi(id);
-      setSuccessMessage(t("Đã thay đổi địa chỉ mặc định."));
+      const msg = t("Đã thay đổi địa chỉ mặc định.");
+      setSuccessMessage(msg);
+      showToast("success", t("Thành công"), msg);
       await fetchAddresses();
     } catch (err: any) {
       console.error("Failed to set default address:", err);
-      setErrorMessage(err?.response?.data?.message || t("Đặt địa chỉ mặc định thất bại."));
+      const msg = err?.response?.data?.message || t("Đặt địa chỉ mặc định thất bại.");
+      setErrorMessage(msg);
+      showToast("error", t("Thất bại"), msg);
     } finally {
       setUpdating(false);
     }
@@ -477,10 +503,15 @@ export const useProfile = () => {
     setSuccessMessage(null);
     try {
       const res = await submitHelperVerificationApi();
-      setSuccessMessage(res.message || t("Nộp hồ sơ xét duyệt thành công."));
+      const msg = res.message || t("Nộp hồ sơ xét duyệt thành công.");
+      setSuccessMessage(msg);
+      showToast("success", t("Thành công"), msg);
       await fetchAllData();
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || t("Nộp hồ sơ xét duyệt thất bại."));
+      console.error("Failed to submit verification:", err);
+      const msg = err?.response?.data?.message || t("Nộp hồ sơ xét duyệt thất bại.");
+      setErrorMessage(msg);
+      showToast("error", t("Thất bại"), msg);
     } finally {
       setUpdating(false);
     }

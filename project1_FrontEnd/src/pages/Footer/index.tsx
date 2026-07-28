@@ -1,9 +1,27 @@
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useToast } from "../../contexts/ToastContext";
 
 export const Footer = () => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
+
+  const handleShare = () => {
+    const shareUrl = window.location.origin;
+    navigator.clipboard.writeText(shareUrl).then(
+      () => {
+        showToast("success", t("Chia sẻ"), t("Đã sao chép liên kết trang web vào bộ nhớ tạm!"));
+      },
+      () => {
+        showToast("error", t("Lỗi"), t("Không thể sao chép liên kết."));
+      }
+    );
+  };
+
+  const handleMail = () => {
+    window.location.href = `mailto:hungvuong04.dev@gmail.com?subject=${encodeURIComponent(t("Liên hệ - Vấn đề hỗ trợ"))}&body=${encodeURIComponent(t("Xin chào, tôi muốn trao đổi về..."))}`;
+  };
 
   // 1. RENDER BRAND / INTRO COLUMN
   const renderBrandSection = () => (
@@ -15,11 +33,17 @@ export const Footer = () => {
         {t("Nền tảng kết nối gia đình và người giúp việc đáng tin cậy. Nhanh chóng - An toàn - Minh bạch.")}
       </p>
       <div className="flex items-center gap-4 mt-2">
-        <span className="text-teal-700 dark:text-teal-400 font-medium text-sm">Notebook</span>
-        <button className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 transition-all duration-300 p-2 rounded-full hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:shadow-sm cursor-pointer">
+        <span className="text-teal-700 dark:text-teal-400 font-medium text-sm">{t("Notebook")}</span>
+        <button
+          onClick={handleShare}
+          className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 transition-all duration-300 p-2 rounded-full hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:shadow-sm cursor-pointer"
+        >
           <Icon icon="material-symbols:share-outline" className="text-xl" />
         </button>
-        <button className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 transition-all duration-300 p-2 rounded-full hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:shadow-sm cursor-pointer">
+        <button
+          onClick={handleMail}
+          className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 transition-all duration-300 p-2 rounded-full hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:shadow-sm cursor-pointer"
+        >
           <Icon icon="lucide:mail" className="text-xl" />
         </button>
       </div>
@@ -36,13 +60,13 @@ export const Footer = () => {
         {/* <Link to="/about" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Giới thiệu Gia Đình Việt")}
         </Link> */}
-        <Link to="/quality" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
+        <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Cam kết chất lượng")}
         </Link>
         <Link to="/pricing" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Bảng giá dịch vụ")}
         </Link>
-        <Link to="/careers" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
+        <Link to="/tuyen-dung" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Tuyển dụng")}
         </Link>
       </div>
@@ -56,17 +80,17 @@ export const Footer = () => {
         {t("Dịch Vụ Liên Kết")}
       </h3>
       <div className="flex flex-col gap-3 mt-2">
-        <Link to="/services/hourly" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
+        <Link to="/pricing#cleaning" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Giúp việc theo giờ")}
         </Link>
-        <Link to="/services/sofa" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
+        <Link to="/pricing#laundry" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Vệ sinh Sofa - Nệm")}
         </Link>
-        <Link to="/services/ac" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
+        <Link to="/pricing#repair" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Vệ sinh máy lạnh")}
         </Link>
         <Link
-          to="/services/deep-clean"
+          to="/pricing#cleaning"
           className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300"
         >
           {t("Tổng vệ sinh nhà cửa")}
@@ -99,7 +123,7 @@ export const Footer = () => {
           <Icon icon="simple-icons:zalo" className="text-xl" />
         </Link>
         <a
-          href={`mailto:hungvuong04.dev@gmail.com?subject=Liên hệ - Vấn đề hỗ trợ &body=Xin chào, tôi muốn trao đổi về... `}
+          href={`mailto:hungvuong04.dev@gmail.com?subject=${encodeURIComponent(t("Liên hệ - Vấn đề hỗ trợ"))}&body=${encodeURIComponent(t("Xin chào, tôi muốn trao đổi về..."))}`}
           className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:border-teal-300 dark:hover:border-teal-500 hover:text-red-500 transition-all duration-300 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
           target="_blank"
           rel="noopener noreferrer"

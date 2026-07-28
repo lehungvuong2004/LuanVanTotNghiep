@@ -23,6 +23,8 @@ export const usePricing = () => {
   const pricingCategories: PricingCategory[] = [
     {
       id: "cleaning",
+      name: t("Dọn dẹp nhà cửa"),
+      icon: "material-symbols:cleaning-services-outline",
       packages: [
         {
           name: t("Dọn dẹp căn hộ nhỏ"),

@@ -1,34 +1,34 @@
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useNews } from "./useHook";
 import { formatDate } from "../../utils";
 import { Pagination } from "../../components/Pagination";
 import { getImageUrl } from "../../utils/images";
 
 export const News = () => {
+  const { t } = useTranslation();
   const { news, loading, error, currentPage, total, searchQuery, setSearchQuery, fetchNews } = useNews();
-
-
 
   const renderHeader = () => (
     <div>
       <div className="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 mb-3">
         <Link to="/" className="hover:text-teal-600 transition-colors">
-          Trang chủ
+          {t("Trang chủ")}
         </Link>
         <Icon icon="material-symbols:chevron-right" />
-        <span className="text-slate-700 dark:text-slate-300 font-medium">Tin tức & Kinh nghiệm</span>
+        <span className="text-slate-700 dark:text-slate-300 font-medium">{t("Tin tức & Kinh nghiệm")}</span>
       </div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">Tin tức & Kinh nghiệm</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Chia sẻ kiến thức hữu ích về dịch vụ gia đình</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{t("Tin tức & Kinh nghiệm")}</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">{t("Chia sẻ kiến thức hữu ích về dịch vụ gia đình")}</p>
         </div>
         {/* Search */}
         <div className="relative max-w-xs w-full">
           <input
             type="text"
-            placeholder="Tìm kiếm bài viết..."
+            placeholder={t("Tìm kiếm bài viết...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-4 pr-10 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-teal-500 transition-colors"
@@ -43,7 +43,7 @@ export const News = () => {
     <div className="flex justify-center py-20">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-slate-500 dark:text-slate-400 text-sm">Đang tải tin tức...</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">{t("Đang tải tin tức...")}</p>
       </div>
     </div>
   );
@@ -53,7 +53,7 @@ export const News = () => {
       <Icon icon="material-symbols:error-outline" className="text-5xl text-red-400" />
       <p className="text-slate-500 dark:text-slate-400">{error}</p>
       <button onClick={() => fetchNews(1)} className="px-5 py-2 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors cursor-pointer">
-        Thử lại
+        {t("Thử lại")}
       </button>
     </div>
   );
@@ -63,7 +63,7 @@ export const News = () => {
       return (
         <div className="flex flex-col items-center py-20 gap-3">
           <Icon icon="material-symbols:newspaper" className="text-6xl text-slate-300 dark:text-slate-600" />
-          <p className="text-slate-400 dark:text-slate-500 font-medium">Chưa có bài viết nào.</p>
+          <p className="text-slate-400 dark:text-slate-500 font-medium">{t("Chưa có bài viết nào.")}</p>
         </div>
       );
     }
@@ -92,18 +92,18 @@ export const News = () => {
                   </div>
                   <div className="lg:col-span-5 p-6 md:p-8 flex flex-col justify-center lg:h-full">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-3 py-1 rounded-md uppercase tracking-wider">Nổi bật</span>
+                      <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-3 py-1 rounded-md uppercase tracking-wider">{t("Nổi bật")}</span>
                       <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
                         <Icon icon="material-symbols:calendar-today-outline" className="text-sm" />
                         {formatDate(item.created_at)}
                       </span>
                     </div>
                     <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight mb-3 line-clamp-2">
-                      {item.title}
+                       {item.title}
                     </h2>
                     {item.summary && <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 line-clamp-3">{item.summary}</p>}
                     <div className="flex items-center gap-1.5 text-teal-600 dark:text-teal-400 text-sm font-bold">
-                      Đọc tiếp <Icon icon="material-symbols:arrow-forward" className="text-base" />
+                      {t("Đọc tiếp")} <Icon icon="material-symbols:arrow-forward" className="text-base" />
                     </div>
                   </div>
                 </Link>
@@ -127,10 +127,10 @@ export const News = () => {
                 </div>
                 <div className="p-5 flex flex-col grow">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="bg-slate-50 dark:bg-slate-950/40 text-slate-600 dark:text-slate-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">Tin tức</span>
+                    <span className="bg-slate-50 dark:bg-slate-950/40 text-slate-600 dark:text-slate-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{t("Tin tức")}</span>
                     <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
                       <Icon icon="material-symbols:calendar-today-outline" className="text-sm" />
-                      {formatDate(item.created_at)}
+                       {formatDate(item.created_at)}
                     </span>
                   </div>
                   <h3 className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug mb-2 line-clamp-2 text-base">
@@ -138,7 +138,7 @@ export const News = () => {
                   </h3>
                   {item.summary && <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 grow line-clamp-2">{item.summary}</p>}
                   <div className="flex items-center gap-1.5 text-teal-600 dark:text-teal-400 text-xs font-bold mt-auto">
-                    Đọc tiếp <Icon icon="material-symbols:arrow-forward" className="text-base" />
+                    {t("Đọc tiếp")} <Icon icon="material-symbols:arrow-forward" className="text-base" />
                   </div>
                 </div>
               </Link>

@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 
 export interface BulkDeleteBarProps {
   /** Danh sách id đang được chọn */
@@ -22,6 +23,7 @@ export const BulkDeleteBar = ({
   onDeleteSelected,
   onClear,
   loading = false }: BulkDeleteBarProps) => {
+  const { t } = useTranslation();
   const allSelected = selectedIds.length > 0 && selectedIds.length === totalCount;
   const someSelected = selectedIds.length > 0 && !allSelected;
   const count = selectedIds.length;
@@ -38,7 +40,7 @@ export const BulkDeleteBar = ({
       <button
         type="button"
         onClick={onToggleAll}
-        title={allSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+        title={allSelected ? t("Bỏ chọn tất cả") : t("Chọn tất cả")}
         className={`flex items-center justify-center w-5 h-5 rounded border-2 cursor-pointer transition-all shrink-0 focus:outline-none ${
           allSelected || someSelected
             ? "border-cyan-700 dark:border-cyan-600"
@@ -61,7 +63,7 @@ export const BulkDeleteBar = ({
           count > 0 ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"
         }`}
       >
-        {count > 0 ? `Đã chọn ${count} mục` : "Chọn để xóa hàng loạt"}
+        {count > 0 ? t("Đã chọn {count} mục").replace("{count}", count.toString()) : t("Chọn để xóa hàng loạt")}
       </span>
 
       {/* Spacer */}
@@ -77,7 +79,7 @@ export const BulkDeleteBar = ({
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-700 transition-all cursor-pointer"
           >
             <Icon icon="material-symbols:close-rounded" className="text-base" />
-            Bỏ chọn
+            {t("Bỏ chọn")}
           </button>
 
           {/* Delete */}
@@ -92,7 +94,7 @@ export const BulkDeleteBar = ({
             ) : (
               <Icon icon="material-symbols:delete-outline-rounded" className="text-base" />
             )}
-            Xóa {count} mục
+            {t("Xóa {count} mục").replace("{count}", count.toString())}
           </button>
         </div>
       )}

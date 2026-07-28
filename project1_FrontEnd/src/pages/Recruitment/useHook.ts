@@ -2,6 +2,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { useTranslation } from "react-i18next";
 import { getCategoriesApi, type ServiceCategory } from "../../api/servicesApi/services";
 import {
   getJobPostsApi,
@@ -25,13 +26,13 @@ export const URGENCY_OPTS = [
   { value: "normal", label: "Bình thường" },
 ];
 
-const formatWorkingTime = (timeStr: string | null) => {
+const formatWorkingTime = (timeStr: string | null, t: any) => {
   if (!timeStr) return "";
   const isoRegex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/;
   const match = timeStr.match(isoRegex);
   if (match) {
     const [, year, month, day, hours, minutes] = match;
-    return `${hours}:${minutes} ngày ${day}/${month}/${year}`;
+    return t("workingTimeFormat", { hours, minutes, day, month, year });
   }
   return timeStr;
 };
@@ -84,6 +85,7 @@ export interface MyJobPost extends JobPost {
 }
 
 export const useRecruitment = () => {
+  const { t } = useTranslation();
   const [nowTime] = useState(() => Date.now());
   const [allJobs, setAllJobs] = useState<JobPost[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -109,11 +111,13 @@ export const useRecruitment = () => {
   const [activeTab, setActiveTab] = useState<"browse" | "my-posts">("browse");
 
   useEffect(() => {
-    if (tabParam === "my-posts") {
-      setActiveTab("my-posts");
-    } else {
-      setActiveTab("browse");
-    }
+    Promise.resolve().then(() => {
+      if (tabParam === "my-posts") {
+        setActiveTab("my-posts");
+      } else {
+        setActiveTab("browse");
+      }
+    });
   }, [tabParam]);
 
   // Customer: My job posts
@@ -195,37 +199,40 @@ export const useRecruitment = () => {
 
   // Reset page when any filter changes
   useEffect(() => {
-    setCurrentPage(1);
+    Promise.resolve().then(() => {
+      setCurrentPage(1);
+    });
   }, [selectedCategories, selectedSalary, selectedUrgency, searchQuery, sortBy]);
 
   const getRelativeTime = (createdAtStr: string | null | undefined) => {
-    if (!createdAtStr) return "Đăng 1 phút trước";
+    const fallback = t("Đăng 1 phút trước");
+    if (!createdAtStr) return fallback;
     try {
       const normalized = createdAtStr.includes("Z") || createdAtStr.includes("+") 
         ? createdAtStr 
         : createdAtStr.replace(" ", "T") + "Z";
       const created = new Date(normalized);
       if (isNaN(created.getTime())) {
-        return "Đăng 1 phút trước";
+        return fallback;
       }
       const now = new Date();
       const diffMs = now.getTime() - created.getTime();
       const diffMins = Math.floor(diffMs / 60000);
 
       if (diffMins < 1) {
-        return "Đăng 1 phút trước";
+        return fallback;
       }
       if (diffMins < 60) {
-        return `Đăng ${diffMins} phút trước`;
+        return t("Đăng {{count}} phút trước", { count: diffMins });
       }
       const diffHours = Math.floor(diffMins / 60);
       if (diffHours < 24) {
-        return `Đăng ${diffHours} giờ trước`;
+        return t("Đăng {{count}} giờ trước", { count: diffHours });
       }
       const diffDays = Math.floor(diffHours / 24);
-      return `Đăng ${diffDays} ngày trước`;
+      return t("Đăng {{count}} ngày trước", { count: diffDays });
     } catch {
-      return "Đăng 1 phút trước";
+      return fallback;
     }
   };
 
@@ -325,12 +332,12 @@ export const useRecruitment = () => {
       categoryColor,
       isUrgent,
       urgencyLevel,
-      salary: job.salary ? `${Number(job.salary).toLocaleString()} VNĐ/dịch vụ` : "Thỏa thuận",
-      location: job.district || job.city ? `${job.district}, ${job.city}` : "Việt Nam",
+      salary: job.salary ? `${Number(job.salary).toLocaleString()} ${t("VNĐ/dịch vụ")}` : t("Thỏa thuận"),
+      location: job.district || job.city ? `${job.district}, ${job.city}` : t("Việt Nam"),
       postedTime: getRelativeTime(job.created_at || new Date().toISOString()),
       createdAt: job.created_at || new Date().toISOString(),
       expirationDate: job.expired_at || null,
-      workingTime: formatWorkingTime(job.working_time),
+      workingTime: formatWorkingTime(job.working_time, t),
       services: combinedServices,
       description: displayDescription };
   });
@@ -360,11 +367,11 @@ export const useRecruitment = () => {
   const applyJob = async (jobId: number) => {
     try {
       const res = await applyJobPostApi(jobId);
-      showToast("success", "Ứng tuyển thành công", res.message || "Hồ sơ ứng tuyển của bạn đã được gửi thành công.");
+      showToast("success", t("Ứng tuyển thành công"), res.message || t("Hồ sơ ứng tuyển của bạn đã được gửi thành công."));
       setAppliedJobIds((prev) => [...prev, jobId]);
     } catch (error: any) {
-      const errMsg = error.response?.data?.message || "Đã xảy ra lỗi khi ứng tuyển.";
-      showToast("error", "Ứng tuyển thất bại", errMsg);
+      const errMsg = error.response?.data?.message || t("Đã xảy ra lỗi khi ứng tuyển.");
+      showToast("error", t("Ứng tuyển thất bại"), errMsg);
       if (errMsg.includes("hoàn thiện hồ sơ") || errMsg.includes("số điện thoại")) {
         setTimeout(() => {
           navigate("/ho-so");
@@ -389,7 +396,9 @@ export const useRecruitment = () => {
   // Load my posts when tab switches to "my-posts"
   useEffect(() => {
     if (activeTab === "my-posts") {
-      fetchMyJobPosts();
+      Promise.resolve().then(() => {
+        fetchMyJobPosts();
+      });
     }
   }, [activeTab, fetchMyJobPosts]);
 
@@ -450,45 +459,45 @@ export const useRecruitment = () => {
 
   // ─── Customer: accept a helper ──────────────────────────
   const acceptHelper = useCallback(async (jobPostId: number, helperId: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn chọn người giúp việc này? Tất cả đơn ứng tuyển khác sẽ bị từ chối.")) return;
+    if (!window.confirm(t("Bạn có chắc chắn muốn chọn người giúp việc này? Tất cả đơn ứng tuyển khác sẽ bị từ chối."))) return;
     try {
       await selectHelperApi(jobPostId, helperId);
-      showToast("success", "Chấp nhận thành công", "Người giúp việc đã được chọn. Đang chờ người giúp việc đồng ý nhận việc.");
+      showToast("success", t("Chấp nhận thành công"), t("Người giúp việc đã được chọn. Đang chờ người giúp việc đồng ý nhận việc."));
       if (selectedJobPost) {
         openApplications(selectedJobPost);
       }
       fetchMyJobPosts();
     } catch (err: any) {
-      showToast("error", "Lỗi", err.response?.data?.message || "Không thể chấp nhận người giúp việc.");
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể chấp nhận người giúp việc."));
     }
-  }, [selectedJobPost, openApplications, fetchMyJobPosts]);
+  }, [selectedJobPost, openApplications, fetchMyJobPosts, t, showToast]);
 
   // ─── Customer: reject a helper ──────────────────────────
   const rejectHelper = useCallback(async (jobPostId: number, helperId: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn từ chối người giúp việc này không?")) return;
+    if (!window.confirm(t("Bạn có chắc chắn muốn từ chối người giúp việc này không?"))) return;
     try {
       await rejectHelperApi(jobPostId, helperId);
-      showToast("success", "Từ chối thành công", "Người giúp việc đã bị từ chối.");
+      showToast("success", t("Từ chối thành công"), t("Người giúp việc đã bị từ chối."));
       // Re-fetch applications list to update UI status
       if (selectedJobPost) {
         openApplications(selectedJobPost);
       }
       fetchMyJobPosts();
     } catch (err: any) {
-      showToast("error", "Lỗi", err.response?.data?.message || "Không thể từ chối người giúp việc.");
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể từ chối người giúp việc."));
     }
-  }, [selectedJobPost, openApplications, fetchMyJobPosts]);
+  }, [selectedJobPost, openApplications, fetchMyJobPosts, t, showToast]);
 
   const deleteJobPost = useCallback(async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa bài đăng tuyển dụng này không? Hành động này không thể hoàn tác.")) return;
+    if (!window.confirm(t("Bạn có chắc chắn muốn xóa bài đăng tuyển dụng này không? Hành động này không thể hoàn tác."))) return;
     try {
       await deleteJobPostApi(id);
-      showToast("success", "Xóa thành công", "Bài đăng tuyển dụng đã được xóa thành công.");
+      showToast("success", t("Xóa thành công"), t("Bài đăng tuyển dụng đã được xóa thành công."));
       fetchMyJobPosts();
     } catch (err: any) {
-      showToast("error", "Xóa thất bại", err.response?.data?.message || "Không thể xóa bài đăng tuyển dụng.");
+      showToast("error", t("Xóa thất bại"), err.response?.data?.message || t("Không thể xóa bài đăng tuyển dụng."));
     }
-  }, [fetchMyJobPosts]);
+  }, [fetchMyJobPosts, t, showToast]);
 
   const openEditJobPost = useCallback((post: JobPost) => {
     setEditingJobPost(post);
@@ -503,16 +512,16 @@ export const useRecruitment = () => {
   const updateJobPost = useCallback(async (id: number, data: any) => {
     try {
       await updateJobPostApi(id, data);
-      showToast("success", "Cập nhật thành công", "Bài đăng tuyển dụng đã được cập nhật thành công.");
+      showToast("success", t("Cập nhật thành công"), t("Bài đăng tuyển dụng đã được cập nhật thành công."));
       closeEditJobPost();
       fetchMyJobPosts();
       // Refresh browse page jobs
       const jobRes = await getJobPostsApi({ limit: 1000 });
       setAllJobs(jobRes.data.data || []);
     } catch (err: any) {
-      showToast("error", "Cập nhật thất bại", err.response?.data?.message || "Không thể cập nhật bài đăng tuyển dụng.");
+      showToast("error", t("Cập nhật thất bại"), err.response?.data?.message || t("Không thể cập nhật bài đăng tuyển dụng."));
     }
-  }, [closeEditJobPost, fetchMyJobPosts]);
+  }, [closeEditJobPost, fetchMyJobPosts, t, showToast]);
 
 
 

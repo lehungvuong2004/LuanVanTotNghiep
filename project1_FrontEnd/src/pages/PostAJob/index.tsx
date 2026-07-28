@@ -5,13 +5,14 @@ import { useTranslation } from "react-i18next";
 import { formatMoneyInput } from "../../utils";
 import { Link } from "react-router-dom";
 
-const formatWorkingTime = (timeStr: string | null) => {
+const formatWorkingTime = (timeStr: string | null, t?: any) => {
   if (!timeStr) return "";
   const isoRegex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/;
   const match = timeStr.match(isoRegex);
   if (match) {
-    const [_, year, month, day, hours, minutes] = match;
-    return `${hours}:${minutes} ngày ${day}/${month}/${year}`;
+    const [, year, month, day, hours, minutes] = match;
+    const label = t ? t("ngày") : "ngày";
+    return `${hours}:${minutes} ${label} ${day}/${month}/${year}`;
   }
   return timeStr;
 };
@@ -361,13 +362,13 @@ export const PostAJob = () => {
             </div>
             <div className="flex items-center gap-3">
               <Icon icon="mdi:clock-outline" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
-              <span className="truncate">{formatWorkingTime(formik.values.workingTime) || t("Thời gian làm việc")}</span>
+              <span className="truncate">{formatWorkingTime(formik.values.workingTime, t) || t("Thời gian làm việc")}</span>
             </div>
             {formik.values.expirationDate && (
               <div className="flex items-center gap-3">
                 <Icon icon="mdi:calendar-end" className="w-5 h-5 text-rose-500 shrink-0" />
                 <span className="truncate text-rose-600 dark:text-rose-400 font-semibold">
-                  {t("Hết hạn")}: {formatWorkingTime(formik.values.expirationDate)}
+                  {t("Hết hạn")}: {formatWorkingTime(formik.values.expirationDate, t)}
                 </span>
               </div>
             )}

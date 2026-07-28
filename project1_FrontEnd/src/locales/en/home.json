@@ -1,0 +1,100 @@
+{
+  "home": {
+    "banner": {
+      "defaultTitle": "Keep calm because family matters always have a companion.",
+      "exploreDetail": "Explore Details",
+      "exploreNow": "Explore Now",
+      "title": "Keep calm because family matters always have a",
+      "highlightTitle": "companion.",
+      "placeholderService": "What service do you need?",
+      "placeholderLocation": "Your area"
+    },
+    "services": {
+      "title": "Professional and Dedicated Services",
+      "description": "Our team of experts is carefully selected, well-trained and always puts customer satisfaction first. With HomeHelper, all problems in your home are resolved in the fastest, most effective and safest way.",
+      "feature1": "Highly experienced and specialized team",
+      "feature2": "Dedicated 24/7 service, always there when you need",
+      "feature3": "100% guaranteed service quality"
+    },
+    "produce": {
+      "care": {
+        "title": "Medical Care",
+        "description": "Professional healthcare services"
+      },
+      "cleaning": {
+        "title": "House Cleaning",
+        "description": "Clean up your living space"
+      },
+      "cooking": {
+        "title": "Home Cooking",
+        "description": "Delicious, nutritious meals at home"
+      },
+      "interior": {
+        "title": "Interior Design",
+        "description": "Modern and convenient living space"
+      },
+      "garden": {
+        "title": "Garden Care",
+        "description": "Relaxing green space"
+      }
+    },
+    "reviews": {
+      "title": "What do clients say about Gia Dinh Viet?",
+      "description": "Genuine reviews from our clients after using the services. We always strive to bring maximum satisfaction.",
+      "r1": {
+        "location": "Thao Dien, District 2",
+        "service": "House Cleaning",
+        "comment": "Very professional service. The helper named Lan cleaned every corner carefully and had a very polite attitude. I will continue using Gia Dinh Viet for my apartment.",
+        "workerName": "Helper: Ms. Lan"
+      },
+      "r2": {
+        "location": "District 7, HCMC",
+        "service": "Electricity Repair",
+        "comment": "The electrician arrived very on time and fixed the electrical leakage issue quickly. The cost was transparent, no hidden fees. I feel secure entrusting my home to Gia Dinh Viet.",
+        "workerName": "Technician: Mr. Hung"
+      },
+      "r3": {
+        "location": "Cau Giay District, HN",
+        "service": "Home Cooking",
+        "comment": "The dishes suited our family's taste very well, the helper was clean and tidy. Our family dinner became much warmer thanks to your support.",
+        "workerName": "Chef: Ms. Nga"
+      },
+      "r4": {
+        "location": "District 1, HCMC",
+        "service": "AC Cleaning",
+        "comment": "The staff were enthusiastic, gave clear advice, and worked very carefully. My home AC works perfectly and has no noise since cleaning.",
+        "workerName": "Technician: Mr. Tuan"
+      },
+      "r5": {
+        "location": "District 3, HCMC",
+        "service": "Garden Care",
+        "comment": "My garden is trimmed neatly and beautifully. The staff has good knowledge of ornamental plants and guided me on how to care for them dynamically.",
+        "workerName": "Gardener: Mr. Binh"
+      }
+    },
+    "discover": {
+      "title": "Discover Our Services",
+      "description": "High quality services tailored to meet all needs for your home and living space."
+    }
+  },
+  "Quy trình đặt dịch vụ đơn giản": "Simple service booking process",
+  "Chỉ với vài thao tác, bạn đã có thể tận hưởng không gian sống lý tưởng.": "With just a few simple steps, you can enjoy your ideal living space.",
+  "1. Chọn dịch vụ": "1. Select service",
+  "Lựa chọn từ 20+ dịch vụ đa dạng từ vệ sinh đến sửa chữa.": "Choose from 20+ diverse services from cleaning to repairing.",
+  "2. Đặt lịch": "2. Book schedule",
+  "Chọn thời gian và địa điểm phù hợp nhất với kế hoạch của bạn.": "Choose the time and location that best fits your plan.",
+  "3. Kết nối": "3. Get connected",
+  "Hệ thống tự động kết nối bạn với chuyên gia phù hợp nhất.": "The system automatically connects you with the most suitable expert.",
+  "4. Hoàn tất & Đánh giá": "4. Complete & Review",
+  "Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.": "Check execution results, make payment, and leave feedback for us.",
+  "Dành cho Khách hàng": "For Customers",
+  "Tiết kiệm thời gian chăm sóc nhà cửa": "Save time taking care of the house",
+  "Chất lượng dịch vụ được cam kết": "Committed service quality",
+  "Giá cả minh bạch, không phát sinh": "Transparent pricing, no hidden costs",
+  "Tìm người giúp việc ngay": "Find a helper now",
+  "Đăng Bài Tuyển Dụng": "Post a Job",
+  "Tự do đề xuất mức lương và thời gian mong muốn": "Freely propose desired salary and working time",
+  "Tiếp cận hàng ngàn người giúp việc uy tín nhanh chóng": "Access thousands of reputable helpers quickly",
+  "Dễ dàng lựa chọn và trao đổi trực tiếp với ứng viên": "Easily select and negotiate directly with candidates",
+  "Đăng bài tuyển ngay": "Post a job now"
+}

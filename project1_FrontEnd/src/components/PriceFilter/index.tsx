@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DEFAULT_PRICE_OPTIONS, getPriceRangeValues } from "./useHook";
 
 export interface PriceFilterProps {
@@ -14,16 +15,19 @@ export interface PriceFilterProps {
 }
 
 export const PriceFilter = ({
-  title = "Mức giá",
+  title,
   selectedValue,
   minPrice,
   maxPrice,
   options = DEFAULT_PRICE_OPTIONS,
   onChangeSelectedValue,
   onChangeRange,
-  t = (s) => s,
+  t: tProp,
   nameGroup = "price_filter_radio",
 }: PriceFilterProps) => {
+  const { t: tHook } = useTranslation();
+  const t = tProp || tHook;
+  const displayTitle = title !== undefined ? t(title) : t("Mức giá");
   const currentSelectedValue = (() => {
     if (selectedValue !== undefined) return selectedValue;
     if (minPrice === undefined && maxPrice === undefined) return "all";
@@ -43,7 +47,7 @@ export const PriceFilter = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {title && <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-1">{t(title)}</h4>}
+      {displayTitle && <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-1">{displayTitle}</h4>}
       <div className="flex flex-col gap-2.5">
         {options.map((opt: any) => {
           const isChecked = currentSelectedValue === opt.value;

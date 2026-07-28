@@ -19,31 +19,32 @@ import { News } from "./pages/News";
 import { NewsDetail } from "./pages/NewsDetail";
 import { Profile } from "./pages/Profile";
 import { Pricing } from "./pages/Pricing";
+import { TermsOfService } from "./pages/TermsOfService";
 import { PaymentReturn } from "./pages/PaymentReturn";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { ROLES } from "./constants/roles";
-import { Schedules } from "./DashBoard/Admin/Schedules";
-import { Services } from "./DashBoard/Admin/Services";
-import { ServiceCategories } from "./DashBoard/Admin/Service_Categories";
-import { DashboardOverview } from "./DashBoard/Admin/DashboardOverview";
-import { Booking } from "./DashBoard/Admin/Booking";
-import { Banners } from "./DashBoard/Admin/Banner";
-import { Payments } from "./DashBoard/Admin/Payments";
-import { Refunds } from "./DashBoard/Admin/Refunds";
-import { Users } from "./DashBoard/Admin/Users";
-import { Helpers } from "./DashBoard/Admin/Helper";
-import { Reviews } from "./DashBoard/Admin/Reviews";
-import { NewsAdmin } from "./DashBoard/Admin/News";
-import { Role as RolePage } from "./DashBoard/Admin/Role";
-import { PermissionsMatrix } from "./DashBoard/Admin/Permissions";
-import { ActivityLogs } from "./DashBoard/Admin/Log";
-import { ApplicationReview } from "./DashBoard/Operator/JobPosts";
-import { Reports } from "./DashBoard/Admin/Reports";
-import { HelperOverview } from "./DashBoard/Helper/Overview";
-import { HelperAvailabilityPage } from "./DashBoard/Helper/Availabilities";
-import { HelperReviewsPage } from "./DashBoard/Helper/Reviews";
-import { Contacts } from "./DashBoard/Admin/Contacts";
-import { Notifications } from "./DashBoard/Admin/Notifications";
+import { Schedules } from "./dashboard/Admin/Schedules";
+import { Services } from "./dashboard/Admin/Services";
+import { ServiceCategories } from "./dashboard/Admin/Service_Categories";
+import { DashboardOverview } from "./dashboard/Admin/DashboardOverview";
+import { Booking } from "./dashboard/Admin/Booking";
+import { Banners } from "./dashboard/Admin/Banner";
+import { Payments } from "./dashboard/Admin/Payments";
+import { Refunds } from "./dashboard/Admin/Refunds";
+import { Users } from "./dashboard/Admin/Users";
+import { Helpers } from "./dashboard/Admin/Helper";
+import { Reviews } from "./dashboard/Admin/Reviews";
+import { NewsAdmin } from "./dashboard/Admin/News";
+import { Role as RolePage } from "./dashboard/Admin/Role";
+import { PermissionsMatrix } from "./dashboard/Admin/Permissions";
+import { ActivityLogs } from "./dashboard/Admin/Log";
+import { ApplicationReview } from "./dashboard/Operator/JobPosts";
+import { Reports } from "./dashboard/Admin/Reports";
+import { HelperOverview } from "./dashboard/Helper/Overview";
+import { HelperAvailabilityPage } from "./dashboard/Helper/Availabilities";
+import { HelperReviewsPage } from "./dashboard/Helper/Reviews";
+import { Contacts } from "./dashboard/Admin/Contacts";
+import { Notifications } from "./dashboard/Admin/Notifications";
 
 function App() {
   useEffect(() => {
@@ -55,6 +56,7 @@ function App() {
     }
 
     const sessionActive = sessionStorage.getItem("session_active");
+    // console.log(sessionActive);
     if (!sessionActive) {
       const rememberMe = localStorage.getItem("remember_me");
       if (rememberMe !== "true") {
@@ -82,6 +84,7 @@ function App() {
             <Route path="/tin-tuc/:slug" element={<NewsDetail />} />
             <Route path="/ho-so" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
           </Route>
           <Route element={<LoginLayout />}>

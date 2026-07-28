@@ -237,7 +237,7 @@ export const Header = () => {
                                       </span>
                                     </div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-0.5">
-                                      {helper.exp} • {helper.area}
+                                      {t(helper.exp)} • {t(helper.area)}
                                     </p>
                                     <p className="text-xs text-slate-450 dark:text-slate-500 italic line-clamp-1">"{t(helper.desc)}"</p>
                                   </div>

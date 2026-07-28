@@ -1,0 +1,17 @@
+{
+  "Đăng nhập thành công!": "Logged in successfully!",
+  "Đăng xuất thành công.": "Logged out successfully.",
+  "Bạn đã đăng xuất thành công.": "You have logged out successfully.",
+  "Thành công": "Success",
+  "Đăng Xuất": "Logout",
+  "Thông báo mới": "New Notification",
+  "Lỗi": "Error",
+  "Gửi yêu cầu liên hệ thành công!": "Contact request submitted successfully!",
+  "Gửi yêu cầu thất bại. Vui lòng thử lại sau.": "Failed to submit request. Please try again later.",
+  "Phiên đăng nhập đã hết hạn": "Login session has expired",
+  "Vui lòng đăng nhập lại": "Please log in again",
+  "Không có quyền truy cập": "Unauthorized access",
+  "Vui lòng thiết lập cấu hình i18n": "Please configure i18n",
+  "Đã xử lý thông tin": "Information processed",
+  "Hệ thống đang bận, vui lòng thử lại sau": "System is busy, please try again later"
+}

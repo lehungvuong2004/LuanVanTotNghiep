@@ -10,13 +10,14 @@ import neatlyClothe from "../../assets/images/home_service/neatlyClothe.webp";
 import repairCondition from "../../assets/images/home_service/repairCondition.webp";
 import repairLight from "../../assets/images/home_service/repairLight.webp";
 import repairPlumber from "../../assets/images/home_service/repairPlumber.webp";
+import { useTranslation } from "react-i18next";
 import { useHome } from "./useHook";
-import { t } from "i18next";
 import { Link } from "react-router-dom";
 import { getImageUrl } from "../../utils/images";
 import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 export const Home = () => {
+  const { t } = useTranslation();
   const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners } = useHome();
 
   const swiperRef = useRef<any>(null);
@@ -45,7 +46,7 @@ export const Home = () => {
         : [
             {
               id: 0,
-              title: "Bình tĩnh vì mọi việc gia đình luôn có người đồng hành.",
+              title: t("home.banner.defaultTitle"),
               image: bannerHome,
               link: null,
               status: "active" as const,
@@ -64,24 +65,20 @@ export const Home = () => {
         >
           {bannerList.map((banner, index) => (
             <SwiperSlide key={banner.id || index} className="relative w-full h-full flex items-center justify-center">
-              {/* Background Image */}
               <img
                 ref={index === 0 ? imageRef : undefined}
                 src={getImageUrl(banner.image)}
-                alt={banner.title || "Banner"}
+                alt={t(banner.title) || "Banner"}
                 loading="eager"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover will-change-transform"
                 style={{ transformOrigin: "center center" }}
               />
-              {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
 
-              {/* Slide Content */}
               <div ref={index === 0 ? contentRef : undefined} className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10">
                 <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl max-w-4xl tracking-tight">{banner.title}</h1>
 
-                {/* Mockup Search Form */}
                 <div className="w-full max-w-2xl bg-white p-2 md:p-2.5 rounded-none md:rounded-full shadow-xl flex flex-col md:flex-row items-center gap-2 mb-8">
                   <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-1.5 md:py-0">
                     <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
@@ -103,7 +100,7 @@ export const Home = () => {
 
                   <button className="w-full md:w-auto cursor-pointer bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-md">
                     <Icon icon="lucide:search" className="text-lg" />
-                    Tìm kiếm
+                    {t("Tìm kiếm")}
                   </button>
                 </div>
 
@@ -128,7 +125,7 @@ export const Home = () => {
                             className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
                           >
                             <Icon icon="lucide:external-link" className="text-base" />
-                            Khám phá chi tiết
+                            {t("home.banner.exploreDetail")}
                           </a>
                         ) : (
                           <Link
@@ -136,7 +133,7 @@ export const Home = () => {
                             className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
                           >
                             <Icon icon="lucide:arrow-right" className="text-base" />
-                            Khám phá chi tiết
+                            {t("home.banner.exploreDetail")}
                           </Link>
                         )}
                       </div>
@@ -240,7 +237,7 @@ export const Home = () => {
           {/* Explore Button */}
           <div>
             <Link to="/dich-vu" className="cursor-pointer bg-[#034d54] hover:bg-[#023c42] active:scale-95 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 shadow-md">
-              Khám phá ngay
+              {t("home.banner.exploreNow")}
             </Link>
           </div>
         </div>
@@ -284,8 +281,8 @@ export const Home = () => {
   const procuder = () => (
     <>
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-3xl md:text-5xl font-extrabold text-[#034d54] mb-6 leading-tight">Khám Phá Các Dịch Vụ</h2>
-        <p className="text-gray-600 text-base md:text-lg leading-relaxed">Các dịch vụ chất lượng cao được thiết kế riêng biệt để đáp ứng mọi nhu cầu cho ngôi nhà và không gian sống của bạn.</p>
+        <h2 className="text-3xl md:text-5xl font-extrabold text-[#034d54] mb-6 leading-tight">{t("home.discover.title")}</h2>
+        <p className="text-gray-600 text-base md:text-lg leading-relaxed">{t("home.discover.description")}</p>
       </div>
 
       <div className="h-100 md:h-128 w-full">
@@ -306,7 +303,7 @@ export const Home = () => {
                   to="/dich-vu"
                   className="bg-white/20 cursor-pointer hover:bg-white text-white hover:text-[#034d54] backdrop-blur-sm px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300"
                 >
-                  Xem tất cả
+                  {t("Xem tất cả")}
                 </Link>
               </div>
             </div>
@@ -378,8 +375,8 @@ export const Home = () => {
       <div className="w-full py-16">
         <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-14 gap-6">
           <div className="text-center md:text-left max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2830] dark:text-white mb-4">Khách hàng nói gì về Gia Đình Việt?</h2>
-            <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">Những đánh giá thật từ khách hàng sau khi sử dụng dịch vụ. Chúng tôi luôn nỗ lực mang lại sự hài lòng tối đa.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2830] dark:text-white mb-4">{t("home.reviews.title")}</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">{t("home.reviews.description")}</p>
           </div>
 
           <div className="flex gap-3 shrink-0">

@@ -4,7 +4,7 @@ import { useProfile } from "./useHook";
 import { ROLES } from "../../constants/roles";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { parseVietnamAddress } from "../../types/location";
-import { getRoleBadge } from "../../utils";
+import { getRoleBadge, formatDate } from "../../utils";
 
 export const Profile = () => {
   const {
@@ -14,6 +14,7 @@ export const Profile = () => {
     loading,
     updating,
     userProfile,
+    customerProfile,
     addresses,
     errorMessage,
     successMessage,
@@ -44,6 +45,38 @@ export const Profile = () => {
   const [workingCity, setWorkingCity] = useState("");
   const [geoTarget, setGeoTarget] = useState<"address" | "workingArea" | "residential" | null>(null);
   const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
+
+  const getGenderText = () => {
+    const gender = userProfile?.role_id === ROLES.HELPER 
+      ? helperProfile?.gender 
+      : customerProfile?.gender;
+      
+    if (!gender) return null;
+    
+    if (gender === "male") return t("Nam");
+    if (gender === "female") return t("Nữ");
+    if (gender === "other") return t("Khác");
+    return gender;
+  };
+
+  const getGenderIcon = () => {
+    const gender = userProfile?.role_id === ROLES.HELPER 
+      ? helperProfile?.gender 
+      : customerProfile?.gender;
+      
+    if (gender === "male") return "ph:gender-male-bold";
+    if (gender === "female") return "ph:gender-female-bold";
+    return "ph:gender-neuter-bold";
+  };
+
+  const getBirthdayText = () => {
+    const birthday = userProfile?.role_id === ROLES.HELPER 
+      ? helperProfile?.birthday 
+      : customerProfile?.birthday;
+      
+    if (!birthday) return null;
+    return formatDate(birthday);
+  };
 
   useEffect(() => {
     if ((addressDetails || rawAddress) && geoTarget) {
@@ -150,7 +183,26 @@ export const Profile = () => {
 
       <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 break-all px-2">{userProfile?.email}</p>
 
-      <div className="mt-4">{getRoleBadge(userProfile?.role_id)}</div>
+      <div className="mt-4 flex flex-col items-center gap-2">
+        {/* Row 1: Role & Gender */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {getRoleBadge(userProfile?.role_id)}
+          {getGenderText() && (
+            <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-slate-50 dark:bg-slate-900/50 text-slate-955 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 whitespace-nowrap flex items-center gap-1">
+              <Icon icon={getGenderIcon()} className="text-sm shrink-0 text-slate-500 dark:text-slate-400" />
+              {getGenderText()}
+            </span>
+          )}
+        </div>
+        
+        {/* Row 2: Birthday */}
+        {getBirthdayText() && (
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-slate-50 dark:bg-slate-900/50 text-slate-955 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 whitespace-nowrap flex items-center gap-1">
+            <Icon icon="solar:calendar-bold" className="text-sm shrink-0 text-slate-500 dark:text-slate-400" />
+            {getBirthdayText()}
+          </span>
+        )}
+      </div>
 
       <div className="w-full border-t border-slate-100 dark:border-slate-700/60 my-6"></div>
 
@@ -262,14 +314,14 @@ export const Profile = () => {
   // 5. RENDER PERSONAL INFORMATION TAB FORM
   const renderProfileInfoTab = () => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 md:p-8 transition-all duration-300">
-      <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">{t("Thông tin cá nhân")}</h3>
+      <h3 className="text-lg font-bold text-slate-950 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">{t("Thông tin cá nhân")}</h3>
 
       <form onSubmit={profileForm.handleSubmit} className="space-y-6">
         {/* Info Grid (Email, Name, Phone) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Email */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Địa chỉ Email")}</label>
+            <label className="block text-sm font-semibold text-slate-950 dark:text-slate-300 mb-2">{t("Địa chỉ Email")}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Icon icon="solar:letter-bold" className="text-lg" />
@@ -277,7 +329,7 @@ export const Profile = () => {
               <input
                 type="email"
                 disabled
-                className="pl-10 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-sm text-slate-500 cursor-not-allowed"
+                className="pl-10 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-sm text-slate-950/80 cursor-not-allowed font-medium"
                 value={userProfile?.email || ""}
               />
             </div>
@@ -286,7 +338,7 @@ export const Profile = () => {
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-semibold text-slate-950 dark:text-slate-300 mb-2">
               {t("Họ và tên")} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -296,7 +348,7 @@ export const Profile = () => {
               <input
                 type="text"
                 name="full_name"
-                className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+                className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-950 dark:text-white transition-colors ${
                   profileForm.touched.full_name && profileForm.errors.full_name
                     ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                     : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -311,7 +363,7 @@ export const Profile = () => {
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Số điện thoại")}</label>
+            <label className="block text-sm font-semibold text-slate-950 dark:text-slate-300 mb-2">{t("Số điện thoại")}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Icon icon="solar:phone-bold" className="text-lg" />
@@ -320,7 +372,7 @@ export const Profile = () => {
                 type="text"
                 name="phone"
                 placeholder="e.g. 0912345678"
-                className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+                className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-950 dark:text-white transition-colors ${
                   profileForm.touched.phone && profileForm.errors.phone
                     ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                     : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -337,12 +389,12 @@ export const Profile = () => {
         {/* Customer Extended Info (Gender, Birthday, Note) */}
         {userProfile?.role_id === ROLES.CUSTOMER && (
           <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-700/60">
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">{t("Thông tin mở rộng")}</h4>
+            <h4 className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-wider">{t("Thông tin mở rộng")}</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Gender */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Giới tính")}</label>
+                <label className="block text-sm font-semibold text-slate-950 dark:text-slate-300 mb-2">{t("Giới tính")}</label>
                 <div className="grid grid-cols-3 gap-3">
                   {["male", "female", "other"].map((g) => (
                     <button
@@ -352,7 +404,7 @@ export const Profile = () => {
                       className={`py-2 px-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer capitalize flex items-center justify-center gap-1.5 ${
                         profileForm.values.gender === g
                           ? "border-teal-500 bg-teal-50 text-teal-600 dark:bg-teal-950/20 dark:text-teal-400"
-                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                          : "border-slate-200 dark:border-slate-700 text-slate-950 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
                       }`}
                     >
                       <Icon icon={g === "male" ? "ph:gender-male-bold" : g === "female" ? "ph:gender-female-bold" : "ph:gender-neuter-bold"} className="text-lg" />
@@ -364,7 +416,7 @@ export const Profile = () => {
 
               {/* Birthday */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Ngày sinh")}</label>
+                <label className="block text-sm font-semibold text-slate-950 dark:text-slate-300 mb-2">{t("Ngày sinh")}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:calendar-bold" className="text-lg" />
@@ -372,7 +424,7 @@ export const Profile = () => {
                   <input
                     type="date"
                     name="birthday"
-                    className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+                    className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-950 dark:text-white transition-colors ${
                       profileForm.touched.birthday && profileForm.errors.birthday
                         ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                         : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -388,13 +440,13 @@ export const Profile = () => {
 
             {/* Note */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Ghi chú cá nhân")}</label>
+              <label className="block text-sm font-semibold text-slate-950 dark:text-slate-300 mb-2">{t("Ghi chú cá nhân")}</label>
               <div className="relative">
                 <textarea
                   name="note"
                   rows={3}
                   placeholder={t("Mô tả ghi chú về sở thích dọn dẹp hoặc yêu cầu đặc biệt...")}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors resize-none ${
+                  className={`w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-950 dark:text-white transition-colors resize-none ${
                     profileForm.touched.note && profileForm.errors.note
                       ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                       : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -412,12 +464,12 @@ export const Profile = () => {
         {/* Helper Extended Info (Gender, Birthday, Experience Year, Address, Bio) */}
         {userProfile?.role_id === ROLES.HELPER && (
           <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-700/60">
-            <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">{t("Thông tin mở rộng cho Người giúp việc")}</h4>
+            <h4 className="text-sm font-bold text-slate-955 dark:text-white uppercase tracking-wider">{t("Thông tin mở rộng cho Người giúp việc")}</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Gender */}
               <div>
-                <label className="block text-sm font-semibold  dark:text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-955 dark:text-slate-350 mb-2">
                   {t("Giới tính")} <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -428,8 +480,8 @@ export const Profile = () => {
                       onClick={() => profileForm.setFieldValue("gender", g)}
                       className={`py-2 px-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer capitalize flex items-center justify-center gap-1.5 ${
                         profileForm.values.gender === g
-                          ? "border-teal-500 bg-teal-50 text-teal-600 dark:bg-teal-950/20 dark:text-teal-400"
-                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                          ? "border-teal-500 bg-teal-50 text-teal-650 dark:bg-teal-950/20 dark:text-teal-400"
+                          : "border-slate-200 dark:border-slate-700 text-slate-955 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
                       }`}
                     >
                       <Icon icon={g === "male" ? "ph:gender-male-bold" : g === "female" ? "ph:gender-female-bold" : "ph:gender-neuter-bold"} className="text-lg" />
@@ -441,7 +493,7 @@ export const Profile = () => {
 
               {/* Birthday */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-955 dark:text-slate-300 mb-2">
                   {t("Ngày sinh")} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
@@ -451,7 +503,7 @@ export const Profile = () => {
                   <input
                     type="date"
                     name="birthday"
-                    className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+                    className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white transition-colors ${
                       profileForm.touched.birthday && profileForm.errors.birthday
                         ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                         : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -466,7 +518,7 @@ export const Profile = () => {
 
               {/* Experience Year */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Kinh nghiệm (Năm)")}</label>
+                <label className="block text-sm font-semibold text-slate-955 dark:text-slate-300 mb-2">{t("Kinh nghiệm (Năm)")}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:ranking-bold" className="text-lg" />
@@ -475,7 +527,7 @@ export const Profile = () => {
                     type="number"
                     name="experience_year"
                     min={0}
-                    className="pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                     onChange={profileForm.handleChange}
                     onBlur={profileForm.handleBlur}
                     value={profileForm.values.experience_year}
@@ -486,7 +538,7 @@ export const Profile = () => {
               {/* Address */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <label className="block text-sm font-semibold text-slate-955 dark:text-slate-350">
                     {t("Địa chỉ cư trú hiện tại")} <span className="text-red-500">*</span>
                   </label>
                   <button
@@ -496,7 +548,7 @@ export const Profile = () => {
                       getCurrentLocation();
                     }}
                     disabled={geoLoading}
-                    className="flex items-center gap-1.5 bg-teal-50 text-teal-605 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1 px-2.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-1.5 bg-teal-50 text-teal-650 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1 px-2.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
                   >
                     {geoLoading && geoTarget === "residential" ? (
                       <Icon icon="line-md:loading-twotone-loop" className="text-[11px] animate-spin" />
@@ -515,19 +567,19 @@ export const Profile = () => {
                     type="text"
                     name="address"
                     placeholder="e.g. 123 Nguyễn Văn Cừ, Quận 5, TP.HCM"
-                    className="pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                     onChange={profileForm.handleChange}
                     onBlur={profileForm.handleBlur}
                     value={profileForm.values.address}
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
+                <p className="text-[11px] text-slate-405 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
               </div>
             </div>
 
             {/* Bio */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-semibold text-slate-955 dark:text-slate-300 mb-2">
                 {t("Giới thiệu bản thân")} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -535,7 +587,7 @@ export const Profile = () => {
                   name="bio"
                   rows={3}
                   placeholder={t("Mô tả kỹ năng, thế mạnh, thái độ làm việc của bạn...")}
-                  className="w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors resize-none border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white transition-colors resize-none border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                   onChange={profileForm.handleChange}
                   onBlur={profileForm.handleBlur}
                   value={profileForm.values.bio}
@@ -545,7 +597,7 @@ export const Profile = () => {
 
             {/* Professional Skills block inside the same tab! */}
             <div className="space-y-6 pt-6 border-t border-slate-100 dark:border-slate-700/60">
-              <h4 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <h4 className="text-sm font-bold text-slate-955 dark:text-white uppercase tracking-wider flex items-center gap-2">
                 <Icon icon="solar:star-ring-bold-duotone" className="text-teal-600 dark:text-teal-400 text-lg" />
                 {t("Kỹ năng chuyên môn")}{" "}
                 <span className="text-xs text-slate-400 font-normal">
@@ -729,12 +781,12 @@ export const Profile = () => {
   // 7. RENDER PASSWORD CHANGE FORM TAB
   const renderPasswordTab = () => (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs p-6 md:p-8 transition-all duration-300">
-      <h3 className="text-lg font-bold text-slate-850 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">{t("Đổi mật khẩu tài khoản")}</h3>
+      <h3 className="text-lg font-bold text-slate-955 dark:text-white border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-6">{t("Đổi mật khẩu tài khoản")}</h3>
 
       <form onSubmit={passwordForm.handleSubmit} className="space-y-6">
         {/* Current Password */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-955 dark:text-slate-300 mb-2">
             {t("Mật khẩu hiện tại")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -745,7 +797,7 @@ export const Profile = () => {
               type="password"
               name="currentPassword"
               placeholder="••••••••"
-              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white transition-colors ${
                 passwordForm.touched.currentPassword && passwordForm.errors.currentPassword
                   ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                   : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -760,7 +812,7 @@ export const Profile = () => {
 
         {/* New Password */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-955 dark:text-slate-300 mb-2">
             {t("Mật khẩu mới")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -771,7 +823,7 @@ export const Profile = () => {
               type="password"
               name="password"
               placeholder="••••••••"
-              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white transition-colors ${
                 passwordForm.touched.password && passwordForm.errors.password
                   ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                   : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -786,7 +838,7 @@ export const Profile = () => {
 
         {/* Confirm Password */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-955 dark:text-slate-300 mb-2">
             {t("Nhập lại mật khẩu mới")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -797,7 +849,7 @@ export const Profile = () => {
               type="password"
               name="confirmPassword"
               placeholder="••••••••"
-              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white transition-colors ${
+              className={`pl-10 w-full px-4 py-3 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white transition-colors ${
                 passwordForm.touched.confirmPassword && passwordForm.errors.confirmPassword
                   ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                   : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -879,14 +931,14 @@ export const Profile = () => {
 
               {/* Address detail */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-slate-955 dark:text-slate-300 mb-1.5">
                   {t("Địa chỉ chi tiết (Số nhà, đường...)")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="address"
                   placeholder={t("Ví dụ: 123 Nguyễn Huệ")}
-                  className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white ${
+                  className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white ${
                     addressForm.touched.address && addressForm.errors.address
                       ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                       : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -900,14 +952,14 @@ export const Profile = () => {
 
               {/* District */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-slate-955 dark:text-slate-300 mb-1.5">
                   {t("Quận / Huyện")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="district"
                   placeholder={t("Ví dụ: Quận 1")}
-                  className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white ${
+                  className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white ${
                     addressForm.touched.district && addressForm.errors.district
                       ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                       : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -921,14 +973,14 @@ export const Profile = () => {
 
               {/* City */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-slate-955 dark:text-slate-300 mb-1.5">
                   {t("Tỉnh / Thành phố")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="city"
                   placeholder={t("Ví dụ: TP. Hồ Chí Minh")}
-                  className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 dark:text-white ${
+                  className={`w-full px-4 py-2.5 rounded-xl border outline-none text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white ${
                     addressForm.touched.city && addressForm.errors.city
                       ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
                       : "border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -1047,7 +1099,7 @@ export const Profile = () => {
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-slate-955 dark:text-slate-300 mb-1.5">
                   {t("Quận / Huyện")} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1057,11 +1109,11 @@ export const Profile = () => {
                   required
                   value={workingDistrict}
                   onChange={(e) => setWorkingDistrict(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 dark:text-white outline-none text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white outline-none text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-slate-955 dark:text-slate-300 mb-1.5">
                   {t("Tỉnh / Thành phố")} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1071,7 +1123,7 @@ export const Profile = () => {
                   required
                   value={workingCity}
                   onChange={(e) => setWorkingCity(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 dark:text-white outline-none text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-955 dark:text-white outline-none text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>

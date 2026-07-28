@@ -100,17 +100,6 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
   const handleCategoryChange = (catId: string) => {
     onFilterChange({ category_id: catId === "Tất cả" ? undefined : Number(catId) || undefined });
   };
-
-  // const handleMinPriceChange = (e) => {
-  //   const val = e.target.value ? Number(e.target.value) : undefined;
-  //   onFilterChange({ min_price: val });
-  // };
-
-  // const handleMaxPriceChange = (e) => {
-  //   const val = e.target.value ? Number(e.target.value) : undefined;
-  //   onFilterChange({ max_price: val });
-  // };
-
   const handleRatingChange = (rating: number) => {
     onFilterChange({ rating_min: rating > 0 ? rating : undefined });
   };
@@ -144,7 +133,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
         {/* Giao diện lọc Thành phố */}
         <div>
           <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
-          <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={CITIES.map((c) => ({ value: c, label: c }))} />
+          <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={CITIES.map((c) => ({ value: c, label: t(c) }))} />
         </div>
 
         {/* Quận / Huyện */}
@@ -159,7 +148,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
           <CustomSelect
             value={filterParams.category_id ?? "Tất cả"}
             onChange={handleCategoryChange}
-            options={[{ value: "Tất cả", label: t("Tất cả danh mục") }, ...categories.map((cat) => ({ value: cat.id, label: cat.name }))]}
+            options={[{ value: "Tất cả", label: t("Tất cả danh mục") }, ...categories.map((cat) => ({ value: cat.id, label: t(cat.name) }))]}
           />
         </div>
 
@@ -192,7 +181,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
                   className="border-slate-300 dark:border-slate-700 text-teal-600 focus:ring-teal-500 dark:bg-slate-900 cursor-pointer"
                 />
                 <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1 group-hover:text-slate-800 dark:group-hover:text-white transition-colors font-medium">
-                  {r.label}
+                  {t(r.label)}
                   {r.value > 0 && <Icon icon="material-symbols:star" className="text-amber-400 text-base" />}
                 </span>
               </label>
@@ -293,14 +282,14 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
                 <div className="aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-900 relative">{renderServiceImage(service.image, service.title)}</div>
                 <div className="p-6 flex flex-col grow">
                   <div className="flex items-center justify-between mb-2.5">
-                    <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{service.category}</span>
-                    <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{t(service.category)}</span>
+                    <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-350">
                       <Icon icon="material-symbols:star" className="text-amber-400 text-base" />
                       {(Number(service.rating) || 0).toFixed(1)} <span className="text-slate-400 dark:text-slate-500 font-normal">({service.reviewsCount || 0})</span>
                     </div>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{service.title}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 leading-relaxed">{service.description}</p>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{t(service.title)}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 leading-relaxed">{t(service.description)}</p>
                   <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6">
                     <Icon icon="material-symbols:group-outline" className="text-base" />
                     <span>
@@ -312,7 +301,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
                       <span className="text-xs text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{t("Giá từ")}</span>
                       <div className="flex items-baseline gap-0.5">
                         <span className="text-xl font-bold text-teal-600 dark:text-teal-400">{formatNumberVI(service.price)}đ</span>
-                        <span className="text-xs text-slate-400 dark:text-slate-500">/{service.priceType.split(" ").pop()}</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">/{t(`unit_${service.priceType}`)}</span>
                       </div>
                     </div>
                     <button

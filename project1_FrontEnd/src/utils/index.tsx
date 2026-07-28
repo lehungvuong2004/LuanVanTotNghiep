@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { ROLES, getUserRole } from "../constants/roles";
+import i18n from "../i18n";
 export { exportToExcel } from "./excelExporter";
 
 const numberFormatter = new Intl.NumberFormat("vi-VN");
@@ -18,7 +19,7 @@ export function fmtVND(value: any) {
     const ty = num / 1_000_000_000;
     const rounded = Math.round(ty * 100) / 100;
     const formatted = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2).replace(".", ",");
-    return `${formatted} tỷ đ`;
+    return `${formatted} ${i18n.t("tỷ đ")}`;
   }
   return `${numberFormatter.format(num)} ₫`;
 }
@@ -98,15 +99,15 @@ export const formatVietnamDateTime = formatDateTime;
 export const getRatingNote = (rating: any) => {
   switch (rating) {
     case 5:
-      return "Xuất sắc (5/5)";
+      return i18n.t("Xuất sắc (5/5)");
     case 4:
-      return "Tốt (4/5)";
+      return i18n.t("Tốt (4/5)");
     case 3:
-      return "Bình thường (3/5)";
+      return i18n.t("Bình thường (3/5)");
     case 2:
-      return "Tệ (2/5)";
+      return i18n.t("Tệ (2/5)");
     case 1:
-      return "Rất tệ (1/5)";
+      return i18n.t("Rất tệ (1/5)");
     default:
       return `${rating}/5`;
   }
@@ -155,25 +156,25 @@ export const getRoleBadge = (role?: any) => {
     case ROLES.ADMIN:
       return (
         <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-650 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">
-          Admin
+          {i18n.t("Admin")}
         </span>
       );
     case ROLES.OPERATOR:
       return (
         <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 whitespace-nowrap">
-          Vận Hành
+          {i18n.t("Vận Hành")}
         </span>
       );
     case ROLES.HELPER:
       return (
         <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 whitespace-nowrap">
-          Người Giúp Việc
+          {i18n.t("Người Giúp Việc")}
         </span>
       );
     default:
       return (
         <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-teal-50 dark:bg-teal-950/20 text-[#026E5F] dark:text-[#52c1b2] border border-teal-100 dark:border-teal-900/30 whitespace-nowrap">
-          Khách Hàng
+          {i18n.t("Khách Hàng")}
         </span>
       );
   }
