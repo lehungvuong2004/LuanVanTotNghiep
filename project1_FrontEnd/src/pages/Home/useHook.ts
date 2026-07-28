@@ -6,8 +6,11 @@ import cleaningImg from "../../assets/images/home_produce/cleaning.webp";
 import cookingImg from "../../assets/images/home_produce/cooking.webp";
 import designerImg from "../../assets/images/home_produce/designer.webp";
 import gradenImg from "../../assets/images/home_produce/graden.webp";
+import { useNavigate } from "react-router-dom";
 import { getBannersPublic } from "../../api/bannersApi/banners";
 import type { Banner } from "../../api/bannersApi/banners";
+import { useGeolocation } from "../../hooks/useGeolocation";
+import { parseVietnamAddress } from "../../types/location";
 
 export const useHome = () => {
   const { t } = useTranslation();
@@ -19,13 +22,41 @@ export const useHome = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loadingBanners, setLoadingBanners] = useState<boolean>(true);
 
+  const [searchVal, setSearchVal] = useState("");
+  const [locationVal, setLocationVal] = useState("");
+  const navigate = useNavigate();
+
+  const { address, addressDetails } = useGeolocation();
+  useEffect(() => {
+    if (address) {
+      const parsed = parseVietnamAddress(addressDetails, address);
+      if (parsed.district) {
+        // eslint-disable-next-line
+        setLocationVal(parsed.district);
+      } else {
+        setLocationVal(address);
+      }
+    }
+  }, [address, addressDetails]);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchVal.trim()) {
+      params.append("search", searchVal.trim());
+    }
+    if (locationVal.trim()) {
+      params.append("district", locationVal.trim());
+    }
+    navigate(`/dich-vu?${params.toString()}`);
+  };
+
   const fetchBanners = useCallback(async () => {
     await Promise.resolve();
     setLoadingBanners(true);
     try {
       const res = await getBannersPublic();
       setBanners(res.data);
-    } catch {
+    } catch (err) {
       console.error("Lỗi khi tải danh sách banner công khai:", err);
     } finally {
       setLoadingBanners(false);
@@ -174,5 +205,11 @@ export const useHome = () => {
     produceData,
     reviewData,
     banners,
-    loadingBanners };
+    loadingBanners,
+    searchVal,
+    setSearchVal,
+    locationVal,
+    setLocationVal,
+    handleSearch
+  };
 };

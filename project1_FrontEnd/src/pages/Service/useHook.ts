@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { getHelpersPublic, type HelperProfile } from "../../api/helpers";
 import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/servicesApi/services";
 
@@ -47,6 +48,7 @@ export interface ServiceFilterParams {
   rating_min?: number;
   limit?: number;
   page?: number;
+  search?: string;
 }
 
 // Map base_price number → định dạng giá tiêu chuẩn
@@ -124,10 +126,71 @@ export const useService = () => {
   const [helperPage, setHelperPage] = useState(1);
   const [helperLastPage, setHelperLastPage] = useState(1);
   const [sortBy, setSortBy] = useState<string>("popular");
-  const [filterParams, setFilterParams] = useState<ServiceFilterParams>({
-    limit: 8,
-    page: 1,
-    city: "TP.HCM" });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize filter params from URL if present
+  const [filterParams, setFilterParams] = useState<ServiceFilterParams>(() => {
+    const searchVal = searchParams.get("search") || undefined;
+    const districtVal = searchParams.get("district") || undefined;
+
+    const validDistricts = ["Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
+    let matchedDistrict: string | undefined = undefined;
+    if (districtVal) {
+      const normalized = districtVal.toLowerCase().trim();
+      matchedDistrict = validDistricts.find(
+        (d) => d.toLowerCase() === normalized || normalized.includes(d.toLowerCase())
+      );
+      if (!matchedDistrict) {
+        if (normalized.includes("q1") || normalized.includes("quận 1") || normalized === "1") matchedDistrict = "Quận 1";
+        else if (normalized.includes("q3") || normalized.includes("quận 3") || normalized === "3") matchedDistrict = "Quận 3";
+        else if (normalized.includes("q10") || normalized.includes("quận 10") || normalized === "10") matchedDistrict = "Quận 10";
+        else if (normalized.includes("bình thạnh") || normalized.includes("binh thanh")) matchedDistrict = "Bình Thạnh";
+        else if (normalized.includes("phú nhuận") || normalized.includes("phu nhuan")) matchedDistrict = "Phú Nhuận";
+      }
+    }
+
+    return {
+      limit: 8,
+      page: 1,
+      city: "TP.HCM",
+      search: searchVal,
+      district: matchedDistrict
+    };
+  });
+
+  // Watch URL params (e.g. back button, direct navigation)
+  useEffect(() => {
+    const searchVal = searchParams.get("search") || undefined;
+    const districtVal = searchParams.get("district") || undefined;
+
+    const validDistricts = ["Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
+    let matchedDistrict: string | undefined = undefined;
+    if (districtVal) {
+      const normalized = districtVal.toLowerCase().trim();
+      matchedDistrict = validDistricts.find(
+        (d) => d.toLowerCase() === normalized || normalized.includes(d.toLowerCase())
+      );
+      if (!matchedDistrict) {
+        if (normalized.includes("q1") || normalized.includes("quận 1") || normalized === "1") matchedDistrict = "Quận 1";
+        else if (normalized.includes("q3") || normalized.includes("quận 3") || normalized === "3") matchedDistrict = "Quận 3";
+        else if (normalized.includes("q10") || normalized.includes("quận 10") || normalized === "10") matchedDistrict = "Quận 10";
+        else if (normalized.includes("bình thạnh") || normalized.includes("binh thanh")) matchedDistrict = "Bình Thạnh";
+        else if (normalized.includes("phú nhuận") || normalized.includes("phu nhuan")) matchedDistrict = "Phú Nhuận";
+      }
+    }
+
+    setFilterParams((prev) => {
+      if (prev.search === searchVal && prev.district === (matchedDistrict || prev.district)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        search: searchVal,
+        district: matchedDistrict || prev.district
+      };
+    });
+  }, [searchParams]);
 
   // Fetch danh mục từ API
   useEffect(() => {
@@ -135,7 +198,7 @@ export const useService = () => {
       try {
         const res = await getCategoriesApi();
         setCategories(res?.data ?? []);
-      } catch {
+      } catch (err) {
         console.error("[useService] fetchCategories failed:", err);
       }
     };
@@ -151,10 +214,11 @@ export const useService = () => {
         category_id: params.category_id,
         price_type: params.price_type,
         min_price: params.min_price,
-        max_price: params.max_price });
+        max_price: params.max_price
+      });
       const rawServices = res?.data?.data ?? [];
       setServices(rawServices.map((s) => mapService(s, t)));
-    } catch {
+    } catch (err) {
       console.error("[useService] fetchServices failed:", err);
       setServices([]);
     } finally {
@@ -169,7 +233,11 @@ export const useService = () => {
       const res = await getHelpersPublic({
         limit: params.limit,
         page: params.page,
-        service_id: params.service_id });
+        service_id: params.service_id,
+        city: params.city !== "Tất cả" ? params.city : undefined,
+        district: params.district !== "Tất cả" ? params.district : undefined,
+        rating_min: params.rating_min
+      });
       const pagination = res?.data;
       const rawHelpers: HelperProfile[] = pagination?.data ?? [];
 
@@ -177,7 +245,7 @@ export const useService = () => {
       setTotalHelpers(pagination?.total ?? 0);
       setHelperPage(pagination?.current_page ?? 1);
       setHelperLastPage(pagination?.last_page ?? 1);
-    } catch {
+    } catch (err) {
       console.error("[useService] fetchHelpers failed:", err);
       setHelpers([]);
     } finally {
@@ -196,7 +264,19 @@ export const useService = () => {
   // Cập nhật filter (gộp, không ghi đè)
   const updateHelperFilter = useCallback((patch: Partial<ServiceFilterParams>) => {
     setFilterParams((prev) => ({ ...prev, ...patch, page: 1 }));
-  }, []);
+    setSearchParams((prevParams) => {
+      const next = new URLSearchParams(prevParams);
+      if ("search" in patch) {
+        if (patch.search) next.set("search", patch.search);
+        else next.delete("search");
+      }
+      if ("district" in patch) {
+        if (patch.district) next.set("district", patch.district);
+        else next.delete("district");
+      }
+      return next;
+    });
+  }, [setSearchParams]);
 
   // Đổi trang
   const goToHelperPage = useCallback((page: number) => {
@@ -211,6 +291,15 @@ export const useService = () => {
       }
       if (filterParams.rating_min && s.rating < filterParams.rating_min) {
         return false;
+      }
+      if (filterParams.search) {
+        const query = filterParams.search.toLowerCase().trim();
+        const titleMatch = s.title.toLowerCase().includes(query);
+        const descMatch = s.description.toLowerCase().includes(query);
+        const catMatch = s.category.toLowerCase().includes(query);
+        if (!titleMatch && !descMatch && !catMatch) {
+          return false;
+        }
       }
       return true;
     })

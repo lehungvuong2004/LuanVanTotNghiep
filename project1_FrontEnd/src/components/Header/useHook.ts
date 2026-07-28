@@ -8,6 +8,8 @@ import type { NewsItem as ApiNewsItem } from "../../api/newsApi/news";
 import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from "../../api/notificationsApi/notifications";
 import type { Notification } from "../../api/notificationsApi/notifications";
 import { useToast } from "../../contexts/ToastContext";
+import { useGeolocation } from "../../hooks/useGeolocation";
+import { parseVietnamAddress } from "../../types/location";
 
 export interface Category {
   name: string;
@@ -41,6 +43,9 @@ export const useHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const [isLocating, setIsLocating] = useState(false);
+  const { getCurrentLocation, loading: geoLoading, error: geoError, address, addressDetails } = useGeolocation();
+
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem("access_token");
   });
@@ -56,6 +61,31 @@ export const useHeader = () => {
   });
 
   const { showToast } = useToast();
+
+  const handleGetCurrentLocation = useCallback(() => {
+    setIsLocating(true);
+    getCurrentLocation();
+  }, [getCurrentLocation]);
+
+  useEffect(() => {
+    if (!isLocating) return;
+    if (geoError) {
+      showToast("error", t("Lỗi định vị"), geoError);
+      // eslint-disable-next-line
+      setIsLocating(false);
+    }
+  }, [geoError, isLocating, showToast, t]);
+
+  useEffect(() => {
+    if (!isLocating) return;
+    if (address) {
+      const parsed = parseVietnamAddress(addressDetails, address);
+      const displayLocation = parsed.district || address;
+      showToast("success", t("Định vị thành công"), displayLocation);
+      // eslint-disable-next-line
+      setIsLocating(false);
+    }
+  }, [address, addressDetails, isLocating, showToast, t]);
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("access_token"));
@@ -414,5 +444,7 @@ export const useHeader = () => {
     bottomLinks,
     newsItems,
     categoryDetails,
+    geoLoading,
+    handleGetCurrentLocation
   };
 };

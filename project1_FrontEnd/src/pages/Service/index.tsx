@@ -130,6 +130,30 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
       </div>
 
       <div className={`flex-col gap-5 lg:gap-6 ${isOpenMobile ? "flex" : "hidden lg:flex"}`}>
+        {/* Tìm kiếm */}
+        <div>
+          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Tìm kiếm")}</h4>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5">
+            <Icon icon="material-symbols:search-rounded" className="text-slate-400 text-xl shrink-0" />
+            <input
+              type="text"
+              placeholder={t("Nhập tên dịch vụ...")}
+              value={filterParams.search ?? ""}
+              onChange={(e) => onFilterChange({ search: e.target.value || undefined })}
+              className="flex-1 bg-transparent text-sm outline-none text-slate-700 dark:text-slate-300 placeholder-slate-400 font-semibold"
+            />
+            {filterParams.search && (
+              <button
+                type="button"
+                onClick={() => onFilterChange({ search: undefined })}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer transition-colors shrink-0"
+              >
+                <Icon icon="material-symbols:close-rounded" className="text-lg" />
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Giao diện lọc Thành phố */}
         <div>
           <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
@@ -219,6 +243,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setVisibleCount(6);
   }, [services]);
 
@@ -471,6 +496,7 @@ export const Service = () => {
       min_price: undefined,
       max_price: undefined,
       service_id: undefined,
+      search: undefined
     });
   };
 

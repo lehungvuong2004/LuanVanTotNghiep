@@ -47,7 +47,7 @@ export const NewsDetail = () => {
     return (
       <div className="dark:bg-slate-900 min-h-screen pt-24 flex justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-slate-500 dark:text-slate-400 text-sm">{t("Đang tải bài viết...")}</p>
         </div>
       </div>
@@ -59,7 +59,7 @@ export const NewsDetail = () => {
       <div className="dark:bg-slate-900 min-h-screen pt-24 flex flex-col items-center gap-4 text-slate-600 dark:text-slate-300">
         <Icon icon="material-symbols:error-outline" className="text-6xl text-red-400" />
         <p className="text-lg font-semibold">{error || t("Bài viết không tồn tại.")}</p>
-        <Link to="/tin-tuc" className="px-5 py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors">
+        <Link to="/tin-tuc" className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
           {t("Quay về Tin tức")}
         </Link>
       </div>
@@ -73,9 +73,9 @@ export const NewsDetail = () => {
         <article className="lg:col-span-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 mb-6">
-            <Link to="/" className="hover:text-teal-600 transition-colors">{t("Trang chủ")}</Link>
+            <Link to="/" className="hover:text-indigo-650 transition-colors">{t("Trang chủ")}</Link>
             <Icon icon="material-symbols:chevron-right" />
-            <Link to="/tin-tuc" className="hover:text-teal-600 transition-colors">{t("Tin tức")}</Link>
+            <Link to="/tin-tuc" className="hover:text-indigo-650 transition-colors">{t("Tin tức")}</Link>
             <Icon icon="material-symbols:chevron-right" />
             <span className="text-slate-600 dark:text-slate-400 line-clamp-1 font-medium">{article.title}</span>
           </div>
@@ -89,7 +89,7 @@ export const NewsDetail = () => {
               <Icon icon="material-symbols:calendar-today-outline" className="text-base" />
               {formatDate(article.created_at)}
             </span>
-            <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+            <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-750 text-slate-600 dark:text-slate-300 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
               {t("Tin tức")}
             </span>
           </div>
@@ -107,14 +107,14 @@ export const NewsDetail = () => {
 
           {/* Summary */}
           {article.summary && (
-            <div className="bg-teal-50 dark:bg-teal-950/30 border-l-4 border-teal-500 rounded-xl p-5 mb-8">
-              <p className="text-teal-800 dark:text-teal-200 font-semibold italic leading-relaxed">{article.summary}</p>
+            <div className="bg-slate-50 dark:bg-slate-800/40 border-l-4 border-slate-350 dark:border-slate-600 rounded-xl p-5 mb-8">
+              <p className="text-slate-700 dark:text-slate-300 font-medium italic leading-relaxed">{article.summary}</p>
             </div>
           )}
 
           {/* Content — rendered as HTML from backend */}
           <div
-            className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-extrabold prose-p:leading-relaxed prose-img:rounded-xl prose-a:text-teal-600 dark:prose-a:text-teal-400 text-base leading-relaxed"
+            className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-extrabold prose-p:leading-relaxed prose-img:rounded-xl prose-a:text-indigo-600 dark:prose-a:text-indigo-400 text-base leading-relaxed"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
@@ -122,7 +122,7 @@ export const NewsDetail = () => {
           <div className="mt-12 pt-6 border-t border-slate-100 dark:border-slate-700/50">
             <Link
               to="/tin-tuc"
-              className="inline-flex items-center gap-2 text-teal-600 dark:text-teal-400 font-semibold hover:underline"
+              className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
             >
               <Icon icon="material-symbols:arrow-back" />
               {t("Quay về danh sách tin tức")}
@@ -134,7 +134,7 @@ export const NewsDetail = () => {
         <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:h-fit lg:self-start">
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-6 shadow-sm">
             <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-5 text-base">
-              <Icon icon="material-symbols:newspaper" className="text-xl text-teal-600" />
+              <Icon icon="material-symbols:newspaper" className="text-xl text-indigo-600" />
               {t("Bài viết liên quan")}
             </h3>
             {relatedNews.length === 0 ? (
@@ -151,13 +151,13 @@ export const NewsDetail = () => {
                       {item.thumbnail ? (
                         <img src={getImageUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
-                        <div className="w-full h-full bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center">
+                        <div className="w-full h-full bg-linear-to-br from-indigo-400 to-blue-500 flex items-center justify-center">
                           <Icon icon="material-symbols:newspaper" className="text-xl text-white/70" />
                         </div>
                       )}
                     </div>
                     <div className="flex flex-col">
-                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug line-clamp-2">
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug line-clamp-2">
                         {item.title}
                       </p>
                       <span className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">

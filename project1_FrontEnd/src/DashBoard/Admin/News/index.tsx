@@ -166,7 +166,7 @@ export const NewsAdmin = () => {
                 )}
                 <div className="absolute top-3 left-3">
                   <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-bold shadow-sm backdrop-blur-md flex items-center gap-1.5 ${
+                    className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md flex items-center gap-1.5 ${
                       item.status === "published" ? "bg-emerald-500/90 text-white" : "bg-amber-500/95 text-white"
                     }`}
                   >
@@ -325,7 +325,7 @@ export const NewsAdmin = () => {
                   <Icon icon="material-symbols:check-circle-outline-rounded" className="text-xl shrink-0" />
                   <div className="text-left">
                     <p className="text-xs font-bold">Xuất Bản</p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Hiển thị công khai</p>
+                    <p className="text-xs opacity-75 mt-0.5">Hiển thị công khai</p>
                   </div>
                 </div>
 
@@ -340,7 +340,7 @@ export const NewsAdmin = () => {
                   <Icon icon="material-symbols:edit-document-outline" className="text-xl shrink-0" />
                   <div className="text-left">
                     <p className="text-xs font-bold">Bản Nháp</p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Lưu ẩn, có thể sửa lại</p>
+                    <p className="text-xs opacity-75 mt-0.5">Lưu ẩn, có thể sửa lại</p>
                   </div>
                 </div>
               </div>

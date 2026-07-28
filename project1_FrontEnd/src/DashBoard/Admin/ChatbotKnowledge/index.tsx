@@ -390,7 +390,7 @@ export const ChatbotKnowledgeBase = () => {
                   onChange={(e) => setFormKeyword(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-slate-202 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-[#026E5F]/20 focus:outline-hidden focus:border-[#026E5F] text-slate-700 dark:text-slate-200"
                 />
-                <span className="text-[10px] text-slate-400">Không bắt buộc. Giúp hệ thống dễ khớp ưu tiên tri thức hơn.</span>
+                <span className="text-xs text-slate-400">Không bắt buộc. Giúp hệ thống dễ khớp ưu tiên tri thức hơn.</span>
               </div>
 
               <div className="flex flex-col gap-1">

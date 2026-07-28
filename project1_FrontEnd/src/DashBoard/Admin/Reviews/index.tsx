@@ -534,11 +534,11 @@ export const Reviews = () => {
             {/* Meta Info Readonly */}
             <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Khách Hàng</span>
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Khách Hàng</span>
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">{customer?.full_name || `Khách hàng #${editingReview.customer_id}`}</span>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Người Giúp Việc</span>
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Người Giúp Việc</span>
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">{helper?.full_name || `Người giúp việc #${editingReview.helper_id}`}</span>
               </div>
             </div>

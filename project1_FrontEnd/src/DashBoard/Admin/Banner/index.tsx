@@ -192,7 +192,7 @@ export const Banners = () => {
                 {/* Top overlay elements */}
                 <div className="absolute top-3 left-3">
                   <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-bold shadow-sm backdrop-blur-md flex items-center gap-1.5 ${
+                    className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md flex items-center gap-1.5 ${
                       banner.status === "active" ? "bg-emerald-500/90 text-white" : "bg-amber-500/95 text-white"
                     }`}
                   >
@@ -406,7 +406,7 @@ export const Banners = () => {
                   <Icon icon="material-symbols:check-circle-outline-rounded" className="text-xl shrink-0" />
                   <div className="text-left">
                     <p className="text-xs font-bold">Hiển thị</p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Kích hoạt banner</p>
+                    <p className="text-xs opacity-75 mt-0.5">Kích hoạt banner</p>
                   </div>
                 </div>
 
@@ -421,7 +421,7 @@ export const Banners = () => {
                   <Icon icon="material-symbols:block-rounded" className="text-xl shrink-0" />
                   <div className="text-left">
                     <p className="text-xs font-bold">Tạm ẩn</p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Ẩn khỏi người dùng</p>
+                    <p className="text-xs opacity-75 mt-0.5">Ẩn khỏi người dùng</p>
                   </div>
                 </div>
               </div>

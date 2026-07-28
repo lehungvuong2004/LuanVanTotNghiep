@@ -194,7 +194,7 @@ export const ActivityLogs = () => {
                               </p>
                               {user && getRoleBadge(user.role_id)}
                             </div>
-                            {user && <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{user.email}</p>}
+                            {user && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{user.email}</p>}
                           </div>
                         </div>
                       </td>

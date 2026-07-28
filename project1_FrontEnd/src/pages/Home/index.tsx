@@ -18,7 +18,7 @@ import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 export const Home = () => {
   const { t } = useTranslation();
-  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners } = useHome();
+  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } = useHome();
 
   const swiperRef = useRef<any>(null);
 
@@ -84,8 +84,13 @@ export const Home = () => {
                     <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
                     <input
                       type="text"
+                      value={searchVal}
+                      onChange={(e) => setSearchVal(e.target.value)}
                       placeholder={bannerData.searchPlaceholders.service}
                       className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSearch();
+                      }}
                     />
                   </div>
 
@@ -93,12 +98,20 @@ export const Home = () => {
                     <Icon icon="lucide:map-pin" className="text-gray-400 text-xl shrink-0" />
                     <input
                       type="text"
+                      value={locationVal}
+                      onChange={(e) => setLocationVal(e.target.value)}
                       placeholder={bannerData.searchPlaceholders.location}
                       className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSearch();
+                      }}
                     />
                   </div>
 
-                  <button className="w-full md:w-auto cursor-pointer bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-md">
+                  <button
+                    onClick={handleSearch}
+                    className="w-full md:w-auto cursor-pointer bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-md"
+                  >
                     <Icon icon="lucide:search" className="text-lg" />
                     {t("Tìm kiếm")}
                   </button>

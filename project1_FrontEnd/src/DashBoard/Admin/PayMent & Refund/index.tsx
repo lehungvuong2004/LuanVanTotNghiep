@@ -162,7 +162,7 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
               >
                 <Icon icon={tab === "payments" ? "material-symbols:payments-outline-rounded" : "material-symbols:undo-rounded"} />
                 {tab === "payments" ? "Thanh toán" : "Hoàn tiền"}
-                <span className="ml-1 rounded-full bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                <span className="ml-1 rounded-full bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 text-xs font-bold text-slate-600 dark:text-slate-300">
                   {tab === "payments" ? paymentsTotal : refundsTotal}
                 </span>
               </button>

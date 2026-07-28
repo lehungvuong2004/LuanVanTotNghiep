@@ -26,11 +26,10 @@ export const ImageUpload = ({
     setLoading(true);
     try {
       const res = await onUpload(file);
-      // Ưu tiên URL từ Cloudflare R2, nếu không thì lấy path
       const imgUrl = res?.url || res?.data?.url || res?.path || res?.data?.path || "";
       if (imgUrl) onChange(imgUrl);
     } catch {
-      console.error("Lỗi upload ảnh:", err);
+      console.error("Lỗi upload ảnh");
     } finally {
       setLoading(false);
       e.target.value = "";
@@ -40,7 +39,7 @@ export const ImageUpload = ({
   // Tỉ lệ khung hình (Khối vuông / Video / Banner)
   const aspectClass =
     aspectRatio === "square"
-      ? "aspect-square max-w-[160px]"
+      ? "aspect-square max-w-40"
       : aspectRatio === "banner"
       ? "aspect-[21/9]"
       : "aspect-video";

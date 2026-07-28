@@ -279,7 +279,7 @@ export const Payment = () => {
                     <Icon icon={m.icon} className="text-lg shrink-0" />
                     {m.label}
                     {m.value === "vnpay" && form.payment_method === "vnpay" && (
-                      <span className="ml-auto text-[10px] font-bold bg-[#006eed] text-white px-1.5 py-0.5 rounded">
+                      <span className="ml-auto text-xs font-bold bg-[#006eed] text-white px-1.5 py-0.5 rounded">
                         {t("Cổng trực tiếp")}
                       </span>
                     )}

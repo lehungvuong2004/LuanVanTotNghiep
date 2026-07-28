@@ -20,41 +20,73 @@ class ChatbotController extends Controller
 
     $message = $fields['message'];
     $lowerMsg = mb_strtolower($message, 'UTF-8');
+    $normMsg = $this->normalizeText($message);
 
     // ==== BƯỚC 1: TRUY XUẤT NGỮ CẢNH RAG NỘI BỘ (Local Retrieval from MySQL) ====
     $allKnowledge = [];
     try {
-        $allKnowledge = ChatbotKnowledge::all();
+      $allKnowledge = ChatbotKnowledge::all();
     } catch (\Exception $e) {
-        Log::error('Chatbot RAG local database query failed (check if table chatbot_knowledges exists): ' . $e->getMessage());
+      Log::error('Chatbot RAG local database query failed (check if table chatbot_knowledges exists): ' . $e->getMessage());
     }
-    
+
     $scoredKnowledge = [];
 
     foreach ($allKnowledge as $item) {
       $score = 0;
 
       // 1. Kiểm tra khớp từ khóa chính (Keyword matching)
-      if ($item->keyword && str_contains($lowerMsg, mb_strtolower($item->keyword, 'UTF-8'))) {
-        $score += 15;
+      if ($item->keyword) {
+        $keywordsList = explode(',', $item->keyword);
+        foreach ($keywordsList as $kw) {
+          $kwClean = trim(mb_strtolower($kw, 'UTF-8'));
+          $kwNorm = $this->normalizeText($kwClean);
+          if ($kwClean !== '') {
+            // Khớp chính xác hoặc khớp không dấu
+            if (str_contains($lowerMsg, $kwClean) || str_contains($normMsg, $kwNorm)) {
+              $score += 30; // Cộng điểm lớn cho khớp từ khóa chính
+              break;
+            }
+          }
+        }
       }
 
       $questionClean = mb_strtolower($item->question, 'UTF-8');
+      $questionNorm = $this->normalizeText($item->question);
       $contentClean = mb_strtolower($item->content, 'UTF-8');
+      $contentNorm = $this->normalizeText($item->content);
 
-      // 2. Kiểm tra khớp nguyên câu hỏi
-      if (str_contains($lowerMsg, $questionClean) || str_contains($questionClean, $lowerMsg)) {
-        $score += 8;
+      // 2. Kiểm tra khớp toàn bộ câu hỏi (Có dấu và không dấu)
+      if (
+        str_contains($lowerMsg, $questionClean) || str_contains($questionClean, $lowerMsg) ||
+        str_contains($normMsg, $questionNorm) || str_contains($questionNorm, $normMsg)
+      ) {
+        $score += 15;
       }
 
       // 3. Tính điểm trùng lặp từ vựng đơn lẻ (Word intersection match)
       $inputWords = explode(' ', $lowerMsg);
+      $normWords = explode(' ', $normMsg);
+
+      // Trùng từ có dấu
       foreach ($inputWords as $word) {
         if (mb_strlen($word) > 2) {
           if (str_contains($questionClean, $word)) {
-            $score += 3;
+            $score += 4;
           }
           if (str_contains($contentClean, $word)) {
+            $score += 1.5;
+          }
+        }
+      }
+
+      // Trùng từ không dấu
+      foreach ($normWords as $word) {
+        if (mb_strlen($word) > 2) {
+          if (str_contains($questionNorm, $word)) {
+            $score += 3;
+          }
+          if (str_contains($contentNorm, $word)) {
             $score += 1;
           }
         }
@@ -173,8 +205,8 @@ Câu hỏi của khách hàng: {$message}"]
 
     if (!empty($q)) {
       $query->where('keyword', 'LIKE', "%{$q}%")
-            ->orWhere('question', 'LIKE', "%{$q}%")
-            ->orWhere('content', 'LIKE', "%{$q}%");
+        ->orWhere('question', 'LIKE', "%{$q}%")
+        ->orWhere('content', 'LIKE', "%{$q}%");
     }
 
     $knowledges = $query->orderBy('id', 'desc')->paginate(15);
@@ -336,7 +368,7 @@ Câu hỏi của khách hàng: {$message}"]
         if ($response->successful()) {
           return $this->successResponse($response->json(), 'Đồng bộ tri thức lên n8n thành công!');
         }
-        
+
         Log::warning('N8n sync response error: ' . $response->body());
       } catch (\Exception $e) {
         Log::error('Chatbot sync error: ' . $e->getMessage());
@@ -345,5 +377,28 @@ Câu hỏi của khách hàng: {$message}"]
     }
 
     return $this->successResponse(null, 'Tri thức đã được lưu cục bộ. Hãy thiết lập N8N_WORKFLOW_URL để có thể đồng bộ tự động sang Vector DB!');
+  }
+
+  /**
+   * Chuẩn hóa tiếng Việt không dấu để so khớp từ vựng tối ưu
+   */
+  private function normalizeText($str)
+  {
+    if (!$str) return '';
+    $str = mb_strtolower($str, 'UTF-8');
+
+    $unicode = array(
+      'a' => 'á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ',
+      'd' => 'đ',
+      'e' => 'é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ',
+      'i' => 'í|ì|ỉ|ĩ|ị',
+      'o' => 'ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ',
+      'u' => 'ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự',
+      'y' => 'ý|ỳ|ỷ|ỹ|ỵ',
+    );
+    foreach ($unicode as $nonUnicode => $uni) {
+      $str = preg_replace("/($uni)/i", $nonUnicode, $str);
+    }
+    return trim($str);
   }
 }

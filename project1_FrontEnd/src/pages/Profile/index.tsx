@@ -47,12 +47,8 @@ export const Profile = () => {
   const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
 
   const getGenderText = () => {
-    const gender = userProfile?.role_id === ROLES.HELPER 
-      ? helperProfile?.gender 
-      : customerProfile?.gender;
-      
+    const gender = userProfile?.role_id === ROLES.HELPER ? helperProfile?.gender : customerProfile?.gender;
     if (!gender) return null;
-    
     if (gender === "male") return t("Nam");
     if (gender === "female") return t("Nữ");
     if (gender === "other") return t("Khác");
@@ -60,20 +56,16 @@ export const Profile = () => {
   };
 
   const getGenderIcon = () => {
-    const gender = userProfile?.role_id === ROLES.HELPER 
-      ? helperProfile?.gender 
-      : customerProfile?.gender;
-      
+    const gender = userProfile?.role_id === ROLES.HELPER ? helperProfile?.gender : customerProfile?.gender;
+
     if (gender === "male") return "ph:gender-male-bold";
     if (gender === "female") return "ph:gender-female-bold";
     return "ph:gender-neuter-bold";
   };
 
   const getBirthdayText = () => {
-    const birthday = userProfile?.role_id === ROLES.HELPER 
-      ? helperProfile?.birthday 
-      : customerProfile?.birthday;
-      
+    const birthday = userProfile?.role_id === ROLES.HELPER ? helperProfile?.birthday : customerProfile?.birthday;
+
     if (!birthday) return null;
     return formatDate(birthday);
   };
@@ -194,7 +186,7 @@ export const Profile = () => {
             </span>
           )}
         </div>
-        
+
         {/* Row 2: Birthday */}
         {getBirthdayText() && (
           <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-slate-50 dark:bg-slate-900/50 text-slate-955 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 whitespace-nowrap flex items-center gap-1">
@@ -551,14 +543,14 @@ export const Profile = () => {
                     className="flex items-center gap-1.5 bg-teal-50 text-teal-650 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1 px-2.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
                   >
                     {geoLoading && geoTarget === "residential" ? (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-[11px] animate-spin" />
+                      <Icon icon="line-md:loading-twotone-loop" className="text-xs animate-spin" />
                     ) : (
-                      <Icon icon="solar:gps-bold" className="text-[11px]" />
+                      <Icon icon="solar:gps-bold" className="text-xs" />
                     )}
                     {t("Định vị")}
                   </button>
                 </div>
-                {geoError && geoTarget === "residential" && <p className="text-red-500 text-[10px] font-semibold mb-2 text-right">{geoError}</p>}
+                {geoError && geoTarget === "residential" && <p className="text-red-500 text-xs font-semibold mb-2 text-right">{geoError}</p>}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Icon icon="solar:map-point-bold" className="text-lg" />
@@ -573,7 +565,7 @@ export const Profile = () => {
                     value={profileForm.values.address}
                   />
                 </div>
-                <p className="text-[11px] text-slate-405 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
+                <p className="text-xs text-slate-405 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
               </div>
             </div>
 
@@ -643,7 +635,7 @@ export const Profile = () => {
                 <div className="space-y-6">
                   {allCategories.map((category) => (
                     <div key={category.id} className="border-b border-slate-100 dark:border-slate-700/40 pb-4 last:border-0 last:pb-0">
-                      <h6 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">{category.name}</h6>
+                      <h6 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">{category.name}</h6>
                       <div className="flex flex-wrap gap-2.5">
                         {category.services?.map((svc) => {
                           const isAdded = helperSkills.some((sk) => sk.service_id === svc.id);
@@ -723,7 +715,7 @@ export const Profile = () => {
                   <div className="flex items-center flex-wrap gap-2">
                     <span className="font-bold text-slate-800 dark:text-slate-250 text-sm">{addressItem.address}</span>
                     {addressItem.is_default === 1 && (
-                      <span className="bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/50 rounded-md text-[10px] font-extrabold px-1.5 py-0.5 uppercase tracking-wider shrink-0">
+                      <span className="bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/50 rounded-md text-xs font-extrabold px-1.5 py-0.5 uppercase tracking-wider shrink-0">
                         {t("Mặc định")}
                       </span>
                     )}
@@ -947,7 +939,7 @@ export const Profile = () => {
                   onBlur={addressForm.handleBlur}
                   value={addressForm.values.address}
                 />
-                {addressForm.touched.address && addressForm.errors.address && <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.address}</div>}
+                {addressForm.touched.address && addressForm.errors.address && <div className="text-red-500 text-xs mt-1">{addressForm.errors.address}</div>}
               </div>
 
               {/* District */}
@@ -968,7 +960,7 @@ export const Profile = () => {
                   onBlur={addressForm.handleBlur}
                   value={addressForm.values.district}
                 />
-                {addressForm.touched.district && addressForm.errors.district && <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.district}</div>}
+                {addressForm.touched.district && addressForm.errors.district && <div className="text-red-500 text-xs mt-1">{addressForm.errors.district}</div>}
               </div>
 
               {/* City */}
@@ -989,7 +981,7 @@ export const Profile = () => {
                   onBlur={addressForm.handleBlur}
                   value={addressForm.values.city}
                 />
-                {addressForm.touched.city && addressForm.errors.city && <div className="text-red-500 text-[11px] mt-1">{addressForm.errors.city}</div>}
+                {addressForm.touched.city && addressForm.errors.city && <div className="text-red-500 text-xs mt-1">{addressForm.errors.city}</div>}
               </div>
 
               {/* Default checkbox */}
@@ -1087,7 +1079,7 @@ export const Profile = () => {
               {t("Định vị vị trí")}
             </button>
           </div>
-          {geoError && geoTarget === "workingArea" && <p className="text-red-500 text-[10px] font-semibold mb-2">{geoError}</p>}
+          {geoError && geoTarget === "workingArea" && <p className="text-red-500 text-xs font-semibold mb-2">{geoError}</p>}
           <form
             onSubmit={(e) => {
               e.preventDefault();

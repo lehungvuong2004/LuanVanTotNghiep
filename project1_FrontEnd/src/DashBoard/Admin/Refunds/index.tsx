@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { useRefundsHook } from "./useHook";
+import { useRefundsHook } from "./useHook.ts";
 import { Pagination } from "../../../components/Pagination";
 import { fmtVND, getStatusBadge } from "../../../utils";
 import { useAuth } from "../../../hooks/useAuth";
@@ -38,7 +38,6 @@ export const Refunds = () => {
             <p className="text-xs mt-0.5 font-medium text-slate-400">Cần xem xét xử lý</p>
           </div>
         </div>
-
         {/* Card 2: Đã hoàn tiền */}
         <div className="flex items-center gap-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="flex w-12 h-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400">
@@ -122,7 +121,7 @@ export const Refunds = () => {
                     <tr key={r.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/30 transition-colors">
                       <td className="px-5 py-3">
                         <p className="font-bold text-slate-800 dark:text-slate-100 font-mono text-xs">REF-{String(r.id).padStart(4, "0")}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{new Date(r.created_at).toLocaleDateString("vi-VN")}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{new Date(r.created_at).toLocaleDateString("vi-VN")}</p>
                       </td>
                       <td className="px-5 py-3 text-xs font-semibold text-slate-500">PAY-{r.payment_id}</td>
                       <td className="px-5 py-3 text-sm font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">{Number(r.amount || 0).toLocaleString("vi-VN")} ₫</td>

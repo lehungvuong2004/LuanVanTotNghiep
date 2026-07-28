@@ -47,6 +47,8 @@ export const Header = () => {
     bottomLinks,
     newsItems,
     categoryDetails,
+    geoLoading,
+    handleGetCurrentLocation,
   } = useHeader();
 
   const navigate = useNavigate();
@@ -315,7 +317,7 @@ export const Header = () => {
                   >
                     <Icon icon="mdi:bell-outline" className="text-xl" />
                     {unreadCount > 0 && (
-                      <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
+                      <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-[#066d72] dark:ring-slate-800">
                         {unreadCount}
                       </span>
                     )}
@@ -497,7 +499,7 @@ export const Header = () => {
               <div className={`relative group h-full flex items-center cursor-pointer px-3 transition-all duration-300 ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
                 <div className="flex items-center gap-2 cursor-pointer font-medium text-base text-white transition-colors">
                   <Icon icon={isEn ? "twemoji:flag-us-outlying-islands" : "twemoji:flag-vietnam"} className="text-2xl shrink-0" />
-                  <span>{isEn ? t("English") : t("Việt Nam")}</span>
+                  <span className="whitespace-nowrap">{isEn ? t("English") : t("Việt Nam")}</span>
                   <Icon icon="ri:arrow-drop-down-line" className="text-3xl -ml-1" />
                 </div>
 
@@ -527,9 +529,15 @@ export const Header = () => {
                 >
                   <Icon icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"} className="text-xl" />
                 </button>
-                <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105">
-                  <Icon icon="boxicons:location" className="text-xl" />
-                </div>
+                <button
+                  type="button"
+                  onClick={handleGetCurrentLocation}
+                  disabled={geoLoading}
+                  className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 disabled:opacity-50"
+                  title={t("Lấy vị trí hiện tại")}
+                >
+                  <Icon icon={geoLoading ? "line-md:loading-twotone-loop" : "boxicons:location"} className="text-xl" />
+                </button>
                 {/* 
                   Code cũ nút Tin nhắn / Chat trên Header (đã ghi chú lại, không xóa):
                   {isLoggedIn && (
@@ -757,20 +765,20 @@ export const Header = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Link
                       to="/dang-nhap"
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white border border-white/40 hover:bg-white/15 transition-all duration-200"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white border border-white/40 hover:bg-white/15 whitespace-nowrap transition-all duration-200 shrink-0"
                     >
-                      <Icon icon="lucide:log-in" className="text-base" />
-                      <span>{t("Đăng nhập")}</span>
+                      <Icon icon="lucide:log-in" className="text-base shrink-0" />
+                      <span className="whitespace-nowrap">{t("Đăng nhập")}</span>
                     </Link>
                     <Link
                       to="/dang-ky"
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-white text-teal-700 hover:bg-teal-50 shadow-sm transition-all duration-200"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-white text-teal-700 hover:bg-teal-50 shadow-sm whitespace-nowrap transition-all duration-200 shrink-0"
                     >
-                      <Icon icon="lucide:user-plus" className="text-base" />
-                      <span>{t("Đăng ký")}</span>
+                      <Icon icon="lucide:user-plus" className="text-base shrink-0" />
+                      <span className="whitespace-nowrap">{t("Đăng ký")}</span>
                     </Link>
                   </div>
                 )}
@@ -778,7 +786,7 @@ export const Header = () => {
 
               <button
                 onClick={handlePostJobClick}
-                className="bg-white dark:bg-teal-500 text-teal-700 dark:text-white dark:hover:bg-teal-400 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer text-base"
+                className="bg-white dark:bg-teal-500 text-teal-700 dark:text-white dark:hover:bg-teal-400 hover:text-teal-800 font-bold px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 whitespace-nowrap transition-all duration-300 cursor-pointer text-base shrink-0"
               >
                 {t("Đăng bài tuyển")}
               </button>
