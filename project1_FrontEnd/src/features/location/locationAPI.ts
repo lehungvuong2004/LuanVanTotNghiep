@@ -14,9 +14,9 @@ export const fetchReverseGeocoding = async (lat: number, lon: number): Promise<R
     try {
       const fallbackUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=vi`;
       const fallbackRes = await fetch(fallbackUrl);
-      if (!fallbackRes.ok) throw new Error("Fallback failed");
+      if (!fallbackRes.ok) throw new Error("Fallback failed", { cause: err });
       const bgData = await fallbackRes.json();
-      
+
       const adminList = bgData.localityInfo?.administrative || [];
       const distObj = adminList.find((a: any) => a.adminLevel === 6 || a.adminLevel === 7) || {};
       const provObj = adminList.find((a: any) => a.adminLevel === 4) || {};
@@ -39,7 +39,7 @@ export const fetchReverseGeocoding = async (lat: number, lon: number): Promise<R
         boundingbox: [],
       };
     } catch (fallbackErr) {
-      throw new Error("Không thể định vị địa chỉ do lỗi kết nối mạng. Vui lòng thử lại.");
+      throw new Error("Không thể định vị địa chỉ do lỗi kết nối mạng. Vui lòng thử lại.", { cause: fallbackErr });
     }
   }
 };

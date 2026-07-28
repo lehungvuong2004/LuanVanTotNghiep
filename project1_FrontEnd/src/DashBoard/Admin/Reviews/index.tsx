@@ -79,7 +79,7 @@ export const Reviews = () => {
       setCreateRating(5);
       setCreateComment("");
       setIsCreateOpen(false);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setIsSubmitting(false);
@@ -97,7 +97,7 @@ export const Reviews = () => {
       });
       setIsEditOpen(false);
       setEditingReview(null);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setIsSubmitting(false);

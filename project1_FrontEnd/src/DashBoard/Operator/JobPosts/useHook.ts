@@ -164,7 +164,7 @@ export const useApplicationReview = () => {
       try {
         await adminDeleteJobPostApi(id);
         successCount++;
-      } catch (err) {
+      } catch {
         failCount++;
       }
     }
