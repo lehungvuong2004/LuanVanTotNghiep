@@ -99,7 +99,7 @@ export const useProfile = () => {
     try {
       const res = await getCustomerAddressesApi();
       setAddresses(res.data);
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch addresses:", err);
     }
   };
@@ -108,7 +108,7 @@ export const useProfile = () => {
     try {
       const res = await getHelperSkillsApi();
       setHelperSkills(res.data || []);
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch helper skills:", err);
     }
   };
@@ -117,7 +117,7 @@ export const useProfile = () => {
     try {
       const res = await getHelperWorkingAreasApi();
       setHelperWorkingAreas(res.data || []);
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch helper working areas:", err);
     }
   };

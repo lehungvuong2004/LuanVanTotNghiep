@@ -25,7 +25,7 @@ export const useHome = () => {
     try {
       const res = await getBannersPublic();
       setBanners(res.data);
-    } catch (err) {
+    } catch {
       console.error("Lỗi khi tải danh sách banner công khai:", err);
     } finally {
       setLoadingBanners(false);

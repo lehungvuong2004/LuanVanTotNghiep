@@ -361,7 +361,7 @@ export const useHeader = () => {
       const res = await getConversations();
       const sum = res.data.reduce((total, c) => total + c.unread_count, 0);
       setChatUnreadCount(sum);
-    } catch (err) {
+    } catch {
       // silent on errors
     }
   }, []);

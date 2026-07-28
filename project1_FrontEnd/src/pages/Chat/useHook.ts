@@ -49,7 +49,7 @@ export const useChat = () => {
     try {
       const res = await getConversations();
       setConversations(res.data);
-    } catch (err) {
+    } catch {
       console.error("Failed to load conversations:", err);
     } finally {
       if (showLoading) setLoadingConversations(false);
@@ -62,7 +62,7 @@ export const useChat = () => {
       const res = await getChatHistory(partnerNumId);
       setMessages(res.data);
       await markChatAsRead(partnerNumId);
-    } catch (err) {
+    } catch {
       console.error("Failed to load chat history:", err);
     } finally {
       if (showLoading) setLoadingHistory(false);
@@ -127,7 +127,7 @@ export const useChat = () => {
       });
       fetchChatHistory(Number(partnerId), false);
       fetchConversations(false);
-    } catch (err) {
+    } catch {
       console.error("Failed to send message:", err);
     } finally {
       setSending(false);
@@ -141,7 +141,7 @@ export const useChat = () => {
       await deleteMessage(msgId);
       setMessages((prev) => prev.filter((msg) => msg.id !== msgId));
       fetchConversations(false);
-    } catch (err) {
+    } catch {
       console.error("Failed to delete message:", err);
     }
   };

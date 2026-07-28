@@ -333,7 +333,7 @@ export const useBooking = () => {
           ];
           setHelperList(formatted);
         }
-      } catch (err) {
+      } catch {
         console.error("Dashboard Booking - Failed to fetch helpers from DB:", err);
       }
     };

@@ -160,7 +160,7 @@ export const useHistory = () => {
       if (repIds.length > 0) setReportedBookingIds((prev) => Array.from(new Set([...prev, ...repIds])));
 
       setBookings(mapped);
-    } catch (err) {
+    } catch {
       console.error("Error fetching bookings:", err);
     } finally {
       setIsLoading(false);
@@ -199,7 +199,7 @@ export const useHistory = () => {
       // Normalize array if nested in paginator object using ES6
       const appList = Array.isArray(rawApps) ? rawApps : (rawApps?.data ?? []);
       setApplications(appList);
-    } catch (err) {
+    } catch {
       console.error("Error fetching helper applications:", err);
     } finally {
       setIsApplicationsLoading(false);

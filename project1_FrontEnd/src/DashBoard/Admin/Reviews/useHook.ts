@@ -141,7 +141,7 @@ export const useAdminReviews = () => {
       try {
         await deleteReviewAdmin(id);
         successCount++;
-      } catch (err) {
+      } catch {
         failCount++;
       }
     }

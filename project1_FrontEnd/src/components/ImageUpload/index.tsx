@@ -29,7 +29,7 @@ export const ImageUpload = ({
       // Ưu tiên URL từ Cloudflare R2, nếu không thì lấy path
       const imgUrl = res?.url || res?.data?.url || res?.path || res?.data?.path || "";
       if (imgUrl) onChange(imgUrl);
-    } catch (err) {
+    } catch {
       console.error("Lỗi upload ảnh:", err);
     } finally {
       setLoading(false);

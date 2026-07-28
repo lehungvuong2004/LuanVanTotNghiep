@@ -135,7 +135,7 @@ export const useService = () => {
       try {
         const res = await getCategoriesApi();
         setCategories(res?.data ?? []);
-      } catch (err) {
+      } catch {
         console.error("[useService] fetchCategories failed:", err);
       }
     };
@@ -154,7 +154,7 @@ export const useService = () => {
         max_price: params.max_price });
       const rawServices = res?.data?.data ?? [];
       setServices(rawServices.map((s) => mapService(s, t)));
-    } catch (err) {
+    } catch {
       console.error("[useService] fetchServices failed:", err);
       setServices([]);
     } finally {
@@ -177,7 +177,7 @@ export const useService = () => {
       setTotalHelpers(pagination?.total ?? 0);
       setHelperPage(pagination?.current_page ?? 1);
       setHelperLastPage(pagination?.last_page ?? 1);
-    } catch (err) {
+    } catch {
       console.error("[useService] fetchHelpers failed:", err);
       setHelpers([]);
     } finally {

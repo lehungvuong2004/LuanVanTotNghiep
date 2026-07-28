@@ -47,7 +47,7 @@ export const parseVietnamAddress = (addressDetails?: GeoLocationAddress | null, 
   const specificAddress = "";
 
   // 1. City / Province (Tỉnh / Thành phố)
-  let city = details.city || details.state || details.province || details.municipality || "";
+  const city = details.city || details.state || details.province || details.municipality || "";
 
   // 2. District (Quận / Huyện)
   let district = details.city_district || details.county || "";

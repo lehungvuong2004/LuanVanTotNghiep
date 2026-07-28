@@ -161,7 +161,7 @@ export const useRecruitment = () => {
             setAppliedJobIds(appIds);
           }
         }
-      } catch (err) {
+      } catch {
         console.error("Error loading recruitment data:", err);
       } finally {
         setIsLoading(false);
@@ -386,7 +386,7 @@ export const useRecruitment = () => {
     try {
       const res = await getMyJobPostsApi({ limit: 100 });
       setMyJobPosts(res.data.data || []);
-    } catch (err) {
+    } catch {
       console.error("Error loading my job posts:", err);
     } finally {
       setMyPostsLoading(false);
@@ -410,7 +410,7 @@ export const useRecruitment = () => {
     try {
       const res = await getHelperPublicProfileApi(helperId);
       setHelperProfile(res.data);
-    } catch (err) {
+    } catch {
       console.error("Error loading helper profile:", err);
     } finally {
       setHelperProfileLoading(false);
@@ -444,7 +444,7 @@ export const useRecruitment = () => {
         })
       );
       setApplicants(enriched);
-    } catch (err) {
+    } catch {
       console.error("Error loading applications:", err);
     } finally {
       setApplicantsLoading(false);

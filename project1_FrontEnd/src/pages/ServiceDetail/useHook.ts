@@ -72,7 +72,7 @@ export const useServiceDetail = () => {
         const defaultAddr = addrList.find((a) => a.is_default === 1 || (a as any).is_default === true);
         setSelectedAddressId(defaultAddr ? defaultAddr.id : addrList[0].id);
       }
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch customer addresses:", err);
     }
   };
@@ -186,7 +186,7 @@ export const useServiceDetail = () => {
       const revRes = await getHelperReviewsPublic(helperId, { limit: 10 });
       setReviewStats(revRes);
       setReviews(revRes.data?.data ?? []);
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch helper reviews:", err);
       setReviews([]);
       setReviewStats(null);
@@ -208,7 +208,7 @@ export const useServiceDetail = () => {
           setFormHelperId(initialHelperId);
           await fetchHelperReviews(initialHelperId);
         }
-      } catch (err) {
+      } catch {
         console.error("Failed to fetch service detail:", err);
       } finally {
         setLoading(false);
