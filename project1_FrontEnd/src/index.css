@@ -252,9 +252,13 @@ html.dark body {
   border-radius: 50% !important;
   backdrop-filter: blur(4px) !important;
   transition: all 0.3s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  display: none !important;
+}
+@media (min-width: 768px) {
+  .hero-swiper .swiper-button-next,
+  .hero-swiper .swiper-button-prev {
+    display: flex !important;
+  }
 }
 .hero-swiper .swiper-button-next:hover,
 .hero-swiper .swiper-button-prev:hover {

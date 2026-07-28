@@ -6,7 +6,7 @@ import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getImageUrl } from "../../../utils/images";
 import { ROLES } from "../../../constants/roles";
-import { getInitials, getRoleBadge } from "../../../utils";
+import { getInitials, getRoleBadge, getStatusBadge } from "../../../utils";
 import ImageUpload from "../../../components/ImageUpload";
 import { uploadUserAvatarAdmin } from "../../../api/usersApi/users";
 
@@ -62,31 +62,7 @@ export const Users = () => {
     formik,
   } = useUsers();
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "active":
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1.5 w-fit whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-            Hoạt động
-          </span>
-        );
-      case "inactive":
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 flex items-center gap-1.5 w-fit whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
-            Tạm khóa
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 flex items-center gap-1.5 w-fit whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-            Bị khóa
-          </span>
-        );
-    }
-  };
+
 
   const isValidAvatarUrl = (url) => {
     return !!url;
@@ -340,7 +316,7 @@ export const Users = () => {
                   </td>
 
                   {/* Status column */}
-                  <td className="py-3 px-5">{getStatusBadge(user.status)}</td>
+                  <td className="py-3 px-5">{getStatusBadge(user.status, "user")}</td>
 
                   {/* Created At column */}
                   <td className="py-3 px-5 text-xs text-slate-550 dark:text-slate-400 whitespace-nowrap">{new Date(user.created_at).toLocaleDateString("vi-VN")}</td>
@@ -535,7 +511,7 @@ export const Users = () => {
               <div className="grid grid-cols-2 gap-4 pt-1">
                 <div>
                   <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Trạng Thái</label>
-                  <div className="mt-1">{getStatusBadge(currentUser.status)}</div>
+                  <div className="mt-1">{getStatusBadge(currentUser.status, "user")}</div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Nguồn Đăng Ký</label>

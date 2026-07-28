@@ -489,7 +489,7 @@ export const HistoryPage = () => {
               <button
                 onClick={() => openPaymentModal(booking)}
                 title={t("Xem hóa đơn")}
-                className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#026E5F]/10 text-[#026E5F] dark:bg-teal-500/10 dark:text-teal-400 hover:bg-[#026E5F]/20 transition-all cursor-pointer border border-[#026E5F]/20 hover:scale-105"
+                className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-xs font-bold bg-[#026E5F]/10 text-[#026E5F] dark:bg-teal-500/10 dark:text-teal-400 hover:bg-[#026E5F]/20 transition-all cursor-pointer border border-[#026E5F]/20 hover:scale-105"
               >
                 <Icon icon="material-symbols:receipt-long-outline" className="text-xs" />
                 <span>{t("Hóa đơn")}</span>
@@ -645,7 +645,7 @@ export const HistoryPage = () => {
   const renderTable = () => (
     <div className="bg-white dark:bg-slate-850 rounded-3xl border border-slate-200 dark:border-slate-750 shadow-md overflow-hidden">
       <div className="w-full overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[900px]">
+        <table className="w-full text-left border-collapse min-w-4xl">
           {renderTableHead()}
           <tbody className="divide-y divide-slate-200 dark:divide-slate-750">{paginatedBookings.map((booking) => renderTableRow(booking))}</tbody>
         </table>
@@ -898,12 +898,12 @@ export const HistoryPage = () => {
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{helperName}</span>
                               {app.status === "accepted" && (
-                                <span className="px-2 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 rounded-full border border-emerald-250 dark:border-emerald-900/30 whitespace-nowrap shrink-0">
+                                <span className="px-2 py-0.5 text-xs font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 rounded-full border border-emerald-250 dark:border-emerald-900/30 whitespace-nowrap shrink-0">
                                   {t("Đã chấp nhận")}
                                 </span>
                               )}
                               {app.status === "rejected" && (
-                                <span className="px-2 py-0.5 text-[10px] font-extrabold text-rose-600 dark:text-rose-455 bg-rose-50 dark:bg-rose-950/20 rounded-full border border-rose-250 dark:border-rose-900/30 whitespace-nowrap shrink-0">
+                                <span className="px-2 py-0.5 text-xs font-extrabold text-rose-600 dark:text-rose-455 bg-rose-50 dark:bg-rose-950/20 rounded-full border border-rose-250 dark:border-rose-900/30 whitespace-nowrap shrink-0">
                                   {t("Đã từ chối")}
                                 </span>
                               )}
@@ -945,12 +945,12 @@ export const HistoryPage = () => {
                             {app.profile.skills && app.profile.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-3">
                                 {app.profile.skills.slice(0, 3).map((sk: any, idx: number) => (
-                                  <span key={idx} className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-200 dark:bg-slate-850 text-slate-650 dark:text-slate-400 rounded">
+                                  <span key={idx} className="px-1.5 py-0.5 text-xs font-bold bg-slate-200 dark:bg-slate-850 text-slate-650 dark:text-slate-400 rounded">
                                     {sk.service?.name}
                                   </span>
                                 ))}
                                 {app.profile.skills.length > 3 && (
-                                  <span className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-200 dark:bg-slate-850 text-slate-650 dark:text-slate-400 rounded">
+                                  <span className="px-1.5 py-0.5 text-xs font-bold bg-slate-200 dark:bg-slate-850 text-slate-650 dark:text-slate-400 rounded">
                                     +{app.profile.skills.length - 3}
                                   </span>
                                 )}
@@ -1556,7 +1556,7 @@ export const HistoryPage = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-center text-[11px] text-slate-450 dark:text-slate-500">
+                    <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-center text-xs text-slate-450 dark:text-slate-500">
                       {t("Hóa đơn này được tạo tự động bởi hệ thống và có giá trị làm bằng chứng thanh toán hợp lệ.")}
                     </div>
                   </div>

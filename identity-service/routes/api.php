@@ -10,6 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ChatbotController;
 // use App\Http\Controllers\MessageController;
 
 //  PUBLIC — Không cần token
@@ -32,6 +33,9 @@ Route::get('news/{slug}', [NewsController::class, 'show']);
 
 // contact
 Route::post('contacts', [ContactController::class, 'store']);
+
+// chatbot
+Route::post('chatbot/query', [ChatbotController::class, 'query']);
 
 // API nội bộ cho các service khác gọi
 Route::post('internal/notifications', [NotificationController::class, 'createInternal']);
@@ -139,6 +143,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get('contacts',               [ContactController::class, 'index'])->middleware('permission:contacts.view');
     Route::patch('contacts/{id}/process', [ContactController::class, 'process'])->middleware('permission:contacts.process');
     Route::delete('contacts/{id}',       [ContactController::class, 'destroy'])->middleware('permission:contacts.delete');
+
+    // Chatbot Knowledge RAG Management
+    Route::get('chatbot-knowledges',         [ChatbotController::class, 'adminIndex'])->middleware('permission:chatbot_knowledge.view');
+    Route::post('chatbot-knowledges',        [ChatbotController::class, 'adminStore'])->middleware('permission:chatbot_knowledge.create');
+    Route::put('chatbot-knowledges/{id}',    [ChatbotController::class, 'adminUpdate'])->middleware('permission:chatbot_knowledge.update');
+    Route::delete('chatbot-knowledges/{id}', [ChatbotController::class, 'adminDestroy'])->middleware('permission:chatbot_knowledge.delete');
+    Route::post('chatbot-knowledges/import', [ChatbotController::class, 'adminImport'])->middleware('permission:chatbot_knowledge.create');
+    Route::post('chatbot-knowledges/sync',   [ChatbotController::class, 'adminSync'])->middleware('permission:chatbot_knowledge.update');
 
 /*
     // Messages Management

@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Footer } from "../pages/Footer";
 import { Header } from "../components/Header";
 import InformationMarquee from "../components/Description";
-import { ScrollToTop } from "../components/ScrollToTop";
+import { FloatingActionMenu } from "../components/FloatingActionMenu";
 
 export const MainLayout = () => (
   <>
@@ -23,8 +23,8 @@ export const MainLayout = () => (
       <Footer />
     </div>
 
-    {/* Scroll To Top Button */}
-    <ScrollToTop />
+    {/* Menu hành động nổi (Scroll to top & Chatbot) */}
+    <FloatingActionMenu />
   </div>
   </>
 );

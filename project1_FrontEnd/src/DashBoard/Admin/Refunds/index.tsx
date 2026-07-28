@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
 import { useRefundsHook } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { fmtVND } from "../../../utils";
+import { fmtVND, getStatusBadge } from "../../../utils";
 import { useAuth } from "../../../hooks/useAuth";
 
 export const Refunds = () => {
@@ -14,25 +14,7 @@ export const Refunds = () => {
   const { loading, searchQuery, setSearchQuery, refunds, refundsPage, setRefundsPage, refundsTotal, refundStatusFilter, setRefundStatusFilter, handleProcessRefund, computedMetrics, itemsPerPage } =
     useRefundsHook();
 
-  const getStatusBadgeCls = (status: string) => {
-    const map = {
-      pending: "bg-amber-50  dark:bg-amber-950/30  text-amber-600  dark:text-amber-400",
-      approved: "bg-sky-50    dark:bg-sky-950/30    text-sky-600    dark:text-sky-400",
-      rejected: "bg-rose-50   dark:bg-rose-950/30   text-rose-600   dark:text-rose-400",
-      completed: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
-    };
-    return map[status] ?? "bg-slate-100 text-slate-500";
-  };
 
-  const getStatusDotCls = (status: string) => {
-    const map = {
-      pending: "bg-amber-500",
-      approved: "bg-sky-500",
-      rejected: "bg-rose-500",
-      completed: "bg-emerald-500",
-    };
-    return map[status] ?? "bg-slate-400";
-  };
 
   const renderHeader = () => {
     return (
@@ -145,10 +127,7 @@ export const Refunds = () => {
                       <td className="px-5 py-3 text-xs font-semibold text-slate-500">PAY-{r.payment_id}</td>
                       <td className="px-5 py-3 text-sm font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">{Number(r.amount || 0).toLocaleString("vi-VN")} ₫</td>
                       <td className="px-5 py-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusBadgeCls(r.status)}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotCls(r.status)}`} />
-                          {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                        </span>
+                        {getStatusBadge(r.status, "refund")}
                       </td>
                       <td className="px-5 py-3 max-w-xs">
                         <p className="text-xs text-slate-500 truncate" title={r.reason || ""}>

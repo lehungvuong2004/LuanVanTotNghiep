@@ -25,7 +25,7 @@ export const Home = () => {
   const renderBanner = () => {
     if (loadingBanners) {
       return (
-        <div className="relative w-full overflow-hidden flex items-center justify-center bg-gray-900/10" style={{ height: "85vh" }}>
+        <div className="relative w-full overflow-hidden flex items-center justify-center bg-gray-900/10 h-[60vh] md:h-[85vh]">
           {/* Skeleton Overlay */}
           <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
           <div className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10 animate-pulse">
@@ -54,7 +54,7 @@ export const Home = () => {
           ];
 
     return (
-      <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center hero-swiper-container" style={{ height: "85vh" }}>
+      <div ref={containerRef} className="relative w-full overflow-hidden flex items-center justify-center hero-swiper-container h-[60vh] md:h-[85vh]">
         <Swiper
           modules={[Pagination, Autoplay, Navigation]}
           pagination={bannerList.length > 1 ? { clickable: true } : false}
@@ -242,25 +242,25 @@ export const Home = () => {
           </div>
         </div>
 
-        <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "1200px" }}>
+        <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "75rem" }}>
           <div ref={cubeRef} className="w-40 h-52 relative" style={{ transformStyle: "preserve-3d" }}>
             {/* Card 1 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(0deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(0deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={neatlyClothe} alt="Service 1" className="w-full h-full object-cover" />
             </div>
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(90deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(90deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={repairCondition} alt="Service 2" className="w-full h-full object-cover" />
             </div>
 
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(180deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(180deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={repairLight} alt="Service 3" className="w-full h-full object-cover" />
             </div>
@@ -268,7 +268,7 @@ export const Home = () => {
             {/* Card 4 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
-              style={{ transform: "rotateY(270deg) translateZ(190px)", backfaceVisibility: "visible" }}
+              style={{ transform: "rotateY(270deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
               <img src={repairPlumber} alt="Service 4" className="w-full h-full object-cover" />
             </div>

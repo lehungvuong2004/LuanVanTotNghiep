@@ -4,7 +4,7 @@ import { useAdminContacts } from "./useHook";
 import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
-import { getInitials, formatDateTime } from "../../../utils";
+import { getInitials, formatDateTime, getStatusBadge } from "../../../utils";
 
 export const Contacts = () => {
   const { hasPermission } = useAuth();
@@ -62,37 +62,14 @@ export const Contacts = () => {
       await handleProcessContact(selectedContact.id);
       handleCloseProcess();
       handleCloseDetail();
-    } catch (err) {
+    } catch {
       // already handled in hook toast
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
-            Chờ xử lý
-          </span>
-        );
-      case "processed":
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-            Đã xử lý
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/50">
-            {status}
-          </span>
-        );
-    }
-  };
+
 
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -278,7 +255,7 @@ export const Contacts = () => {
                         {c.message}
                       </p>
                     </td>
-                    <td className="py-3.5 px-5">{getStatusBadge(c.status)}</td>
+                    <td className="py-3.5 px-5">{getStatusBadge(c.status, "contact")}</td>
                     <td className="py-3.5 px-5 text-slate-450 dark:text-slate-500">
                       {formatDateTime(c.created_at)}
                     </td>
@@ -387,7 +364,7 @@ export const Contacts = () => {
             <div className="p-4 rounded-xl border flex flex-col gap-2.5 bg-slate-50/50 dark:bg-slate-900/20 border-slate-150 dark:border-slate-750/80">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase">Trạng thái xử lý</span>
-                {getStatusBadge(c.status)}
+                {getStatusBadge(c.status, "contact")}
               </div>
               {c.processed_by_user && (
                 <div className="pt-2.5 border-t border-slate-200 dark:border-slate-750/80 text-xxs font-semibold space-y-1">

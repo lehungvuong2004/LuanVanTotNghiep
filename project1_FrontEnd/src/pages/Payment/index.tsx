@@ -508,12 +508,12 @@ export const Payment = () => {
                         ({method})
                       </span>
                       {item.booking_id && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-semibold">
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">
                           {t("Đặt lịch:")} #{item.booking_id}
                         </span>
                       )}
                       {item.job_post_id && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[10px] font-semibold">
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
                           {t("Bài tuyển:")} #{item.job_post_id}
                         </span>
                       )}
@@ -527,7 +527,7 @@ export const Payment = () => {
                     <span className="text-sm font-extrabold text-[#066d72] dark:text-teal-400">
                       {fmt(item.amount)}
                     </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${meta.cls}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta.cls}`}>
                       {meta.label}
                     </span>
                   </div>

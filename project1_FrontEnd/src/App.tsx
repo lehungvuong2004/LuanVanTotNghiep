@@ -45,6 +45,7 @@ import { HelperAvailabilityPage } from "./dashboard/Helper/Availabilities";
 import { HelperReviewsPage } from "./dashboard/Helper/Reviews";
 import { Contacts } from "./dashboard/Admin/Contacts";
 import { Notifications } from "./dashboard/Admin/Notifications";
+import { ChatbotKnowledgeBase } from "./dashboard/Admin/ChatbotKnowledge";
 
 function App() {
   useEffect(() => {
@@ -109,6 +110,7 @@ function App() {
             <Route path="reviews" element={<Reviews />} />
             <Route path="reports" element={<Reports />} />
             <Route path="contacts" element={<Contacts />} />
+            <Route path="chatbot-knowledge" element={<ChatbotKnowledgeBase />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="roles" element={<RolePage />} />
             <Route path="permissions" element={<PermissionsMatrix />} />
@@ -126,6 +128,7 @@ function App() {
             <Route path="refunds" element={<Refunds />} />
             <Route path="services" element={<Services />} />
             <Route path="contacts" element={<Contacts />} />
+            <Route path="chatbot-knowledge" element={<ChatbotKnowledgeBase />} />
             <Route path="activity-logs" element={<ActivityLogs />} />
           </Route>
           <Route path="/helper" element={<DashboardLayout allowedRole={ROLES.HELPER} />}>
