@@ -69,8 +69,12 @@ class BookingController extends Controller
             }
         }
 
+        do {
+            $bookingCode = 'BK-' . strtoupper(Str::random(8));
+        } while (Booking::where('booking_code', $bookingCode)->exists());
+
         $booking = Booking::create([
-            'booking_code' => 'BK-' . strtoupper(Str::random(8)),
+            'booking_code' => $bookingCode,
             'customer_id'  => $request->authUser['id'],
             'helper_id'    => $fields['helper_id'] ?? null,
             'address_id'   => $fields['address_id'],

@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import useContact from "./useHook";
 import contactImg from "../../assets/images/contact/contact.webp";
-import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 export const Contact = () => {
   const { t } = useTranslation();
@@ -298,11 +297,11 @@ export const Contact = () => {
   // ROOT RETURN
   return (
     <div className="w-full min-h-screen dark:bg-slate-900 transition-colors duration-300 py-12">
-      <div className="w-full px-4 md:px-16 flex flex-col gap-12">
-        <AnimateOnScrollReveal>{renderBanner()}</AnimateOnScrollReveal>
-        <AnimateOnScrollReveal>{renderFormContact()}</AnimateOnScrollReveal>
-        <AnimateOnScrollReveal>{renderFeaturesContact()}</AnimateOnScrollReveal>
-        <AnimateOnScrollReveal>{renderQuestionContact()}</AnimateOnScrollReveal>
+      <div className="w-full flex flex-col gap-12">
+        {renderBanner()}
+        {renderFormContact()}
+        {renderFeaturesContact()}
+        {renderQuestionContact()}
       </div>
     </div>
   );

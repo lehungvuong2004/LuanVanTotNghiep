@@ -296,3 +296,20 @@ html.dark body {
 .dark .custom-sidebar-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
 }
+
+/* Animated rotating border card */
+@keyframes rotate-border {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.animate-border-spin {
+  animation: rotate-border 3s linear infinite;
+}
+
+.bg-conic-teal {
+  background: conic-gradient(from 0deg, #14b8a6, transparent 35%, #14b8a6);
+}

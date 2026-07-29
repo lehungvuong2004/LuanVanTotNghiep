@@ -227,7 +227,7 @@ export const Profile = () => {
         <button
           onClick={() => setActiveTab("info")}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-            activeTab === "info" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+            activeTab === "info" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
           }`}
         >
           <div className="flex items-center gap-3">
@@ -241,7 +241,7 @@ export const Profile = () => {
           <button
             onClick={() => setActiveTab("address")}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-              activeTab === "address" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+              activeTab === "address" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
             }`}
           >
             <div className="flex items-center gap-3">
@@ -257,7 +257,7 @@ export const Profile = () => {
             <button
               onClick={() => setActiveTab("working_areas")}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                activeTab === "working_areas" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                activeTab === "working_areas" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -272,7 +272,7 @@ export const Profile = () => {
         <button
           onClick={() => setActiveTab("password")}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-            activeTab === "password" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+            activeTab === "password" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
           }`}
         >
           <div className="flex items-center gap-3">

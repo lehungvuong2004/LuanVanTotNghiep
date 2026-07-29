@@ -7,9 +7,13 @@ import type { ServiceItem, HelperItem, ServiceFilterParams } from "./useHook";
 import type { ServiceCategory } from "../../api/servicesApi/services";
 import { formatNumberVI } from "../../utils";
 import { Pagination } from "../../components/Pagination";
-import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 import { PriceFilter } from "../../components/PriceFilter";
+import { Loading } from "../../components/Commom";
 import type { CityData } from "../../api/helpers";
+import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import { fetchFavorites, toggleFavorite } from "../../redux/favoritesSlice";
+import { useAuth } from "../../hooks/useAuth";
+import { ROLES, getUserRole } from "../../constants/roles";
 
 // ─── 1. Sidebar Filter ──────────────────────────────────────────────────────
 interface SidebarFilterProps {
@@ -57,8 +61,9 @@ const CustomSelect = ({ value, onChange, options, placeholder = "" }: CustomSele
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
           <ul className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm">
-            {options.map((opt) => {
+            {options.map((opt, idx) => {
               const isSelected = String(opt.value) === String(value);
+              const isNotLast = idx < options.length - 1;
               return (
                 <li
                   key={opt.value}
@@ -67,6 +72,8 @@ const CustomSelect = ({ value, onChange, options, placeholder = "" }: CustomSele
                     setIsOpen(false);
                   }}
                   className={`px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors font-medium flex items-center justify-between ${
+                    isNotLast ? "border-b border-slate-100 dark:border-slate-700/50" : ""
+                  } ${
                     isSelected ? "text-teal-650 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/20 font-bold" : "text-slate-700 dark:text-slate-350"
                   }`}
                 >
@@ -278,17 +285,19 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
     <div className="flex flex-col gap-6">
       {/* Sort bar */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
-        <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0">
+        <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0 z-20">
           <span className="text-xs text-slate-500 dark:text-slate-400">{t("Hiển thị {{count}} dịch vụ", { count: services.length })}</span>
-          <select
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-          >
-            <option value="popular">{t("Phổ biến nhất")}</option>
-            <option value="price_asc">{t("Giá: Thấp đến Cao")}</option>
-            <option value="rating">{t("Đánh giá cao nhất")}</option>
-          </select>
+          <div className="w-44">
+            <CustomSelect
+              value={sortBy}
+              onChange={onSortChange}
+              options={[
+                { value: "popular", label: t("Phổ biến nhất") },
+                { value: "price_asc", label: t("Giá: Thấp đến Cao") },
+                { value: "rating", label: t("Đánh giá cao nhất") },
+              ]}
+            />
+          </div>
         </div>
       </div>
 
@@ -378,9 +387,25 @@ interface FeaturedHelpersProps {
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   onNavigateHelper: (userId: number) => void;
+  isCustomer: boolean;
+  favoriteIds: number[];
+  onToggleFavorite: (helperId: number, e: React.MouseEvent) => void;
 }
 
-const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helperLastPage, itemsPerPage, onPageChange, onNavigateHelper }: FeaturedHelpersProps) => {
+const FeaturedHelpers = ({
+  t,
+  helpers,
+  loading,
+  totalHelpers,
+  helperPage,
+  helperLastPage,
+  itemsPerPage,
+  onPageChange,
+  onNavigateHelper,
+  isCustomer,
+  favoriteIds,
+  onToggleFavorite,
+}: FeaturedHelpersProps) => {
   const renderHelperAvatar = (url?: string, name?: string) => {
     if (url) {
       return <img src={url} alt={name} className="w-full h-full object-cover" />;
@@ -389,7 +414,7 @@ const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helper
   };
 
   return (
-    <section className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 p-8 shadow-sm mt-12">
+    <section className="mt-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mb-1">{t("Người giúp việc tiêu biểu")}</h2>
@@ -428,39 +453,58 @@ const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helper
             <div
               key={helper.id}
               onClick={() => onNavigateHelper(helper.userId)}
-              className="border border-slate-100 dark:border-slate-700/50 hover:border-teal-500 dark:hover:border-teal-500 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg relative group cursor-pointer"
+              className="relative p-0.5 rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
             >
-              {helper.isOnline && (
-                <span className="absolute top-4 right-4 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-              )}
-              <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-slate-100 dark:border-slate-700 group-hover:border-teal-500 transition-colors">
-                {renderHelperAvatar(helper.avatar, helper.name)}
-              </div>
-              <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">{helper.name}</h3>
-              <div className="flex items-center gap-1 text-xs font-bold text-amber-500 mb-1">
-                <Icon icon="material-symbols:star" className="text-base" />
-                {(Number(helper.rating) || 0).toFixed(1)}
-                <span className="text-slate-400 dark:text-slate-500 font-normal">
-                  ({helper.reviewsCount || 0} {t("đánh giá")})
-                </span>
-              </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                {helper.experienceYears} {t("năm kinh nghiệm")} · {helper.area}
-              </span>
-              <div className="flex flex-wrap gap-1.5 justify-center mt-auto">
-                {helper.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 px-2 py-0.5 rounded"
+              {/* Dynamic border gradient background on hover */}
+              <div className="absolute inset-[-150%] animate-border-spin bg-conic-teal opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0" />
+
+              {/* Inner Card Content */}
+              <div className="relative bg-white dark:bg-slate-850 rounded-2xl p-5 flex flex-col items-center text-center w-full h-full z-10">
+                {isCustomer && (
+                  <button
+                    type="button"
+                    onClick={(e) => onToggleFavorite(helper.id, e)}
+                    className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-white dark:bg-slate-805 hover:bg-rose-50 dark:hover:bg-slate-700 backdrop-blur-xs rounded-full border border-slate-200/50 dark:border-slate-700 transition-all duration-300 hover:scale-110 cursor-pointer shadow-md hover:shadow-lg hover:shadow-rose-500/25 active:scale-95 group/heart z-10"
                   >
-                    {t(tag)}
+                    <Icon
+                      icon={favoriteIds.includes(helper.id) ? "material-symbols:favorite" : "material-symbols:favorite-outline"}
+                      className={`text-xl transition-colors ${
+                        favoriteIds.includes(helper.id) ? "text-rose-500 fill-rose-500" : "text-slate-400 group-hover/heart:text-rose-500"
+                      }`}
+                    />
+                  </button>
+                )}
+                <div className="relative mb-4">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-700 group-hover:border-teal-500 dark:group-hover:border-teal-400 transition-colors duration-300">
+                    {renderHelperAvatar(helper.avatar, helper.name)}
+                  </div>
+                  {helper.isOnline && (
+                    <span className="absolute bottom-0.5 right-0.5 flex h-3.5 w-3.5 rounded-full border-2 border-white dark:border-slate-800 bg-emerald-500 shadow-sm z-10" />
+                  )}
+                </div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">{helper.name}</h3>
+                <div className="flex items-center gap-1 text-xs font-bold text-amber-500 mb-1">
+                  <Icon icon="material-symbols:star" className="text-base" />
+                  {(Number(helper.rating) || 0).toFixed(1)}
+                  <span className="text-slate-400 dark:text-slate-500 font-normal">
+                    ({helper.reviewsCount || 0} {t("đánh giá")})
                   </span>
-                ))}
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  {helper.experienceYears} {t("năm kinh nghiệm")} · {helper.area}
+                </span>
+                <div className="flex flex-wrap gap-1.5 justify-center mt-auto">
+                  {helper.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 px-2 py-0.5 rounded"
+                    >
+                      {t(tag)}
+                    </span>
+                  ))}
+                </div>
+                {helper.bio && <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 line-clamp-2 leading-relaxed">{helper.bio}</p>}
               </div>
-              {helper.bio && <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 line-clamp-2 leading-relaxed">{helper.bio}</p>}
             </div>
           ))}
         </div>
@@ -488,6 +532,34 @@ export const Service = () => {
   const { services, helpers, categories, loading, helperLoading, totalHelpers, helperPage, helperLastPage, filterParams, updateHelperFilter, goToHelperPage, sortBy, setSortBy, regions } =
     useService();
 
+  const dispatch = useAppDispatch();
+  const { isLoggedIn, user } = useAuth();
+  const isCustomer = isLoggedIn && getUserRole(user) === ROLES.CUSTOMER;
+  const favoriteIds = useAppSelector((state) => state.favorites.favoriteIds);
+
+  useEffect(() => {
+    if (isCustomer) {
+      dispatch(fetchFavorites());
+    }
+  }, [dispatch, isCustomer]);
+
+  if (loading && services.length === 0) {
+    return <Loading fullScreen />;
+  }
+
+  const handleToggleFavorite = (helperId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isLoggedIn) {
+      navigate("/dang-nhap");
+      return;
+    }
+    if (!isCustomer) {
+      return;
+    }
+    const isCurrentlyFavorite = favoriteIds.includes(helperId);
+    dispatch(toggleFavorite({ helperId, isCurrentlyFavorite }));
+  };
+
   const handleReset = () => {
     updateHelperFilter({
       city: "TP.HCM",
@@ -510,7 +582,6 @@ export const Service = () => {
         <div className="lg:col-span-9 flex flex-col gap-6">
           <ServiceList t={t} services={services} loading={loading} sortBy={sortBy} onSortChange={setSortBy} onNavigateService={(id) => navigate(`/dich-vu/${id}`)} />
 
-          <AnimateOnScrollReveal>
             <FeaturedHelpers
               t={t}
               helpers={helpers}
@@ -521,8 +592,10 @@ export const Service = () => {
               itemsPerPage={filterParams.limit ?? 8}
               onPageChange={goToHelperPage}
               onNavigateHelper={(userId) => navigate(`/nguoi-giup-viec/${userId}`)}
+              isCustomer={isCustomer}
+              favoriteIds={favoriteIds}
+              onToggleFavorite={handleToggleFavorite}
             />
-          </AnimateOnScrollReveal>
         </div>
       </div>
     </div>

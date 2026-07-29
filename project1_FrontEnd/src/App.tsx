@@ -22,6 +22,7 @@ import { Profile } from "./pages/Profile";
 import { Pricing } from "./pages/Pricing";
 import { TermsOfService } from "./pages/TermsOfService";
 import { PaymentReturn } from "./pages/PaymentReturn";
+import { Favorites } from "./pages/Favorites";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { ROLES } from "./constants/roles";
 import { Schedules } from "./DashBoard/Admin/Schedules";
@@ -88,6 +89,7 @@ function App() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/thanh-toan/ket-qua" element={<PaymentReturn />} />
+            <Route path="/danh-sach-yeu-thich" element={<Favorites />} />
           </Route>
           <Route element={<LoginLayout />}>
             <Route path="/dang-nhap" element={<Login />} />

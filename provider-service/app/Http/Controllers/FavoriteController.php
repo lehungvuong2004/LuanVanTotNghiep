@@ -7,7 +7,8 @@ use App\Models\Favorite;
 use App\Models\HelperProfile;
 use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 class FavoriteController extends Controller
 {
     /**
@@ -23,10 +24,36 @@ class FavoriteController extends Controller
         $customerId = $request->authUser['id'];
         $limit      = $request->integer('limit', 20);
 
-        $favorites = Favorite::with(['helperProfile.skills.service', 'helperProfile.workingAreas'])
+        $favorites = Favorite::with(['helperProfile.skills.service', 'helperProfile.workingAreas.city', 'helperProfile.workingAreas.district'])
                              ->where('customer_id', $customerId)
                              ->orderByDesc('created_at')
                              ->paginate($limit);
+
+        // Fetch user info for each helper in the page from identity-service internally
+        $userIds = collect($favorites->items())
+            ->map(fn($fav) => $fav->helperProfile?->user_id)
+            ->filter()
+            ->unique()
+            ->toArray();
+
+        if (!empty($userIds)) {
+            try {
+                $userResponse = Http::timeout(3)
+                    ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => $userIds]);
+
+                if ($userResponse->successful()) {
+                    $users = $userResponse->json('data') ?? [];
+                    $userMap = collect($users)->keyBy('id');
+                    foreach ($favorites->items() as $fav) {
+                        if ($fav->helperProfile) {
+                            $fav->helperProfile->user = $userMap->get($fav->helperProfile->user_id);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Không thể lấy thông tin chi tiết người dùng cho danh sách yêu thích: ' . $e->getMessage());
+            }
+        }
 
         return $this->successResponse($favorites);
     }

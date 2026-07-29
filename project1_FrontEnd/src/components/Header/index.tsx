@@ -307,6 +307,17 @@ export const Header = () => {
                 <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-xl" />
               </button>
 
+              {/* Geolocation button */}
+              <button
+                type="button"
+                onClick={handleGetCurrentLocation}
+                disabled={geoLoading}
+                className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all duration-300 cursor-pointer hover:scale-105 disabled:opacity-50"
+                title={t("Lấy vị trí hiện tại")}
+              >
+                <Icon icon={geoLoading ? "line-md:loading-twotone-loop" : "boxicons:location"} className="text-xl" />
+              </button>
+
               {/* Notification bell — only when logged in */}
               {isLoggedIn && (
                 <div className="relative cursor-pointer flex items-center justify-center">
@@ -462,6 +473,16 @@ export const Header = () => {
                               <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
                               <span>{t("Lịch sử đặt lịch")}</span>
                             </Link>
+                            {user && getUserRole(user) === ROLES.CUSTOMER && (
+                              <Link
+                                to="/danh-sach-yeu-thich"
+                                onClick={() => setIsMobileUserMenuOpen(false)}
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                              >
+                                <Icon icon="material-symbols:favorite-outline" className="text-lg text-gray-400" />
+                                <span>{t("Yêu thích")}</span>
+                              </Link>
+                            )}
                           </div>
 
                           <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
@@ -748,6 +769,15 @@ export const Header = () => {
                             <Icon icon="mdi:calendar-clock-outline" className="text-lg text-gray-400" />
                             <span>{t("Lịch sử đặt lịch")}</span>
                           </Link>
+                          {user && getUserRole(user) === ROLES.CUSTOMER && (
+                            <Link
+                              to="/danh-sach-yeu-thich"
+                              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 dark:hover:bg-slate-700/50 hover:text-teal-700 dark:hover:text-teal-400 font-medium transition-all duration-200"
+                            >
+                              <Icon icon="material-symbols:favorite-outline" className="text-lg text-gray-400" />
+                              <span>{t("Yêu thích")}</span>
+                            </Link>
+                          )}
                         </div>
 
                         <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">

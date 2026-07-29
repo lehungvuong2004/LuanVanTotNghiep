@@ -466,13 +466,13 @@ export const Helpers = () => {
               <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Khu Vực Làm Việc ({selectedHelper.workingAreas?.length || 0})</h5>
               <div className="flex flex-wrap gap-2">
                 {selectedHelper.workingAreas && selectedHelper.workingAreas.length > 0 ? (
-                  selectedHelper.workingAreas.map((area) => (
+                  selectedHelper.workingAreas.map((area: any) => (
                     <span
                       key={area.id}
                       className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold border border-blue-100 dark:border-blue-900/30 shadow-xs"
                     >
                       <Icon icon="material-symbols:location-on-outline" className="text-sm shrink-0" />
-                      {area.district}, {area.city}
+                      {area.district?.name ?? area.district}, {area.city?.name ?? area.city}
                     </span>
                   ))
                 ) : (

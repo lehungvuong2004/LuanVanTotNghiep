@@ -219,9 +219,9 @@ class HelperController extends Controller
     return $this->successResponse($helper, 'Đã cập nhật điểm đánh giá.');
   }
 
-    // =====================================================================
-    //  HELPER — Quản lý hồ sơ của chính mình (role_id = 3)
-    // =====================================================================
+  // =====================================================================
+  //  HELPER — Quản lý hồ sơ của chính mình (role_id = 3)
+  // =====================================================================
   public function myProfile(Request $request)
   {
     if ($unauthorized = $this->authorizeHelper($request)) {
@@ -431,6 +431,16 @@ class HelperController extends Controller
       'city_id'     => 'required|integer|exists:cities,id',
       'district_id' => 'required|integer|exists:districts,id',
     ]);
+
+    $exists = HelperWorkingArea::where([
+      'helper_id'   => $profile->id,
+      'city_id'     => $fields['city_id'],
+      'district_id' => $fields['district_id'],
+    ])->exists();
+
+    if ($exists) {
+      return $this->errorResponse('Khu vực làm việc này đã được đăng ký.');
+    }
 
     $area = HelperWorkingArea::create(array_merge($fields, ['helper_id' => $profile->id]));
 
@@ -717,7 +727,7 @@ class HelperController extends Controller
 
     $startOfWeek = now()->startOfWeek()->toDateString();
     $endOfWeek = now()->endOfWeek()->toDateString();
-    
+
     $availabilitiesCount = HelperAvailability::where('helper_id', $profile->id)
       ->whereBetween('available_date', [$startOfWeek, $endOfWeek])
       ->count();

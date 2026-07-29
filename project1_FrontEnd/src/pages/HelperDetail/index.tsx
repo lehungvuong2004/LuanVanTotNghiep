@@ -5,6 +5,10 @@ import { useTranslation } from "react-i18next";
 import { getHelperPublic, type HelperProfile } from "../../api/helpers";
 import { getHelperReviewsPublic, type Review, type HelperReviewsResponse } from "../../api/reviews";
 import { ReviewCard, RatingDistributionRow } from "../../components/Reviews";
+import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import { fetchFavorites, toggleFavorite } from "../../redux/favoritesSlice";
+import { useAuth } from "../../hooks/useAuth";
+import { ROLES, getUserRole } from "../../constants/roles";
 
 export const HelperDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +22,27 @@ export const HelperDetail = () => {
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
+
+  const dispatch = useAppDispatch();
+  const { isLoggedIn, user: currentUser } = useAuth();
+  const isCustomer = isLoggedIn && getUserRole(currentUser) === ROLES.CUSTOMER;
+  const favoriteIds = useAppSelector((state) => state.favorites.favoriteIds);
+
+  useEffect(() => {
+    if (isCustomer) {
+      dispatch(fetchFavorites());
+    }
+  }, [dispatch, isCustomer]);
+
+  const handleToggleFavorite = (helperId: number) => {
+    if (!isLoggedIn) {
+      navigate("/dang-nhap");
+      return;
+    }
+    if (!isCustomer) return;
+    const isCurrentlyFavorite = favoriteIds.includes(helperId);
+    dispatch(toggleFavorite({ helperId, isCurrentlyFavorite }));
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -120,7 +145,23 @@ export const HelperDetail = () => {
 
         {/* Info */}
         <div className="flex-1">
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-800 dark:text-slate-100 mb-2">{user?.full_name ?? `Helper #${helper.id}`}</h1>
+          <div className="flex items-center gap-4 mb-2">
+            <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-800 dark:text-slate-100">{user?.full_name ?? `Helper #${helper.id}`}</h1>
+            {isCustomer && (
+              <button
+                type="button"
+                onClick={() => handleToggleFavorite(helper.id)}
+                className="w-10 h-10 flex items-center justify-center bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-705 rounded-full border border-slate-200/50 dark:border-slate-700 transition-all duration-300 hover:scale-110 cursor-pointer shadow-xs active:scale-95 group/heart"
+              >
+                <Icon
+                  icon={favoriteIds.includes(helper.id) ? "material-symbols:favorite" : "material-symbols:favorite-outline"}
+                  className={`text-2xl transition-colors ${
+                    favoriteIds.includes(helper.id) ? "text-rose-500 fill-rose-500" : "text-slate-400 group-hover/heart:text-rose-550"
+                  }`}
+                />
+              </button>
+            )}
+          </div>
 
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
@@ -162,7 +203,7 @@ export const HelperDetail = () => {
               {rawAreas.map((area: any) => (
                 <span key={area.id} className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
                   <Icon icon="material-symbols:location-on-outline" className="text-sm" />
-                  {area.district}, {area.city}
+                  {area.district?.name ?? area.district}, {area.city?.name ?? area.city}
                 </span>
               ))}
             </div>
