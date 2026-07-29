@@ -2,10 +2,7 @@ import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import type { ActivityLog } from "../../../api/activityLogs";
 
-import {
-  getActivityLogsAdmin,
-  deleteActivityLogAdmin,
-  clearActivityLogsAdmin } from "../../../api/activityLogs";
+import { getActivityLogsAdmin, deleteActivityLogAdmin, clearActivityLogsAdmin } from "../../../api/activityLogs";
 
 export const useActivityLogsAdmin = () => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -19,11 +16,6 @@ export const useActivityLogsAdmin = () => {
   const perPage = 15;
 
   const { showToast } = useToast();
-  
-
-  
-
-  
 
   const fetchLogs = useCallback(
     async (page = 1) => {
@@ -33,22 +25,19 @@ export const useActivityLogsAdmin = () => {
           search: searchQuery || undefined,
           user_id: userIdFilter || undefined,
           page,
-          limit: perPage });
+          limit: perPage,
+        });
         setLogs(res.data);
         setCurrentPage(res.current_page);
         setTotalPages(res.last_page);
         setTotalItems(res.total);
       } catch (err: any) {
-        showToast(
-          "error",
-          "Lỗi tải dữ liệu",
-          err.response?.data?.message || "Không thể tải danh sách lịch sử hoạt động"
-        );
+        showToast("error", "Lỗi tải dữ liệu", err.response?.data?.message || "Không thể tải danh sách lịch sử hoạt động");
       } finally {
         setLoading(false);
       }
     },
-    [searchQuery, userIdFilter, showToast]
+    [searchQuery, userIdFilter, showToast],
   );
 
   useEffect(() => {
@@ -96,10 +85,9 @@ export const useActivityLogsAdmin = () => {
     currentPage,
     totalPages,
     totalItems,
-    
+
     fetchLogs,
     handleDeleteLog,
-    handleClearLogs };
+    handleClearLogs,
+  };
 };
-
-

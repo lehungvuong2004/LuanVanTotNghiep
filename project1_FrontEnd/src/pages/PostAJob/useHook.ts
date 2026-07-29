@@ -11,16 +11,16 @@ import { parseVietnamAddress } from "../../types/location";
 
 export const getUrgencyFromDates = (workingTime: string, expirationDate: string) => {
   if (!workingTime || !expirationDate) return null;
-  const diffDays =
-    (new Date(expirationDate).getTime() - new Date(workingTime).getTime()) / 86400000;
-  
+  const diffDays = (new Date(expirationDate).getTime() - new Date(workingTime).getTime()) / 86400000;
+
   if (diffDays <= 4) {
     return {
       level: "urgent",
       multiplier: 1.25,
       label: diffDays < 2 ? "Cần gấp (< 2 ngày) — +25%" : "Cần gấp (2 - 4 ngày) — +25%",
       color: "text-red-600 dark:text-red-400",
-      bg: "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900" };
+      bg: "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900",
+    };
   }
   if (diffDays <= 7) {
     return {
@@ -28,14 +28,16 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
       multiplier: 1.15,
       label: "Bình thường (4 - 7 ngày) — +15%",
       color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900" };
+      bg: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900",
+    };
   }
   return {
     level: "long",
     multiplier: 1.0,
     label: "Lâu dài (> 7 ngày) — Giá gốc (+0%)",
     color: "text-emerald-600 dark:text-emerald-400",
-    bg: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900" };
+    bg: "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900",
+  };
 };
 
 export const usePostAJobHook = () => {
@@ -84,7 +86,8 @@ export const usePostAJobHook = () => {
       specificAddress: "",
       district: "",
       city: "",
-      jobDescription: "" },
+      jobDescription: "",
+    },
     validationSchema,
     onSubmit: async (values) => {
       setIsLoading(true);
@@ -94,20 +97,12 @@ export const usePostAJobHook = () => {
         if (isNewAddress) {
           const isDuplicate = addresses.some(
             (item) =>
-              item.address.trim().toLowerCase() ===
-                values.specificAddress.trim().toLowerCase() &&
-              (item.district || "").trim().toLowerCase() ===
-                values.district.trim().toLowerCase() &&
-              (item.city || "").trim().toLowerCase() ===
-                values.city.trim().toLowerCase()
+              item.address.trim().toLowerCase() === values.specificAddress.trim().toLowerCase() &&
+              (item.district || "").trim().toLowerCase() === values.district.trim().toLowerCase() &&
+              (item.city || "").trim().toLowerCase() === values.city.trim().toLowerCase(),
           );
           if (isDuplicate) {
-            formik.setFieldError(
-              "specificAddress",
-              t(
-                "Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn. Vui lòng chọn từ danh sách."
-              )
-            );
+            formik.setFieldError("specificAddress", t("Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn. Vui lòng chọn từ danh sách."));
             setIsLoading(false);
             return;
           }
@@ -116,7 +111,8 @@ export const usePostAJobHook = () => {
               address: values.specificAddress,
               district: values.district,
               city: values.city,
-              is_default: addresses.length === 0 });
+              is_default: addresses.length === 0,
+            });
           } catch (addrErr) {
             console.error("Failed to save new address to customer profile:", addrErr);
           }
@@ -131,11 +127,8 @@ export const usePostAJobHook = () => {
         const isCustom = values.serviceCategory === "other";
         let prefix = "";
         if (isCustom) prefix += `[Danh mục: ${values.customCategory}]\n`;
-        if (values.customServices.trim())
-          prefix += `[Dịch vụ: ${values.customServices.trim()}]\n`;
-        const finalDescription = prefix
-          ? `${prefix}\n${values.jobDescription}`
-          : values.jobDescription;
+        if (values.customServices.trim()) prefix += `[Dịch vụ: ${values.customServices.trim()}]\n`;
+        const finalDescription = prefix ? `${prefix}\n${values.jobDescription}` : values.jobDescription;
 
         await createJobPostApi({
           title: values.jobTitle,
@@ -147,21 +140,20 @@ export const usePostAJobHook = () => {
           city: values.city,
           working_time: values.workingTime,
           expired_at: values.expirationDate || undefined,
-          service_ids: isCustom ? [] : values.requiredServices.map(Number) });
+          service_ids: isCustom ? [] : values.requiredServices.map(Number),
+        });
 
         showToast("success", t("Đăng bài thành công"), t("Bài tuyển dụng của bạn đã được đăng thành công và đang chờ duyệt."));
 
         formik.resetForm();
       } catch (err: any) {
         console.error("Error creating job post:", err);
-        setErrorMsg(
-          err?.response?.data?.message ||
-            t("Đã xảy ra lỗi khi đăng bài tuyển dụng. Vui lòng thử lại.")
-        );
+        setErrorMsg(err?.response?.data?.message || t("Đã xảy ra lỗi khi đăng bài tuyển dụng. Vui lòng thử lại."));
       } finally {
         setIsLoading(false);
       }
-    } });
+    },
+  });
 
   // Fetch customer addresses on mount
   useEffect(() => {
@@ -170,8 +162,7 @@ export const usePostAJobHook = () => {
         const addrRes = await getCustomerAddressesApi();
         setAddresses(addrRes.data || []);
         if (addrRes.data && addrRes.data.length > 0) {
-          const defaultAddr =
-            addrRes.data.find((a) => a.is_default === 1) || addrRes.data[0];
+          const defaultAddr = addrRes.data.find((a) => a.is_default === 1) || addrRes.data[0];
           setSelectedAddressId(defaultAddr.id);
           formik.setFieldValue("specificAddress", defaultAddr.address);
           formik.setFieldValue("district", defaultAddr.district || "");
@@ -211,10 +202,7 @@ export const usePostAJobHook = () => {
   };
 
   // Derived urgency from currently entered dates (reactive)
-  const computedUrgency = getUrgencyFromDates(
-    formik.values.workingTime,
-    formik.values.expirationDate
-  );
+  const computedUrgency = getUrgencyFromDates(formik.values.workingTime, formik.values.expirationDate);
 
   return {
     formik,

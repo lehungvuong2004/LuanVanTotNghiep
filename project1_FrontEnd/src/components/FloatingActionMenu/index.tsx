@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { queryChatbot } from "../../api/chatbot";
 import { formatTimeOnly } from "../../utils";
 
 export const FloatingActionMenu = () => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isScrollVisible, setIsScrollVisible] = useState(false);
-  
+
   // Chat chatbot states
   const [messages, setMessages] = useState(() => {
     const saved = sessionStorage.getItem("chatbot_messages");
@@ -22,7 +24,7 @@ export const FloatingActionMenu = () => {
       {
         id: "welcome",
         sender: "bot",
-        text: "Xin chào! Cảm ơn bạn đã liên hệ Gia Đình Việt. Mình là trợ lý ảo hỗ trợ dịch vụ. Bạn đang cần tìm hiểu thông tin gì ạ?",
+        text: t("chatbot_welcome"),
         time: formatTimeOnly(),
       },
     ];
@@ -64,7 +66,7 @@ export const FloatingActionMenu = () => {
     setIsMenuOpen(false); // Close menu on scroll
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
 
@@ -82,7 +84,7 @@ export const FloatingActionMenu = () => {
 
     try {
       const response = await queryChatbot(userText);
-      let replyText = "Xin lỗi, hệ thống đang bận phản hồi. Bạn vui lòng thử lại sau ít phút!";
+      let replyText = t("chatbot_busy");
       if (response) {
         if (response.reply) {
           replyText = response.reply;
@@ -90,7 +92,7 @@ export const FloatingActionMenu = () => {
           replyText = response.data.reply;
         }
       }
-      
+
       setMessages((prev) => [
         ...prev,
         {
@@ -107,7 +109,7 @@ export const FloatingActionMenu = () => {
         {
           id: (Date.now() + 1).toString(),
           sender: "bot",
-          text: "Không thể kết nối đến máy chủ CSKH. Quý khách vui lòng thử lại sau!",
+          text: t("chatbot_connect_error"),
           time: formatTimeOnly(),
         },
       ]);
@@ -129,15 +131,11 @@ export const FloatingActionMenu = () => {
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border border-white dark:border-zinc-900 animate-pulse" />
               </div>
               <div className="text-left font-semibold">
-                <h4 className="font-bold text-base leading-tight">Trợ Lý Gia Đình Việt</h4>
-                <p className="text-xs text-white/70 font-medium">Thường phản hồi ngay lập tức</p>
+                <h4 className="font-bold text-base leading-tight">{t("chatbot_title")}</h4>
+                <p className="text-xs text-white/70 font-medium">{t("chatbot_sub")}</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="p-2 hover:bg-white/10 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-white"
-              title="Đóng chat"
-            >
+            <button onClick={() => setIsChatOpen(false)} className="p-2 hover:bg-white/10 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-white" title={t("chatbot_close")}>
               <Icon icon="ic:round-minus" className="text-xl" />
             </button>
           </div>
@@ -156,16 +154,12 @@ export const FloatingActionMenu = () => {
                   <div className="max-w-xs flex flex-col">
                     <div
                       className={`px-4 py-3 text-sm font-semibold rounded-2xl shadow-xs leading-relaxed ${
-                        isBot
-                          ? "bg-white text-neutral-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-sm"
-                          : "bg-neutral-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-br-sm"
+                        isBot ? "bg-white text-neutral-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-sm" : "bg-neutral-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-br-sm"
                       }`}
                     >
                       {msg.text}
                     </div>
-                    <span className={`text-xs text-neutral-400 dark:text-neutral-500 mt-1.5 ${isBot ? "text-left" : "text-right"}`}>
-                      {msg.time}
-                    </span>
+                    <span className={`text-xs text-neutral-400 dark:text-neutral-500 mt-1.5 ${isBot ? "text-left" : "text-right"}`}>{msg.time}</span>
                   </div>
                 </div>
               );
@@ -188,15 +182,12 @@ export const FloatingActionMenu = () => {
           </div>
 
           {/* Input Form Area */}
-          <form
-            onSubmit={handleSendMessage}
-            className="p-4 bg-white dark:bg-zinc-900 flex gap-3 shrink-0 items-center"
-          >
+          <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-zinc-900 flex gap-3 shrink-0 items-center">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={isLoading ? "Vui lòng chờ..." : "Nhập câu hỏi của bạn..."}
+              placeholder={isLoading ? t("chatbot_loading_placeholder") : t("chatbot_input_placeholder")}
               disabled={isLoading}
               className="flex-1 px-4 py-3 bg-neutral-100 dark:bg-zinc-950 rounded-xl text-sm focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 text-neutral-800 dark:text-neutral-100 font-semibold disabled:bg-neutral-100 dark:disabled:bg-zinc-850"
             />
@@ -204,7 +195,7 @@ export const FloatingActionMenu = () => {
               type="submit"
               disabled={!inputValue.trim() || isLoading}
               className="w-10 h-10 bg-neutral-900 hover:bg-neutral-850 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-950 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
-              title="Gửi tin nhắn"
+              title={t("chatbot_send")}
             >
               <Icon icon="iconamoon:send-fill" className="text-xl" />
             </button>
@@ -219,9 +210,9 @@ export const FloatingActionMenu = () => {
           <button
             type="button"
             onClick={scrollToTop}
-            aria-label="Cuộn lên đầu trang"
+            aria-label={t("Cuộn lên đầu trang")}
             className="w-14 h-14 bg-[#066d72] hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full shadow-xl hover:shadow-[#066d72]/45 transition-all duration-300 ease-in-out scale-100 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0 animate-in fade-in zoom-in-75"
-            title="Cuộn lên đầu trang"
+            title={t("Cuộn lên đầu trang")}
           >
             <Icon icon="ep:top" className="text-2xl" />
           </button>
@@ -237,7 +228,7 @@ export const FloatingActionMenu = () => {
             }}
             aria-expanded={isChatOpen}
             className="w-14 h-14 bg-[#066d72] hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full shadow-xl hover:shadow-[#066d72]/45 transition-all duration-300 ease-in-out scale-100 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0 animate-in fade-in zoom-in-75"
-            title="Hỗ trợ trực tuyến (CSKH)"
+            title={t("online_support")}
           >
             <Icon icon="material-symbols:support-agent-rounded" className="text-3xl" />
           </button>
@@ -250,12 +241,9 @@ export const FloatingActionMenu = () => {
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         aria-expanded={isMenuOpen}
         className="w-14 h-14 bg-[#066d72] hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full shadow-xl hover:shadow-[#066d72]/45 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
-        title="Trình đơn hành động nhanh"
+        title={t("quick_action_menu")}
       >
-        <Icon
-          icon={isMenuOpen ? "lucide:x" : "material-symbols:add"}
-          className={`text-3xl transition-transform duration-300 ${isMenuOpen ? "rotate-90" : ""}`}
-        />
+        <Icon icon={isMenuOpen ? "lucide:x" : "material-symbols:add"} className={`text-3xl transition-transform duration-300 ${isMenuOpen ? "rotate-90" : ""}`} />
       </button>
     </div>
   );

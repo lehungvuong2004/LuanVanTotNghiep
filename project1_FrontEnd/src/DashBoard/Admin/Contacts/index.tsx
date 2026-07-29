@@ -69,15 +69,11 @@ export const Contacts = () => {
     }
   };
 
-
-
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h2 className="text-2xl font-extrabold text-slate-850 dark:text-slate-100 tracking-tight">Quản Lý Liên Hệ & Hỗ Trợ</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Theo dõi và phản hồi các yêu cầu liên hệ, thắc mắc hoặc góp ý từ khách hàng gửi qua form Contact Us.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Theo dõi và phản hồi các yêu cầu liên hệ, thắc mắc hoặc góp ý từ khách hàng gửi qua form Contact Us.</p>
       </div>
     </div>
   );
@@ -127,9 +123,7 @@ export const Contacts = () => {
     return (
       <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between mb-6 animate-fade-in">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Lọc Trạng Thái:
-          </span>
+          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Lọc Trạng Thái:</span>
           <div className="flex flex-wrap items-center gap-2">
             {statuses.map((status) => {
               const isActive = statusFilter === status;
@@ -202,9 +196,7 @@ export const Contacts = () => {
                       onClick={toggleSelectAll}
                       className="w-4 h-4 rounded border-2 border-slate-300 dark:border-slate-650 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors"
                     >
-                      {selectedIds.length === contacts.length && (
-                        <span className="w-2 h-2 bg-teal-650 dark:bg-teal-400 rounded-xs" />
-                      )}
+                      {selectedIds.length === contacts.length && <span className="w-2 h-2 bg-teal-650 dark:bg-teal-400 rounded-xs" />}
                     </button>
                   </th>
                 )}
@@ -219,20 +211,13 @@ export const Contacts = () => {
               {contacts.map((c) => {
                 const isSelected = selectedIds.includes(c.id);
                 return (
-                  <tr
-                    key={c.id}
-                    className={`hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-colors ${
-                      isSelected ? "bg-teal-500/5 dark:bg-teal-500/2" : ""
-                    }`}
-                  >
+                  <tr key={c.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-colors ${isSelected ? "bg-teal-500/5 dark:bg-teal-500/2" : ""}`}>
                     {permissions.delete && (
                       <td className="py-3.5 px-5 text-center">
                         <button
                           onClick={() => toggleSelectOne(c.id)}
                           className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
-                            isSelected
-                              ? "border-teal-650 dark:border-teal-400 bg-teal-50 dark:bg-teal-950/20"
-                              : "border-slate-300 dark:border-slate-650 hover:border-slate-400"
+                            isSelected ? "border-teal-650 dark:border-teal-400 bg-teal-50 dark:bg-teal-950/20" : "border-slate-300 dark:border-slate-650 hover:border-slate-400"
                           }`}
                         >
                           {isSelected && <Icon icon="material-symbols:check-small-rounded" className="text-teal-600 dark:text-teal-400 text-sm" />}
@@ -246,7 +231,9 @@ export const Contacts = () => {
                         </div>
                         <div>
                           <h5 className="font-bold text-slate-800 dark:text-slate-100">{c.full_name}</h5>
-                          <p className="text-slate-400 text-xxs font-medium mt-0.5">{c.email} | {c.phone || "N/A"}</p>
+                          <p className="text-slate-400 text-xxs font-medium mt-0.5">
+                            {c.email} | {c.phone || "N/A"}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -256,9 +243,7 @@ export const Contacts = () => {
                       </p>
                     </td>
                     <td className="py-3.5 px-5">{getStatusBadge(c.status, "contact")}</td>
-                    <td className="py-3.5 px-5 text-slate-450 dark:text-slate-500">
-                      {formatDateTime(c.created_at)}
-                    </td>
+                    <td className="py-3.5 px-5 text-slate-450 dark:text-slate-500">{formatDateTime(c.created_at)}</td>
                     <td className="py-3.5 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -301,12 +286,7 @@ export const Contacts = () => {
           </table>
         </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={(page) => setCurrentPage(page)} />
       </div>
     );
   };
@@ -337,9 +317,7 @@ export const Contacts = () => {
               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-slate-800 dark:text-slate-100">{c.full_name}</h4>
-                <p className="text-xxs text-slate-400 dark:text-slate-550 font-medium mt-0.5">
-                  Ngày gửi: {formatDateTime(c.created_at)}
-                </p>
+                <p className="text-xxs text-slate-400 dark:text-slate-550 font-medium mt-0.5">Ngày gửi: {formatDateTime(c.created_at)}</p>
               </div>
             </div>
 
@@ -375,9 +353,7 @@ export const Contacts = () => {
                   {c.processed_at && (
                     <div className="flex justify-between">
                       <span className="text-slate-400">Thời gian xử lý:</span>
-                      <span className="text-slate-750 dark:text-slate-200 font-bold">
-                        {formatDateTime(c.processed_at)}
-                      </span>
+                      <span className="text-slate-750 dark:text-slate-200 font-bold">{formatDateTime(c.processed_at)}</span>
                     </div>
                   )}
                 </div>
@@ -428,12 +404,10 @@ export const Contacts = () => {
 
           <div className="p-6 space-y-4">
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-              Bạn có chắc chắn muốn đánh dấu yêu cầu liên hệ của{" "}
-              <span className="text-teal-600 font-extrabold">"{c.full_name}"</span> là <span className="text-emerald-600 font-extrabold">ĐÃ XỬ LÝ</span>?
+              Bạn có chắc chắn muốn đánh dấu yêu cầu liên hệ của <span className="text-teal-600 font-extrabold">"{c.full_name}"</span> là{" "}
+              <span className="text-emerald-600 font-extrabold">ĐÃ XỬ LÝ</span>?
             </p>
-            <p className="text-xxs text-slate-400 dark:text-slate-500">
-              Hành động này xác nhận bạn đã liên hệ lại và giải quyết xong thắc mắc của khách hàng này.
-            </p>
+            <p className="text-xxs text-slate-400 dark:text-slate-500">Hành động này xác nhận bạn đã liên hệ lại và giải quyết xong thắc mắc của khách hàng này.</p>
           </div>
 
           <div className="p-5 bg-slate-50 dark:bg-slate-900/30 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-end gap-3">

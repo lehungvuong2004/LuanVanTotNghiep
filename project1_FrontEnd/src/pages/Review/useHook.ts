@@ -1,12 +1,5 @@
 import { useState, useCallback } from "react";
-import {
-  createReviewCustomer,
-  updateReviewCustomer,
-  deleteReviewCustomer,
-  getHelperReviewsPublic,
-  type Review,
-  type HelperReviewsResponse,
-} from "../../api/reviews";
+import { createReviewCustomer, updateReviewCustomer, deleteReviewCustomer, getHelperReviewsPublic, type Review, type HelperReviewsResponse } from "../../api/reviews";
 
 export interface ReviewForm {
   rating: number;
@@ -48,12 +41,7 @@ export const useReview = () => {
 
   // ── Submit new review ────────────────────────────────────
   const handleSubmitReview = useCallback(
-    async (params: {
-      helper_id: number;
-      booking_id?: number | null;
-      job_post_id?: number | null;
-      onSuccess?: () => void;
-    }) => {
+    async (params: { helper_id: number; booking_id?: number | null; job_post_id?: number | null; onSuccess?: () => void }) => {
       if (reviewForm.rating < 1 || reviewForm.rating > 5) return;
       setIsSubmitting(true);
       try {
@@ -74,7 +62,7 @@ export const useReview = () => {
         setIsSubmitting(false);
       }
     },
-    [reviewForm]
+    [reviewForm],
   );
 
   // ── Open edit modal ──────────────────────────────────────
@@ -109,7 +97,7 @@ export const useReview = () => {
         setIsSubmitting(false);
       }
     },
-    [editingReview, editForm, closeEditReview]
+    [editingReview, editForm, closeEditReview],
   );
 
   // ── Delete confirm ───────────────────────────────────────
@@ -139,7 +127,7 @@ export const useReview = () => {
         setIsDeleting(false);
       }
     },
-    [deletingReviewId, closeDeleteConfirm]
+    [deletingReviewId, closeDeleteConfirm],
   );
 
   // ── Load helper reviews ──────────────────────────────────

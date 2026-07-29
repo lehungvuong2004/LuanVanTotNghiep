@@ -62,13 +62,13 @@ export const CHART_PALETTE = [
 
 // Semantic color mappings
 export const SEMANTIC_COLORS = {
-  good: "#10b981",      // Tốt
-  normal: "#3b82f6",    // Bình thường
-  warning: "#f59e0b",   // Cảnh báo
+  good: "#10b981", // Tốt
+  normal: "#3b82f6", // Bình thường
+  warning: "#f59e0b", // Cảnh báo
   moderaterisk: "#f97316", // Cảnh báo nhẹ
-  bad: "#ef4444",       // Xấu
-  info: "#06b6d4",      // Thông tin
-  gray: "#cbd5e1",      // Rỗng/Mặc định
+  bad: "#ef4444", // Xấu
+  info: "#06b6d4", // Thông tin
+  gray: "#cbd5e1", // Rỗng/Mặc định
 };
 
 // Rating color mapping (from 1 to 5 stars)

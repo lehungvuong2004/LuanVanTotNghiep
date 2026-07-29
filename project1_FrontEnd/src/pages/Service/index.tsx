@@ -88,9 +88,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, r
   const citiesList = regions.length > 0 ? regions.map((r) => r.name) : ["TP.HCM"];
   const selectedCityName = filterParams.city ?? "TP.HCM";
   const matchedCity = regions.find((r) => r.name === selectedCityName);
-  const districtsList = matchedCity?.districts
-    ? ["Tất cả", ...matchedCity.districts.map((d) => d.name)]
-    : ["Tất cả", "Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
+  const districtsList = matchedCity?.districts ? ["Tất cả", ...matchedCity.districts.map((d) => d.name)] : ["Tất cả", "Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
 
   const handleDistrictChange = (district: string) => {
     onFilterChange({ district: district === "Tất cả" ? undefined : district });
@@ -120,10 +118,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, r
         <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
           <Icon icon="material-symbols:filter-list" className="text-xl text-teal-600" />
           <span>{t("Bộ lọc dịch vụ")}</span>
-          <Icon
-            icon="lsicon:down-filled"
-            className={`text-sm text-slate-500 lg:hidden transition-transform duration-200 ${isOpenMobile ? "rotate-180" : ""}`}
-          />
+          <Icon icon="lsicon:down-filled" className={`text-sm text-slate-500 lg:hidden transition-transform duration-200 ${isOpenMobile ? "rotate-180" : ""}`} />
         </h3>
         <button
           onClick={(e) => {
@@ -150,11 +145,7 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, r
               className="flex-1 bg-transparent text-sm outline-none text-slate-700 dark:text-slate-300 placeholder-slate-400 font-semibold"
             />
             {filterParams.search && (
-              <button
-                type="button"
-                onClick={() => onFilterChange({ search: undefined })}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer transition-colors shrink-0"
-              >
+              <button type="button" onClick={() => onFilterChange({ search: undefined })} className="text-slate-400 hover:text-slate-600 cursor-pointer transition-colors shrink-0">
                 <Icon icon="material-symbols:close-rounded" className="text-lg" />
               </button>
             )}
@@ -314,7 +305,9 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
                 <div className="aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-900 relative">{renderServiceImage(service.image, service.title)}</div>
                 <div className="p-6 flex flex-col grow">
                   <div className="flex items-center justify-between mb-2.5">
-                    <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{t(service.category)}</span>
+                    <span className="bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+                      {t(service.category)}
+                    </span>
                     <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-350">
                       <Icon icon="material-symbols:star" className="text-amber-400 text-base" />
                       {(Number(service.rating) || 0).toFixed(1)} <span className="text-slate-400 dark:text-slate-500 font-normal">({service.reviewsCount || 0})</span>
@@ -492,7 +485,8 @@ const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helper
 export const Service = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { services, helpers, categories, loading, helperLoading, totalHelpers, helperPage, helperLastPage, filterParams, updateHelperFilter, goToHelperPage, sortBy, setSortBy, regions } = useService();
+  const { services, helpers, categories, loading, helperLoading, totalHelpers, helperPage, helperLastPage, filterParams, updateHelperFilter, goToHelperPage, sortBy, setSortBy, regions } =
+    useService();
 
   const handleReset = () => {
     updateHelperFilter({
@@ -503,7 +497,7 @@ export const Service = () => {
       min_price: undefined,
       max_price: undefined,
       service_id: undefined,
-      search: undefined
+      search: undefined,
     });
   };
 

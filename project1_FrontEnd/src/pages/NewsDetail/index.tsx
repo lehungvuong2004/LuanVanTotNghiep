@@ -28,10 +28,7 @@ export const NewsDetail = () => {
         setError(null);
         window.scrollTo({ top: 0, behavior: "smooth" });
 
-        const [detail, list] = await Promise.all([
-          getNewsDetail(slug),
-          getNewsList({ limit: 4, status: "published" }),
-        ]);
+        const [detail, list] = await Promise.all([getNewsDetail(slug), getNewsList({ limit: 4, status: "published" })]);
         setArticle(detail.data);
         setRelatedNews(list.data.data.filter((n) => n.slug !== slug).slice(0, 3));
       } catch {
@@ -73,17 +70,19 @@ export const NewsDetail = () => {
         <article className="lg:col-span-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 mb-6">
-            <Link to="/" className="hover:text-indigo-650 transition-colors">{t("Trang chủ")}</Link>
+            <Link to="/" className="hover:text-indigo-650 transition-colors">
+              {t("Trang chủ")}
+            </Link>
             <Icon icon="material-symbols:chevron-right" />
-            <Link to="/tin-tuc" className="hover:text-indigo-650 transition-colors">{t("Tin tức")}</Link>
+            <Link to="/tin-tuc" className="hover:text-indigo-650 transition-colors">
+              {t("Tin tức")}
+            </Link>
             <Icon icon="material-symbols:chevron-right" />
             <span className="text-slate-600 dark:text-slate-400 line-clamp-1 font-medium">{article.title}</span>
           </div>
 
           {/* Title & Meta */}
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-100 leading-tight mb-4">
-            {article.title}
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-100 leading-tight mb-4">{article.title}</h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
             <span className="flex items-center gap-1.5">
               <Icon icon="material-symbols:calendar-today-outline" className="text-base" />
@@ -97,11 +96,7 @@ export const NewsDetail = () => {
           {/* Thumbnail */}
           {article.thumbnail && (
             <div className="rounded-2xl overflow-hidden mb-8 shadow-md">
-              <img
-                src={getImageUrl(article.thumbnail)}
-                alt={article.title}
-                className="w-full h-80 object-cover"
-              />
+              <img src={getImageUrl(article.thumbnail)} alt={article.title} className="w-full h-80 object-cover" />
             </div>
           )}
 
@@ -120,10 +115,7 @@ export const NewsDetail = () => {
 
           {/* Back button */}
           <div className="mt-12 pt-6 border-t border-slate-100 dark:border-slate-700/50">
-            <Link
-              to="/tin-tuc"
-              className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
-            >
+            <Link to="/tin-tuc" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
               <Icon icon="material-symbols:arrow-back" />
               {t("Quay về danh sách tin tức")}
             </Link>
@@ -142,11 +134,7 @@ export const NewsDetail = () => {
             ) : (
               <div className="flex flex-col gap-4">
                 {relatedNews.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={`/tin-tuc/${item.slug}`}
-                    className="group flex gap-3 items-start pb-4 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0"
-                  >
+                  <Link key={item.id} to={`/tin-tuc/${item.slug}`} className="group flex gap-3 items-start pb-4 border-b border-slate-100 dark:border-slate-700/30 last:border-0 last:pb-0">
                     <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-900">
                       {item.thumbnail ? (
                         <img src={getImageUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />

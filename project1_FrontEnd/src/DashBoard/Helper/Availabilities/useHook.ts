@@ -67,16 +67,21 @@ export const useHelperAvailability = () => {
       }
     };
     doFetch();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [refreshTick, showToast]);
 
   // ── Derived: week days (7 days starting from weekAnchor) ───────────────
-  const weekDays = useMemo(() =>
-    Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(weekAnchor);
-      d.setDate(weekAnchor.getDate() + i);
-      return d;
-    }), [weekAnchor]);
+  const weekDays = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(weekAnchor);
+        d.setDate(weekAnchor.getDate() + i);
+        return d;
+      }),
+    [weekAnchor],
+  );
 
   // Slot lookup map: "YYYY-MM-DD|HH:00" → HelperAvailability
   const slotMap = useMemo(() => {
@@ -181,17 +186,9 @@ export const useHelperAvailability = () => {
       const { created, ignored, deleted } = res.data;
 
       if (bulkMode === "create") {
-        showToast(
-          "success",
-          "Kích hoạt thành công",
-          `Đã tạo ${created} ca. ${ignored} ca bị bỏ qua do trùng.`
-        );
+        showToast("success", "Kích hoạt thành công", `Đã tạo ${created} ca. ${ignored} ca bị bỏ qua do trùng.`);
       } else {
-        showToast(
-          "success",
-          "Hủy lịch thành công",
-          `Đã hủy thành công ${deleted} ca rảnh.`
-        );
+        showToast("success", "Hủy lịch thành công", `Đã hủy thành công ${deleted} ca rảnh.`);
       }
       setRefreshTick((p) => p + 1);
     } catch (err: any) {
@@ -205,7 +202,7 @@ export const useHelperAvailability = () => {
   const [clearingAll, setClearingAll] = useState(false);
   const handleClearAll = async () => {
     const confirm = window.confirm(
-      "Bạn có chắc chắn muốn xóa toàn bộ lịch rảnh hiện tại không?\nLưu ý: Các ca làm việc đã có khách đặt lịch (màu đỏ) vẫn sẽ được giữ lại để tiếp tục phục vụ khách hàng."
+      "Bạn có chắc chắn muốn xóa toàn bộ lịch rảnh hiện tại không?\nLưu ý: Các ca làm việc đã có khách đặt lịch (màu đỏ) vẫn sẽ được giữ lại để tiếp tục phục vụ khách hàng.",
     );
     if (!confirm) return;
 
@@ -235,10 +232,18 @@ export const useHelperAvailability = () => {
 
   // ── Week navigation ────────────────────────────────────────────────────
   const prevWeek = () => {
-    setWeekAnchor((p) => { const d = new Date(p); d.setDate(d.getDate() - 7); return d; });
+    setWeekAnchor((p) => {
+      const d = new Date(p);
+      d.setDate(d.getDate() - 7);
+      return d;
+    });
   };
   const nextWeek = () => {
-    setWeekAnchor((p) => { const d = new Date(p); d.setDate(d.getDate() + 7); return d; });
+    setWeekAnchor((p) => {
+      const d = new Date(p);
+      d.setDate(d.getDate() + 7);
+      return d;
+    });
   };
   const goToday = () => {
     const d = new Date();

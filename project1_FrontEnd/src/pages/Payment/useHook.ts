@@ -13,7 +13,8 @@ import {
   getMyPaymentsApi,
   simulatePaymentCallbackApi,
   requestRefundApi,
-  getMyPaymentRefundsApi } from "../../api/payments";
+  getMyPaymentRefundsApi,
+} from "../../api/payments";
 
 // ── Payment modal form state ──────────────────────────────
 export interface PaymentFormState {
@@ -27,7 +28,8 @@ const DEFAULT_FORM: PaymentFormState = {
   booking_id: "",
   job_post_id: "",
   payment_method: "cash",
-  amount: "" };
+  amount: "",
+};
 
 // ── Refund modal form state ──────────────────────────────
 export interface RefundFormState {
@@ -46,13 +48,15 @@ export const STATUS_META: Record<string, { label: string; cls: string }> = {
   pending: { label: "Chờ thanh toán", cls: "bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400" },
   completed: { label: "Hoàn thành", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
   failed: { label: "Thất bại", cls: "bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400" },
-  refunded: { label: "Đã hoàn tiền", cls: "bg-violet-100  text-violet-700  dark:bg-violet-900/30  dark:text-violet-400" } };
+  refunded: { label: "Đã hoàn tiền", cls: "bg-violet-100  text-violet-700  dark:bg-violet-900/30  dark:text-violet-400" },
+};
 
 export const REFUND_STATUS_META: Record<string, { label: string; cls: string }> = {
   pending: { label: "Đang chờ", cls: "bg-amber-100   text-amber-700   dark:bg-amber-900/30   dark:text-amber-400" },
   approved: { label: "Đã duyệt", cls: "bg-sky-100     text-sky-700     dark:bg-sky-900/30     dark:text-sky-400" },
   rejected: { label: "Từ chối", cls: "bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-400" },
-  completed: { label: "Hoàn tất", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" } };
+  completed: { label: "Hoàn tất", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+};
 
 export const usePayment = () => {
   // ── UI State ──────────────────────────────────────────────
@@ -78,7 +82,8 @@ export const usePayment = () => {
         booking_id: bookingId || "",
         job_post_id: jobPostId || "",
         payment_method: "vnpay",
-        amount: amount || "" });
+        amount: amount || "",
+      });
       setShowCreateModal(true);
     }
   }, [searchParams]);
@@ -190,14 +195,16 @@ export const usePayment = () => {
         payment_method: form.payment_method,
         amount: parseFloat(form.amount),
         booking_id: form.booking_id ? parseInt(form.booking_id) : null,
-        job_post_id: form.job_post_id ? parseInt(form.job_post_id) : null };
+        job_post_id: form.job_post_id ? parseInt(form.job_post_id) : null,
+      };
 
       // ── VNPay: redirect instead of creating locally ──────────────
       if (form.payment_method === "vnpay") {
         const vnpayPayload: CreateVnpayPayload = {
           amount: parseFloat(form.amount),
           booking_id: form.booking_id ? parseInt(form.booking_id) : null,
-          job_post_id: form.job_post_id ? parseInt(form.job_post_id) : null };
+          job_post_id: form.job_post_id ? parseInt(form.job_post_id) : null,
+        };
         setIsVnpayLoading(true);
         const res = await createVnpayUrlApi(vnpayPayload);
         setShowCreateModal(false);
@@ -266,7 +273,8 @@ export const usePayment = () => {
       const payload: CreateRefundPayload = {
         payment_id: payment.id,
         amount: amt,
-        reason: refundForm.reason || undefined };
+        reason: refundForm.reason || undefined,
+      };
       const res = await requestRefundApi(payload);
       setRefunds((prev) => [res.data, ...prev]);
       setShowRefundModal(false);
@@ -280,7 +288,6 @@ export const usePayment = () => {
   };
 
   return {
-    
     // create
     showCreateModal,
     setShowCreateModal,
@@ -318,5 +325,6 @@ export const usePayment = () => {
     setPaymentsPage,
     totalPayments,
     lastPage,
-    isPaymentsLoading };
+    isPaymentsLoading,
+  };
 };

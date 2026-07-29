@@ -13,21 +13,24 @@ export const useNews = () => {
   const [total, setTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchNews = useCallback(async (page = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await getNewsList({ page, limit: 9, status: "published" });
-      setNews(res.data.data);
-      setCurrentPage(res.data.current_page);
-      setTotalPages(res.data.last_page);
-      setTotal(res.data.total);
-    } catch {
-      setError(t("Không thể tải tin tức. Vui lòng thử lại."));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+  const fetchNews = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await getNewsList({ page, limit: 9, status: "published" });
+        setNews(res.data.data);
+        setCurrentPage(res.data.current_page);
+        setTotalPages(res.data.last_page);
+        setTotal(res.data.total);
+      } catch {
+        setError(t("Không thể tải tin tức. Vui lòng thử lại."));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,11 +39,7 @@ export const useNews = () => {
     return () => clearTimeout(timer);
   }, [fetchNews]);
 
-  const filteredNews = news.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-  );
+  const filteredNews = news.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()) || (item.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false));
 
   return {
     news: filteredNews,
@@ -51,5 +50,6 @@ export const useNews = () => {
     total,
     searchQuery,
     setSearchQuery,
-    fetchNews };
+    fetchNews,
+  };
 };

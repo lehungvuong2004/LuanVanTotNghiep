@@ -45,8 +45,6 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
   const fmtVND = (n: number) => n.toLocaleString("vi-VN") + " ₫";
   const fmtPct = (n: number) => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 
-
-
   // ─── Render Functions ─────────────────────────────────────────────────────
 
   const renderHeader = () => {
@@ -303,9 +301,7 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
                           {!p.booking_id && !p.job_post_id && <span className="text-slate-300">—</span>}
                         </td>
                         <td className="px-5 py-4 font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">{Number(p.amount || 0).toLocaleString("vi-VN")} ₫</td>
-                        <td className="px-5 py-4">
-                          {getStatusBadge(p.status, "payment")}
-                        </td>
+                        <td className="px-5 py-4">{getStatusBadge(p.status, "payment")}</td>
                         <td className="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">{p.paid_at ? new Date(p.paid_at).toLocaleString("vi-VN") : "—"}</td>
                         <td className="px-5 py-4 text-right">
                           <select
@@ -353,9 +349,7 @@ export const PaymentsRefunds = ({ defaultTab = "payments" }: PaymentsRefundsProp
                       </td>
                       <td className="px-5 py-4 text-xs font-semibold text-slate-500">PAY-{r.payment_id}</td>
                       <td className="px-5 py-4 font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">{Number(r.amount || 0).toLocaleString("vi-VN")} ₫</td>
-                      <td className="px-5 py-4">
-                        {getStatusBadge(r.status, "refund")}
-                      </td>
+                      <td className="px-5 py-4">{getStatusBadge(r.status, "refund")}</td>
                       <td className="px-5 py-4 max-w-xs">
                         <p className="text-xs text-slate-500 truncate" title={r.reason || ""}>
                           {r.reason || "Không có lý do."}

@@ -1,24 +1,21 @@
 import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Payment, Refund } from "../../../api/payments";
-import {
-  getPaymentsAdmin,
-  updatePaymentStatusAdmin,
-  getRefundsAdmin,
-  processRefundAdmin,
-  getPaymentStatsAdmin } from "../../../api/payments";
+import { getPaymentsAdmin, updatePaymentStatusAdmin, getRefundsAdmin, processRefundAdmin, getPaymentStatsAdmin } from "../../../api/payments";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const PAYMENT_METHODS_LABELS: Record<string, string> = {
-  cash:          "Tiền mặt",
-  vnpay:         "VNPay" };
+  cash: "Tiền mặt",
+  vnpay: "VNPay",
+};
 
 export const PAYMENT_METHODS_ICONS: Record<string, string> = {
-  cash:          "material-symbols:payments-outline",
-  vnpay:         "material-symbols:credit-score-outline" };
+  cash: "material-symbols:payments-outline",
+  vnpay: "material-symbols:credit-score-outline",
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Hook
@@ -78,7 +75,8 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
         page: paymentsPage,
         limit: itemsPerPage,
         status: statusParam,
-        payment_method: methodParam });
+        payment_method: methodParam,
+      });
 
       setPayments(response.data.data);
       setPaymentsTotal(response.data.total);
@@ -98,7 +96,8 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
       const response = await getRefundsAdmin({
         page: refundsPage,
         limit: itemsPerPage,
-        status: statusParam });
+        status: statusParam,
+      });
 
       setRefunds(response.data.data);
       setRefundsTotal(response.data.total);
@@ -110,7 +109,9 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
   }, [refundsPage, refundStatusFilter, itemsPerPage, showToast]);
 
   // ── Sync tab ──────────────────────────────────────────────────────────────
-  useEffect(() => { setActiveTab(defaultTab); }, [defaultTab]);
+  useEffect(() => {
+    setActiveTab(defaultTab);
+  }, [defaultTab]);
 
   // ── Load on tab/filter change ──────────────────────────────────────────────
   useEffect(() => {
@@ -119,13 +120,12 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
   }, [activeTab, fetchPayments, fetchRefunds]);
 
   // ── Load real stats on mount ──────────────────────────────────────────────
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   // ── Update payment status ─────────────────────────────────────────────────
-  const handleUpdatePaymentStatus = async (
-    id: number,
-    status: "pending" | "completed" | "failed" | "refunded"
-  ) => {
+  const handleUpdatePaymentStatus = async (id: number, status: "pending" | "completed" | "failed" | "refunded") => {
     try {
       await updatePaymentStatusAdmin(id, status);
       showToast("success", "Cập nhật thành công", `Trạng thái thanh toán đã chuyển thành ${status}`);
@@ -137,10 +137,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
   };
 
   // ── Process refund ────────────────────────────────────────────────────────
-  const handleProcessRefund = async (
-    id: number,
-    status: "approved" | "rejected" | "completed"
-  ) => {
+  const handleProcessRefund = async (id: number, status: "approved" | "rejected" | "completed") => {
     try {
       await processRefundAdmin(id, status);
       showToast("success", "Xử lý thành công", `Trạng thái hoàn tiền đã chuyển thành ${status}`);
@@ -156,12 +153,7 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
     return payments.filter((p) => {
       if (!searchQuery) return true;
       const term = searchQuery.toLowerCase();
-      return (
-        (p.transaction_code || "").toLowerCase().includes(term) ||
-        String(p.booking_id || "").includes(term) ||
-        String(p.job_post_id || "").includes(term) ||
-        String(p.id).includes(term)
-      );
+      return (p.transaction_code || "").toLowerCase().includes(term) || String(p.booking_id || "").includes(term) || String(p.job_post_id || "").includes(term) || String(p.id).includes(term);
     });
   }, [payments, searchQuery]);
 
@@ -169,20 +161,14 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
     return refunds.filter((r) => {
       if (!searchQuery) return true;
       const term = searchQuery.toLowerCase();
-      return (
-        String(r.id).includes(term) ||
-        String(r.payment_id).includes(term) ||
-        (r.reason || "").toLowerCase().includes(term)
-      );
+      return String(r.id).includes(term) || String(r.payment_id).includes(term) || (r.reason || "").toLowerCase().includes(term);
     });
   }, [refunds, searchQuery]);
 
   // ── Computed metrics (fallback if liveStats not loaded yet) ───────────────
   const computedMetrics = useMemo(() => {
     const pendingRefundsCount = refunds.filter((r) => r.status === "pending").length;
-    const completedRefundsAmount = refunds
-      .filter((r) => r.status === "completed")
-      .reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    const completedRefundsAmount = refunds.filter((r) => r.status === "completed").reduce((sum, r) => sum + Number(r.amount || 0), 0);
     return { pendingRefundsCount, completedRefundsAmount };
   }, [refunds]);
 
@@ -202,36 +188,48 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
     return {
       tooltip: {
         trigger: "axis",
-        formatter: (params: any) =>
-          `${params[0].name}: <b style="color:#0a9ea6">${Number(params[0].value).toLocaleString("vi-VN")} ₫</b>` },
+        formatter: (params: any) => `${params[0].name}: <b style="color:#0a9ea6">${Number(params[0].value).toLocaleString("vi-VN")} ₫</b>`,
+      },
       grid: { top: 25, bottom: 25, left: 60, right: 15 },
       xAxis: {
         type: "category",
         data: dates.length ? dates : ["Chưa có dữ liệu"],
         axisLine: { lineStyle: { color: "#94a3b8" } },
-        axisLabel: { color: "#64748b", fontSize: 10 } },
+        axisLabel: { color: "#64748b", fontSize: 10 },
+      },
       yAxis: {
         type: "value",
         axisLabel: {
           color: "#64748b",
           fontSize: 10,
-          formatter: (v: number) =>
-            v >= 1_000_000 ? `${v / 1_000_000}M ₫` : v >= 1_000 ? `${v / 1_000}k ₫` : `${v} ₫` },
-        splitLine: { lineStyle: { color: "#f1f5f9" } } },
-      series: [{
-        data: revenues.length ? revenues : [0],
-        type: "line",
-        smooth: true,
-        symbolSize: 7,
-        itemStyle: { color: "#0a9ea6" },
-        lineStyle: { width: 3 },
-        areaStyle: {
-          color: {
-            type: "linear", x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: "rgba(10,158,166,0.25)" },
-              { offset: 1, color: "rgba(10,158,166,0)" },
-            ] } } }] };
+          formatter: (v: number) => (v >= 1_000_000 ? `${v / 1_000_000}M ₫` : v >= 1_000 ? `${v / 1_000}k ₫` : `${v} ₫`),
+        },
+        splitLine: { lineStyle: { color: "#f1f5f9" } },
+      },
+      series: [
+        {
+          data: revenues.length ? revenues : [0],
+          type: "line",
+          smooth: true,
+          symbolSize: 7,
+          itemStyle: { color: "#0a9ea6" },
+          lineStyle: { width: 3 },
+          areaStyle: {
+            color: {
+              type: "linear",
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: "rgba(10,158,166,0.25)" },
+                { offset: 1, color: "rgba(10,158,166,0)" },
+              ],
+            },
+          },
+        },
+      ],
+    };
   }, [payments]);
 
   // ── Payment status distribution chart ────────────────────────────────────
@@ -243,18 +241,23 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
 
     const data = Object.keys(counts).map((k) => ({
       name: k.charAt(0).toUpperCase() + k.slice(1),
-      value: counts[k] }));
+      value: counts[k],
+    }));
 
     return {
       tooltip: { trigger: "item", formatter: "{b}: <b>{c} giao dịch</b> ({d}%)" },
-      series: [{
-        type: "pie",
-        radius: ["40%", "70%"],
-        avoidLabelOverlap: false,
-        itemStyle: { borderRadius: 8, borderColor: "#fff", borderWidth: 2 },
-        label: { show: true, position: "outside", formatter: "{b}: {d}%", color: "#64748b", fontSize: 10 },
-        data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
-        color: ["#f59e0b", "#10b981", "#ef4444", "#8b5cf6"] }] };
+      series: [
+        {
+          type: "pie",
+          radius: ["40%", "70%"],
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 8, borderColor: "#fff", borderWidth: 2 },
+          label: { show: true, position: "outside", formatter: "{b}: {d}%", color: "#64748b", fontSize: 10 },
+          data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
+          color: ["#f59e0b", "#10b981", "#ef4444", "#8b5cf6"],
+        },
+      ],
+    };
   }, [payments]);
 
   // ── Payment method distribution chart ────────────────────────────────────
@@ -271,14 +274,18 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
 
     return {
       tooltip: { trigger: "item", formatter: "{b}: <b>{c} giao dịch</b> ({d}%)" },
-      series: [{
-        type: "pie",
-        radius: ["35%", "65%"],
-        avoidLabelOverlap: false,
-        itemStyle: { borderRadius: 8, borderColor: "#fff", borderWidth: 2 },
-        label: { show: true, formatter: "{b}: {d}%", color: "#64748b", fontSize: 10 },
-        data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
-        color: ["#0ea5e9", "#f472b6", "#a78bfa", "#34d399", "#fb923c"] }] };
+      series: [
+        {
+          type: "pie",
+          radius: ["35%", "65%"],
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 8, borderColor: "#fff", borderWidth: 2 },
+          label: { show: true, formatter: "{b}: {d}%", color: "#64748b", fontSize: 10 },
+          data: data.length ? data : [{ name: "Chưa có dữ liệu", value: 0 }],
+          color: ["#0ea5e9", "#f472b6", "#a78bfa", "#34d399", "#fb923c"],
+        },
+      ],
+    };
   }, [payments]);
 
   // ── Cleanup ───────────────────────────────────────────────────────────────
@@ -287,27 +294,35 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
   }, []);
 
   return {
-    activeTab, setActiveTab,
-    loading, statsLoading,
-    
-    searchQuery, setSearchQuery,
+    activeTab,
+    setActiveTab,
+    loading,
+    statsLoading,
+
+    searchQuery,
+    setSearchQuery,
 
     // Live stats
     liveStats,
 
     // Payments
     payments: displayedPayments,
-    paymentsPage, setPaymentsPage,
+    paymentsPage,
+    setPaymentsPage,
     paymentsTotal,
-    paymentStatusFilter, setPaymentStatusFilter,
-    paymentMethodFilter, setPaymentMethodFilter,
+    paymentStatusFilter,
+    setPaymentStatusFilter,
+    paymentMethodFilter,
+    setPaymentMethodFilter,
     handleUpdatePaymentStatus,
 
     // Refunds
     refunds: displayedRefunds,
-    refundsPage, setRefundsPage,
+    refundsPage,
+    setRefundsPage,
     refundsTotal,
-    refundStatusFilter, setRefundStatusFilter,
+    refundStatusFilter,
+    setRefundStatusFilter,
     handleProcessRefund,
 
     // Charts
@@ -315,6 +330,6 @@ export const usePaymentsRefunds = (defaultTab: "payments" | "refunds") => {
     revenueChartOption,
     statusDistributionOption,
     methodDistributionOption,
-    itemsPerPage };
+    itemsPerPage,
+  };
 };
-

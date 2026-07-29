@@ -19,7 +19,7 @@ export const useDashboardOverview = () => {
         setLoading(true);
         const data = await getDashboardOverview();
 
-        const kpiMetaMap: Record<string, { title: string; icon: string; bgColor: string; textColor: string }> = {
+        const kpiMetaMap = {
           revenue: {
             title: "Tổng doanh thu",
             icon: "material-symbols:payments-outline-rounded",

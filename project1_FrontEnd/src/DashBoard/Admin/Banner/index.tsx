@@ -27,16 +27,14 @@ export const Banners = () => {
     totalItems,
     isModalOpen,
     modalMode,
-    
-    
+
     openAddModal,
     openEditModal,
     closeModal,
     formik,
     handleDeleteBanner,
-    handleToggleStatus } = useBanner();
-
-
+    handleToggleStatus,
+  } = useBanner();
 
   // 2. Main banner system header
   const renderHeader = () => {
@@ -46,7 +44,15 @@ export const Banners = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Quản Lý Banner Quảng Cáo</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Cấu hình các slide ảnh trượt và banner chiến dịch khuyến mãi hiển thị tại trang chủ.</p>
         </div>
-        {permissions.create && (<button onClick={openAddModal} className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"><Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />Tạo Banner Mới</button>)}
+        {permissions.create && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+          >
+            <Icon icon="material-symbols:add-circle-outline-rounded" className="text-xl" />
+            Tạo Banner Mới
+          </button>
+        )}
       </div>
     );
   };
@@ -165,7 +171,15 @@ export const Banners = () => {
           </div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy banner nào</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Thử thay đổi từ khóa tìm kiếm hoặc tạo một banner quảng cáo mới.</p>
-          {permissions.create && (<button onClick={openAddModal} className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"><Icon icon="material-symbols:add" />Tạo Banner</button>)}
+          {permissions.create && (
+            <button
+              onClick={openAddModal}
+              className="mt-5 flex items-center gap-2 bg-cyan-900 hover:bg-cyan-800 text-white font-bold px-4 py-2.5 rounded-xl shadow-md active:scale-95 transition-all cursor-pointer text-sm"
+            >
+              <Icon icon="material-symbols:add" />
+              Tạo Banner
+            </button>
+          )}
         </div>
       );
     }
@@ -205,7 +219,9 @@ export const Banners = () => {
               {/* Banner Details Body */}
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <h3 className="font-bold text-base text-slate-850 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-cyan-900 dark:group-hover:text-blue-400 transition-colors">{banner.title}</h3>
+                  <h3 className="font-bold text-base text-slate-850 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-cyan-900 dark:group-hover:text-blue-400 transition-colors">
+                    {banner.title}
+                  </h3>
 
                   <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
                     {banner.link ? (
@@ -224,21 +240,16 @@ export const Banners = () => {
 
                     <div className="flex items-center gap-1.5">
                       <Icon icon="material-symbols:person-outline-rounded" className="text-base text-slate-400 shrink-0" />
-                      <span>Người tạo: <span className="font-medium text-slate-700 dark:text-slate-300">{banner.creator?.full_name || "Admin"}</span></span>
+                      <span>
+                        Người tạo: <span className="font-medium text-slate-700 dark:text-slate-300">{banner.creator?.full_name || "Admin"}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions footer of card */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2">
-                  {permissions.update ? (
-                    <Toggle
-                      checked={banner.status === "active"}
-                      onChange={() => handleToggleStatus(banner)}
-                      activeLabel="Hiển thị"
-                      inactiveLabel="Tạm ẩn"
-                    />
-                  ) : <div />}
+                  {permissions.update ? <Toggle checked={banner.status === "active"} onChange={() => handleToggleStatus(banner)} activeLabel="Hiển thị" inactiveLabel="Tạm ẩn" /> : <div />}
 
                   <div className="flex items-center gap-1">
                     {permissions.update && (
@@ -393,7 +404,7 @@ export const Banners = () => {
             {/* Status Selector */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng Thái Mặc Định</label>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div
                   onClick={() => formik.setFieldValue("status", "active")}
@@ -425,7 +436,7 @@ export const Banners = () => {
                   </div>
                 </div>
               </div>
-              
+
               {formik.touched.status && formik.errors.status && <p className="text-red-500 text-xs mt-1">{formik.errors.status}</p>}
             </div>
 

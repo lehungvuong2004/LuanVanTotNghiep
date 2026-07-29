@@ -1,14 +1,9 @@
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 
-import {
-  usePayment,
-  PAYMENT_METHODS,
-  STATUS_META,
-  REFUND_STATUS_META } from "./useHook";
+import { usePayment, PAYMENT_METHODS, STATUS_META, REFUND_STATUS_META } from "./useHook";
 
-const fmt = (n: number | string | null | undefined) =>
-  n == null ? "—" : Number(n).toLocaleString("vi-VN") + " ₫";
+const fmt = (n: number | string | null | undefined) => (n == null ? "—" : Number(n).toLocaleString("vi-VN") + " ₫");
 
 const fmtDate = (s: string | null | undefined) => {
   if (!s) return "—";
@@ -18,24 +13,43 @@ const fmtDate = (s: string | null | undefined) => {
 export const Payment = () => {
   const { t } = useTranslation();
   const {
-    
-    showCreateModal, setShowCreateModal,
-    form, formError,
-    handleCreateOpen, handleFormChange, handleCreateSubmit, isCreating,
-    payment, refunds, lookupId, setLookupId, isLooking, handleLookup, loadPayment,
-    handleSimulate, isSimulating,
+    showCreateModal,
+    setShowCreateModal,
+    form,
+    formError,
+    handleCreateOpen,
+    handleFormChange,
+    handleCreateSubmit,
+    isCreating,
+    payment,
+    refunds,
+    lookupId,
+    setLookupId,
+    isLooking,
+    handleLookup,
+    loadPayment,
+    handleSimulate,
+    isSimulating,
     isVnpayLoading,
-    showRefundModal, setShowRefundModal,
-    refundForm, refundError,
-    handleRefundOpen, handleRefundChange, handleRefundSubmit, isRefunding,
-    myPayments, paymentsPage, setPaymentsPage, totalPayments, lastPage, isPaymentsLoading } = usePayment();
+    showRefundModal,
+    setShowRefundModal,
+    refundForm,
+    refundError,
+    handleRefundOpen,
+    handleRefundChange,
+    handleRefundSubmit,
+    isRefunding,
+    myPayments,
+    paymentsPage,
+    setPaymentsPage,
+    totalPayments,
+    lastPage,
+    isPaymentsLoading,
+  } = usePayment();
 
   const statusMeta = payment ? (STATUS_META[payment.status] ?? { label: payment.status, cls: "bg-slate-100 text-slate-600" }) : null;
 
-  const paymentMethodLabel =
-    payment?.payment_method
-      ? PAYMENT_METHODS.find((m) => m.value === payment.payment_method)?.label ?? payment.payment_method
-      : "—";
+  const paymentMethodLabel = payment?.payment_method ? (PAYMENT_METHODS.find((m) => m.value === payment.payment_method)?.label ?? payment.payment_method) : "—";
 
   // ─── Render Sub-Sections ──────────────────────────────────────────────────
 
@@ -48,12 +62,8 @@ export const Payment = () => {
               <Icon icon="material-symbols:payments-outline" className="text-3xl" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                {t("Thanh toán")}
-              </h1>
-              <p className="mt-1 text-white/70 text-sm">
-                {t("Tạo & quản lý giao dịch thanh toán của bạn")}
-              </p>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("Thanh toán")}</h1>
+              <p className="mt-1 text-white/70 text-sm">{t("Tạo & quản lý giao dịch thanh toán của bạn")}</p>
             </div>
           </div>
         </div>
@@ -83,11 +93,7 @@ export const Payment = () => {
             disabled={isLooking}
             className="px-4 text-sm font-semibold text-[#066d72] dark:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer disabled:opacity-50"
           >
-            {isLooking ? (
-              <Icon icon="svg-spinners:3-dots-fade" className="text-xl" />
-            ) : (
-              t("Tìm")
-            )}
+            {isLooking ? <Icon icon="svg-spinners:3-dots-fade" className="text-xl" /> : t("Tìm")}
           </button>
         </div>
 
@@ -120,11 +126,7 @@ export const Payment = () => {
               </p>
             </div>
           </div>
-          {statusMeta && (
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusMeta.cls}`}>
-              {statusMeta.label}
-            </span>
-          )}
+          {statusMeta && <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusMeta.cls}`}>{statusMeta.label}</span>}
         </div>
 
         {/* Card body */}
@@ -171,9 +173,7 @@ export const Payment = () => {
               disabled={isSimulating}
               className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-all active:scale-95 cursor-pointer disabled:opacity-60"
             >
-              {isSimulating
-                ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" />
-                : <Icon icon="material-symbols:check-circle-outline" className="text-lg" />}
+              {isSimulating ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" /> : <Icon icon="material-symbols:check-circle-outline" className="text-lg" />}
               {t("Xác nhận thanh toán")}
             </button>
           </div>
@@ -209,16 +209,12 @@ export const Payment = () => {
             return (
               <div key={r.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-6 py-4">
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-slate-800 dark:text-white">
-                    {fmt(r.amount)}
-                  </p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-white">{fmt(r.amount)}</p>
                   <p className="text-xs text-slate-400">
                     {r.reason ?? t("(Không có lý do)")} · {fmtDate(r.created_at)}
                   </p>
                 </div>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${rm.cls}`}>
-                  {rm.label}
-                </span>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${rm.cls}`}>{rm.label}</span>
               </div>
             );
           })}
@@ -233,12 +229,8 @@ export const Payment = () => {
         <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5">
           <Icon icon="material-symbols:payments-outline" className="text-4xl text-slate-300 dark:text-slate-600" />
         </div>
-        <p className="text-base font-semibold text-slate-500 dark:text-slate-400">
-          {t("Tra cứu hoặc tạo thanh toán mới")}
-        </p>
-        <p className="text-sm mt-1">
-          {t("Nhập mã thanh toán để xem chi tiết hoặc bấm \"Tạo thanh toán\".")}
-        </p>
+        <p className="text-base font-semibold text-slate-500 dark:text-slate-400">{t("Tra cứu hoặc tạo thanh toán mới")}</p>
+        <p className="text-sm mt-1">{t('Nhập mã thanh toán để xem chi tiết hoặc bấm "Tạo thanh toán".')}</p>
       </div>
     );
   };
@@ -250,10 +242,7 @@ export const Payment = () => {
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t("Tạo thanh toán mới")}</h2>
-            <button
-              onClick={() => setShowCreateModal(false)}
-              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-            >
+            <button onClick={() => setShowCreateModal(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
               <Icon icon="material-symbols:close" className="text-xl text-slate-500" />
             </button>
           </div>
@@ -271,18 +260,15 @@ export const Payment = () => {
                     onClick={() => handleFormChange("payment_method", m.value)}
                     disabled={isVnpayLoading}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all cursor-pointer disabled:opacity-50
-                      ${form.payment_method === m.value
-                        ? "border-[#066d72] bg-teal-50 dark:bg-teal-900/20 text-[#066d72] dark:text-teal-400 shadow-sm"
-                        : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
+                      ${
+                        form.payment_method === m.value
+                          ? "border-[#066d72] bg-teal-50 dark:bg-teal-900/20 text-[#066d72] dark:text-teal-400 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                       }`}
                   >
                     <Icon icon={m.icon} className="text-lg shrink-0" />
                     {m.label}
-                    {m.value === "vnpay" && form.payment_method === "vnpay" && (
-                      <span className="ml-auto text-xs font-bold bg-[#006eed] text-white px-1.5 py-0.5 rounded">
-                        {t("Cổng trực tiếp")}
-                      </span>
-                    )}
+                    {m.value === "vnpay" && form.payment_method === "vnpay" && <span className="ml-auto text-xs font-bold bg-[#006eed] text-white px-1.5 py-0.5 rounded">{t("Cổng trực tiếp")}</span>}
                   </button>
                 ))}
               </div>
@@ -306,9 +292,7 @@ export const Payment = () => {
             {/* Booking / Job post */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t("Mã đặt lịch")}
-                </label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{t("Mã đặt lịch")}</label>
                 <input
                   type="number"
                   min={1}
@@ -319,9 +303,7 @@ export const Payment = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t("Mã bài tuyển")}
-                </label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{t("Mã bài tuyển")}</label>
                 <input
                   type="number"
                   min={1}
@@ -370,11 +352,13 @@ export const Payment = () => {
                 disabled={isCreating || isVnpayLoading}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#066d72] hover:bg-[#055a5f] text-white text-sm font-semibold transition-all active:scale-95 cursor-pointer disabled:opacity-60"
               >
-                {(isCreating || isVnpayLoading)
-                  ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" />
-                  : form.payment_method === "vnpay"
-                    ? <Icon icon="material-symbols:open-in-new" className="text-lg" />
-                    : <Icon icon="material-symbols:add" className="text-lg" />}
+                {isCreating || isVnpayLoading ? (
+                  <Icon icon="svg-spinners:3-dots-fade" className="text-lg" />
+                ) : form.payment_method === "vnpay" ? (
+                  <Icon icon="material-symbols:open-in-new" className="text-lg" />
+                ) : (
+                  <Icon icon="material-symbols:add" className="text-lg" />
+                )}
                 {form.payment_method === "vnpay" ? t("Thanh toán qua VNPay") : t("Tạo thanh toán")}
               </button>
             </div>
@@ -391,17 +375,15 @@ export const Payment = () => {
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t("Yêu cầu hoàn tiền")}</h2>
-            <button
-              onClick={() => setShowRefundModal(false)}
-              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-            >
+            <button onClick={() => setShowRefundModal(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
               <Icon icon="material-symbols:close" className="text-xl text-slate-500" />
             </button>
           </div>
           <div className="px-6 py-5 overflow-y-auto max-h-[75vh] space-y-4">
             <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 text-sm">
               <p className="font-semibold text-violet-700 dark:text-violet-300">
-                {t("Thanh toán #")}{payment.id}
+                {t("Thanh toán #")}
+                {payment.id}
               </p>
               <p className="text-violet-600 dark:text-violet-400 mt-0.5">
                 {t("Tổng thanh toán:")} <strong>{fmt(payment.amount)}</strong>
@@ -422,9 +404,7 @@ export const Payment = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t("Lý do")}
-              </label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{t("Lý do")}</label>
               <textarea
                 rows={3}
                 value={refundForm.reason}
@@ -453,9 +433,7 @@ export const Payment = () => {
                 disabled={isRefunding}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-all active:scale-95 cursor-pointer disabled:opacity-60"
               >
-                {isRefunding
-                  ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" />
-                  : <Icon icon="material-symbols:undo" className="text-lg" />}
+                {isRefunding ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" /> : <Icon icon="material-symbols:undo" className="text-lg" />}
                 {t("Gửi yêu cầu")}
               </button>
             </div>
@@ -472,9 +450,7 @@ export const Payment = () => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <Icon icon="material-symbols:history-edu-outline" className="text-xl text-[#066d72] dark:text-teal-400" />
-            <h3 className="font-bold text-slate-800 dark:text-white text-sm">
-              {t("Lịch sử giao dịch của bạn")}
-            </h3>
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm">{t("Lịch sử giao dịch của bạn")}</h3>
           </div>
           <span className="text-xs text-slate-400">
             {t("Tổng số:")} {totalPayments}
@@ -501,12 +477,8 @@ export const Payment = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-800 dark:text-white">
-                        #{item.id}
-                      </span>
-                      <span className="text-xs text-slate-400 font-medium">
-                        ({method})
-                      </span>
+                      <span className="text-sm font-bold text-slate-800 dark:text-white">#{item.id}</span>
+                      <span className="text-xs text-slate-400 font-medium">({method})</span>
                       {item.booking_id && (
                         <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">
                           {t("Đặt lịch:")} #{item.booking_id}
@@ -518,18 +490,12 @@ export const Payment = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400">
-                      {fmtDate(item.created_at)}
-                    </p>
+                    <p className="text-xs text-slate-400">{fmtDate(item.created_at)}</p>
                   </div>
 
                   <div className="flex items-center gap-3 justify-between sm:justify-end">
-                    <span className="text-sm font-extrabold text-[#066d72] dark:text-teal-400">
-                      {fmt(item.amount)}
-                    </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta.cls}`}>
-                      {meta.label}
-                    </span>
+                    <span className="text-sm font-extrabold text-[#066d72] dark:text-teal-400">{fmt(item.amount)}</span>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta.cls}`}>{meta.label}</span>
                   </div>
                 </div>
               );
@@ -581,8 +547,6 @@ export const Payment = () => {
 
       {renderCreateModal()}
       {renderRefundModal()}
-
-      
     </div>
   );
 };

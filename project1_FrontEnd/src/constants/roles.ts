@@ -2,7 +2,8 @@ export const ROLES = {
   ADMIN: 1,
   OPERATOR: 2,
   HELPER: 3,
-  CUSTOMER: 4 } as const;
+  CUSTOMER: 4,
+} as const;
 
 export interface UserRolePayload {
   role_id?: number | string;

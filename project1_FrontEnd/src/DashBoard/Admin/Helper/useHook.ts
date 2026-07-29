@@ -190,8 +190,6 @@ export const useHelperManagement = () => {
     }
   };
 
-  
-
   const rem = getRootFontSizePx();
 
   // Chart options: Profile Status and Rating Distribution
@@ -348,4 +346,3 @@ export const useHelperManagement = () => {
     ratingOption,
   };
 };
-

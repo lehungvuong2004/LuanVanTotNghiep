@@ -76,15 +76,10 @@ export const DashboardLayout = ({ allowedRole }) => {
         { label: "Profile", path: "/ho-so", icon: "material-symbols:person-outline-rounded" },
       ];
     } else {
-      items = [
-        { label: "Home", path: "/", icon: "material-symbols:home-outline" },
-      ];
+      items = [{ label: "Home", path: "/", icon: "material-symbols:home-outline" }];
     }
 
-    return [
-      ...items,
-      { label: "More", icon: "ri:more-fill", action: () => setIsMobileDrawerOpen(true) },
-    ];
+    return [...items, { label: "More", icon: "ri:more-fill", action: () => setIsMobileDrawerOpen(true) }];
   }, [role]);
 
   if (!token || !user || getUserRole(user) !== allowedRole) {

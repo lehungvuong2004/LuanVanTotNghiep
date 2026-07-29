@@ -18,7 +18,8 @@ import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 
 export const Home = () => {
   const { t } = useTranslation();
-  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } = useHome();
+  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } =
+    useHome();
 
   const swiperRef = useRef<any>(null);
 

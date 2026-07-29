@@ -9,19 +9,17 @@ const initialState: LocationState = {
   address: null,
   addressDetails: null,
   status: "idle",
-  error: null };
+  error: null,
+};
 
-export const reverseGeocode = createAsyncThunk(
-  "location/reverseGeocode",
-  async ({ lat, lon }: { lat: number; lon: number }, { rejectWithValue }) => {
-    try {
-      const data = await fetchReverseGeocoding(lat, lon);
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Không thể định vị địa chỉ");
-    }
+export const reverseGeocode = createAsyncThunk("location/reverseGeocode", async ({ lat, lon }: { lat: number; lon: number }, { rejectWithValue }) => {
+  try {
+    const data = await fetchReverseGeocoding(lat, lon);
+    return data;
+  } catch (err: any) {
+    return rejectWithValue(err.message || "Không thể định vị địa chỉ");
   }
-);
+});
 
 const locationSlice = createSlice({
   name: "location",
@@ -44,7 +42,7 @@ const locationSlice = createSlice({
     setLocationError(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.status = "failed";
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -59,9 +57,10 @@ const locationSlice = createSlice({
       })
       .addCase(reverseGeocode.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload as string || "Lỗi giải mã tọa độ";
+        state.error = (action.payload as string) || "Lỗi giải mã tọa độ";
       });
-  } });
+  },
+});
 
 export const { setLocation, clearLocation, setLocationError } = locationSlice.actions;
 export default locationSlice.reducer;

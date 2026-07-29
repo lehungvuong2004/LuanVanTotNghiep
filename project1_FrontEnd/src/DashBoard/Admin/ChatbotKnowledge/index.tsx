@@ -3,13 +3,7 @@ import { Icon } from "@iconify/react";
 import { Pagination } from "../../../components/Pagination";
 import { useToast } from "../../../contexts/ToastContext";
 import { useChatbotKnowledge } from "./useHook";
-import {
-  createChatbotKnowledgeAdminApi,
-  updateChatbotKnowledgeAdminApi,
-  deleteChatbotKnowledgeAdminApi,
-  importChatbotKnowledgeAdminApi,
-  syncChatbotKnowledgeAdminApi,
-} from "../../../api/chatbot";
+import { createChatbotKnowledgeAdminApi, updateChatbotKnowledgeAdminApi, deleteChatbotKnowledgeAdminApi, importChatbotKnowledgeAdminApi, syncChatbotKnowledgeAdminApi } from "../../../api/chatbot";
 import type { ChatbotKnowledge } from "../../../api/chatbot";
 
 export const ChatbotKnowledgeBase = () => {
@@ -160,9 +154,7 @@ export const ChatbotKnowledgeBase = () => {
             <Icon icon="material-symbols:smart-toy-outline-rounded" className="text-[#026E5F] text-3xl" />
             Quản Lý Tri Thức Chatbot (RAG)
           </h2>
-          <p className="text-sm text-slate-505 dark:text-slate-400 mt-1">
-            Thiết lập dữ liệu câu hỏi, câu trả lời cục bộ để AI (Gemini) tham chiếu trả lời khách hàng dưới dạng RAG.
-          </p>
+          <p className="text-sm text-slate-505 dark:text-slate-400 mt-1">Thiết lập dữ liệu câu hỏi, câu trả lời cục bộ để AI (Gemini) tham chiếu trả lời khách hàng dưới dạng RAG.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -172,30 +164,16 @@ export const ChatbotKnowledgeBase = () => {
               disabled={syncing || knowledges.length === 0}
               className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {syncing ? (
-                <Icon icon="line-md:loading-twotone-loop" className="text-base animate-spin" />
-              ) : (
-                <Icon icon="material-symbols:sync-saved-locally-outline-rounded" className="text-base" />
-              )}
+              {syncing ? <Icon icon="line-md:loading-twotone-loop" className="text-base animate-spin" /> : <Icon icon="material-symbols:sync-saved-locally-outline-rounded" className="text-base" />}
               Đồng bộ dữ liệu RAG
             </button>
           )}
 
           {permissions.create && (
             <label className="flex items-center gap-1.5 px-4 py-2.5 bg-[#026E5F] hover:bg-[#015247] text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer active:scale-98">
-              {importing ? (
-                <Icon icon="line-md:loading-twotone-loop" className="text-base animate-spin" />
-              ) : (
-                <Icon icon="material-symbols:upload-file-outline-rounded" className="text-base" />
-              )}
+              {importing ? <Icon icon="line-md:loading-twotone-loop" className="text-base animate-spin" /> : <Icon icon="material-symbols:upload-file-outline-rounded" className="text-base" />}
               Nạp tệp Excel/CSV
-              <input
-                type="file"
-                accept=".csv,.txt"
-                onChange={handleFileUpload}
-                disabled={importing}
-                className="hidden"
-              />
+              <input type="file" accept=".csv,.txt" onChange={handleFileUpload} disabled={importing} className="hidden" />
             </label>
           )}
 
@@ -239,11 +217,7 @@ export const ChatbotKnowledgeBase = () => {
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Tệp tin mẫu</span>
-            <a
-              href="/chatbot_sample.csv"
-              download="chatbot_sample.csv"
-              className="text-xs font-bold text-[#026E5F] dark:text-[#52c1b2] hover:underline mt-2 flex items-center gap-1"
-            >
+            <a href="/chatbot_sample.csv" download="chatbot_sample.csv" className="text-xs font-bold text-[#026E5F] dark:text-[#52c1b2] hover:underline mt-2 flex items-center gap-1">
               <Icon icon="material-symbols:download-outline-rounded" />
               Tải CSV mẫu (.csv)
             </a>
@@ -256,9 +230,7 @@ export const ChatbotKnowledgeBase = () => {
 
       {/* Filter and Search */}
       <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center justify-between gap-4">
-        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-          Tìm kiếm dữ liệu tri thức của bạn
-        </div>
+        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Tìm kiếm dữ liệu tri thức của bạn</div>
         <div className="relative w-full max-w-md">
           <Icon icon="material-symbols:search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl" />
           <input
@@ -284,9 +256,7 @@ export const ChatbotKnowledgeBase = () => {
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-16 text-center">
           <Icon icon="material-symbols:database-off-outline" className="text-slate-300 dark:text-slate-600 text-6xl mx-auto mb-4" />
           <h4 className="text-lg font-bold text-slate-700 dark:text-slate-350">Chưa nạp tri thức RAG</h4>
-          <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
-            Hệ thống chatbot chưa có tri thức cục bộ. Quý khách có thể nạp file CSV mẫu (keyword, question, content) hoặc tạo thủ công.
-          </p>
+          <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">Hệ thống chatbot chưa có tri thức cục bộ. Quý khách có thể nạp file CSV mẫu (keyword, question, content) hoặc tạo thủ công.</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs overflow-hidden">
@@ -307,9 +277,7 @@ export const ChatbotKnowledgeBase = () => {
                   <tr key={k.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-colors">
                     <td className="py-3.5 px-5 font-bold text-slate-400">{k.id}</td>
                     <td className="py-3.5 px-5">
-                      <span className="px-2.5 py-1 bg-slate-105 dark:bg-slate-750 text-slate-600 dark:text-slate-300 rounded-md font-mono text-xxs font-bold">
-                        {k.keyword || "none"}
-                      </span>
+                      <span className="px-2.5 py-1 bg-slate-105 dark:bg-slate-750 text-slate-600 dark:text-slate-300 rounded-md font-mono text-xxs font-bold">{k.keyword || "none"}</span>
                     </td>
                     <td className="py-3.5 px-5 max-w-xs truncate" title={k.question}>
                       {k.question}
@@ -317,9 +285,7 @@ export const ChatbotKnowledgeBase = () => {
                     <td className="py-3.5 px-5 max-w-md truncate text-slate-500 dark:text-slate-400 font-medium" title={k.content}>
                       {k.content}
                     </td>
-                    <td className="py-3.5 px-5 text-slate-500 dark:text-slate-400 font-medium">
-                      {k.creator?.full_name || "Hệ thống"}
-                    </td>
+                    <td className="py-3.5 px-5 text-slate-500 dark:text-slate-400 font-medium">{k.creator?.full_name || "Hệ thống"}</td>
                     <td className="py-3.5 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {permissions.update && (
@@ -348,12 +314,7 @@ export const ChatbotKnowledgeBase = () => {
             </table>
           </div>
 
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+          <Pagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={(page) => setCurrentPage(page)} />
         </div>
       )}
 
@@ -370,11 +331,7 @@ export const ChatbotKnowledgeBase = () => {
                 <Icon icon="material-symbols:menu-book-outline-rounded" className="text-[#026E5F] text-xl" />
                 {selectedItem ? "Cập Nhật Khối Tri Thức" : "Tạo Mới Khối Tri Thức"}
               </h3>
-              <button
-                type="button"
-                onClick={handleCloseModal}
-                className="text-slate-400 hover:text-slate-655 dark:hover:text-slate-202 cursor-pointer transition-colors"
-              >
+              <button type="button" onClick={handleCloseModal} className="text-slate-400 hover:text-slate-655 dark:hover:text-slate-202 cursor-pointer transition-colors">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
               </button>
             </div>

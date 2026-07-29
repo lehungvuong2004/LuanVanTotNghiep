@@ -75,15 +75,17 @@ function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
       .slice(0, 3) ?? [];
 
   // API trả về snake_case "working_areas", interface dùng camelCase "workingAreas"
-  const rawAreas =
-    (profile as any).working_areas ?? profile.workingAreas ?? [];
+  const rawAreas = (profile as any).working_areas ?? profile.workingAreas ?? [];
 
   const area =
     rawAreas.length > 0
-      ? rawAreas.map((a: any) => {
-          const distName = a.district?.name ?? a.district;
-          return trans(distName);
-        }).filter(Boolean).join(", ")
+      ? rawAreas
+          .map((a: any) => {
+            const distName = a.district?.name ?? a.district;
+            return trans(distName);
+          })
+          .filter(Boolean)
+          .join(", ")
       : trans("TP.HCM");
 
   return {
@@ -97,7 +99,8 @@ function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
     tags: skillTags,
     avatar: (profile as any).user?.avatar ?? undefined,
     isOnline: false, // online status handled by socket
-    bio: profile.bio ?? undefined };
+    bio: profile.bio ?? undefined,
+  };
 }
 
 // Chuyển Service từ API → ServiceItem cho UI (sử dụng dữ liệu thực từ enriched API)
@@ -115,7 +118,8 @@ function mapService(service: Service, t?: any): ServiceItem {
     helpersCount: Number((service as any).helpers_count) || 0,
     description: service.description ?? trans("Dịch vụ chuyên nghiệp, chất lượng cao."),
     image: service.image || undefined,
-    isFavorite: false };
+    isFavorite: false,
+  };
 }
 
 export const useService = () => {
@@ -155,9 +159,7 @@ export const useService = () => {
     let matchedDistrict: string | undefined = undefined;
     if (districtVal) {
       const normalized = districtVal.toLowerCase().trim();
-      matchedDistrict = validDistricts.find(
-        (d) => d.toLowerCase() === normalized || normalized.includes(d.toLowerCase())
-      );
+      matchedDistrict = validDistricts.find((d) => d.toLowerCase() === normalized || normalized.includes(d.toLowerCase()));
       if (!matchedDistrict) {
         if (normalized.includes("q1") || normalized.includes("quận 1") || normalized === "1") matchedDistrict = "Quận 1";
         else if (normalized.includes("q3") || normalized.includes("quận 3") || normalized === "3") matchedDistrict = "Quận 3";
@@ -172,7 +174,7 @@ export const useService = () => {
       page: 1,
       city: "TP.HCM",
       search: searchVal,
-      district: matchedDistrict
+      district: matchedDistrict,
     };
   });
 
@@ -185,9 +187,7 @@ export const useService = () => {
     let matchedDistrict: string | undefined = undefined;
     if (districtVal) {
       const normalized = districtVal.toLowerCase().trim();
-      matchedDistrict = validDistricts.find(
-        (d) => d.toLowerCase() === normalized || normalized.includes(d.toLowerCase())
-      );
+      matchedDistrict = validDistricts.find((d) => d.toLowerCase() === normalized || normalized.includes(d.toLowerCase()));
       if (!matchedDistrict) {
         if (normalized.includes("q1") || normalized.includes("quận 1") || normalized === "1") matchedDistrict = "Quận 1";
         else if (normalized.includes("q3") || normalized.includes("quận 3") || normalized === "3") matchedDistrict = "Quận 3";
@@ -204,7 +204,7 @@ export const useService = () => {
       return {
         ...prev,
         search: searchVal,
-        district: matchedDistrict || prev.district
+        district: matchedDistrict || prev.district,
       };
     });
   }, [searchParams]);
@@ -223,52 +223,58 @@ export const useService = () => {
   }, []);
 
   // Fetch services từ API (enriched — dữ liệu thực)
-  const fetchServices = useCallback(async (params: ServiceFilterParams) => {
-    setLoading(true);
-    try {
-      const res = await getServicesEnrichedApi({
-        limit: 50,
-        category_id: params.category_id,
-        price_type: params.price_type,
-        min_price: params.min_price,
-        max_price: params.max_price
-      });
-      const rawServices = res?.data?.data ?? [];
-      setServices(rawServices.map((s) => mapService(s, t)));
-    } catch (err) {
-      console.error("[useService] fetchServices failed:", err);
-      setServices([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+  const fetchServices = useCallback(
+    async (params: ServiceFilterParams) => {
+      setLoading(true);
+      try {
+        const res = await getServicesEnrichedApi({
+          limit: 50,
+          category_id: params.category_id,
+          price_type: params.price_type,
+          min_price: params.min_price,
+          max_price: params.max_price,
+        });
+        const rawServices = res?.data?.data ?? [];
+        setServices(rawServices.map((s) => mapService(s, t)));
+      } catch (err) {
+        console.error("[useService] fetchServices failed:", err);
+        setServices([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
 
   // Fetch helpers công khai từ API
-  const fetchHelpers = useCallback(async (params: ServiceFilterParams) => {
-    setHelperLoading(true);
-    try {
-      const res = await getHelpersPublic({
-        limit: params.limit,
-        page: params.page,
-        service_id: params.service_id,
-        city: params.city !== "Tất cả" ? params.city : undefined,
-        district: params.district !== "Tất cả" ? params.district : undefined,
-        rating_min: params.rating_min
-      });
-      const pagination = res?.data;
-      const rawHelpers: HelperProfile[] = pagination?.data ?? [];
+  const fetchHelpers = useCallback(
+    async (params: ServiceFilterParams) => {
+      setHelperLoading(true);
+      try {
+        const res = await getHelpersPublic({
+          limit: params.limit,
+          page: params.page,
+          service_id: params.service_id,
+          city: params.city !== "Tất cả" ? params.city : undefined,
+          district: params.district !== "Tất cả" ? params.district : undefined,
+          rating_min: params.rating_min,
+        });
+        const pagination = res?.data;
+        const rawHelpers: HelperProfile[] = pagination?.data ?? [];
 
-      setHelpers(rawHelpers.map((h) => mapHelperProfile(h, t)));
-      setTotalHelpers(pagination?.total ?? 0);
-      setHelperPage(pagination?.current_page ?? 1);
-      setHelperLastPage(pagination?.last_page ?? 1);
-    } catch (err) {
-      console.error("[useService] fetchHelpers failed:", err);
-      setHelpers([]);
-    } finally {
-      setHelperLoading(false);
-    }
-  }, [t]);
+        setHelpers(rawHelpers.map((h) => mapHelperProfile(h, t)));
+        setTotalHelpers(pagination?.total ?? 0);
+        setHelperPage(pagination?.current_page ?? 1);
+        setHelperLastPage(pagination?.last_page ?? 1);
+      } catch (err) {
+        console.error("[useService] fetchHelpers failed:", err);
+        setHelpers([]);
+      } finally {
+        setHelperLoading(false);
+      }
+    },
+    [t],
+  );
 
   // Trigger fetch khi bộ lọc thay đổi
   useEffect(() => {
@@ -279,21 +285,24 @@ export const useService = () => {
   }, [filterParams, fetchServices, fetchHelpers]);
 
   // Cập nhật filter (gộp, không ghi đè)
-  const updateHelperFilter = useCallback((patch: Partial<ServiceFilterParams>) => {
-    setFilterParams((prev) => ({ ...prev, ...patch, page: 1 }));
-    setSearchParams((prevParams) => {
-      const next = new URLSearchParams(prevParams);
-      if ("search" in patch) {
-        if (patch.search) next.set("search", patch.search);
-        else next.delete("search");
-      }
-      if ("district" in patch) {
-        if (patch.district) next.set("district", patch.district);
-        else next.delete("district");
-      }
-      return next;
-    });
-  }, [setSearchParams]);
+  const updateHelperFilter = useCallback(
+    (patch: Partial<ServiceFilterParams>) => {
+      setFilterParams((prev) => ({ ...prev, ...patch, page: 1 }));
+      setSearchParams((prevParams) => {
+        const next = new URLSearchParams(prevParams);
+        if ("search" in patch) {
+          if (patch.search) next.set("search", patch.search);
+          else next.delete("search");
+        }
+        if ("district" in patch) {
+          if (patch.district) next.set("district", patch.district);
+          else next.delete("district");
+        }
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
 
   // Đổi trang
   const goToHelperPage = useCallback((page: number) => {
@@ -345,5 +354,6 @@ export const useService = () => {
     goToHelperPage,
     sortBy,
     setSortBy,
-    regions };
+    regions,
+  };
 };

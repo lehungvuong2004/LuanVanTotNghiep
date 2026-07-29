@@ -247,9 +247,7 @@ export const Contact = () => {
 
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#005C61] dark:text-teal-400 mb-4 leading-tight">{t("contact.banner.title")}</h2>
 
-            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-8 max-w-lg leading-relaxed">
-              {t("contact.banner.description")}
-            </p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-8 max-w-lg leading-relaxed">{t("contact.banner.description")}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
               <div className="flex items-center gap-3">

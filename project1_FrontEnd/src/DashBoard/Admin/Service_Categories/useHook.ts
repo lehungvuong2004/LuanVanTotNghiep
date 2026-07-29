@@ -4,11 +4,7 @@ import { useFormik } from "formik";
 import type { ServiceCategory } from "../../../api/servicesApi/services";
 import { getCategoryValidationSchema } from "../../../api/servicesApi/validation";
 
-import {
-  getCategoriesAdmin,
-  createCategoryAdmin,
-  updateCategoryAdmin,
-  deleteCategoryAdmin } from "../../../api/servicesApi/services";
+import { getCategoriesAdmin, createCategoryAdmin, updateCategoryAdmin, deleteCategoryAdmin } from "../../../api/servicesApi/services";
 
 export const useServiceCategoriesAdmin = () => {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -26,7 +22,8 @@ export const useServiceCategoriesAdmin = () => {
     setLoading(true);
     try {
       const res = await getCategoriesAdmin({
-        status: statusFilter === "all" ? undefined : statusFilter });
+        status: statusFilter === "all" ? undefined : statusFilter,
+      });
       setCategories(res.data);
     } catch (err: any) {
       showToast("error", "Lỗi tải dữ liệu", err.response?.data?.message || "Không thể tải danh mục");
@@ -39,9 +36,7 @@ export const useServiceCategoriesAdmin = () => {
     fetchCategories();
   }, [fetchCategories]);
 
-  const filteredCategories = categories.filter((c) =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCategories = categories.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -55,7 +50,8 @@ export const useServiceCategoriesAdmin = () => {
       description: "",
       icon: "",
       type: "both" as "booking" | "job" | "both",
-      status: "active" as "active" | "inactive" },
+      status: "active" as "active" | "inactive",
+    },
     validationSchema: getCategoryValidationSchema(),
     onSubmit: async (values) => {
       setLoading(true);
@@ -66,7 +62,8 @@ export const useServiceCategoriesAdmin = () => {
             description: values.description || null,
             icon: values.icon || null,
             type: values.type,
-            status: values.status });
+            status: values.status,
+          });
           showToast("success", "Thành công", "Cập nhật danh mục thành công!");
         } else {
           await createCategoryAdmin({
@@ -74,7 +71,8 @@ export const useServiceCategoriesAdmin = () => {
             description: values.description || null,
             icon: values.icon || null,
             type: values.type,
-            status: values.status });
+            status: values.status,
+          });
           showToast("success", "Thành công", "Thêm danh mục mới thành công!");
         }
         closeModal();
@@ -84,7 +82,8 @@ export const useServiceCategoriesAdmin = () => {
       } finally {
         setLoading(false);
       }
-    } });
+    },
+  });
 
   const openAddModal = () => {
     setModalMode("add");
@@ -102,7 +101,9 @@ export const useServiceCategoriesAdmin = () => {
         description: item.description || "",
         icon: item.icon || "",
         type: item.type as "booking" | "job" | "both",
-        status: item.status } });
+        status: item.status,
+      },
+    });
     setIsModalOpen(true);
   };
 
@@ -142,11 +143,12 @@ export const useServiceCategoriesAdmin = () => {
     setStatusFilter,
     isModalOpen,
     modalMode,
-    
+
     openAddModal,
     openEditModal,
     closeModal,
     formik,
     handleDelete,
-    handleToggleStatus };
+    handleToggleStatus,
+  };
 };

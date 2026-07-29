@@ -19,7 +19,8 @@ const VNPAY_CODES = {
   "75": "Ngân hàng thanh toán đang bảo trì.",
   "79": "Xác thực sai quá số lần quy định.",
   "97": "Chữ ký không hợp lệ.",
-  "99": "Lỗi không xác định." };
+  "99": "Lỗi không xác định.",
+};
 
 const fmt = (n) => (n == null ? "" : Number(n).toLocaleString("vi-VN") + " đ");
 

@@ -3,28 +3,14 @@ import { useAdminMessages } from "./useHook";
 import { formatDateTime, getRoleBadge, getInitials } from "../../../utils";
 
 export const AdminMessages = () => {
-  const {
-    t,
-    messages,
-    page,
-    setPage,
-    lastPage,
-    searchQuery,
-    handleSearchChange,
-    loading,
-    deletingId,
-    handleDelete,
-    refresh,
-  } = useAdminMessages();
+  const { t, messages, page, setPage, lastPage, searchQuery, handleSearchChange, loading, deletingId, handleDelete, refresh } = useAdminMessages();
 
   // 1. Render Header & Search
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-0.5">{t("Quản lý Tin nhắn")}</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          {t("Xem lịch sử trò chuyện, kiểm duyệt nội dung tin nhắn và xóa tin nhắn vi phạm chính sách của hệ thống.")}
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{t("Xem lịch sử trò chuyện, kiểm duyệt nội dung tin nhắn và xóa tin nhắn vi phạm chính sách của hệ thống.")}</p>
       </div>
 
       <div className="flex items-center gap-3 w-full md:w-auto">
@@ -36,10 +22,7 @@ export const AdminMessages = () => {
             placeholder={t("Tìm theo nội dung, tên, email...")}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm shadow-xs"
           />
-          <Icon
-            icon="material-symbols:search-rounded"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"
-          />
+          <Icon icon="material-symbols:search-rounded" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
         </div>
 
         <button
@@ -48,10 +31,7 @@ export const AdminMessages = () => {
           className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs cursor-pointer"
           title={t("Làm mới")}
         >
-          <Icon
-            icon="material-symbols:refresh-rounded"
-            className={`text-xl ${loading ? "animate-spin text-blue-500" : ""}`}
-          />
+          <Icon icon="material-symbols:refresh-rounded" className={`text-xl ${loading ? "animate-spin text-blue-500" : ""}`} />
         </button>
       </div>
     </div>
@@ -66,26 +46,14 @@ export const AdminMessages = () => {
     return (
       <div className="flex items-center gap-3 min-w-52">
         {user.avatar ? (
-          <img
-            src={user.avatar}
-            alt={user.full_name}
-            className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
-          />
+          <img src={user.avatar} alt={user.full_name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
-            {initials}
-          </div>
+          <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs">{initials}</div>
         )}
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
-            {user.full_name}
-          </span>
-          <span className="text-xs text-slate-550 dark:text-slate-400 truncate">
-            {user.email}
-          </span>
-          <div className="mt-0.5 self-start">
-            {getRoleBadge(user.role?.name || user.role)}
-          </div>
+          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{user.full_name}</span>
+          <span className="text-xs text-slate-550 dark:text-slate-400 truncate">{user.email}</span>
+          <div className="mt-0.5 self-start">{getRoleBadge(user.role?.name || user.role)}</div>
         </div>
       </div>
     );
@@ -110,9 +78,7 @@ export const AdminMessages = () => {
           </div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">{t("Không tìm thấy tin nhắn")}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-            {searchQuery
-              ? t("Không có tin nhắn nào khớp với từ khóa tìm kiếm của bạn.")
-              : t("Hiện tại hệ thống chưa có dữ liệu tin nhắn nào.")}
+            {searchQuery ? t("Không có tin nhắn nào khớp với từ khóa tìm kiếm của bạn.") : t("Hiện tại hệ thống chưa có dữ liệu tin nhắn nào.")}
           </p>
         </div>
       );
@@ -137,10 +103,7 @@ export const AdminMessages = () => {
                 const isDeleting = deletingId === msg.id;
 
                 return (
-                  <tr
-                    key={msg.id}
-                    className="hover:bg-slate-50/50 dark:hover:bg-slate-750/10 transition-colors"
-                  >
+                  <tr key={msg.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/10 transition-colors">
                     {/* ID */}
                     <td className="py-4 px-6 font-mono text-slate-400 text-xs">#{msg.id}</td>
 
@@ -153,18 +116,11 @@ export const AdminMessages = () => {
                     {/* Message content */}
                     <td className="py-4 px-6">
                       <div className="space-y-1 max-w-md">
-                        <div className="bg-slate-100 dark:bg-slate-700/50 text-slate-800 dark:text-slate-250 p-2.5 rounded-xl text-sm break-words leading-relaxed inline-block">
-                          {msg.message}
-                        </div>
+                        <div className="bg-slate-100 dark:bg-slate-700/50 text-slate-800 dark:text-slate-250 p-2.5 rounded-xl text-sm break-words leading-relaxed inline-block">{msg.message}</div>
                         {msg.attachment && (
                           <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400">
                             <Icon icon="material-symbols:attach-file-rounded" className="text-sm" />
-                            <a
-                              href={msg.attachment}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="hover:underline truncate max-w-xs"
-                            >
+                            <a href={msg.attachment} target="_blank" rel="noreferrer" className="hover:underline truncate max-w-xs">
                               {msg.attachment.split("/").pop()}
                             </a>
                           </div>
@@ -173,9 +129,7 @@ export const AdminMessages = () => {
                     </td>
 
                     {/* Sent At */}
-                    <td className="py-4 px-6 text-xs text-slate-500 dark:text-slate-450 whitespace-nowrap">
-                      {formatDateTime(msg.created_at)}
-                    </td>
+                    <td className="py-4 px-6 text-xs text-slate-500 dark:text-slate-450 whitespace-nowrap">{formatDateTime(msg.created_at)}</td>
 
                     {/* Action */}
                     <td className="py-4 px-6 text-center">
@@ -185,11 +139,7 @@ export const AdminMessages = () => {
                         className="p-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-650 dark:text-red-400 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                         title={t("Xóa vĩnh viễn tin nhắn")}
                       >
-                        {isDeleting ? (
-                          <Icon icon="line-md:loading-twotone-loop" className="text-lg" />
-                        ) : (
-                          <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />
-                        )}
+                        {isDeleting ? <Icon icon="line-md:loading-twotone-loop" className="text-lg" /> : <Icon icon="material-symbols:delete-outline-rounded" className="text-lg" />}
                       </button>
                     </td>
                   </tr>
@@ -211,9 +161,7 @@ export const AdminMessages = () => {
 
     return (
       <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/5">
-        <span className="text-xs text-slate-500 dark:text-slate-400">
-          {t("Trang {{page}} / {{lastPage}}", { page, lastPage })}
-        </span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">{t("Trang {{page}} / {{lastPage}}", { page, lastPage })}</span>
 
         <div className="flex items-center gap-2">
           <button
@@ -232,9 +180,7 @@ export const AdminMessages = () => {
 
               return (
                 <div key={p} className="flex items-center">
-                  {showEllipsis && (
-                    <span className="px-2 text-slate-400 select-none">...</span>
-                  )}
+                  {showEllipsis && <span className="px-2 text-slate-400 select-none">...</span>}
                   <button
                     onClick={() => setPage(p)}
                     disabled={loading}

@@ -1,9 +1,8 @@
 import { Icon } from "@iconify/react";
 import { useHelperReviews } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
-import { ReviewCard } from "../../../components/Reviews/ReviewCard";
+import { ReviewCard, RatingDistributionRow } from "../../../components/Reviews";
 import { renderStars } from "../../../utils";
-import { RatingDistributionRow } from "../../../components/Reviews/RatingDistributionRow";
 
 export const HelperReviewsPage = () => {
   const { reviews, totalReviews, ratingAvg, ratingDistribution, loading, error, currentPage, setCurrentPage, ratingFilter, setRatingFilter, itemsPerPage } = useHelperReviews();
@@ -31,15 +30,9 @@ export const HelperReviewsPage = () => {
 
         <div className="bg-white dark:bg-slate-805 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-2 flex flex-col justify-center">
           <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-4 block">Phân Bổ Xếp Hạng</h3>
-            {[5, 4, 3, 2, 1].map((star) => (
-              <RatingDistributionRow
-                key={star}
-                star={star}
-                count={ratingDistribution[star] || 0}
-                total={totalReviews}
-                showPercentText={true}
-              />
-            ))}
+          {[5, 4, 3, 2, 1].map((star) => (
+            <RatingDistributionRow key={star} star={star} count={ratingDistribution[star] || 0} total={totalReviews} showPercentText={true} />
+          ))}
         </div>
       </div>
     );

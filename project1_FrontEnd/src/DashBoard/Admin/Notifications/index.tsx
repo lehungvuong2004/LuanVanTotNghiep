@@ -5,17 +5,7 @@ import { getRoleBadge } from "../../../utils";
 
 export const Notifications = () => {
   const { t } = useTranslation();
-  const {
-    formik,
-    selectedUserIds,
-    usersList,
-    searchQuery,
-    setSearchQuery,
-    fetchingUsers,
-    toggleUserSelection,
-    loading,
-    targetOptions,
-  } = useNotificationsForm();
+  const { formik, selectedUserIds, usersList, searchQuery, setSearchQuery, fetchingUsers, toggleUserSelection, loading, targetOptions } = useNotificationsForm();
 
   // 1. Render Header
   const renderHeader = () => (
@@ -45,9 +35,7 @@ export const Notifications = () => {
             : "border-slate-250 dark:border-slate-650 focus:ring-[#026E5F]/20 focus:border-[#026E5F]"
         }`}
       />
-      {formik.touched.title && formik.errors.title && (
-        <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.title}</span>
-      )}
+      {formik.touched.title && formik.errors.title && <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.title}</span>}
     </div>
   );
 
@@ -71,9 +59,7 @@ export const Notifications = () => {
             : "border-slate-250 dark:border-slate-650 focus:ring-[#026E5F]/20 focus:border-[#026E5F]"
         }`}
       />
-      {formik.touched.message && formik.errors.message && (
-        <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.message}</span>
-      )}
+      {formik.touched.message && formik.errors.message && <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.message}</span>}
     </div>
   );
 
@@ -100,9 +86,7 @@ export const Notifications = () => {
           <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="text-xl" />
         </div>
       </div>
-      {formik.touched.type && formik.errors.type && (
-        <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.type}</span>
-      )}
+      {formik.touched.type && formik.errors.type && <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.type}</span>}
     </div>
   );
 
@@ -133,9 +117,7 @@ export const Notifications = () => {
           </label>
         ))}
       </div>
-      {formik.touched.targetType && formik.errors.targetType && (
-        <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.targetType}</span>
-      )}
+      {formik.touched.targetType && formik.errors.targetType && <span className="text-xs text-red-500 font-medium block mt-0.5">{formik.errors.targetType}</span>}
     </div>
   );
 

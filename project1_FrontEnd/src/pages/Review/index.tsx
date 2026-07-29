@@ -13,22 +13,8 @@ interface ReviewModalProps {
   onSuccess?: () => void;
 }
 
-export const ReviewModal = ({
-  isOpen,
-  onClose,
-  helperId,
-  helperName,
-  helperAvatar,
-  bookingId,
-  jobPostId,
-  onSuccess,
-}: ReviewModalProps) => {
-  const {
-    reviewForm,
-    setReviewForm,
-    isSubmitting,
-    handleSubmitReview,
-  } = useReview();
+export const ReviewModal = ({ isOpen, onClose, helperId, helperName, helperAvatar, bookingId, jobPostId, onSuccess }: ReviewModalProps) => {
+  const { reviewForm, setReviewForm, isSubmitting, handleSubmitReview } = useReview();
 
   const [hoverRating, setHoverRating] = useState<number | null>(null);
 
@@ -60,16 +46,11 @@ export const ReviewModal = ({
   };
 
   const defaultAvatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop";
-  const avatarUrl = helperAvatar
-    ? helperAvatar.startsWith("http")
-      ? helperAvatar
-      : `http://localhost:8000${helperAvatar}`
-    : defaultAvatar;
+  const avatarUrl = helperAvatar ? (helperAvatar.startsWith("http") ? helperAvatar : `http://localhost:8000${helperAvatar}`) : defaultAvatar;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-850 w-full max-w-md rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-        
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/50">
           <h3 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
@@ -88,15 +69,9 @@ export const ReviewModal = ({
         <form onSubmit={onSubmit} className="p-6 flex flex-col gap-5 text-center">
           {/* Helper details */}
           <div className="flex flex-col items-center gap-2">
-            <img
-              src={avatarUrl}
-              alt={helperName}
-              className="w-20 h-20 rounded-full object-cover border-4 border-[#026E5F]/10 dark:border-teal-500/20 shadow-md"
-            />
+            <img src={avatarUrl} alt={helperName} className="w-20 h-20 rounded-full object-cover border-4 border-[#026E5F]/10 dark:border-teal-500/20 shadow-md" />
             <span className="text-base font-bold text-slate-800 dark:text-slate-100">{helperName}</span>
-            <p className="text-xs text-slate-400 max-w-xs">
-              Vui lòng đánh giá mức độ hài lòng của bạn đối với dịch vụ được cung cấp.
-            </p>
+            <p className="text-xs text-slate-400 max-w-xs">Vui lòng đánh giá mức độ hài lòng của bạn đối với dịch vụ được cung cấp.</p>
           </div>
 
           {/* Stars Selection */}
@@ -114,11 +89,7 @@ export const ReviewModal = ({
                 >
                   <Icon
                     icon={isFilled ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
-                    className={`text-4xl ${
-                      isFilled
-                        ? "text-amber-500 shadow-sm shadow-amber-500/20"
-                        : "text-slate-300 dark:text-slate-600"
-                    }`}
+                    className={`text-4xl ${isFilled ? "text-amber-500 shadow-sm shadow-amber-500/20" : "text-slate-300 dark:text-slate-600"}`}
                   />
                 </button>
               );
@@ -136,9 +107,7 @@ export const ReviewModal = ({
 
           {/* Comment Area */}
           <div className="flex flex-col gap-1.5 text-left">
-            <label className="text-xs font-bold text-slate-500 dark:text-slate-400">
-              Nhận xét / Ý kiến phản hồi (tùy chọn)
-            </label>
+            <label className="text-xs font-bold text-slate-500 dark:text-slate-400">Nhận xét / Ý kiến phản hồi (tùy chọn)</label>
             <textarea
               value={reviewForm.comment}
               onChange={(e) => setReviewForm((prev) => ({ ...prev, comment: e.target.value }))}
@@ -175,7 +144,6 @@ export const ReviewModal = ({
             </button>
           </div>
         </form>
-
       </div>
     </div>
   );

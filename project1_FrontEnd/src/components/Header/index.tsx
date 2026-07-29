@@ -207,7 +207,10 @@ export const Header = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-3.5">
                               {categoryDetails[activeCategory].services.map((service) => (
-                                <div key={service.name} className="p-3.5 border border-slate-100 dark:border-slate-700/50 rounded-2xl hover:border-teal-500 dark:hover:border-teal-500 bg-white dark:bg-slate-900/30 transition-all duration-300 shadow-xs flex flex-col justify-between">
+                                <div
+                                  key={service.name}
+                                  className="p-3.5 border border-slate-100 dark:border-slate-700/50 rounded-2xl hover:border-teal-500 dark:hover:border-teal-500 bg-white dark:bg-slate-900/30 transition-all duration-300 shadow-xs flex flex-col justify-between"
+                                >
                                   <div>
                                     <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-2 shrink-0">
                                       <Icon icon={service.icon} className="text-xl" />
@@ -412,11 +415,7 @@ export const Header = () => {
                     }}
                     className="border-2 border-white/50 hover:border-white rounded-full p-0.5 transition-all duration-300 flex items-center justify-center cursor-pointer"
                   >
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt="User Avatar" className="w-9 h-9 rounded-full object-cover" />
-                    ) : (
-                      <Icon icon="lucide:circle-user" className="text-3xl cursor-pointer" />
-                    )}
+                    {user?.avatar ? <img src={user.avatar} alt="User Avatar" className="w-9 h-9 rounded-full object-cover" /> : <Icon icon="lucide:circle-user" className="text-3xl cursor-pointer" />}
                   </div>
 
                   {isMobileUserMenuOpen && (
@@ -492,7 +491,6 @@ export const Header = () => {
                 </Link>
               )}
             </div>
-
 
             <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
               {/* Language picker — own py = full header height */}

@@ -14,8 +14,8 @@ interface AnimateOnScrollRevealProps extends PropsWithChildren {
   once?: boolean;
   scrub?: boolean | number;
   markers?: boolean;
-  scale?: number;     // Tỉ lệ zoom ban đầu (ví dụ: 0.95)
-  blur?: number;      // Độ mờ ban đầu (ví dụ: 10px)
+  scale?: number; // Tỉ lệ zoom ban đầu (ví dụ: 0.95)
+  blur?: number; // Độ mờ ban đầu (ví dụ: 10px)
 }
 
 export default function AnimateOnScrollReveal({
@@ -25,8 +25,8 @@ export default function AnimateOnScrollReveal({
   y = 30,
   x = 30,
   direction = "up",
-  scale = 1,        
-  blur = 10,          
+  scale = 1,
+  blur = 10,
   once = false,
   scrub = false,
   markers = false,
@@ -35,7 +35,6 @@ export default function AnimateOnScrollReveal({
   useGSAP(
     () => {
       if (!ref.current) return;
-
       const directions = {
         up: { x: 0, y },
         down: { x: 0, y: -y },
@@ -45,7 +44,6 @@ export default function AnimateOnScrollReveal({
       };
 
       const { x: initialX, y: initialY } = directions[direction] || { x: 0, y: 0 };
-
       // Cài đặt trạng thái ban đầu (bao gồm cả scale và blur nếu có)
       gsap.set(ref.current, {
         x: initialX,
@@ -66,11 +64,11 @@ export default function AnimateOnScrollReveal({
         ease: "expo.out",
         scrollTrigger: {
           trigger: ref.current,
-          start: "top 85%", 
-          end: scrub ? "bottom 80%" : "top 15%", 
+          start: "top 85%",
+          end: scrub ? "bottom 80%" : "top 15%",
           scrub: scrub,
           markers: markers,
-          toggleActions: scrub ? undefined : (once ? "play none none none" : "play reverse play reverse"),
+          toggleActions: scrub ? undefined : once ? "play none none none" : "play reverse play reverse",
           once: once,
         },
       });

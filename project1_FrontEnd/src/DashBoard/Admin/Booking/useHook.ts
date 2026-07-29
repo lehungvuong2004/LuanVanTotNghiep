@@ -311,9 +311,7 @@ export const useBooking = () => {
   const { showToast } = useToast();
 
   // Dynamic helper list fetched from identity-service database
-  const [helperList, setHelperList] = useState<HelperOption[]>([
-    { name: "Chưa phân phối", value: "", avatar: null, phone: null },
-  ]);
+  const [helperList, setHelperList] = useState<HelperOption[]>([{ name: "Chưa phân phối", value: "", avatar: null, phone: null }]);
 
   useEffect(() => {
     let isMounted = true;

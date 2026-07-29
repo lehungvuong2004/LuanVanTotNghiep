@@ -2,15 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
-import {
-  sendMessage,
-  getChatHistory,
-  getConversations,
-  markChatAsRead,
-  deleteMessage,
-  type Message,
-  type Conversation
-} from "../../api/messages";
+import { sendMessage, getChatHistory, getConversations, markChatAsRead, deleteMessage, type Message, type Conversation } from "../../api/messages";
 
 export const useChat = () => {
   const { partnerId } = useParams<{ partnerId?: string }>();
@@ -29,10 +21,7 @@ export const useChat = () => {
   const messagesEndRef = useRef(null);
   const pollIntervalRef = useRef(null);
 
-  const filteredConversations = conversations.filter((c) =>
-    c.partner.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.partner.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredConversations = conversations.filter((c) => c.partner.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || c.partner.email.toLowerCase().includes(searchQuery.toLowerCase()));
   const activeConversation = conversations.find((c) => c.partner.id === Number(partnerId));
   const activePartner = activeConversation?.partner || null;
 

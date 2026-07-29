@@ -71,14 +71,14 @@ export const useHelperOverview = () => {
     const monthlyMonths = [];
     const monthlyValues = [];
     const currentDate = new Date();
-    
+
     for (let i = 11; i >= 0; i--) {
       const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
       const monthKey = `${year}-${month}`;
       monthlyMonths.push(monthKey);
-      
+
       // If the backend has value for this month, use it, otherwise default to 0.
       const val = data.earnings.monthly_income?.[monthKey] || 0;
       monthlyValues.push(val);
@@ -92,8 +92,8 @@ export const useHelperOverview = () => {
           lineStyle: {
             color: "#cbd5e1",
             width: 1,
-            type: "dashed"
-          }
+            type: "dashed",
+          },
         },
         formatter: (params: any) => {
           const item = params[0];
@@ -102,14 +102,15 @@ export const useHelperOverview = () => {
             <span class="text-slate-400 block mb-0.5">${item.name}</span>
             <span class="text-blue-600 font-bold text-lg">${val}</span>
           </div>`;
-        }
+        },
       },
       grid: {
         left: "3%",
         right: "4%",
         bottom: "8%",
         top: "10%",
-        containLabel: true },
+        containLabel: true,
+      },
       xAxis: {
         type: "category",
         boundaryGap: false,
@@ -117,8 +118,10 @@ export const useHelperOverview = () => {
         axisLabel: {
           fontSize: 1.0 * rem,
           color: "#64748b",
-          margin: 0.75 * rem },
-        axisLine: { lineStyle: { color: "#e2e8f0" } } },
+          margin: 0.75 * rem,
+        },
+        axisLine: { lineStyle: { color: "#e2e8f0" } },
+      },
       yAxis: {
         type: "value",
         axisLabel: {
@@ -129,9 +132,10 @@ export const useHelperOverview = () => {
             if (val >= 1000000) return (val / 1000000).toFixed(1) + "M ₫";
             if (val >= 1000) return (val / 1000).toFixed(0) + "k ₫";
             return val + " ₫";
-          }
+          },
         },
-        splitLine: { lineStyle: { color: "#f1f5f9" } } },
+        splitLine: { lineStyle: { color: "#f1f5f9" } },
+      },
       series: [
         {
           name: "Doanh thu",
@@ -142,11 +146,12 @@ export const useHelperOverview = () => {
           data: monthlyValues.length > 0 ? monthlyValues : [0],
           lineStyle: {
             color: "#3b82f6",
-            width: 3 },
+            width: 3,
+          },
           itemStyle: {
             color: "#3b82f6",
             borderWidth: 2,
-            borderColor: "#fff"
+            borderColor: "#fff",
           },
           areaStyle: {
             color: {
@@ -158,8 +163,12 @@ export const useHelperOverview = () => {
               colorStops: [
                 { offset: 0, color: "rgba(59, 130, 246, 0.25)" },
                 { offset: 1, color: "rgba(59, 130, 246, 0.00)" },
-              ] } } },
-      ] };
+              ],
+            },
+          },
+        },
+      ],
+    };
   }, [data, rem]);
 
   // Income sources pie chart option
@@ -175,7 +184,7 @@ export const useHelperOverview = () => {
             <span class="font-bold block">${params.name}</span>
             <span class="text-blue-500 font-semibold">${val} (${params.percent}%)</span>
           </div>`;
-        }
+        },
       },
       legend: {
         bottom: "0%",
@@ -185,7 +194,9 @@ export const useHelperOverview = () => {
         itemHeight: 10,
         textStyle: {
           fontSize: 1.05 * rem,
-          color: "#64748b" } },
+          color: "#64748b",
+        },
+      },
       series: [
         {
           name: "Nguồn thu nhập",
@@ -195,19 +206,26 @@ export const useHelperOverview = () => {
           itemStyle: {
             borderRadius: 8,
             borderColor: "#fff",
-            borderWidth: 2 },
+            borderWidth: 2,
+          },
           label: {
-            show: false },
+            show: false,
+          },
           emphasis: {
             label: {
-              show: false } },
+              show: false,
+            },
+          },
           labelLine: {
-            show: false },
+            show: false,
+          },
           data: [
             { value: data.earnings.booking_income, name: "Đặt lịch trực tiếp", itemStyle: { color: "#10b981" } },
             { value: data.earnings.job_post_income, name: "Bảng việc làm", itemStyle: { color: "#8b5cf6" } },
-          ] },
-      ] };
+          ],
+        },
+      ],
+    };
   }, [data, rem]);
 
   return {
@@ -215,5 +233,6 @@ export const useHelperOverview = () => {
     loading,
     error,
     barOption,
-    pieOption };
+    pieOption,
+  };
 };

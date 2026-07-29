@@ -16,10 +16,7 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const role = getUserRole(user);
 
   const navItems = useMemo(
-    () =>
-      (NAV_ITEMS[role ?? ROLES.HELPER] ?? []).filter(
-        (item) => !item.permission || hasPermission(item.permission),
-      ),
+    () => (NAV_ITEMS[role ?? ROLES.HELPER] ?? []).filter((item) => !item.permission || hasPermission(item.permission)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [role, user],
   );
@@ -34,18 +31,13 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
     <aside className="w-full h-full bg-white dark:bg-slate-800 flex flex-col justify-between overflow-hidden">
       <div className={`px-5 mb-5 mt-5 shrink-0 ${isCollapsed ? "flex flex-col items-center" : ""}`}>
         {/* Brand Logo Wrapper */}
-        <Link
-          to="/"
-          className={`flex items-center gap-4 cursor-pointer group/brand ${isCollapsed ? "justify-center" : ""}`}
-        >
+        <Link to="/" className={`flex items-center gap-4 cursor-pointer group/brand ${isCollapsed ? "justify-center" : ""}`}>
           <div className={`w-10 h-10 rounded-xl ${theme.brandBg} flex items-center justify-center shadow-sm shrink-0 group-hover/brand:scale-105 transition-transform duration-200`}>
             <Icon icon="material-symbols:home-rounded" className="text-xl text-white" />
           </div>
           {!isCollapsed && (
             <div>
-              <h1 className={`font-black text-2xl ${theme.brandText} leading-tight truncate max-w-44 group-hover/brand:opacity-90 transition-opacity`}>
-                Gia Đình Việt
-              </h1>
+              <h1 className={`font-black text-2xl ${theme.brandText} leading-tight truncate max-w-44 group-hover/brand:opacity-90 transition-opacity`}>Gia Đình Việt</h1>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{t(theme.subtitle)}</p>
             </div>
           )}
@@ -81,12 +73,7 @@ export const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
             className={`flex items-center justify-between ${isCollapsed ? "justify-center p-2.5" : "gap-3 p-3"} bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm`}
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <img
-                alt="Profile"
-                className="w-10 h-10 rounded-full object-cover shadow-sm shrink-0"
-                src={avatar}
-                title={isCollapsed ? `${fullName} (${email})` : undefined}
-              />
+              <img alt="Profile" className="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" src={avatar} title={isCollapsed ? `${fullName} (${email})` : undefined} />
               {!isCollapsed && (
                 <div className="min-w-0 flex-1 flex flex-col justify-center">
                   <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{fullName}</span>

@@ -4,9 +4,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { getHelperPublic, type HelperProfile } from "../../api/helpers";
 import { getHelperReviewsPublic, type Review, type HelperReviewsResponse } from "../../api/reviews";
-import { ReviewCard } from "../../components/Reviews/ReviewCard";
-import { RatingDistributionRow } from "../../components/Reviews/RatingDistributionRow";
-
+import { ReviewCard, RatingDistributionRow } from "../../components/Reviews";
 
 export const HelperDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -298,9 +296,7 @@ export const HelperDetail = () => {
 
       <div className="space-y-4">
         {(showAllReviews ? reviews : reviews.slice(0, 3)).length > 0 ? (
-          (showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => (
-            <ReviewCard key={review.id} review={review} variant="line" t={t} />
-          ))
+          (showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => <ReviewCard key={review.id} review={review} variant="line" t={t} />)
         ) : (
           <div className="text-center py-12 text-slate-400">
             <Icon icon="material-symbols:rate-review-outline" className="text-4xl mb-2 mx-auto" />

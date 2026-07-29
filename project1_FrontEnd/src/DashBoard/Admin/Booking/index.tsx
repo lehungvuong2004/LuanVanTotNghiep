@@ -84,8 +84,16 @@ export const Booking = () => {
                 { key: "bookingDate", label: "Ngày Thực Hiện" },
                 { key: "startTime", label: "Giờ Bắt Đầu" },
                 { key: "totalPrice", label: "Tổng Tiền (VNĐ)", formatter: (val) => fmtVND(val) },
-                { key: "status", label: "Trạng Thái Đơn", formatter: (val) => (val === "completed" ? "Hoàn thành" : val === "confirmed" ? "Đã xác nhận" : val === "cancelled" ? "Đã hủy" : "Chờ xử lý") },
-                { key: "paymentStatus", label: "Thanh Toán", formatter: (val) => (val === "paid" ? "Đã thanh toán" : val === "refunded" ? "Đã hoàn tiền" : val === "failed" ? "Thất bại" : "Chờ thanh toán") },
+                {
+                  key: "status",
+                  label: "Trạng Thái Đơn",
+                  formatter: (val) => (val === "completed" ? "Hoàn thành" : val === "confirmed" ? "Đã xác nhận" : val === "cancelled" ? "Đã hủy" : "Chờ xử lý"),
+                },
+                {
+                  key: "paymentStatus",
+                  label: "Thanh Toán",
+                  formatter: (val) => (val === "paid" ? "Đã thanh toán" : val === "refunded" ? "Đã hoàn tiền" : val === "failed" ? "Thất bại" : "Chờ thanh toán"),
+                },
                 { key: "createdAt", label: "Ngày Tạo Đơn" },
               ],
             });

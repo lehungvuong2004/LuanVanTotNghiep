@@ -16,7 +16,7 @@ export const getImageUrl = (
         avatar?: string;
       }
     | null
-    | undefined
+    | undefined,
 ): string => {
   if (!imageSource) return "";
 
@@ -24,24 +24,13 @@ export const getImageUrl = (
   if (typeof imageSource === "string") {
     pathOrUrl = imageSource;
   } else if (typeof imageSource === "object") {
-    pathOrUrl =
-      imageSource.image_url ||
-      imageSource.thumbnail_url ||
-      imageSource.avatar_url ||
-      imageSource.image ||
-      imageSource.thumbnail ||
-      imageSource.avatar ||
-      "";
+    pathOrUrl = imageSource.image_url || imageSource.thumbnail_url || imageSource.avatar_url || imageSource.image || imageSource.thumbnail || imageSource.avatar || "";
   }
 
   if (!pathOrUrl || typeof pathOrUrl !== "string") return "";
 
   const trimmed = pathOrUrl.trim();
-  if (
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("data:")
-  ) {
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
     return trimmed;
   }
 

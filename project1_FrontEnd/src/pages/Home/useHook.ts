@@ -18,7 +18,7 @@ export const useHome = () => {
   const imageRef = useRef(null);
   const contentRef = useRef(null);
   const cubeRef = useRef(null);
-  
+
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loadingBanners, setLoadingBanners] = useState<boolean>(true);
 
@@ -72,8 +72,8 @@ export const useHome = () => {
     highlightTitle: t("home.banner.highlightTitle"),
     searchPlaceholders: {
       service: t("home.banner.placeholderService"),
-      location: t("home.banner.placeholderLocation")
-    }
+      location: t("home.banner.placeholderLocation"),
+    },
   };
 
   const produceData = [
@@ -81,42 +81,38 @@ export const useHome = () => {
       id: 1,
       image: careImg,
       title: t("home.produce.care.title"),
-      description: t("home.produce.care.description")
+      description: t("home.produce.care.description"),
     },
     {
       id: 2,
       image: cleaningImg,
       title: t("home.produce.cleaning.title"),
-      description: t("home.produce.cleaning.description")
+      description: t("home.produce.cleaning.description"),
     },
     {
       id: 3,
       image: cookingImg,
       title: t("home.produce.cooking.title"),
-      description: t("home.produce.cooking.description")
+      description: t("home.produce.cooking.description"),
     },
     {
       id: 4,
       image: designerImg,
       title: t("home.produce.interior.title"),
-      description: t("home.produce.interior.description")
+      description: t("home.produce.interior.description"),
     },
     {
       id: 5,
       image: gradenImg,
       title: t("home.produce.garden.title"),
-      description: t("home.produce.garden.description")
+      description: t("home.produce.garden.description"),
     },
   ];
 
   const serviceData = {
     title: t("home.services.title"),
     description: t("home.services.description"),
-    features: [
-      t("home.services.feature1"),
-      t("home.services.feature2"),
-      t("home.services.feature3")
-    ]
+    features: [t("home.services.feature1"), t("home.services.feature2"), t("home.services.feature3")],
   };
 
   const reviewData = [
@@ -129,7 +125,7 @@ export const useHome = () => {
       rating: 5,
       comment: t("home.reviews.r1.comment"),
       workerName: t("home.reviews.r1.workerName"),
-      date: "20/10/2023"
+      date: "20/10/2023",
     },
     {
       id: 2,
@@ -140,7 +136,7 @@ export const useHome = () => {
       rating: 5,
       comment: t("home.reviews.r2.comment"),
       workerName: t("home.reviews.r2.workerName"),
-      date: "15/11/2023"
+      date: "15/11/2023",
     },
     {
       id: 3,
@@ -151,7 +147,7 @@ export const useHome = () => {
       rating: 5,
       comment: t("home.reviews.r3.comment"),
       workerName: t("home.reviews.r3.workerName"),
-      date: "02/12/2023"
+      date: "02/12/2023",
     },
     {
       id: 4,
@@ -162,7 +158,7 @@ export const useHome = () => {
       rating: 5,
       comment: t("home.reviews.r4.comment"),
       workerName: t("home.reviews.r4.workerName"),
-      date: "10/12/2023"
+      date: "10/12/2023",
     },
     {
       id: 5,
@@ -173,11 +169,9 @@ export const useHome = () => {
       rating: 5,
       comment: t("home.reviews.r5.comment"),
       workerName: t("home.reviews.r5.workerName"),
-      date: "05/01/2024"
+      date: "05/01/2024",
     },
   ];
-
-
 
   useEffect(() => {
     const cube = cubeRef.current;
@@ -187,7 +181,7 @@ export const useHome = () => {
         rotationY: -360,
         duration: 20,
         ease: "none",
-        repeat: -1
+        repeat: -1,
       });
       return () => {
         anim.kill();
@@ -210,6 +204,6 @@ export const useHome = () => {
     setSearchVal,
     locationVal,
     setLocationVal,
-    handleSearch
+    handleSearch,
   };
 };

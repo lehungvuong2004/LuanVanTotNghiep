@@ -3,8 +3,7 @@ import { Icon } from "@iconify/react";
 
 import { useServiceDetail } from "./useHook";
 import { formatNumberVI } from "../../utils";
-import { RatingDistributionRow } from "../../components/Reviews/RatingDistributionRow";
-import { ReviewCard } from "../../components/Reviews/ReviewCard";
+import { RatingDistributionRow, ReviewCard } from "../../components/Reviews";
 
 function priceTypeLabel(pt: string, t: any) {
   if (pt === "hourly") return t("giờ");

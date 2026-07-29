@@ -32,7 +32,8 @@ export const useBanner = () => {
           search: searchQuery || undefined,
           status: statusFilter === "all" ? undefined : statusFilter,
           page,
-          limit: perPage });
+          limit: perPage,
+        });
 
         const { data, last_page, total, current_page, per_page } = response.data;
         setBanners(data);
@@ -77,7 +78,8 @@ export const useBanner = () => {
       title: "",
       image: "",
       link: "",
-      status: "active" as "active" | "inactive" },
+      status: "active" as "active" | "inactive",
+    },
     validationSchema: bannerValidationSchema,
     onSubmit: async (values) => {
       setLoading(true);
@@ -87,14 +89,16 @@ export const useBanner = () => {
             title: values.title,
             image: values.image,
             link: values.link || null,
-            status: values.status });
+            status: values.status,
+          });
           showToast("success", "Thành công", "Cập nhật banner thành công!");
         } else {
           await createBannerAdmin({
             title: values.title,
             image: values.image,
             link: values.link || null,
-            status: values.status });
+            status: values.status,
+          });
           showToast("success", "Thành công", "Thêm banner mới thành công!");
         }
         closeModal();
@@ -105,7 +109,8 @@ export const useBanner = () => {
       } finally {
         setLoading(false);
       }
-    } });
+    },
+  });
 
   const openAddModal = () => {
     setModalMode("add");
@@ -115,7 +120,9 @@ export const useBanner = () => {
         title: "",
         image: "",
         link: "",
-        status: "active" } });
+        status: "active",
+      },
+    });
     setIsModalOpen(true);
   };
 
@@ -127,7 +134,9 @@ export const useBanner = () => {
         title: banner.title,
         image: banner.image,
         link: banner.link || "",
-        status: banner.status } });
+        status: banner.status,
+      },
+    });
     setIsModalOpen(true);
   };
 
@@ -183,4 +192,3 @@ export const useBanner = () => {
     handleToggleStatus,
   };
 };
-

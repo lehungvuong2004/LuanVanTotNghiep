@@ -445,6 +445,6 @@ export const useHeader = () => {
     newsItems,
     categoryDetails,
     geoLoading,
-    handleGetCurrentLocation
+    handleGetCurrentLocation,
   };
 };

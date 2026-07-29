@@ -31,8 +31,8 @@ const authSlice = createSlice({
     },
     updateUser(state, action) {
       state.user = action.payload;
-    }
-  }
+    },
+  },
 });
 
 export const { loginSuccess, logoutSuccess, updateUser } = authSlice.actions;

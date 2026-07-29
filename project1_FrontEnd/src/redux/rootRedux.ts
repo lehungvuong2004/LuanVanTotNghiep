@@ -4,7 +4,7 @@ import authReducer from "./authSlice";
 
 const rootReducer = combineReducers({
   location: locationReducer,
-  auth: authReducer
+  auth: authReducer,
 });
 
 export default rootReducer;

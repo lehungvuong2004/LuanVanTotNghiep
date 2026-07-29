@@ -15,7 +15,7 @@ export const Footer = () => {
       },
       () => {
         showToast("error", t("Lỗi"), t("Không thể sao chép liên kết."));
-      }
+      },
     );
   };
 
@@ -29,9 +29,7 @@ export const Footer = () => {
       <Link to="/" className="text-teal-800 dark:text-teal-400 font-bold text-3xl mb-2 hover:text-teal-600 dark:hover:text-teal-300 transition-colors">
         Gia Đình Việt
       </Link>
-      <p className="text-gray-650 dark:text-gray-400 text-sm leading-relaxed">
-        {t("Nền tảng kết nối gia đình và người giúp việc đáng tin cậy. Nhanh chóng - An toàn - Minh bạch.")}
-      </p>
+      <p className="text-gray-650 dark:text-gray-400 text-sm leading-relaxed">{t("Nền tảng kết nối gia đình và người giúp việc đáng tin cậy. Nhanh chóng - An toàn - Minh bạch.")}</p>
       <div className="flex items-center gap-4 mt-2">
         <span className="text-teal-700 dark:text-teal-400 font-medium text-sm">{t("Notebook")}</span>
         <button
@@ -89,10 +87,7 @@ export const Footer = () => {
         <Link to="/pricing#repair" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Vệ sinh máy lạnh")}
         </Link>
-        <Link
-          to="/pricing#cleaning"
-          className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300"
-        >
+        <Link to="/pricing#cleaning" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Tổng vệ sinh nhà cửa")}
         </Link>
       </div>

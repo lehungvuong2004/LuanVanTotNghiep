@@ -305,5 +305,16 @@
   "Cổng trực tiếp": "Direct gateway",
   "Bạn sẽ được chuyển đến cổng thanh toán": "You will be redirected to the",
   "để hoàn tất giao dịch an toàn.": "portal to complete the transaction securely.",
-  "Đang tạo liên kết VNPay...": "Generating VNPay payment link..."
+  "Đang tạo liên kết VNPay...": "Generating VNPay payment link...",
+  "chatbot_welcome": "Hello! Thank you for contacting Gia Dinh Viet. I am your virtual assistant. How can I help you today?",
+  "chatbot_busy": "Sorry, the chatbot helper system is busy. Please try again in a few minutes!",
+  "chatbot_connect_error": "Unable to connect to the CSKH helper server. Please try again later!",
+  "chatbot_title": "Gia Dinh Viet Assistant",
+  "chatbot_sub": "Typically replies instantly",
+  "chatbot_close": "Close Chat",
+  "chatbot_loading_placeholder": "Please wait...",
+  "chatbot_input_placeholder": "Type your question...",
+  "chatbot_send": "Send Message",
+  "online_support": "Online Support (CSKH)",
+  "quick_action_menu": "Quick Action Menu"
 }

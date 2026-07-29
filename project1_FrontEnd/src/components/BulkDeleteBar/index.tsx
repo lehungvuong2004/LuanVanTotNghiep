@@ -16,13 +16,7 @@ export interface BulkDeleteBarProps {
   loading?: boolean;
 }
 
-export const BulkDeleteBar = ({
-  selectedIds,
-  totalCount,
-  onToggleAll,
-  onDeleteSelected,
-  onClear,
-  loading = false }: BulkDeleteBarProps) => {
+export const BulkDeleteBar = ({ selectedIds, totalCount, onToggleAll, onDeleteSelected, onClear, loading = false }: BulkDeleteBarProps) => {
   const { t } = useTranslation();
   const allSelected = selectedIds.length > 0 && selectedIds.length === totalCount;
   const someSelected = selectedIds.length > 0 && !allSelected;
@@ -31,9 +25,7 @@ export const BulkDeleteBar = ({
   return (
     <div
       className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all duration-300 ${
-        count > 0
-          ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50 shadow-xs"
-          : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50"
+        count > 0 ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50 shadow-xs" : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50"
       }`}
     >
       {/* Checkbox select-all */}
@@ -42,27 +34,15 @@ export const BulkDeleteBar = ({
         onClick={onToggleAll}
         title={allSelected ? t("Bỏ chọn tất cả") : t("Chọn tất cả")}
         className={`flex items-center justify-center w-5 h-5 rounded border-2 cursor-pointer transition-all shrink-0 focus:outline-none ${
-          allSelected || someSelected
-            ? "border-cyan-700 dark:border-cyan-600"
-            : "border-slate-400 dark:border-slate-500"
-        } ${
-          allSelected
-            ? "bg-cyan-700 dark:bg-cyan-600"
-            : someSelected
-            ? "bg-cyan-100 dark:bg-cyan-950/40"
-            : "bg-transparent"
-        }`}
+          allSelected || someSelected ? "border-cyan-700 dark:border-cyan-600" : "border-slate-400 dark:border-slate-500"
+        } ${allSelected ? "bg-cyan-700 dark:bg-cyan-600" : someSelected ? "bg-cyan-100 dark:bg-cyan-950/40" : "bg-transparent"}`}
       >
         {allSelected && <Icon icon="material-symbols:check-small-rounded" className="text-white text-base" />}
         {someSelected && <Icon icon="material-symbols:remove-rounded" className="text-cyan-700 dark:text-cyan-400 text-sm" />}
       </button>
 
       {/* Label */}
-      <span
-        className={`text-xs font-semibold select-none ${
-          count > 0 ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"
-        }`}
-      >
+      <span className={`text-xs font-semibold select-none ${count > 0 ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"}`}>
         {count > 0 ? t("Đã chọn {count} mục").replace("{count}", count.toString()) : t("Chọn để xóa hàng loạt")}
       </span>
 

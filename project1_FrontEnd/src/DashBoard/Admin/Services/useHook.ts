@@ -179,7 +179,6 @@ export const useServicesAdmin = () => {
       color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400",
     },
   };
-  
 
   return {
     services: filteredServices,

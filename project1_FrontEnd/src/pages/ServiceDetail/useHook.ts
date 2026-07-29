@@ -79,14 +79,14 @@ export const useServiceDetail = () => {
 
   const openBookingModal = async () => {
     if (!currentUser) {
-      showToast("warning", t("Đăng nhập"), t("Vui lòng đăng nhập để đặt dịch vụ."),);
+      showToast("warning", t("Đăng nhập"), t("Vui lòng đăng nhập để đặt dịch vụ."));
       setTimeout(() => {
         navigate("/dang-nhap");
       }, 1000);
       return;
     }
     if (!isCustomer) {
-      showToast("error", t("Quyền truy cập"), t("Chỉ có tài khoản Khách hàng mới có thể đặt dịch vụ."),);
+      showToast("error", t("Quyền truy cập"), t("Chỉ có tài khoản Khách hàng mới có thể đặt dịch vụ."));
       return;
     }
     setIsBookingModalOpen(true);
@@ -111,14 +111,15 @@ export const useServiceDetail = () => {
         address: newAddress,
         district: newDistrict,
         city: newCity,
-        is_default: addresses.length === 0 });
+        is_default: addresses.length === 0,
+      });
       showToast("success", t("Thành công"), t("Đã thêm địa chỉ mới!"));
       setNewAddress("");
       setIsAddingNewAddress(false);
       await fetchAddresses();
     } catch (err: any) {
       console.error("Failed to add address:", err);
-      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể thêm địa chỉ."),);
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể thêm địa chỉ."));
     }
   };
 
@@ -143,9 +144,7 @@ export const useServiceDetail = () => {
       if (!serviceObj) return;
 
       const isHourly = serviceObj.price_type === "hourly";
-      const actualPrice = isHourly
-        ? (Number(serviceObj.base_price) || 0) * durationHours
-        : (Number(serviceObj.base_price) || 0);
+      const actualPrice = isHourly ? (Number(serviceObj.base_price) || 0) * durationHours : Number(serviceObj.base_price) || 0;
 
       const selectedHelperObj = helpers.find((h: any) => h.id === selectedHelperId);
       const helperUserId = selectedHelperObj?.user_id || selectedHelperId;
@@ -167,7 +166,7 @@ export const useServiceDetail = () => {
       };
 
       await createBookingApi(payload);
-      showToast("success", t("Thành công"), t("Đặt lịch thành công! Đang chuyển hướng sang trang thanh toán..."),);
+      showToast("success", t("Thành công"), t("Đặt lịch thành công! Đang chuyển hướng sang trang thanh toán..."));
 
       closeBookingModal();
       setTimeout(() => {
@@ -175,7 +174,7 @@ export const useServiceDetail = () => {
       }, 1500);
     } catch (err: any) {
       console.error("Failed to create booking:", err);
-      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể tạo lịch đặt."),);
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể tạo lịch đặt."));
     } finally {
       setIsBookingSubmitting(false);
     }
@@ -236,7 +235,8 @@ export const useServiceDetail = () => {
       await createReviewCustomer({
         helper_id: formHelperId,
         rating: formRating,
-        comment: formComment || "" });
+        comment: formComment || "",
+      });
       showToast("success", t("Thành công"), t("Đánh giá của bạn đã được gửi!"));
       setFormComment("");
       setFormRating(5);
@@ -245,7 +245,7 @@ export const useServiceDetail = () => {
       }
     } catch (err: any) {
       console.error("Failed to create review:", err);
-      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể gửi đánh giá."),);
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể gửi đánh giá."));
     } finally {
       setSubmitting(false);
     }
@@ -261,7 +261,8 @@ export const useServiceDetail = () => {
     try {
       await updateReviewCustomer(reviewId, {
         rating: editRating,
-        comment: editComment });
+        comment: editComment,
+      });
       showToast("success", t("Thành công"), t("Cập nhật đánh giá thành công!"));
       setEditingReviewId(null);
       if (selectedHelperId) {
@@ -269,7 +270,7 @@ export const useServiceDetail = () => {
       }
     } catch (err: any) {
       console.error("Failed to update review:", err);
-      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể cập nhật đánh giá."),);
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể cập nhật đánh giá."));
     }
   };
 
@@ -283,7 +284,7 @@ export const useServiceDetail = () => {
       }
     } catch (err: any) {
       console.error("Failed to delete review:", err);
-      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể xóa đánh giá."),);
+      showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể xóa đánh giá."));
     }
   };
 
@@ -301,7 +302,7 @@ export const useServiceDetail = () => {
     selectedHelperId,
     setSelectedHelperId,
     reviewStats,
-    
+
     formRating,
     setFormRating,
     formComment,
@@ -348,5 +349,6 @@ export const useServiceDetail = () => {
     openBookingModal,
     closeBookingModal,
     handleAddNewAddress,
-    handleCreateBooking };
+    handleCreateBooking,
+  };
 };

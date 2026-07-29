@@ -155,7 +155,7 @@ export const Profile = () => {
         </p>
       )}
 
-      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 break-all px-2">{userProfile?.email}</p>
+      <p className="text-sm text-slate-950 dark:text-slate-305 mt-1 break-all px-2 font-medium">{userProfile?.email}</p>
 
       <div className="mt-4 flex flex-col items-center gap-2">
         {/* Row 1: Role & Gender */}
@@ -543,7 +543,7 @@ export const Profile = () => {
                     value={profileForm.values.address}
                   />
                 </div>
-                <p className="text-xs text-slate-405 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">{t("Địa chỉ nhà ở của bạn dùng để đối chiếu hồ sơ, xác minh thông tin cá nhân.")}</p>
               </div>
             </div>
 
@@ -718,7 +718,7 @@ export const Profile = () => {
                 <button
                   onClick={() => handleEditAddressClick(addressItem)}
                   title={t("Chỉnh sửa")}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-950 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer"
                 >
                   <Icon icon="solar:pen-bold" className="text-lg" />
                 </button>

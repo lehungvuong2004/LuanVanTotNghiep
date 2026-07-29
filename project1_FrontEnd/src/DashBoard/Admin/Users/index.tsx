@@ -62,8 +62,6 @@ export const Users = () => {
     formik,
   } = useUsers();
 
-
-
   const isValidAvatarUrl = (url) => {
     return !!url;
   };

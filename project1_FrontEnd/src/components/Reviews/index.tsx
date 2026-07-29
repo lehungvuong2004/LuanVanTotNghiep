@@ -2,6 +2,42 @@ import { Icon } from "@iconify/react";
 import { getInitials, formatDate, formatVietnamDateTime, getRatingBadgeClass, getRatingNote, renderStars } from "../../utils";
 import { useReviewCard } from "./useHook";
 
+export const RatingDistributionRow = ({ star, count, total, colorClass = "bg-amber-400", onClick = undefined, isActive = false, showPercentText = false }: any) => {
+  const pct = total > 0 ? (count / total) * 100 : 0;
+  const percentStr = `${Math.round(pct)}%`;
+
+  const content = (
+    <>
+      <div className="flex items-center gap-1 w-10 shrink-0 select-none text-left">
+        <span className="text-xs font-bold text-slate-650 dark:text-slate-350">{star}</span>
+        <Icon icon="material-symbols:star-rounded" className="text-amber-450 text-base" />
+      </div>
+      <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700/50 rounded-full overflow-hidden">
+        <div className={`h-full ${colorClass} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs font-semibold text-slate-550 dark:text-slate-400 w-16 text-right shrink-0">
+        {count} {showPercentText && <span className="text-slate-450 dark:text-slate-500 font-normal">({percentStr})</span>}
+      </span>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        type="button"
+        className={`flex items-center gap-2.5 w-full cursor-pointer rounded-xl px-2.5 py-1.5 transition-all text-left ${
+          isActive ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/30" : "hover:bg-slate-100/70 dark:hover:bg-slate-800/50 border border-transparent"
+        }`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className="flex items-center gap-2.5 w-full px-2.5 py-1">{content}</div>;
+};
+
 export const ReviewCard = (props: any) => {
   const {
     review,
@@ -43,7 +79,7 @@ export const ReviewCard = (props: any) => {
             rows={3}
             value={editComment}
             onChange={(e) => onChangeEditComment?.(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-800 dark:text-slate-100 resize-none"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all resize-none"
             required
           />
 
@@ -51,7 +87,7 @@ export const ReviewCard = (props: any) => {
             <button
               type="button"
               onClick={onCancelEdit}
-              className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-650 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer"
             >
               {translate("Hủy")}
             </button>
@@ -81,7 +117,7 @@ export const ReviewCard = (props: any) => {
           )}
           <div>
             <h4 className="text-xl font-bold text-slate-890 dark:text-slate-150 leading-tight">{review.customer?.full_name || "Khách hàng ẩn danh"}</h4>
-            <span className="text-base text-slate-400 dark:text-slate-500 font-medium">{formatDate(review.created_at)}</span>
+            <span className="text-base text-slate-400 dark:text-slate-505 font-medium">{formatDate(review.created_at)}</span>
           </div>
           <div className="justify-self-end">{renderStars(review.rating, "text-sm")}</div>
         </div>

@@ -25,7 +25,8 @@ export const useLogin = () => {
     initialValues: {
       email: state?.email || rememberedEmail,
       password: "",
-      rememberMe: initialRememberMe },
+      rememberMe: initialRememberMe,
+    },
     validationSchema: getLoginSchema(t),
     onSubmit: async (values) => {
       setLoading(true);
@@ -41,8 +42,9 @@ export const useLogin = () => {
 
         const response = await loginApi({
           email: values.email,
-          password: values.password });
-        
+          password: values.password,
+        });
+
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
         dispatch(loginSuccess(response));
@@ -57,7 +59,8 @@ export const useLogin = () => {
       } finally {
         setLoading(false);
       }
-    } });
+    },
+  });
 
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -86,7 +89,8 @@ export const useLogin = () => {
     onError: () => {
       console.error("Google Login Failed");
       setErrorMessage(t("Đăng nhập bằng Google thất bại."));
-    } });
+    },
+  });
 
   return { formik, loginWithGoogle, loading, errorMessage };
 };

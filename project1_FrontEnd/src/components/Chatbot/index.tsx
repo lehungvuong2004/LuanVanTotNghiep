@@ -65,7 +65,7 @@ export const Chatbot = () => {
           replyText = response.data.reply;
         }
       }
-      
+
       setMessages((prev) => [
         ...prev,
         {
@@ -108,11 +108,7 @@ export const Chatbot = () => {
                 <p className="text-xs text-white/70 font-medium">Thường phản hồi ngay lập tức</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="p-2 hover:bg-white/10 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-              title="Đóng chat"
-            >
+            <button onClick={() => setIsChatOpen(false)} className="p-2 hover:bg-white/10 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer" title="Đóng chat">
               <Icon icon="ic:round-minus" className="text-xl" />
             </button>
           </div>
@@ -131,16 +127,12 @@ export const Chatbot = () => {
                   <div className="max-w-xs flex flex-col">
                     <div
                       className={`px-4 py-3 text-sm font-semibold rounded-2xl shadow-xs leading-relaxed ${
-                        isBot
-                          ? "bg-white text-neutral-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-sm"
-                          : "bg-neutral-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-br-sm"
+                        isBot ? "bg-white text-neutral-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-sm" : "bg-neutral-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-br-sm"
                       }`}
                     >
                       {msg.text}
                     </div>
-                    <span className={`text-xs text-neutral-400 dark:text-neutral-500 mt-1.5 ${isBot ? "text-left" : "text-right"}`}>
-                      {msg.time}
-                    </span>
+                    <span className={`text-xs text-neutral-400 dark:text-neutral-500 mt-1.5 ${isBot ? "text-left" : "text-right"}`}>{msg.time}</span>
                   </div>
                 </div>
               );
@@ -163,10 +155,7 @@ export const Chatbot = () => {
           </div>
 
           {/* Input Form Area */}
-          <form
-            onSubmit={handleSendMessage}
-            className="p-4 bg-white dark:bg-zinc-900 flex gap-3 shrink-0 items-center"
-          >
+          <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-zinc-900 flex gap-3 shrink-0 items-center">
             <input
               type="text"
               value={inputValue}
@@ -204,4 +193,3 @@ export const Chatbot = () => {
     </div>
   );
 };
-

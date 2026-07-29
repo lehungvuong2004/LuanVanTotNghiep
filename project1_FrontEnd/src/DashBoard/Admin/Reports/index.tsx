@@ -75,8 +75,6 @@ export const Reports = () => {
     }
   };
 
-
-
   if (!permissions.view) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6">
@@ -516,14 +514,7 @@ export const Reports = () => {
 
       {permissions.delete && selectedIds.length > 0 && (
         <div className="my-2">
-          <BulkDeleteBar
-            selectedIds={selectedIds}
-            totalCount={reports.length}
-            onToggleAll={toggleSelectAll}
-            onDeleteSelected={handleBulkDelete}
-            onClear={clearSelection}
-            loading={loading}
-          />
+          <BulkDeleteBar selectedIds={selectedIds} totalCount={reports.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} loading={loading} />
         </div>
       )}
 

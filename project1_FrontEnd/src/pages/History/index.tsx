@@ -546,8 +546,8 @@ export const HistoryPage = () => {
                     <Icon icon="material-symbols:cancel-outline" className="text-lg" />
                   </button>
                 )}
-                {booking.statusRaw === "completed" && (
-                  reviewedBookingIds.includes(booking.idRaw) ? (
+                {booking.statusRaw === "completed" &&
+                  (reviewedBookingIds.includes(booking.idRaw) ? (
                     <button
                       disabled
                       title={t("Đã đánh giá")}
@@ -568,10 +568,10 @@ export const HistoryPage = () => {
                       <Icon icon="material-symbols:star-outline" className="text-sm" />
                       <span>{t("Đánh giá")}</span>
                     </button>
-                  )
-                )}
-                {["confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && booking.helper?.id && (
-                  reportedBookingIds.includes(booking.idRaw) ? (
+                  ))}
+                {["confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) &&
+                  booking.helper?.id &&
+                  (reportedBookingIds.includes(booking.idRaw) ? (
                     <button
                       disabled
                       title={t("Đã báo cáo vi phạm")}
@@ -587,8 +587,7 @@ export const HistoryPage = () => {
                     >
                       <Icon icon="material-symbols:report-outline" className="text-lg" />
                     </button>
-                  )
-                )}
+                  ))}
                 {!["pending", "confirmed", "on_the_way", "in_progress", "completed"].includes(booking.statusRaw) && <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>}
               </div>
             ) : (
@@ -630,10 +629,9 @@ export const HistoryPage = () => {
                     <span>{t("Xác nhận nhận tiền")}</span>
                   </button>
                 )}
-                {!["confirmed", "on_the_way", "in_progress"].includes(booking.statusRaw) &&
-                  !(booking.statusRaw === "completed" && booking.paymentStatus !== "completed") && (
-                    <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>
-                  )}
+                {!["confirmed", "on_the_way", "in_progress"].includes(booking.statusRaw) && !(booking.statusRaw === "completed" && booking.paymentStatus !== "completed") && (
+                  <span className="text-xs text-slate-400 italic">{t("Không có thao tác")}</span>
+                )}
               </>
             )}
           </div>
@@ -950,9 +948,7 @@ export const HistoryPage = () => {
                                   </span>
                                 ))}
                                 {app.profile.skills.length > 3 && (
-                                  <span className="px-1.5 py-0.5 text-xs font-bold bg-slate-200 dark:bg-slate-850 text-slate-650 dark:text-slate-400 rounded">
-                                    +{app.profile.skills.length - 3}
-                                  </span>
+                                  <span className="px-1.5 py-0.5 text-xs font-bold bg-slate-200 dark:bg-slate-850 text-slate-650 dark:text-slate-400 rounded">+{app.profile.skills.length - 3}</span>
                                 )}
                               </div>
                             )}
@@ -1626,7 +1622,9 @@ export const HistoryPage = () => {
                         </div>
                         <div className="flex items-start gap-2.5">
                           <Icon icon="material-symbols:warning-amber-outline-rounded" className="shrink-0 text-sm mt-0.5 text-amber-600 dark:text-amber-500" />
-                          <span className="font-semibold text-amber-700 dark:text-amber-400">{t("Lưu ý: Quý khách vui lòng thanh toán trong vòng 30 phút, nếu không đơn đặt lịch sẽ tự động bị hủy.")}</span>
+                          <span className="font-semibold text-amber-700 dark:text-amber-400">
+                            {t("Lưu ý: Quý khách vui lòng thanh toán trong vòng 30 phút, nếu không đơn đặt lịch sẽ tự động bị hủy.")}
+                          </span>
                         </div>
                       </div>
                     )}

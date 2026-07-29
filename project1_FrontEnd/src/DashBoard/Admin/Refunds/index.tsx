@@ -14,8 +14,6 @@ export const Refunds = () => {
   const { loading, searchQuery, setSearchQuery, refunds, refundsPage, setRefundsPage, refundsTotal, refundStatusFilter, setRefundStatusFilter, handleProcessRefund, computedMetrics, itemsPerPage } =
     useRefundsHook();
 
-
-
   const renderHeader = () => {
     return (
       <div>
@@ -125,9 +123,7 @@ export const Refunds = () => {
                       </td>
                       <td className="px-5 py-3 text-xs font-semibold text-slate-500">PAY-{r.payment_id}</td>
                       <td className="px-5 py-3 text-sm font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">{Number(r.amount || 0).toLocaleString("vi-VN")} ₫</td>
-                      <td className="px-5 py-3">
-                        {getStatusBadge(r.status, "refund")}
-                      </td>
+                      <td className="px-5 py-3">{getStatusBadge(r.status, "refund")}</td>
                       <td className="px-5 py-3 max-w-xs">
                         <p className="text-xs text-slate-500 truncate" title={r.reason || ""}>
                           {r.reason || "Không có lý do."}

@@ -5,7 +5,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useServiceCategoriesAdmin } from "./useHook";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 
-const TYPE_LABELS= {
+const TYPE_LABELS = {
   both: { label: "Tất cả", color: "bg-cyan-50 dark:bg-cyan-950/30 text-cyan-600 dark:text-cyan-400" },
   booking: { label: "Đặt lịch", color: "bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400" },
   job: { label: "Công việc", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400" },

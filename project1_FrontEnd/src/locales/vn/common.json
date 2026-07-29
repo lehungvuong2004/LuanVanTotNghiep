@@ -304,5 +304,16 @@
   "Cổng trực tiếp": "Cổng trực tiếp",
   "Bạn sẽ được chuyển đến cổng thanh toán": "Bạn sẽ được chuyển đến cổng thanh toán",
   "để hoàn tất giao dịch an toàn.": "để hoàn tất giao dịch an toàn.",
-  "Đang tạo liên kết VNPay...": "Đang tạo liên kết VNPay..."
+  "Đang tạo liên kết VNPay...": "Đang tạo liên kết VNPay...",
+  "chatbot_welcome": "Xin chào! Cảm ơn bạn đã liên hệ Gia Đình Việt. Mình là trợ lý ảo hỗ trợ dịch vụ. Bạn đang cần tìm hiểu thông tin gì ạ?",
+  "chatbot_busy": "Xin lỗi, hệ thống đang bận phản hồi. Bạn vui lòng thử lại sau ít phút!",
+  "chatbot_connect_error": "Không thể kết nối đến máy chủ CSKH. Quý khách vui lòng thử lại sau!",
+  "chatbot_title": "Trợ Lý Gia Đình Việt",
+  "chatbot_sub": "Thường phản hồi ngay lập tức",
+  "chatbot_close": "Đóng chat",
+  "chatbot_loading_placeholder": "Vui lòng chờ...",
+  "chatbot_input_placeholder": "Nhập câu hỏi của bạn...",
+  "chatbot_send": "Gửi tin nhắn",
+  "online_support": "Hỗ trợ trực tuyến (CSKH)",
+  "quick_action_menu": "Trình đơn hành động nhanh"
 }

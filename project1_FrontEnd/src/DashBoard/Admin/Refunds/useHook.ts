@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useToast } from "../../../contexts/ToastContext";
 import type { Refund } from "../../../api/payments";
-import {
-  getRefundsAdmin,
-  processRefundAdmin,
-  getPaymentStatsAdmin
-} from "../../../api/payments";
+import { getRefundsAdmin, processRefundAdmin, getPaymentStatsAdmin } from "../../../api/payments";
 
 export const useRefundsHook = () => {
   const [refunds, setRefunds] = useState<Refund[]>([]);
@@ -47,7 +43,7 @@ export const useRefundsHook = () => {
       const response = await getRefundsAdmin({
         page: refundsPage,
         limit: itemsPerPage,
-        status: statusParam
+        status: statusParam,
       });
 
       setRefunds(response.data.data);
@@ -67,10 +63,7 @@ export const useRefundsHook = () => {
     fetchStats();
   }, [fetchStats]);
 
-  const handleProcessRefund = async (
-    id: number,
-    status: "approved" | "rejected" | "completed"
-  ) => {
+  const handleProcessRefund = async (id: number, status: "approved" | "rejected" | "completed") => {
     try {
       await processRefundAdmin(id, status);
       showToast("success", "Xử lý thành công", `Trạng thái hoàn tiền đã chuyển thành ${status}`);
@@ -85,19 +78,13 @@ export const useRefundsHook = () => {
     return refunds.filter((r) => {
       if (!searchQuery) return true;
       const term = searchQuery.toLowerCase();
-      return (
-        String(r.id).includes(term) ||
-        String(r.payment_id).includes(term) ||
-        (r.reason || "").toLowerCase().includes(term)
-      );
+      return String(r.id).includes(term) || String(r.payment_id).includes(term) || (r.reason || "").toLowerCase().includes(term);
     });
   }, [refunds, searchQuery]);
 
   const computedMetrics = useMemo(() => {
     const pendingRefundsCount = refunds.filter((r) => r.status === "pending").length;
-    const completedRefundsAmount = refunds
-      .filter((r) => r.status === "completed")
-      .reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    const completedRefundsAmount = refunds.filter((r) => r.status === "completed").reduce((sum, r) => sum + Number(r.amount || 0), 0);
     return { pendingRefundsCount, completedRefundsAmount };
   }, [refunds]);
 
@@ -115,6 +102,6 @@ export const useRefundsHook = () => {
     setRefundStatusFilter,
     handleProcessRefund,
     computedMetrics,
-    itemsPerPage
+    itemsPerPage,
   };
 };

@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../../contexts/ToastContext";
-import {
-  getContactsAdminApi,
-  processContactAdminApi,
-  deleteContactAdminApi,
-} from "../../../api/contactsApi/contacts";
+import { getContactsAdminApi, processContactAdminApi, deleteContactAdminApi } from "../../../api/contactsApi/contacts";
 import type { Contact } from "../../../api/contactsApi/contacts";
 
 export const useAdminContacts = () => {
@@ -77,9 +73,7 @@ export const useAdminContacts = () => {
   };
 
   const toggleSelectOne = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {

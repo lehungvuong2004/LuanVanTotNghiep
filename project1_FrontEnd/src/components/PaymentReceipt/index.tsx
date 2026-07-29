@@ -36,11 +36,7 @@ export const PaymentReceipt = ({
   const { t } = useTranslation();
 
   // Function render từng dòng thông tin hóa đơn (1 cột rộng rãi, không bị ngắt dòng)
-  const renderDetailRow = (
-    icon: string,
-    label: string,
-    value: React.ReactNode
-  ) => {
+  const renderDetailRow = (icon: string, label: string, value) => {
     if (!value) return null;
     return (
       <div className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-slate-200/40 dark:hover:bg-slate-800/40 transition-colors gap-4">
@@ -50,9 +46,7 @@ export const PaymentReceipt = ({
           </div>
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</span>
         </div>
-        <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 text-right whitespace-nowrap overflow-hidden text-ellipsis">
-          {value}
-        </span>
+        <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 text-right whitespace-nowrap overflow-hidden text-ellipsis">{value}</span>
       </div>
     );
   };
@@ -61,18 +55,9 @@ export const PaymentReceipt = ({
   const renderReceiptDetails = () => {
     if (!isSuccess) return null;
 
-    const formattedPaymentDate = paymentDate
-      ? paymentDate.includes("-") || paymentDate.includes("/")
-        ? paymentDate
-        : formatDateTime(paymentDate)
-      : null;
+    const formattedPaymentDate = paymentDate ? (paymentDate.includes("-") || paymentDate.includes("/") ? paymentDate : formatDateTime(paymentDate)) : null;
 
-    const formattedMethod =
-      paymentMethod === "vnpay"
-        ? t("Cổng VNPay")
-        : paymentMethod === "cash"
-        ? t("Tiền mặt")
-        : t("Ví điện tử / Thẻ");
+    const formattedMethod = paymentMethod === "vnpay" ? t("Cổng VNPay") : paymentMethod === "cash" ? t("Tiền mặt") : t("Ví điện tử / Thẻ");
 
     return (
       <div className="bg-slate-50/70 dark:bg-slate-900/50 p-3.5 sm:p-4 rounded-2xl divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -87,15 +72,9 @@ export const PaymentReceipt = ({
           </div>
         )}
         <div className="pt-1.5 space-y-0.5">
-          {bookingDate &&
-            renderDetailRow(
-              "solar:calendar-date-bold-duotone",
-              t("Thời gian dịch vụ"),
-              `${bookingDate} ${bookingTime ? `(${bookingTime})` : ""}`
-            )}
+          {bookingDate && renderDetailRow("solar:calendar-date-bold-duotone", t("Thời gian dịch vụ"), `${bookingDate} ${bookingTime ? `(${bookingTime})` : ""}`)}
           {transactionId && renderDetailRow("solar:bill-check-bold-duotone", t("Mã giao dịch"), transactionId)}
-          {formattedPaymentDate &&
-            renderDetailRow("solar:clock-circle-bold-duotone", t("Thời gian thanh toán"), formattedPaymentDate)}
+          {formattedPaymentDate && renderDetailRow("solar:clock-circle-bold-duotone", t("Thời gian thanh toán"), formattedPaymentDate)}
         </div>
       </div>
     );
@@ -106,22 +85,11 @@ export const PaymentReceipt = ({
       {/* Header */}
       <div className="relative flex items-center justify-between px-6 py-4.5 bg-linear-to from-slate-50 via-white to-slate-50 dark:from-slate-900/50 dark:via-slate-850 dark:to-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
         <div className="flex items-center gap-3 text-left">
-          <div
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-              isSuccess
-                ? "bg-emerald-500/10 text-[#026E5F] dark:text-teal-400"
-                : "bg-red-500/10 text-red-500"
-            }`}
-          >
-            <Icon
-              icon={isSuccess ? "solar:verified-check-bold-duotone" : "solar:close-circle-bold-duotone"}
-              className="text-2xl"
-            />
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${isSuccess ? "bg-emerald-500/10 text-[#026E5F] dark:text-teal-400" : "bg-red-500/10 text-red-500"}`}>
+            <Icon icon={isSuccess ? "solar:verified-check-bold-duotone" : "solar:close-circle-bold-duotone"} className="text-2xl" />
           </div>
           <div>
-            <h3 className="text-base font-extrabold text-slate-850 dark:text-white">
-              {isSuccess ? t("Hóa đơn thanh toán") : t("Thanh toán thất bại")}
-            </h3>
+            <h3 className="text-base font-extrabold text-slate-850 dark:text-white">{isSuccess ? t("Hóa đơn thanh toán") : t("Thanh toán thất bại")}</h3>
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-400 mt-0.5">{bookingId}</p>
           </div>
         </div>
@@ -146,26 +114,15 @@ export const PaymentReceipt = ({
                 : "bg-red-500 text-white shadow-red-500/25 ring-8 ring-red-500/10 dark:ring-red-500/20"
             }`}
           >
-            <Icon
-              icon={isSuccess ? "solar:check-read-linear" : "solar:close-circle-linear"}
-              className="text-3xl"
-            />
+            <Icon icon={isSuccess ? "solar:check-read-linear" : "solar:close-circle-linear"} className="text-3xl" />
           </div>
-          <h4
-            className={`text-base font-bold ${
-              isSuccess ? "text-slate-700 dark:text-slate-200" : "text-red-650 dark:text-red-400"
-            }`}
-          >
+          <h4 className={`text-base font-bold ${isSuccess ? "text-slate-700 dark:text-slate-200" : "text-red-650 dark:text-red-400"}`}>
             {isSuccess ? t("Thanh toán thành công") : t("Giao dịch thất bại")}
           </h4>
           {isSuccess ? (
-            <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1 tracking-tight">
-              {totalPrice}
-            </div>
+            <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1 tracking-tight">{totalPrice}</div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-              {errorMessage || t("Đã xảy ra lỗi trong quá trình xử lý giao dịch của bạn.")}
-            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">{errorMessage || t("Đã xảy ra lỗi trong quá trình xử lý giao dịch của bạn.")}</p>
           )}
         </div>
 

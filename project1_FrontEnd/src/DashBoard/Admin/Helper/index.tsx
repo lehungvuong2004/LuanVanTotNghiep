@@ -56,8 +56,6 @@ export const Helpers = () => {
     ratingOption,
   } = useHelperManagement();
 
-
-
   const renderHeader = () => (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>

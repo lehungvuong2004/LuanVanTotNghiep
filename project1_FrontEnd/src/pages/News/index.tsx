@@ -75,7 +75,7 @@ export const News = () => {
             const isFeatured = idx === 0;
 
             if (isFeatured) {
-               return (
+              return (
                 <Link
                   key={item.id}
                   to={`/tin-tuc/${item.slug}`}
@@ -92,14 +92,16 @@ export const News = () => {
                   </div>
                   <div className="lg:col-span-5 p-6 md:p-8 flex flex-col justify-center lg:h-full">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-extrabold px-3 py-1 rounded-md uppercase tracking-wider">{t("Nổi bật")}</span>
+                      <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-extrabold px-3 py-1 rounded-md uppercase tracking-wider">
+                        {t("Nổi bật")}
+                      </span>
                       <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
                         <Icon icon="material-symbols:calendar-today-outline" className="text-sm" />
                         {formatDate(item.created_at)}
                       </span>
                     </div>
                     <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight mb-3 line-clamp-2">
-                       {item.title}
+                      {item.title}
                     </h2>
                     {item.summary && <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 line-clamp-3">{item.summary}</p>}
                     <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 text-sm font-bold">
@@ -127,10 +129,12 @@ export const News = () => {
                 </div>
                 <div className="p-5 flex flex-col grow">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-350 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">{t("Tin tức")}</span>
+                    <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-350 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+                      {t("Tin tức")}
+                    </span>
                     <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
                       <Icon icon="material-symbols:calendar-today-outline" className="text-sm" />
-                       {formatDate(item.created_at)}
+                      {formatDate(item.created_at)}
                     </span>
                   </div>
                   <h3 className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug mb-2 line-clamp-2 text-base">
