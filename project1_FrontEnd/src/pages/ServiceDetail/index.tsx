@@ -233,11 +233,15 @@ export const ServiceDetail = () => {
                 <div>
                   <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">{selectedHelperObj.user?.full_name ?? `Helper #${selectedHelperObj.id}`}</h4>
                   <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                    <span className="font-semibold">{t("Giới tính")}: {selectedHelperObj.gender === "male" ? t("Nam") : t("Nữ")}</span>
+                    <span className="font-semibold">
+                      {t("Giới tính")}: {selectedHelperObj.gender === "male" ? t("Nam") : t("Nữ")}
+                    </span>
                     {selectedHelperObj.user?.phone && (
                       <>
                         <span>•</span>
-                        <span>{t("Số điện thoại")}: {selectedHelperObj.user.phone}</span>
+                        <span>
+                          {t("Số điện thoại")}: {selectedHelperObj.user.phone}
+                        </span>
                       </>
                     )}
                   </div>
@@ -247,7 +251,9 @@ export const ServiceDetail = () => {
               {selectedHelperObj.address && (
                 <div className="flex items-start gap-1.5 pt-1 text-xs text-slate-500 dark:text-slate-400 border-t border-dashed border-slate-200 dark:border-slate-700">
                   <Icon icon="material-symbols:location-on-outline" className="text-base text-slate-400 shrink-0 mt-0.5" />
-                  <span className="leading-relaxed">{t("Địa chỉ")}: {selectedHelperObj.address}</span>
+                  <span className="leading-relaxed">
+                    {t("Địa chỉ")}: {selectedHelperObj.address}
+                  </span>
                 </div>
               )}
             </div>
@@ -443,9 +449,7 @@ export const ServiceDetail = () => {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-6 grid grid-cols-1 md:grid-cols-3 gap-8 items-center shadow-sm">
         <div className="text-center md:col-span-1 w-full">
-          <div className="text-5xl font-extrabold text-teal-800 dark:text-teal-400">
-            {statsToDisplay.avg_rating ? Number(statsToDisplay.avg_rating).toFixed(1) : "0.0"}
-          </div>
+          <div className="text-5xl font-extrabold text-teal-800 dark:text-teal-400">{statsToDisplay.avg_rating ? Number(statsToDisplay.avg_rating).toFixed(1) : "0.0"}</div>
           <div className="flex justify-center gap-0.5 mt-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <Icon
@@ -462,13 +466,7 @@ export const ServiceDetail = () => {
 
         <div className="md:col-span-2 space-y-2.5 w-full">
           {[5, 4, 3, 2, 1].map((star) => (
-            <RatingDistributionRow
-              key={star}
-              star={star}
-              count={statsToDisplay.rating_distribution?.[star] ?? 0}
-              total={statsToDisplay.total_reviews}
-              colorClass="bg-teal-805 dark:bg-teal-400"
-            />
+            <RatingDistributionRow key={star} star={star} count={statsToDisplay.rating_distribution?.[star] ?? 0} total={statsToDisplay.total_reviews} colorClass="bg-teal-805 dark:bg-teal-400" />
           ))}
         </div>
       </div>
@@ -669,9 +667,7 @@ export const ServiceDetail = () => {
     if (!isBookingModalOpen) return null;
 
     const isHourly = service.price_type === "hourly";
-    const totalPrice = isHourly
-      ? Number(service.base_price) * durationHours
-      : Number(service.base_price);
+    const totalPrice = isHourly ? Number(service.base_price) * durationHours : Number(service.base_price);
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -831,12 +827,12 @@ export const ServiceDetail = () => {
               <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-150 dark:border-slate-700 space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   <Icon icon="material-symbols:event-available-outline-rounded" className="text-emerald-500 text-base" />
-                  <span>{t("Lịch rảnh của")} {selectedHelperObj.user?.full_name || t("Người giúp việc")}</span>
+                  <span>
+                    {t("Lịch rảnh của")} {selectedHelperObj.user?.full_name || t("Người giúp việc")}
+                  </span>
                 </div>
                 {(() => {
-                  const daySlots = (selectedHelperObj.availabilities || []).filter(
-                    (av: any) => av.available_date === bookingDate && av.status === "available"
-                  );
+                  const daySlots = (selectedHelperObj.availabilities || []).filter((av: any) => av.available_date === bookingDate && av.status === "available");
 
                   if (daySlots.length === 0) {
                     return (
@@ -848,9 +844,7 @@ export const ServiceDetail = () => {
 
                   return (
                     <div className="space-y-1.5">
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {t("Chọn nhanh khung giờ rảnh đã đăng ký:")}
-                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{t("Chọn nhanh khung giờ rảnh đã đăng ký:")}</p>
                       <div className="flex flex-wrap gap-2">
                         {daySlots.map((av: any) => {
                           const timeStr = av.start_time.substring(0, 5); // "08:00:00" -> "08:00"
@@ -892,8 +886,6 @@ export const ServiceDetail = () => {
               />
             </div>
 
-
-
             {/* Booking Note */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Ghi chú thêm")}</label>
@@ -911,11 +903,7 @@ export const ServiceDetail = () => {
               <div>
                 <p className="text-xs font-bold text-teal-800 dark:text-teal-400 uppercase tracking-wider">{t("Tổng cộng (tạm tính)")}</p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {isHourly ? (
-                    `${formatNumberVI(Number(service.base_price))}đ x ${durationHours} ${t("giờ")}`
-                  ) : (
-                    `${formatNumberVI(Number(service.base_price))}đ (${t("Trọn gói")})`
-                  )}
+                  {isHourly ? `${formatNumberVI(Number(service.base_price))}đ x ${durationHours} ${t("giờ")}` : `${formatNumberVI(Number(service.base_price))}đ (${t("Trọn gói")})`}
                 </p>
               </div>
               <p className="text-xl font-extrabold text-teal-600 dark:text-teal-400">{formatNumberVI(totalPrice)}đ</p>

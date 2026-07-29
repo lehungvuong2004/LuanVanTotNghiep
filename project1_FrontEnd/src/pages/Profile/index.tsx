@@ -16,8 +16,6 @@ export const Profile = () => {
     userProfile,
     customerProfile,
     addresses,
-    errorMessage,
-    successMessage,
     profileForm,
     passwordForm,
     addressForm,
@@ -112,23 +110,7 @@ export const Profile = () => {
   );
 
   // 2. RENDER STATUS ALERTS
-  const renderAlerts = () => (
-    <>
-      {successMessage && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-400 px-4 py-3 rounded-2xl flex items-center gap-3 animate-fade-in shadow-xs">
-          <Icon icon="solar:check-circle-bold" className="text-2xl shrink-0 text-emerald-500" />
-          <span className="text-sm font-medium">{successMessage}</span>
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 px-4 py-3 rounded-2xl flex items-center gap-3 animate-fade-in shadow-xs">
-          <Icon icon="solar:danger-circle-bold" className="text-2xl shrink-0 text-red-500" />
-          <span className="text-sm font-medium">{errorMessage}</span>
-        </div>
-      )}
-    </>
-  );
+  const renderAlerts = () => null;
 
   // 3. RENDER PROFILE CARD (LEFT COLUMN SUMMARY)
   const renderProfileCard = () => (
@@ -542,11 +524,7 @@ export const Profile = () => {
                     disabled={geoLoading}
                     className="flex items-center gap-1.5 bg-teal-50 text-teal-650 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400 border border-teal-200/30 dark:border-teal-900/50 py-1 px-2.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer disabled:opacity-50"
                   >
-                    {geoLoading && geoTarget === "residential" ? (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-xs animate-spin" />
-                    ) : (
-                      <Icon icon="solar:gps-bold" className="text-xs" />
-                    )}
+                    {geoLoading && geoTarget === "residential" ? <Icon icon="line-md:loading-twotone-loop" className="text-xs animate-spin" /> : <Icon icon="solar:gps-bold" className="text-xs" />}
                     {t("Định vị")}
                   </button>
                 </div>

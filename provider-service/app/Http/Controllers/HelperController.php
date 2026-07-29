@@ -27,17 +27,25 @@ class HelperController extends Controller
    */
   public function publicList(Request $request)
   {
-    $query = HelperProfile::with(['skills.service', 'workingAreas'])
+    $query = HelperProfile::with(['skills.service', 'workingAreas.city', 'workingAreas.district'])
       ->where('status', 'active');
 
     if ($request->filled('city')) {
       $city = $request->query('city');
-      $query->whereHas('workingAreas', fn($q) => $q->where('city', $city));
+      if (is_numeric($city)) {
+        $query->whereHas('workingAreas', fn($q) => $q->where('city_id', $city));
+      } else {
+        $query->whereHas('workingAreas.city', fn($q) => $q->where('name', $city));
+      }
     }
 
     if ($request->filled('district')) {
       $district = $request->query('district');
-      $query->whereHas('workingAreas', fn($q) => $q->where('district', $district));
+      if (is_numeric($district)) {
+        $query->whereHas('workingAreas', fn($q) => $q->where('district_id', $district));
+      } else {
+        $query->whereHas('workingAreas.district', fn($q) => $q->where('name', $district));
+      }
     }
 
     if ($request->filled('service_id')) {
@@ -86,7 +94,7 @@ class HelperController extends Controller
    */
   public function publicShow($id)
   {
-    $helper = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities'])
+    $helper = HelperProfile::with(['skills.service', 'workingAreas.city', 'workingAreas.district', 'availabilities'])
       ->where(function ($q) use ($id) {
         $q->where('id', $id)
           ->orWhere('user_id', $id);
@@ -109,7 +117,7 @@ class HelperController extends Controller
               'rating_avg' => 5.0,
               'total_reviews' => 0
             ]);
-            $helper->load(['skills.service', 'workingAreas', 'availabilities']);
+            $helper->load(['skills.service', 'workingAreas.city', 'workingAreas.district', 'availabilities']);
             $helper->user = $users[0];
             return $this->successResponse($helper);
           }
@@ -144,7 +152,7 @@ class HelperController extends Controller
    */
   public function profileStatusCheck($id)
   {
-    $helper = HelperProfile::with(['skills', 'workingAreas'])
+    $helper = HelperProfile::with(['skills', 'workingAreas.city', 'workingAreas.district'])
       ->where('user_id', $id)
       ->orWhere('id', $id)
       ->first();
@@ -222,7 +230,7 @@ class HelperController extends Controller
 
     $userId = $request->authUser['id'];
 
-    $profile = HelperProfile::with(['skills.service', 'workingAreas', 'availabilities', 'verifications'])
+    $profile = HelperProfile::with(['skills.service', 'workingAreas.city', 'workingAreas.district', 'availabilities', 'verifications'])
       ->where('user_id', $userId)
       ->first();
 
@@ -291,7 +299,7 @@ class HelperController extends Controller
 
     $profile->update($fields);
 
-    return $this->successResponse($profile->fresh(['skills.service', 'workingAreas']), 'Cập nhật hồ sơ thành công.');
+    return $this->successResponse($profile->fresh(['skills.service', 'workingAreas.city', 'workingAreas.district']), 'Cập nhật hồ sơ thành công.');
   }
 
   // =====================================================================
@@ -396,7 +404,7 @@ class HelperController extends Controller
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
     if (!$profile) return $this->successResponse([]);
 
-    return $this->successResponse($profile->workingAreas);
+    return $this->successResponse($profile->workingAreas()->with(['city', 'district'])->get());
   }
 
   public function addWorkingArea(Request $request)
@@ -408,14 +416,25 @@ class HelperController extends Controller
     $profile = HelperProfile::where('user_id', $request->authUser['id'])->first();
     if (!$profile) return $this->notFoundResponse('Bạn chưa có hồ sơ.');
 
+    if ($request->has('city') && !is_numeric($request->city)) {
+      $cityModel = \App\Models\City::where('name', $request->city)->first();
+      $districtModel = $cityModel ? \App\Models\District::where('city_id', $cityModel->id)->where('name', $request->district)->first() : null;
+      if ($cityModel && $districtModel) {
+        $request->merge([
+          'city_id' => $cityModel->id,
+          'district_id' => $districtModel->id
+        ]);
+      }
+    }
+
     $fields = $request->validate([
-      'district' => 'required|string|max:100',
-      'city'     => 'required|string|max:100',
+      'city_id'     => 'required|integer|exists:cities,id',
+      'district_id' => 'required|integer|exists:districts,id',
     ]);
 
     $area = HelperWorkingArea::create(array_merge($fields, ['helper_id' => $profile->id]));
 
-    return $this->successResponse($area, 'Thêm khu vực làm việc thành công.', Response::HTTP_CREATED);
+    return $this->successResponse($area->load(['city', 'district']), 'Thêm khu vực làm việc thành công.', Response::HTTP_CREATED);
   }
 
   public function removeWorkingArea(Request $request, $id)
@@ -720,5 +739,11 @@ class HelperController extends Controller
         'verification_status' => $verificationStatus,
       ]
     ], Response::HTTP_OK);
+  }
+
+  public function getRegions()
+  {
+    $cities = \App\Models\City::with('districts')->get();
+    return $this->successResponse($cities);
   }
 }

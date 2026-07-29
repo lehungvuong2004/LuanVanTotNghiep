@@ -94,12 +94,25 @@ return new class extends Migration
         ->onDelete('cascade');
     });
 
+    Schema::create('cities', function (Blueprint $table) {
+      $table->integer('id')->autoIncrement();
+      $table->string('name', 100)->unique();
+    });
+
+    Schema::create('districts', function (Blueprint $table) {
+      $table->integer('id')->autoIncrement();
+      $table->integer('city_id');
+      $table->string('name', 100);
+      $table->unique(['city_id', 'name'], 'uq_id_city_district');
+      $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
+    });
+
     Schema::create('customer_addresses', function (Blueprint $table) {
       $table->integer('id')->autoIncrement();
       $table->integer('customer_id');
       $table->string('address', 255);
-      $table->string('district', 100)->nullable();
-      $table->string('city', 100)->nullable();
+      $table->integer('city_id');
+      $table->integer('district_id');
       $table->tinyInteger('is_default')->default(0);
       $table->timestamp('created_at')->useCurrent();
 
@@ -107,6 +120,14 @@ return new class extends Migration
         ->references('id')
         ->on('customer_profiles')
         ->onDelete('cascade');
+
+      $table->foreign('city_id', 'fk_customer_addresses_city')
+        ->references('id')
+        ->on('cities');
+
+      $table->foreign('district_id', 'fk_customer_addresses_district')
+        ->references('id')
+        ->on('districts');
     });
 
     Schema::create('notifications', function (Blueprint $table) {
@@ -185,6 +206,8 @@ return new class extends Migration
     Schema::dropIfExists('messages');
     Schema::dropIfExists('notifications');
     Schema::dropIfExists('customer_addresses');
+    Schema::dropIfExists('districts');
+    Schema::dropIfExists('cities');
     Schema::dropIfExists('customer_profiles');
     Schema::dropIfExists('news');
     Schema::dropIfExists('contacts');

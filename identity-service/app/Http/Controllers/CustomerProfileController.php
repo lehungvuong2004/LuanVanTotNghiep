@@ -30,7 +30,7 @@ class CustomerProfileController extends Controller
       return $this->forbiddenResponse('Chức năng này dành cho tài khoản Khách hàng.');
     }
 
-    $profile = CustomerProfile::with('addresses')
+    $profile = CustomerProfile::with('addresses.city', 'addresses.district')
       ->where('user_id', $user->id)
       ->first();
 
@@ -39,7 +39,7 @@ class CustomerProfileController extends Controller
       $profile = CustomerProfile::create(['user_id' => $user->id]);
     }
 
-    $profile->load('addresses');
+    $profile->load('addresses.city', 'addresses.district');
 
     return $this->successResponse($profile);
   }
@@ -92,7 +92,8 @@ class CustomerProfileController extends Controller
       return $this->successResponse([]);
     }
 
-    $addresses = CustomerAddress::where('customer_id', $profile->id)
+    $addresses = CustomerAddress::with(['city', 'district'])
+      ->where('customer_id', $profile->id)
       ->orderByDesc('is_default')
       ->get();
 
@@ -110,11 +111,22 @@ class CustomerProfileController extends Controller
 
     $user = $this->getAuthUser();
 
+    if ($request->has('city') && !is_numeric($request->city)) {
+      $cityModel = \App\Models\City::where('name', $request->city)->first();
+      $districtModel = $cityModel ? \App\Models\District::where('city_id', $cityModel->id)->where('name', $request->district)->first() : null;
+      if ($cityModel && $districtModel) {
+        $request->merge([
+          'city_id' => $cityModel->id,
+          'district_id' => $districtModel->id
+        ]);
+      }
+    }
+
     $fields = $request->validate([
-      'address'    => 'required|string|max:255',
-      'district'   => 'nullable|string|max:100',
-      'city'       => 'nullable|string|max:100',
-      'is_default' => 'sometimes|boolean',
+      'address'     => 'required|string|max:255',
+      'city_id'     => 'required|integer|exists:cities,id',
+      'district_id' => 'required|integer|exists:districts,id',
+      'is_default'  => 'sometimes|boolean',
     ]);
 
     $profile = CustomerProfile::firstOrCreate(['user_id' => $user->id]);
@@ -131,14 +143,14 @@ class CustomerProfileController extends Controller
     $address = CustomerAddress::create([
       'customer_id' => $profile->id,
       'address'     => $fields['address'],
-      'district'    => $fields['district'] ?? null,
-      'city'        => $fields['city'] ?? null,
+      'city_id'     => $fields['city_id'],
+      'district_id' => $fields['district_id'],
       'is_default'  => (!empty($fields['is_default']) || $count === 0) ? 1 : 0,
     ]);
 
     return response()->json([
       'message' => 'Thêm địa chỉ thành công.',
-      'data'    => $address
+      'data'    => $address->load(['city', 'district'])
     ], Response::HTTP_CREATED);
   }
 
@@ -164,17 +176,28 @@ class CustomerProfileController extends Controller
       return $this->notFoundResponse('Không tìm thấy địa chỉ.');
     }
 
+    if ($request->has('city') && !is_numeric($request->city)) {
+      $cityModel = \App\Models\City::where('name', $request->city)->first();
+      $districtModel = $cityModel ? \App\Models\District::where('city_id', $cityModel->id)->where('name', $request->district)->first() : null;
+      if ($cityModel && $districtModel) {
+        $request->merge([
+          'city_id' => $cityModel->id,
+          'district_id' => $districtModel->id
+        ]);
+      }
+    }
+
     $fields = $request->validate([
-      'address'  => 'sometimes|required|string|max:255',
-      'district' => 'sometimes|nullable|string|max:100',
-      'city'     => 'sometimes|nullable|string|max:100',
+      'address'     => 'sometimes|required|string|max:255',
+      'city_id'     => 'sometimes|required|integer|exists:cities,id',
+      'district_id' => 'sometimes|required|integer|exists:districts,id',
     ]);
 
     $address->update($fields);
 
     return response()->json([
       'message' => 'Cập nhật địa chỉ thành công.',
-      'data'    => $address
+      'data'    => $address->load(['city', 'district'])
     ], Response::HTTP_OK);
   }
 

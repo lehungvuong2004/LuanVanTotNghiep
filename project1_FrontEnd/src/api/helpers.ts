@@ -218,3 +218,21 @@ export const bulkMyAvailability = async (data: BulkAvailabilityParams): Promise<
   const response = await axiosInstance.post<BulkAvailabilityResponse>("/providers/helper/availability/bulk", data);
   return response.data;
 };
+
+export interface DistrictData {
+  id: number;
+  city_id: number;
+  name: string;
+}
+
+export interface CityData {
+  id: number;
+  name: string;
+  districts?: DistrictData[];
+}
+
+export const getRegionsPublic = async (): Promise<{ data: CityData[] }> => {
+  const response = await axiosInstance.get<{ data: CityData[] }>("/providers/regions");
+  return response.data;
+};
+

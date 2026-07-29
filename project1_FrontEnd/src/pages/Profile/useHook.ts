@@ -25,23 +25,14 @@ import {
   getHelperWorkingAreasApi,
   addHelperWorkingAreaApi,
   removeHelperWorkingAreaApi,
-  submitHelperVerificationApi
+  submitHelperVerificationApi,
 } from "../../api/profileApi/profile";
 
-import type {
-  UserProfile,
-  CustomerProfile,
-  CustomerAddress,
-  HelperProfile
-} from "../../api/profileApi/profile";
+import type { UserProfile, CustomerProfile, CustomerAddress, HelperProfile } from "../../api/profileApi/profile";
 
 import { getCategoriesApi, type ServiceCategory } from "../../api/servicesApi/services";
 
-import {
-  getProfileInfoSchema,
-  getProfilePasswordSchema,
-  getProfileAddressSchema
-} from "../../api/profileApi/validation";
+import { getProfileInfoSchema, getProfilePasswordSchema, getProfileAddressSchema } from "../../api/profileApi/validation";
 import { ROLES } from "../../constants/roles";
 
 export const useProfile = () => {
@@ -61,8 +52,6 @@ export const useProfile = () => {
   const [helperSkills, setHelperSkills] = useState<any[]>([]);
   const [helperWorkingAreas, setHelperWorkingAreas] = useState<any[]>([]);
   const [allCategories, setAllCategories] = useState<ServiceCategory[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Address dialog/modal state
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
@@ -74,8 +63,6 @@ export const useProfile = () => {
   // Upload user avatar file
   const handleAvatarUpload = async (file: File) => {
     setAvatarUploading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       const res = await uploadAvatarApi(file);
       profileForm.setFieldValue("avatar", res.url);
@@ -85,10 +72,10 @@ export const useProfile = () => {
         localStorage.setItem("user", JSON.stringify(updated));
         dispatch(updateUser(updated));
       }
-      setSuccessMessage(t("Tải ảnh đại diện lên thành công."));
+      showToast("success", t("Thành công"), t("Tải ảnh đại diện lên thành công."));
     } catch (error: any) {
       console.error("Avatar upload failed:", error);
-      setErrorMessage(error?.response?.data?.message || t("Tải ảnh lên thất bại. Vui lòng thử lại."));
+      showToast("error", t("Thất bại"), error?.response?.data?.message || t("Tải ảnh lên thất bại. Vui lòng thử lại."));
     } finally {
       setAvatarUploading(false);
     }
@@ -99,7 +86,7 @@ export const useProfile = () => {
     try {
       const res = await getCustomerAddressesApi();
       setAddresses(res.data);
-    } catch {
+    } catch (err) {
       console.error("Failed to fetch addresses:", err);
     }
   };
@@ -108,7 +95,7 @@ export const useProfile = () => {
     try {
       const res = await getHelperSkillsApi();
       setHelperSkills(res.data || []);
-    } catch {
+    } catch (err) {
       console.error("Failed to fetch helper skills:", err);
     }
   };
@@ -117,7 +104,7 @@ export const useProfile = () => {
     try {
       const res = await getHelperWorkingAreasApi();
       setHelperWorkingAreas(res.data || []);
-    } catch {
+    } catch (err) {
       console.error("Failed to fetch helper working areas:", err);
     }
   };
@@ -165,7 +152,7 @@ export const useProfile = () => {
       if (err?.response?.status === 401) {
         logout();
       } else {
-        setErrorMessage(t("Không thể tải thông tin profile. Vui lòng thử lại sau."));
+        showToast("error", t("Thất bại"), t("Không thể tải thông tin profile. Vui lòng thử lại sau."));
       }
     } finally {
       setLoading(false);
@@ -176,42 +163,29 @@ export const useProfile = () => {
     fetchAllData();
   }, []);
 
-  // Clear messages after a short time
-  useEffect(() => {
-    if (successMessage || errorMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(null);
-        setErrorMessage(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage, errorMessage]);
-
   // Formik for Personal Information
   const profileForm = useFormik({
     initialValues: {
       full_name: userProfile?.full_name || "",
       phone: userProfile?.phone || "",
       avatar: userProfile?.avatar || "",
-      gender: userProfile?.role_id === 3 ? (helperProfile?.gender || "male") : (customerProfile?.gender || "male"),
-      birthday: userProfile?.role_id === 3 ? (helperProfile?.birthday || "") : (customerProfile?.birthday || ""),
+      gender: userProfile?.role_id === 3 ? helperProfile?.gender || "male" : customerProfile?.gender || "male",
+      birthday: userProfile?.role_id === 3 ? helperProfile?.birthday || "" : customerProfile?.birthday || "",
       note: customerProfile?.note || "",
       bio: helperProfile?.bio || "",
       experience_year: helperProfile?.experience_year ?? 0,
-      address: helperProfile?.address || ""
+      address: helperProfile?.address || "",
     },
     enableReinitialize: true,
     validationSchema: getProfileInfoSchema(t),
     onSubmit: async (values) => {
       setUpdating(true);
-      setErrorMessage(null);
-      setSuccessMessage(null);
       try {
         // 1. Update user account info
         const userUpdateRes = await updateProfileApi({
           full_name: values.full_name,
           phone: values.phone || undefined,
-          avatar: values.avatar || undefined
+          avatar: values.avatar || undefined,
         });
 
         // Update local storage representation of the user
@@ -225,7 +199,7 @@ export const useProfile = () => {
           await updateCustomerProfileApi({
             gender: values.gender,
             birthday: values.birthday || undefined,
-            note: values.note || undefined
+            note: values.note || undefined,
           });
         }
 
@@ -236,40 +210,36 @@ export const useProfile = () => {
             experience_year: Number(values.experience_year),
             gender: values.gender,
             birthday: values.birthday || undefined,
-            address: values.address
+            address: values.address,
           });
         }
 
         await fetchAllData();
         const msg = t("Cập nhật thông tin cá nhân thành công.");
-        setSuccessMessage(msg);
         showToast("success", t("Thành công"), msg);
       } catch (error: any) {
         console.error("Update profile failed:", error);
         const msg = error?.response?.data?.message || t("Cập nhật thông tin thất bại. Vui lòng thử lại.");
-        setErrorMessage(msg);
         showToast("error", t("Thất bại"), msg);
       } finally {
         setUpdating(false);
       }
-    }
+    },
   });
 
   const handleAddSkill = async (serviceId: number) => {
     if (helperSkills.length >= 3) {
-      setErrorMessage(t("Bạn chỉ được chọn tối đa 3 kỹ năng."));
+      showToast("warning", t("Cảnh báo"), t("Bạn chỉ được chọn tối đa 3 kỹ năng."));
       return;
     }
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       await addHelperSkillApi(serviceId);
-      setSuccessMessage(t("Thêm kỹ năng thành công."));
+      showToast("success", t("Thành công"), t("Thêm kỹ năng thành công."));
       await fetchHelperSkills();
       await fetchAllData();
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || t("Thêm kỹ năng thất bại."));
+      showToast("error", t("Thất bại"), err?.response?.data?.message || t("Thêm kỹ năng thất bại."));
     } finally {
       setUpdating(false);
     }
@@ -278,15 +248,13 @@ export const useProfile = () => {
   const handleRemoveSkill = async (serviceId: number) => {
     if (!window.confirm(t("Bạn có chắc muốn xóa kỹ năng này không?"))) return;
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       await removeHelperSkillApi(serviceId);
-      setSuccessMessage(t("Xóa kỹ năng thành công."));
+      showToast("success", t("Thành công"), t("Xóa kỹ năng thành công."));
       await fetchHelperSkills();
       await fetchAllData();
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || t("Xóa kỹ năng thất bại."));
+      showToast("error", t("Thất bại"), err?.response?.data?.message || t("Xóa kỹ năng thất bại."));
     } finally {
       setUpdating(false);
     }
@@ -294,18 +262,16 @@ export const useProfile = () => {
 
   const handleAddWorkingArea = async (district: string, city: string) => {
     if (!district || !city) {
-      setErrorMessage(t("Vui lòng điền đầy đủ Quận/Huyện và Tỉnh/Thành phố."));
+      showToast("warning", t("Cảnh báo"), t("Vui lòng điền đầy đủ Quận/Huyện và Tỉnh/Thành phố."));
       return;
     }
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       await addHelperWorkingAreaApi({ district, city });
-      setSuccessMessage(t("Thêm khu vực hoạt động thành công."));
+      showToast("success", t("Thành công"), t("Thêm khu vực hoạt động thành công."));
       await fetchHelperWorkingAreas();
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || t("Thêm khu vực hoạt động thất bại."));
+      showToast("error", t("Thất bại"), err?.response?.data?.message || t("Thêm khu vực hoạt động thất bại."));
     } finally {
       setUpdating(false);
     }
@@ -314,14 +280,12 @@ export const useProfile = () => {
   const handleRemoveWorkingArea = async (id: number) => {
     if (!window.confirm(t("Bạn có chắc muốn xóa khu vực hoạt động này không?"))) return;
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       await removeHelperWorkingAreaApi(id);
-      setSuccessMessage(t("Xóa khu vực hoạt động thành công."));
+      showToast("success", t("Thành công"), t("Xóa khu vực hoạt động thành công."));
       await fetchHelperWorkingAreas();
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || t("Xóa khu vực hoạt động thất bại."));
+      showToast("error", t("Thất bại"), err?.response?.data?.message || t("Xóa khu vực hoạt động thất bại."));
     } finally {
       setUpdating(false);
     }
@@ -332,31 +296,27 @@ export const useProfile = () => {
     initialValues: {
       currentPassword: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
     },
     validationSchema: getProfilePasswordSchema(t),
     onSubmit: async (values, { resetForm }) => {
       setUpdating(true);
-      setErrorMessage(null);
-      setSuccessMessage(null);
       try {
         await updateProfileApi({
           current_password: values.currentPassword,
-          password: values.password
+          password: values.password,
         });
         const msg = t("Thay đổi mật khẩu thành công.");
-        setSuccessMessage(msg);
         showToast("success", t("Thành công"), msg);
         resetForm();
       } catch (error: any) {
         console.error("Change password failed:", error);
         const msg = error?.response?.data?.message || t("Đổi mật khẩu thất bại. Vui lòng thử lại.");
-        setErrorMessage(msg);
         showToast("error", t("Thất bại"), msg);
       } finally {
         setUpdating(false);
       }
-    }
+    },
   });
 
   // Formik for Add/Edit Address
@@ -365,14 +325,12 @@ export const useProfile = () => {
       address: "",
       district: "",
       city: "",
-      is_default: false
+      is_default: false,
     },
     enableReinitialize: true,
     validationSchema: getProfileAddressSchema(t),
     onSubmit: async (values, { resetForm }) => {
       setUpdating(true);
-      setErrorMessage(null);
-      setSuccessMessage(null);
       try {
         const isDuplicate = addresses.some((item) => {
           if (editingAddress && item.id === editingAddress.id) return false;
@@ -385,7 +343,6 @@ export const useProfile = () => {
 
         if (isDuplicate) {
           const msg = t("Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn.");
-          setErrorMessage(msg);
           showToast("warning", t("Cảnh báo"), msg);
           setUpdating(false);
           return;
@@ -396,7 +353,7 @@ export const useProfile = () => {
           await updateCustomerAddressApi(editingAddress.id, {
             address: values.address,
             district: values.district,
-            city: values.city
+            city: values.city,
           });
 
           // If is_default changed to true, trigger the default patch
@@ -405,7 +362,6 @@ export const useProfile = () => {
           }
 
           const msg = t("Cập nhật địa chỉ thành công.");
-          setSuccessMessage(msg);
           showToast("success", t("Thành công"), msg);
         } else {
           // Create new address
@@ -413,10 +369,9 @@ export const useProfile = () => {
             address: values.address,
             district: values.district,
             city: values.city,
-            is_default: values.is_default
+            is_default: values.is_default,
           });
           const msg = t("Thêm địa chỉ mới thành công.");
-          setSuccessMessage(msg);
           showToast("success", t("Thành công"), msg);
         }
 
@@ -427,12 +382,11 @@ export const useProfile = () => {
       } catch (error: any) {
         console.error("Address operation failed:", error);
         const msg = error?.response?.data?.message || t("Lỗi thao tác địa chỉ. Vui lòng thử lại.");
-        setErrorMessage(msg);
         showToast("error", t("Thất bại"), msg);
       } finally {
         setUpdating(false);
       }
-    }
+    },
   });
 
   // Open address modal in edit mode
@@ -442,7 +396,7 @@ export const useProfile = () => {
       address: addressItem.address,
       district: addressItem.district || "",
       city: addressItem.city || "",
-      is_default: addressItem.is_default === 1
+      is_default: addressItem.is_default === 1,
     });
     setIsAddressModalOpen(true);
   };
@@ -458,18 +412,14 @@ export const useProfile = () => {
   const handleDeleteAddress = async (id: number) => {
     if (!window.confirm(t("Bạn có chắc chắn muốn xóa địa chỉ này không?"))) return;
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       await deleteCustomerAddressApi(id);
       const msg = t("Xóa địa chỉ thành công.");
-      setSuccessMessage(msg);
       showToast("success", t("Thành công"), msg);
       await fetchAddresses();
     } catch (err: any) {
       console.error("Failed to delete address:", err);
       const msg = err?.response?.data?.message || t("Xóa địa chỉ thất bại.");
-      setErrorMessage(msg);
       showToast("error", t("Thất bại"), msg);
     } finally {
       setUpdating(false);
@@ -479,18 +429,14 @@ export const useProfile = () => {
   // Set default address
   const handleSetDefaultAddress = async (id: number) => {
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       await setDefaultCustomerAddressApi(id);
       const msg = t("Đã thay đổi địa chỉ mặc định.");
-      setSuccessMessage(msg);
       showToast("success", t("Thành công"), msg);
       await fetchAddresses();
     } catch (err: any) {
       console.error("Failed to set default address:", err);
       const msg = err?.response?.data?.message || t("Đặt địa chỉ mặc định thất bại.");
-      setErrorMessage(msg);
       showToast("error", t("Thất bại"), msg);
     } finally {
       setUpdating(false);
@@ -499,18 +445,14 @@ export const useProfile = () => {
 
   const handleSubmitVerification = async () => {
     setUpdating(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
     try {
       const res = await submitHelperVerificationApi();
       const msg = res.message || t("Nộp hồ sơ xét duyệt thành công.");
-      setSuccessMessage(msg);
       showToast("success", t("Thành công"), msg);
       await fetchAllData();
     } catch (err: any) {
       console.error("Failed to submit verification:", err);
       const msg = err?.response?.data?.message || t("Nộp hồ sơ xét duyệt thất bại.");
-      setErrorMessage(msg);
       showToast("error", t("Thất bại"), msg);
     } finally {
       setUpdating(false);
@@ -530,8 +472,6 @@ export const useProfile = () => {
     helperSkills,
     helperWorkingAreas,
     allCategories,
-    errorMessage,
-    successMessage,
     profileForm,
     passwordForm,
     addressForm,
@@ -548,6 +488,6 @@ export const useProfile = () => {
     handleRemoveSkill,
     handleAddWorkingArea,
     handleRemoveWorkingArea,
-    handleSubmitVerification
+    handleSubmitVerification,
   };
 };

@@ -17,6 +17,7 @@ Route::prefix('providers')->group(function () {
   Route::get('helpers/{id}',     [HelperController::class, 'publicShow']);
   Route::get('helpers/{id}/status-check', [HelperController::class, 'profileStatusCheck']);
   Route::get('helper-user-ids',  [HelperController::class, 'getHelperUserIds']);
+  Route::get('regions',          [HelperController::class, 'getRegions']);
 
   // Internal — được gọi từ order-service
   Route::post('internal/update-helper-rating', [HelperController::class, 'updateHelperRating']);

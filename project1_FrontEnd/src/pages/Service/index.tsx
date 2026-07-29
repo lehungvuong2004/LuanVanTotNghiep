@@ -9,6 +9,7 @@ import { formatNumberVI } from "../../utils";
 import { Pagination } from "../../components/Pagination";
 import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
 import { PriceFilter } from "../../components/PriceFilter";
+import type { CityData } from "../../api/helpers";
 
 // ─── 1. Sidebar Filter ──────────────────────────────────────────────────────
 interface SidebarFilterProps {
@@ -17,9 +18,8 @@ interface SidebarFilterProps {
   onFilterChange: (patch: Partial<ServiceFilterParams>) => void;
   onReset: () => void;
   categories: ServiceCategory[];
+  regions: CityData[];
 }
-const CITIES = ["TP.HCM"];
-const DISTRICTS_HCMC = ["Tất cả", "Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
 const RATINGS = [
   { value: 0, label: "Tất cả" },
   { value: 4.5, label: "4.5+" },
@@ -82,8 +82,15 @@ const CustomSelect = ({ value, onChange, options, placeholder = "" }: CustomSele
   );
 };
 
-const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }: SidebarFilterProps) => {
+const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, regions }: SidebarFilterProps) => {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
+
+  const citiesList = regions.length > 0 ? regions.map((r) => r.name) : ["TP.HCM"];
+  const selectedCityName = filterParams.city ?? "TP.HCM";
+  const matchedCity = regions.find((r) => r.name === selectedCityName);
+  const districtsList = matchedCity?.districts
+    ? ["Tất cả", ...matchedCity.districts.map((d) => d.name)]
+    : ["Tất cả", "Quận 1", "Quận 3", "Quận 10", "Bình Thạnh", "Phú Nhuận"];
 
   const handleDistrictChange = (district: string) => {
     onFilterChange({ district: district === "Tất cả" ? undefined : district });
@@ -157,13 +164,13 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories }:
         {/* Giao diện lọc Thành phố */}
         <div>
           <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Thành phố")}</h4>
-          <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={CITIES.map((c) => ({ value: c, label: t(c) }))} />
+          <CustomSelect value={filterParams.city ?? "TP.HCM"} onChange={handleCityChange} options={citiesList.map((c) => ({ value: c, label: t(c) }))} />
         </div>
 
         {/* Quận / Huyện */}
         <div>
           <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-3">{t("Quận / Huyện")}</h4>
-          <CustomSelect value={filterParams.district ?? "Tất cả"} onChange={handleDistrictChange} options={DISTRICTS_HCMC.map((d) => ({ value: d, label: t(d) }))} />
+          <CustomSelect value={filterParams.district ?? "Tất cả"} onChange={handleDistrictChange} options={districtsList.map((d) => ({ value: d, label: t(d) }))} />
         </div>
 
         {/* Danh mục dịch vụ */}
@@ -485,7 +492,7 @@ const FeaturedHelpers = ({ t, helpers, loading, totalHelpers, helperPage, helper
 export const Service = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { services, helpers, categories, loading, helperLoading, totalHelpers, helperPage, helperLastPage, filterParams, updateHelperFilter, goToHelperPage, sortBy, setSortBy } = useService();
+  const { services, helpers, categories, loading, helperLoading, totalHelpers, helperPage, helperLastPage, filterParams, updateHelperFilter, goToHelperPage, sortBy, setSortBy, regions } = useService();
 
   const handleReset = () => {
     updateHelperFilter({
@@ -504,7 +511,7 @@ export const Service = () => {
     <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 gap-6 pt-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
         <aside className="lg:col-span-3 lg:sticky lg:top-24 lg:h-fit lg:self-start z-10">
-          <SidebarFilter t={t} filterParams={filterParams} onFilterChange={updateHelperFilter} onReset={handleReset} categories={categories} />
+          <SidebarFilter t={t} filterParams={filterParams} onFilterChange={updateHelperFilter} onReset={handleReset} categories={categories} regions={regions} />
         </aside>
         <div className="lg:col-span-9 flex flex-col gap-6">
           <ServiceList t={t} services={services} loading={loading} sortBy={sortBy} onSortChange={setSortBy} onNavigateService={(id) => navigate(`/dich-vu/${id}`)} />

@@ -230,9 +230,11 @@ class AuthController extends Controller
     $request->validate([
       'email'    => 'required|email|exists:users,email',
       'otp'      => 'required|string|size:6',
-      'password' => 'required|string|min:6|confirmed',
+      'password' => ['required', 'string', 'min:6', 'max:32', 'confirmed', new StrongPassword()],
     ], [
+      'password.required'  => 'Vui lòng nhập mật khẩu mới.',
       'password.min'       => 'Mật khẩu phải có ít nhất 6 ký tự.',
+      'password.max'       => 'Mật khẩu không được vượt quá 32 ký tự.',
       'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
     ]);
 

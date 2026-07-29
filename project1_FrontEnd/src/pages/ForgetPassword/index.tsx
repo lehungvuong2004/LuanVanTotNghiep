@@ -229,17 +229,21 @@ export const ForgetPassword = () => {
               <Icon icon={showConfirmPassword ? "heroicons-outline:eye-off" : "heroicons-outline:eye"} className="text-xl" />
             </button>
           </div>
-          {formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword && <div className="text-red-500 text-sm mt-1">{formikStep3.errors.confirmPassword}</div>}
+          {formikStep3.touched.confirmPassword && formikStep3.errors.confirmPassword && <div className="text-red-500 text-xs mt-1">{formikStep3.errors.confirmPassword}</div>}
         </div>
       </div>
 
       <div className="bg-[#EEF2FF] dark:bg-indigo-500/10 rounded-lg p-4 mb-6 border border-transparent dark:border-indigo-500/20">
         <div className="flex items-start gap-2 text-sm text-indigo-900 dark:text-indigo-300 mb-2">
           <Icon icon="heroicons-outline:information-circle" className="text-lg mt-0.5 shrink-0" />
-          <span className="font-medium">{t("Mật khẩu mới phải có ít nhất:")}</span>
+          <span className="font-medium">{t("Mật khẩu mới phải đáp ứng các yêu cầu:")}</span>
         </div>
         <ul className="text-sm text-indigo-800 dark:text-indigo-300 list-disc list-inside space-y-1 ml-6">
-          <li>{t("6 ký tự trở lên")}</li>
+          <li>{t("Từ 6 đến 32 ký tự")}</li>
+          <li>{t("Không chứa khoảng trắng")}</li>
+          <li>{t("Ít nhất 1 ký tự in hoa")}</li>
+          <li>{t("Ít nhất 1 ký tự in thường")}</li>
+          <li>{t("Ít nhất 1 ký tự số")}</li>
         </ul>
       </div>
 

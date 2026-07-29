@@ -24,16 +24,37 @@ return new class extends Migration
       $table->integer('total_reviews')->default(0);
     });
 
+    Schema::create('cities', function (Blueprint $table) {
+      $table->integer('id')->autoIncrement();
+      $table->string('name', 100)->unique();
+    });
+
+    Schema::create('districts', function (Blueprint $table) {
+      $table->integer('id')->autoIncrement();
+      $table->integer('city_id');
+      $table->string('name', 100);
+      $table->unique(['city_id', 'name'], 'uq_prov_city_district');
+      $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
+    });
+
     Schema::create('helper_working_areas', function (Blueprint $table) {
       $table->integer('id')->autoIncrement();
       $table->integer('helper_id');
-      $table->string('district', 100);
-      $table->string('city', 100);
+      $table->integer('city_id');
+      $table->integer('district_id');
 
       $table->foreign('helper_id', 'fk_helper_working_areas_helper')
         ->references('id')
         ->on('helper_profiles')
         ->onDelete('cascade');
+
+      $table->foreign('city_id', 'fk_helper_working_areas_city')
+        ->references('id')
+        ->on('cities');
+
+      $table->foreign('district_id', 'fk_helper_working_areas_district')
+        ->references('id')
+        ->on('districts');
     });
 
     Schema::create('helper_verifications', function (Blueprint $table) {
@@ -134,6 +155,8 @@ return new class extends Migration
     Schema::dropIfExists('service_categories');
     Schema::dropIfExists('helper_verifications');
     Schema::dropIfExists('helper_working_areas');
+    Schema::dropIfExists('districts');
+    Schema::dropIfExists('cities');
     Schema::dropIfExists('helper_profiles');
   }
 };

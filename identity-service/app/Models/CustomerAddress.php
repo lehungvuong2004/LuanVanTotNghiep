@@ -11,8 +11,8 @@ class CustomerAddress extends Model
   protected $fillable = [
     'customer_id',
     'address',
-    'district',
-    'city',
+    'city_id',
+    'district_id',
     'is_default',
   ];
 
@@ -21,5 +21,15 @@ class CustomerAddress extends Model
   public function customerProfile()
   {
     return $this->belongsTo(CustomerProfile::class, 'customer_id');
+  }
+
+  public function city()
+  {
+    return $this->belongsTo(City::class, 'city_id');
+  }
+
+  public function district()
+  {
+    return $this->belongsTo(District::class, 'district_id');
   }
 }

@@ -9,6 +9,8 @@ use App\Models\Banner;
 use App\Models\ActivityLog;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\City;
+use App\Models\District;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +25,12 @@ class DatabaseSeeder extends Seeder
    */
   public function run(): void
   {
+    // Seed Roles, Permissions, and their relationships FIRST
+    $this->call([
+      RoleSeeder::class,
+      PermissionSeeder::class,
+      RolePermissionSeeder::class,
+    ]);
 
     $adminPass = env('SEED_ADMIN_PASSWORD');
     $customerPass = env('SEED_CUSTOMER_PASSWORD');
@@ -215,34 +223,69 @@ class DatabaseSeeder extends Seeder
       ['gender' => 'female', 'birthday' => '1998-05-12', 'note' => 'Thuê dọn dẹp định kỳ hàng tuần.']
     );
 
+    // Seed cities and districts
+    $cityHcm = City::updateOrCreate(['name' => 'TP.HCM']);
+    $districtsData = [
+      'Quận 1',
+      'Quận 3',
+      'Quận 4',
+      'Quận 5',
+      'Quận 6',
+      'Quận 7',
+      'Quận 8',
+      'Quận 10',
+      'Quận 11',
+      'Quận 12',
+      'Bình Thạnh',
+      'Phú Nhuận',
+      'Gò Vấp',
+      'Tân Bình',
+      'Tân Phú',
+      'Bình Tân',
+      'Thủ Đức',
+      'Bình Chánh',
+      'Hóc Môn',
+      'Nhà Bè',
+      'Củ Chi',
+      'Cần Giờ',
+    ];
+    $districtsMap = [];
+    foreach ($districtsData as $dName) {
+      $d = District::updateOrCreate([
+        'city_id' => $cityHcm->id,
+        'name' => $dName
+      ]);
+      $districtsMap[$dName] = $d->id;
+    }
+
     // Customer Addresses
     CustomerAddress::updateOrCreate(
       ['customer_id' => $cp1->id, 'address' => '123 Nguyễn Trãi, Phường Bến Thành'],
-      ['district' => 'Quận 1', 'city' => 'TP.HCM', 'is_default' => 1]
+      ['city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 1'], 'is_default' => 1]
     );
     CustomerAddress::updateOrCreate(
       ['customer_id' => $cp1->id, 'address' => '456 Lê Văn Sỹ, Phường 14'],
-      ['district' => 'Quận 3', 'city' => 'TP.HCM', 'is_default' => 0]
+      ['city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 3'], 'is_default' => 0]
     );
 
     CustomerAddress::updateOrCreate(
       ['customer_id' => $cp2->id, 'address' => '789 Cách Mạng Tháng 8, Phường 5'],
-      ['district' => 'Quận 10', 'city' => 'TP.HCM', 'is_default' => 1]
+      ['city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 10'], 'is_default' => 1]
     );
 
     CustomerAddress::updateOrCreate(
       ['customer_id' => $cp3->id, 'address' => '55 Phan Đăng Lưu, Phường 6'],
-      ['district' => 'Bình Thạnh', 'city' => 'TP.HCM', 'is_default' => 1]
+      ['city_id' => $cityHcm->id, 'district_id' => $districtsMap['Bình Thạnh'], 'is_default' => 1]
     );
 
     CustomerAddress::updateOrCreate(
       ['customer_id' => $cp4->id, 'address' => '101 Hoàng Văn Thụ, Phường 8'],
-      ['district' => 'Phú Nhuận', 'city' => 'TP.HCM', 'is_default' => 1]
+      ['city_id' => $cityHcm->id, 'district_id' => $districtsMap['Phú Nhuận'], 'is_default' => 1]
     );
 
     CustomerAddress::updateOrCreate(
       ['customer_id' => $cp5->id, 'address' => '200 Lý Thường Kiệt, Phường 14'],
-      ['district' => 'Quận 10', 'city' => 'TP.HCM', 'is_default' => 1]
+      ['city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 10'], 'is_default' => 1]
     );
 
     // ================================================================
@@ -297,13 +340,6 @@ class DatabaseSeeder extends Seeder
       ['user_id' => 14, 'action' => 'job_post_created'],
       ['description' => 'Nguyễn Văn Nam đăng bài tuyển người chăm sóc bà cụ.']
     );
-
-    // Seed Roles, Permissions, and their relationships
-    $this->call([
-      RoleSeeder::class,
-      PermissionSeeder::class,
-      RolePermissionSeeder::class,
-    ]);
 
     // Seed News Articles
     $this->call(NewsSeeder::class);

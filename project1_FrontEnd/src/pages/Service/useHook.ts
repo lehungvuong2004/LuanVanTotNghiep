@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { getHelpersPublic, type HelperProfile } from "../../api/helpers";
+import { getHelpersPublic, getRegionsPublic, type HelperProfile, type CityData } from "../../api/helpers";
 import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/servicesApi/services";
 
 // Shape dùng trong UI cho Service Card
@@ -80,7 +80,10 @@ function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
 
   const area =
     rawAreas.length > 0
-      ? rawAreas.map((a: any) => trans(a.district)).filter(Boolean).join(", ")
+      ? rawAreas.map((a: any) => {
+          const distName = a.district?.name ?? a.district;
+          return trans(distName);
+        }).filter(Boolean).join(", ")
       : trans("TP.HCM");
 
   return {
@@ -125,7 +128,21 @@ export const useService = () => {
   const [totalHelpers, setTotalHelpers] = useState(0);
   const [helperPage, setHelperPage] = useState(1);
   const [helperLastPage, setHelperLastPage] = useState(1);
+  const [regions, setRegions] = useState<CityData[]>([]);
   const [sortBy, setSortBy] = useState<string>("popular");
+
+  // Fetch regions từ API
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const res = await getRegionsPublic();
+        setRegions(res?.data ?? []);
+      } catch (err) {
+        console.error("[useService] fetchRegions failed:", err);
+      }
+    };
+    fetchRegions();
+  }, []);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -327,5 +344,6 @@ export const useService = () => {
     updateHelperFilter,
     goToHelperPage,
     sortBy,
-    setSortBy };
+    setSortBy,
+    regions };
 };

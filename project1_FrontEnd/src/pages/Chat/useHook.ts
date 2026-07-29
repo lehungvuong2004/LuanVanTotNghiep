@@ -26,8 +26,8 @@ export const useChat = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const pollIntervalRef = useRef<any>(null);
+  const messagesEndRef = useRef(null);
+  const pollIntervalRef = useRef(null);
 
   const filteredConversations = conversations.filter((c) =>
     c.partner.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,7 +49,7 @@ export const useChat = () => {
     try {
       const res = await getConversations();
       setConversations(res.data);
-    } catch {
+    } catch (err) {
       console.error("Failed to load conversations:", err);
     } finally {
       if (showLoading) setLoadingConversations(false);
@@ -62,7 +62,7 @@ export const useChat = () => {
       const res = await getChatHistory(partnerNumId);
       setMessages(res.data);
       await markChatAsRead(partnerNumId);
-    } catch {
+    } catch (err) {
       console.error("Failed to load chat history:", err);
     } finally {
       if (showLoading) setLoadingHistory(false);
@@ -127,7 +127,7 @@ export const useChat = () => {
       });
       fetchChatHistory(Number(partnerId), false);
       fetchConversations(false);
-    } catch {
+    } catch (err) {
       console.error("Failed to send message:", err);
     } finally {
       setSending(false);
@@ -141,7 +141,7 @@ export const useChat = () => {
       await deleteMessage(msgId);
       setMessages((prev) => prev.filter((msg) => msg.id !== msgId));
       fetchConversations(false);
-    } catch {
+    } catch (err) {
       console.error("Failed to delete message:", err);
     }
   };

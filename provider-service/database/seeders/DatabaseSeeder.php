@@ -11,6 +11,8 @@ use App\Models\HelperVerification;
 use App\Models\HelperSkill;
 use App\Models\HelperAvailability;
 use App\Models\Favorite;
+use App\Models\City;
+use App\Models\District;
 
 class DatabaseSeeder extends Seeder
 {
@@ -175,26 +177,61 @@ class DatabaseSeeder extends Seeder
       ]
     );
 
+    // Seed cities and districts
+    $cityHcm = City::updateOrCreate(['name' => 'TP.HCM']);
+    $districtsData = [
+      'Quận 1',
+      'Quận 3',
+      'Quận 4',
+      'Quận 5',
+      'Quận 6',
+      'Quận 7',
+      'Quận 8',
+      'Quận 10',
+      'Quận 11',
+      'Quận 12',
+      'Bình Thạnh',
+      'Phú Nhuận',
+      'Gò Vấp',
+      'Tân Bình',
+      'Tân Phú',
+      'Bình Tân',
+      'Thủ Đức',
+      'Bình Chánh',
+      'Hóc Môn',
+      'Nhà Bè',
+      'Củ Chi',
+      'Cần Giờ',
+    ];
+    $districtsMap = [];
+    foreach ($districtsData as $dName) {
+      $d = District::updateOrCreate([
+        'city_id' => $cityHcm->id,
+        'name' => $dName
+      ]);
+      $districtsMap[$dName] = $d->id;
+    }
+
     // 4. Seed Helper Working Areas (TP.HCM districts)
     // helper1 — Quận 1, Quận 3
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'district' => 'Quận 1',   'city' => 'TP.HCM'], []);
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'district' => 'Quận 3',   'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 1']], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper1->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 3']], []);
 
     // helper2 — Quận 3, Bình Thạnh
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'district' => 'Quận 3',   'city' => 'TP.HCM'], []);
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'district' => 'Bình Thạnh', 'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 3']], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper2->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Bình Thạnh']], []);
 
     // helper3 — Quận 10, Phú Nhuận
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'district' => 'Quận 10',  'city' => 'TP.HCM'], []);
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'district' => 'Phú Nhuận', 'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 10']], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper3->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Phú Nhuận']], []);
 
     // helper4 — Phú Nhuận, Quận 1
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'district' => 'Phú Nhuận', 'city' => 'TP.HCM'], []);
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'district' => 'Quận 1',   'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Phú Nhuận']], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper4->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 1']], []);
 
     // helper5 — Bình Thạnh, Quận 10
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'district' => 'Bình Thạnh', 'city' => 'TP.HCM'], []);
-    HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'district' => 'Quận 10',  'city' => 'TP.HCM'], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Bình Thạnh']], []);
+    HelperWorkingArea::updateOrCreate(['helper_id' => $helper5->id, 'city_id' => $cityHcm->id, 'district_id' => $districtsMap['Quận 10']], []);
 
     // 5. Seed Helper Verifications (all approved)
     HelperVerification::updateOrCreate(

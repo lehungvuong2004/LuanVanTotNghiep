@@ -63,7 +63,14 @@ export const getForgotPasswordStep2Schema = (t: any) =>
 
 export const getForgotPasswordStep3Schema = (t: any) =>
   Yup.object({
-    password: Yup.string().required(t("Vui lòng nhập mật khẩu mới")).min(6, t("Mật khẩu phải có ít nhất 6 ký tự")),
+    password: Yup.string()
+      .required(t("Vui lòng nhập mật khẩu mới"))
+      .min(6, t("Mật khẩu phải có ít nhất 6 ký tự"))
+      .max(32, t("Mật khẩu không được vượt quá 32 ký tự"))
+      .matches(/^\S*$/, t("Mật khẩu không được chứa khoảng trắng"))
+      .matches(/[A-Z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in hoa"))
+      .matches(/[a-z]/, t("Mật khẩu phải chứa ít nhất 1 ký tự in thường"))
+      .matches(/[0-9]/, t("Mật khẩu phải chứa ít nhất 1 ký tự số")),
     confirmPassword: Yup.string()
       .required(t("Vui lòng xác nhận mật khẩu"))
       .oneOf([Yup.ref("password")], t("Mật khẩu xác nhận không khớp")),

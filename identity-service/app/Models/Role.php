@@ -8,6 +8,8 @@ class Role extends Model
 {
   protected $fillable = ['name', 'description'];
 
+  public $timestamps = false;
+
   protected $appends = ['display_name'];
 
   public function getDisplayNameAttribute()

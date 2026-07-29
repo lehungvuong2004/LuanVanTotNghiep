@@ -10,8 +10,8 @@ class HelperWorkingArea extends Model
 
     protected $fillable = [
         'helper_id',
-        'district',
-        'city',
+        'city_id',
+        'district_id',
     ];
 
     public $timestamps = false;
@@ -19,5 +19,15 @@ class HelperWorkingArea extends Model
     public function helperProfile()
     {
         return $this->belongsTo(HelperProfile::class, 'helper_id');
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id');
     }
 }
