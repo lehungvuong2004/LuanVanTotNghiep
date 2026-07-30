@@ -73,6 +73,9 @@ class JobPostController extends Controller
         }
 
         $query = JobPost::with(['services'])
+                        ->withCount(['applications as active_applications_count' => function ($q) {
+                            $q->whereIn('status', ['pending', 'selected', 'confirmed']);
+                        }])
                         ->where('customer_id', $request->authUser['id']);
 
         if ($request->filled('status')) $query->where('status', $request->query('status'));
@@ -196,6 +199,10 @@ class JobPostController extends Controller
 
         if (!in_array($post->status, ['open', 'pending', 'rejected'])) {
             return $this->errorResponse('Chỉ có thể chỉnh sửa bài đăng ở trạng thái chờ duyệt, mở hoặc từ chối.', Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if ($post->applications()->exists()) {
+            return $this->errorResponse('Không thể chỉnh sửa bài đăng đã có ứng viên ứng tuyển để đảm bảo tính nhất quán thông tin tuyển dụng.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $fields = $request->validate([
@@ -645,6 +652,10 @@ class JobPostController extends Controller
 
         $post = JobPost::where('id', $id)->where('status', 'open')->first();
         if (!$post) return $this->notFoundResponse('Không tìm thấy bài đăng công việc hoặc bài đăng đã đóng.');
+
+        if ($post->expired_at && strtotime($post->expired_at) < time()) {
+            return $this->errorResponse('Công việc này đã hết hạn ứng tuyển.', Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         if ($post->working_time) {
             $parsedTime = strtotime($post->working_time);

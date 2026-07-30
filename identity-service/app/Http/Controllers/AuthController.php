@@ -801,7 +801,7 @@ class AuthController extends Controller
       'ids.*' => 'integer'
     ]);
 
-    $ids = $request->input('ids');
+    $ids = array_values($request->input('ids') ?? []);
     $users = User::whereIn('id', $ids)->get(['id', 'full_name', 'phone', 'avatar', 'email', 'role_id']);
 
     return $this->successResponse($users);

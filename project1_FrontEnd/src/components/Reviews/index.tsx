@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { getInitials, formatDate, formatVietnamDateTime, getRatingBadgeClass, getRatingNote, renderStars } from "../../utils";
 import { useReviewCard } from "./useHook";
@@ -52,6 +53,7 @@ export const ReviewCard = (props: any) => {
     variant = "card",
   } = props;
   const { timeAgo, translate } = useReviewCard();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const renderEditing = () => {
     return (
@@ -147,13 +149,42 @@ export const ReviewCard = (props: any) => {
             <div className="flex items-center gap-3 sm:justify-self-end">
               <span className="text-xs text-slate-400">{review.created_at ? timeAgo(review.created_at) : ""}</span>
               {isOwner && (
-                <div className="flex items-center gap-1.5">
-                  <button onClick={onStartEdit} className="text-slate-400 hover:text-teal-600 transition-colors cursor-pointer" title={translate("Sửa đánh giá")}>
-                    <Icon icon="material-symbols:edit-outline" className="text-lg" />
+                <div className="relative">
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    onBlur={() => setTimeout(() => setIsMenuOpen(false), 200)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-slate-650 transition-all cursor-pointer"
+                    title={translate("Thao tác")}
+                  >
+                    <Icon icon="ri:more-fill" className="text-lg" />
                   </button>
-                  <button onClick={onDelete} className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer" title={translate("Xóa đánh giá")}>
-                    <Icon icon="material-symbols:delete-outline" className="text-lg" />
-                  </button>
+
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-1 w-28 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-10">
+                      <button
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setIsMenuOpen(false);
+                          onStartEdit();
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:edit-outline" className="text-sm" />
+                        {translate("Chỉnh sửa")}
+                      </button>
+                      <button
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setIsMenuOpen(false);
+                          onDelete();
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:delete-outline" className="text-sm" />
+                        {translate("Xóa")}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -190,13 +221,42 @@ export const ReviewCard = (props: any) => {
             <div className="flex items-center gap-3 sm:justify-self-end">
               <span className="text-xs text-slate-400">{review.created_at ? timeAgo(review.created_at) : ""}</span>
               {isOwner && (
-                <div className="flex items-center gap-1.5">
-                  <button onClick={onStartEdit} className="text-slate-400 hover:text-teal-600 transition-colors cursor-pointer" title={translate("Sửa đánh giá")}>
-                    <Icon icon="material-symbols:edit-outline" className="text-lg" />
+                <div className="relative">
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    onBlur={() => setTimeout(() => setIsMenuOpen(false), 200)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-slate-650 transition-all cursor-pointer"
+                    title={translate("Thao tác")}
+                  >
+                    <Icon icon="ri:more-fill" className="text-lg" />
                   </button>
-                  <button onClick={onDelete} className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer" title={translate("Xóa đánh giá")}>
-                    <Icon icon="material-symbols:delete-outline" className="text-lg" />
-                  </button>
+
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-1 w-28 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-10">
+                      <button
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setIsMenuOpen(false);
+                          onStartEdit();
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:edit-outline" className="text-sm" />
+                        {translate("Chỉnh sửa")}
+                      </button>
+                      <button
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setIsMenuOpen(false);
+                          onDelete();
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-xs font-semibold text-red-650 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Icon icon="material-symbols:delete-outline" className="text-sm" />
+                        {translate("Xóa")}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -214,15 +274,7 @@ export const ReviewCard = (props: any) => {
   return renderCard();
 };
 
-export const ReviewFilters = ({
-  ratingFilter,
-  setRatingFilter,
-  t,
-}: {
-  ratingFilter: number | "all";
-  setRatingFilter: (rating: number | "all") => void;
-  t: any;
-}) => {
+export const ReviewFilters = ({ ratingFilter, setRatingFilter, t }: { ratingFilter: number | "all"; setRatingFilter: (rating: number | "all") => void; t: any }) => {
   return (
     <div className="flex flex-wrap items-center gap-2.5 my-2">
       <button

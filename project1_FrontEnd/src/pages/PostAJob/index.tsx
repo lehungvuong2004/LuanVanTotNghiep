@@ -11,34 +11,41 @@ const formatWorkingTime = (timeStr: string | null, t?: any) => {
   const match = timeStr.match(isoRegex);
   if (match) {
     const [, year, month, day, hours, minutes] = match;
-    const label = t ? t("ngày") : "ngày";
+    const label = t ? t("job.day_unit") : "ngày";
     return `${hours}:${minutes} ${label} ${day}/${month}/${year}`;
   }
   return timeStr;
 };
 
 export const PostAJob = () => {
-  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency, geoLoading, geoError, handleGeoLocation } = usePostAJobHook();
+  const { formik, addresses, isNewAddress, selectedAddressId, handleAddressChange, isLoading, errorMsg, computedUrgency, geoLoading, geoError, handleGeoLocation, handlePreSubmit } = usePostAJobHook();
   const { t } = useTranslation();
 
   const renderAddressForm = () => (
     <div className="flex-1 w-full">
-      <form onSubmit={formik.handleSubmit} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          if (handlePreSubmit(e)) {
+            formik.handleSubmit(e);
+          }
+        }}
+        className="space-y-6"
+      >
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-[#0d5c63] dark:text-teal-400 flex items-center gap-2 mb-6">
             <Icon icon="mdi:briefcase-outline" className="w-5 h-5" />
-            {t("Thông tin công việc")}
+            {t("job.info")}
           </h2>
 
           <div className="space-y-5">
             <div>
               <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                {t("Tiêu đề bài tuyển")} <span className="text-red-500">*</span>
+                {t("job.title")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="jobTitle"
-                placeholder={t("Ví dụ: Cần người giúp việc nhà theo giờ")}
+                placeholder={t("job.title_placeholder")}
                 className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all"
                 value={formik.values.jobTitle}
                 onChange={formik.handleChange}
@@ -50,12 +57,12 @@ export const PostAJob = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                  {t("Danh mục dịch vụ")} <span className="text-red-500">*</span>
+                  {t("job.category")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="customCategory"
-                  placeholder={t("Ví dụ: Gia sư, Rửa xe, Trông thú cưng...")}
+                  placeholder={t("job.category_placeholder")}
                   className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all"
                   value={formik.values.customCategory}
                   onChange={formik.handleChange}
@@ -65,12 +72,12 @@ export const PostAJob = () => {
               </div>
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                  {t("Mức lương")} <span className="text-red-500">*</span>
+                  {t("job.salary")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="salary"
-                  placeholder={t("Ví dụ: 5.000.000")}
+                  placeholder={t("job.salary_placeholder")}
                   className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all"
                   value={formik.values.salary}
                   onChange={(e) => {
@@ -85,13 +92,13 @@ export const PostAJob = () => {
 
             <div>
               <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                {t("Dịch vụ cần tuyển")} <span className="text-red-500">*</span>
+                {t("job.required_services")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="customServices"
-                placeholder={t("Ví dụ: Dọn dẹp sân vườn, lau cửa kính...")}
-                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all text-gray-700 dark:text-gray-200"
+                placeholder={t("job.required_services_placeholder")}
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all text-gray-700"
                 value={formik.values.customServices}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -103,7 +110,7 @@ export const PostAJob = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                  {t("Thời gian làm việc")} <span className="text-red-500">*</span>
+                  {t("job.working_time")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="datetime-local"
@@ -119,7 +126,7 @@ export const PostAJob = () => {
               {/* Ngày hết hạn — người dùng tự chọn */}
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                  {t("Ngày hết hạn bài đăng")} <span className="text-red-500">*</span>
+                  {t("job.expiration_date")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="datetime-local"
@@ -149,7 +156,7 @@ export const PostAJob = () => {
                 {formik.values.salary && computedUrgency && (
                   <div className="bg-slate-50 dark:bg-slate-700/50 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
                     <span className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-                      {t("Mức lương sau khi tăng thêm (+{pct}%):").replace("{pct}", Math.round((computedUrgency.multiplier - 1) * 100).toString())}
+                      {t("job.salary_markup").replace("{pct}", Math.round((computedUrgency.multiplier - 1) * 100).toString())}
                     </span>
                     <span className="text-lg font-bold text-[#0d5c63] dark:text-teal-400">
                       {Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * computedUrgency.multiplier).toLocaleString("vi-VN")} VND
@@ -165,12 +172,12 @@ export const PostAJob = () => {
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-[#0d5c63] dark:text-teal-400 flex items-center gap-2 mb-6">
             <Icon icon="mdi:map-marker-outline" className="w-5 h-5" />
-            {t("Địa điểm làm việc")}
+            {t("job.work_location")}
           </h2>
 
           {addresses.length > 0 && (
             <div className="mb-5">
-              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">{t("Địa chỉ đã lưu")}</label>
+              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">{t("job.saved_addresses")}</label>
               <div className="relative">
                 <select
                   value={selectedAddressId}
@@ -182,7 +189,7 @@ export const PostAJob = () => {
                       {`${addr.address}, ${addr.district ? (typeof addr.district === "object" ? (addr.district as any).name : addr.district) : ""}, ${addr.city ? (typeof addr.city === "object" ? (addr.city as any).name : addr.city) : ""}`}
                     </option>
                   ))}
-                  <option value="new">{t("Nhập địa chỉ mới...")}</option>
+                  <option value="new">{t("job.new_address_option")}</option>
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-gray-400">
                   <Icon icon="mdi:chevron-down" className="w-5 h-5" />
@@ -201,7 +208,7 @@ export const PostAJob = () => {
                 className="w-full flex items-center justify-center gap-2 py-3 px-5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
               >
                 {geoLoading ? <Icon icon="line-md:loading-twotone-loop" className="text-lg animate-spin" /> : <Icon icon="solar:gps-bold" className="text-lg" />}
-                {t("Định vị vị trí hiện tại của tôi")}
+                {t("job.locate_me")}
               </button>
               {geoError && <p className="text-red-500 text-xs font-semibold mt-1.5 text-center">{geoError}</p>}
             </div>
@@ -210,12 +217,12 @@ export const PostAJob = () => {
           <div className="space-y-5">
             <div>
               <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                {t("Địa chỉ cụ thể")} <span className="text-red-500">*</span>
+                {t("job.specific_address")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="specificAddress"
-                placeholder={t("Số nhà, tên đường...")}
+                placeholder={t("job.specific_address_placeholder")}
                 disabled={!isNewAddress}
                 className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all disabled:bg-gray-100 dark:disabled:bg-slate-600 disabled:text-gray-500"
                 value={formik.values.specificAddress}
@@ -228,12 +235,12 @@ export const PostAJob = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                  {t("Quận/Huyện")} <span className="text-red-500">*</span>
+                  {t("job.district")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="district"
-                  placeholder={t("VD: Quận 1")}
+                  placeholder={t("job.district_placeholder")}
                   disabled={!isNewAddress}
                   className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all disabled:bg-gray-100 dark:disabled:bg-slate-600 disabled:text-gray-500"
                   value={formik.values.district}
@@ -244,12 +251,12 @@ export const PostAJob = () => {
               </div>
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
-                  {t("Thành phố")} <span className="text-red-500">*</span>
+                  {t("job.city")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="city"
-                  placeholder={t("VD: TP. Hồ Chí Minh")}
+                  placeholder={t("job.city_placeholder")}
                   disabled={!isNewAddress}
                   className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all disabled:bg-gray-100 dark:disabled:bg-slate-600 disabled:text-gray-500"
                   value={formik.values.city}
@@ -266,14 +273,14 @@ export const PostAJob = () => {
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-[#0d5c63] dark:text-teal-400 flex items-center gap-2 mb-6">
             <Icon icon="mdi:file-document-outline" className="w-5 h-5" />
-            {t("Mô tả công việc")}
+            {t("job.description")}
           </h2>
 
           <div>
             <textarea
               name="jobDescription"
               rows={5}
-              placeholder={t("Mô tả công việc, yêu cầu, quyền lợi...")}
+              placeholder={t("job.description_placeholder")}
               className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all resize-none"
               value={formik.values.jobDescription}
               onChange={formik.handleChange}
@@ -291,7 +298,7 @@ export const PostAJob = () => {
                 to="/ho-so"
                 className="px-4 py-1.5 bg-[#0d5c63] dark:bg-teal-500 hover:bg-[#0a4d52] dark:hover:bg-teal-600 text-white dark:text-slate-900 text-xs font-bold rounded-lg transition-colors whitespace-nowrap text-center"
               >
-                {t("Cập nhật ngay")}
+                {t("job.update_now")}
               </Link>
             )}
           </div>
@@ -305,7 +312,7 @@ export const PostAJob = () => {
             className="px-8 py-2.5 border border-[#0d5c63] dark:border-teal-400 text-[#0d5c63] dark:text-teal-400 rounded-full font-medium hover:bg-[#0d5c63]/5 dark:hover:bg-teal-500/10 transition-all text-sm cursor-pointer disabled:opacity-50"
             onClick={() => formik.resetForm()}
           >
-            {t("Hủy")}
+            {t("job.cancel")}
           </button>
           <button
             type="submit"
@@ -315,10 +322,10 @@ export const PostAJob = () => {
             {isLoading ? (
               <>
                 <Icon icon="line-md:loading-twotone-loop" className="w-4 h-4 animate-spin" />
-                {t("Đang đăng tải...")}
+                {t("job.posting")}
               </>
             ) : (
-              t("Đăng bài tuyển dụng")
+              t("job.post_button")
             )}
           </button>
         </div>
@@ -333,7 +340,7 @@ export const PostAJob = () => {
           <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
           <div className="absolute inset-0 bg-[#0d5c63]/60 dark:bg-slate-900/60 mix-blend-multiply"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="px-5 py-1.5 bg-white/20 backdrop-blur-md text-white rounded-full font-medium border border-white/30 text-sm tracking-wide">{t("Bản xem trước")}</span>
+            <span className="px-5 py-1.5 bg-white/20 backdrop-blur-md text-white rounded-full font-medium border border-white/30 text-sm tracking-wide">{t("job.preview")}</span>
           </div>
         </div>
 
@@ -341,41 +348,41 @@ export const PostAJob = () => {
           <div className="flex justify-between items-center mb-5">
             <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-sm border border-gray-200 dark:border-gray-600">
               <span className="w-1.5 h-1.5 rounded-full bg-[#f6a053]"></span>
-              {t("Chờ duyệt")}
+              {t("job.pending")}
             </span>
             <span className="text-xs text-gray-400 font-medium">{t("Hôm nay")}</span>
           </div>
 
-          <h3 className="text-lg font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-12 leading-snug">{formik.values.jobTitle || t("Tiêu đề bài đăng của bạn")}</h3>
-          <p className="text-[#0d5c63] dark:text-teal-400 text-sm font-medium mb-6">{formik.values.customCategory || t("Danh mục tuyển dụng")}</p>
+          <h3 className="text-lg font-bold text-[#0d5c63] dark:text-teal-400 mb-1 line-clamp-2 min-h-12 leading-snug">{formik.values.jobTitle || t("job.preview_title_placeholder")}</h3>
+          <p className="text-[#0d5c63] dark:text-teal-400 text-sm font-medium mb-6">{formik.values.customCategory || t("job.preview_category_placeholder")}</p>
 
           <div className="space-y-3.5 text-sm text-gray-600 dark:text-gray-300 font-medium">
             <div className="flex items-center gap-3">
               <Icon icon="mdi:cash" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
               <span className="truncate">
-                {formik.values.salary ? `${Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * (computedUrgency?.multiplier ?? 1.0)).toLocaleString()} VNĐ` : t("Mức lương")}
+                {formik.values.salary ? `${Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * (computedUrgency?.multiplier ?? 1.0)).toLocaleString()} VNĐ` : t("job.salary")}
               </span>
             </div>
             <div className="flex items-center gap-3">
               <Icon icon="mdi:map-marker-outline" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
-              <span className="truncate">{formik.values.district || formik.values.city ? [formik.values.district, formik.values.city].filter(Boolean).join(", ") : t("Địa điểm làm việc")}</span>
+              <span className="truncate">{formik.values.district || formik.values.city ? [formik.values.district, formik.values.city].filter(Boolean).join(", ") : t("job.work_location")}</span>
             </div>
             <div className="flex items-center gap-3">
               <Icon icon="mdi:clock-outline" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
-              <span className="truncate">{formatWorkingTime(formik.values.workingTime, t) || t("Thời gian làm việc")}</span>
+              <span className="truncate">{formatWorkingTime(formik.values.workingTime, t) || t("job.working_time")}</span>
             </div>
             {formik.values.expirationDate && (
               <div className="flex items-center gap-3">
                 <Icon icon="mdi:calendar-end" className="w-5 h-5 text-rose-500 shrink-0" />
                 <span className="truncate text-rose-600 dark:text-rose-400 font-semibold">
-                  {t("Hết hạn")}: {formatWorkingTime(formik.values.expirationDate, t)}
+                  {t("job.expire")}: {formatWorkingTime(formik.values.expirationDate, t)}
                 </span>
               </div>
             )}
             <div className="flex items-center gap-3">
               <Icon icon="mdi:calendar-plus-outline" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
               <span className="truncate">
-                {t("Đăng ngày")}: {new Date().toLocaleDateString("vi-VN")}
+                {t("job.posted_on")}: {new Date().toLocaleDateString("vi-VN")}
               </span>
             </div>
           </div>
@@ -386,8 +393,8 @@ export const PostAJob = () => {
         <div className="flex gap-3">
           <Icon icon="mdi:information-outline" className="w-5 h-5 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-amber-800 dark:text-amber-400 mb-1.5 text-sm">{t("Lưu ý")}</h4>
-            <p className="text-sm text-amber-700 dark:text-gray-300 leading-relaxed">{t("Bài đăng sẽ được kiểm duyệt trước khi hiển thị để đảm bảo an toàn cho cộng đồng.")}</p>
+            <h4 className="font-semibold text-amber-800 dark:text-amber-400 mb-1.5 text-sm">{t("job.notice")}</h4>
+            <p className="text-sm text-amber-700 dark:text-gray-300 leading-relaxed">{t("job.checking_note")}</p>
           </div>
         </div>
       </div>
@@ -396,8 +403,8 @@ export const PostAJob = () => {
   return (
     <div className="w-full py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#0d5c63] dark:text-teal-400">{t("Đăng bài tuyển dụng")}</h1>
-        <p className="text-gray-700 dark:text-gray-300 mt-2">{t("Tạo bài tuyển dụng để tìm người giúp việc phù hợp cho gia đình bạn.")}</p>
+        <h1 className="text-3xl font-bold text-[#0d5c63] dark:text-teal-400">{t("job.post_button")}</h1>
+        <p className="text-gray-700 dark:text-gray-300 mt-2">{t("job.create_post_desc")}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">

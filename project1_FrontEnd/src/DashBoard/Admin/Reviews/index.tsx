@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Pagination } from "../../../components/Pagination";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { getInitials, formatNumberVI, formatMoneyShortVI, renderStars } from "../../../utils";
+import { CustomSelect } from "../../../components/CustomSelect";
 
 export const Reviews = () => {
   const { hasPermission } = useAuth();
@@ -417,54 +418,45 @@ export const Reviews = () => {
             {/* Customer Dropdown */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Khách Hàng</label>
-              <select
-                required
+              <CustomSelect
                 value={createCustomerId}
-                onChange={(e) => setCreateCustomerId(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
-              >
-                <option value="">-- Chọn Khách Hàng --</option>
-                {customersList.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.full_name} ({c.email})
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setCreateCustomerId(val)}
+                placeholder="-- Chọn Khách Hàng --"
+                options={customersList.map((c) => ({
+                  value: c.id,
+                  label: `${c.full_name} (${c.email})`,
+                }))}
+              />
             </div>
 
             {/* Helper Dropdown */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Người Giúp Việc</label>
-              <select
-                required
+              <CustomSelect
                 value={createHelperId}
-                onChange={(e) => setCreateHelperId(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
-              >
-                <option value="">-- Chọn Người Giúp Việc --</option>
-                {helpersList.map((h) => (
-                  <option key={h.id} value={h.id}>
-                    {h.full_name} ({h.email})
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setCreateHelperId(val)}
+                placeholder="-- Chọn Người Giúp Việc --"
+                options={helpersList.map((h) => ({
+                  value: h.id,
+                  label: `${h.full_name} (${h.email})`,
+                }))}
+              />
             </div>
 
             {/* Rating Selector */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số Sao Đánh Giá</label>
-              <select
-                required
+              <label className="text-xs font-bold text-slate-505 dark:text-slate-400 uppercase tracking-wider">Số Sao Đánh Giá</label>
+              <CustomSelect
                 value={createRating}
-                onChange={(e) => setCreateRating(parseInt(e.target.value))}
-                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
-              >
-                <option value="5">5 Sao</option>
-                <option value="4">4 Sao</option>
-                <option value="3">3 Sao</option>
-                <option value="2">2 Sao</option>
-                <option value="1">1 Sao</option>
-              </select>
+                onChange={(val) => setCreateRating(Number(val))}
+                options={[
+                  { value: 5, label: "5 Sao" },
+                  { value: 4, label: "4 Sao" },
+                  { value: 3, label: "3 Sao" },
+                  { value: 2, label: "2 Sao" },
+                  { value: 1, label: "1 Sao" },
+                ]}
+              />
             </div>
 
             {/* Comment */}
@@ -537,19 +529,18 @@ export const Reviews = () => {
 
             {/* Rating Selector */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số Sao Đánh Giá</label>
-              <select
-                required
+              <label className="text-xs font-bold text-slate-505 dark:text-slate-400 uppercase tracking-wider">Số Sao Đánh Giá</label>
+              <CustomSelect
                 value={editRating}
-                onChange={(e) => setEditRating(parseInt(e.target.value))}
-                className="w-full bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium cursor-pointer"
-              >
-                <option value="5">5 Sao</option>
-                <option value="4">4 Sao</option>
-                <option value="3">3 Sao</option>
-                <option value="2">2 Sao</option>
-                <option value="1">1 Sao</option>
-              </select>
+                onChange={(val) => setEditRating(Number(val))}
+                options={[
+                  { value: 5, label: "5 Sao" },
+                  { value: 4, label: "4 Sao" },
+                  { value: 3, label: "3 Sao" },
+                  { value: 2, label: "2 Sao" },
+                  { value: 1, label: "1 Sao" },
+                ]}
+              />
             </div>
 
             {/* Comment */}

@@ -8,6 +8,7 @@ import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import Toggle from "../../../components/Toggle";
 import ImageUpload from "../../../components/ImageUpload";
 import { uploadServiceImageAdmin } from "../../../api/servicesApi/services";
+import { CustomSelect } from "../../../components/CustomSelect";
 
 export const Services = () => {
   const { hasPermission } = useAuth();
@@ -128,18 +129,15 @@ export const Services = () => {
 
       <div className="flex flex-wrap items-center gap-3">
         {/* Category filter */}
-        <select
+        <CustomSelect
           value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
-        >
-          <option value="all">Tất cả danh mục</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+          onChange={(val) => setCategoryFilter(val)}
+          options={[
+            { value: "all", label: "Tất cả danh mục" },
+            ...categories.map((c) => ({ value: c.id, label: c.name })),
+          ]}
+          className="min-w-50"
+        />
       </div>
     </div>
   );
@@ -323,23 +321,13 @@ export const Services = () => {
           <form onSubmit={formik.handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
             {/* Category */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Danh Mục *</label>
-              <select
-                name="category_id"
+              <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Danh Mục *</label>
+              <CustomSelect
                 value={formik.values.category_id}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden transition-all cursor-pointer ${
-                  formik.touched.category_id && formik.errors.category_id ? "border-red-500" : "border-slate-200 dark:border-slate-700 focus:border-blue-500"
-                }`}
-              >
-                <option value="">-- Chọn danh mục --</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => formik.setFieldValue("category_id", val)}
+                placeholder="-- Chọn danh mục --"
+                options={categories.map((c) => ({ value: c.id, label: c.name }))}
+              />
               {formik.touched.category_id && formik.errors.category_id && <p className="text-red-500 text-xs mt-1">{formik.errors.category_id as string}</p>}
             </div>
 
@@ -414,17 +402,16 @@ export const Services = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loại Giá *</label>
-                <select
-                  name="price_type"
+                <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Loại Giá *</label>
+                <CustomSelect
                   value={formik.values.price_type}
-                  onChange={formik.handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all cursor-pointer"
-                >
-                  <option value="hourly">Theo giờ</option>
-                  <option value="fixed">Cố định</option>
-                  <option value="daily">Theo ngày</option>
-                </select>
+                  onChange={(val) => formik.setFieldValue("price_type", val)}
+                  options={[
+                    { value: "hourly", label: "Theo giờ" },
+                    { value: "fixed", label: "Cố định" },
+                    { value: "daily", label: "Theo ngày" },
+                  ]}
+                />
               </div>
             </div>
 

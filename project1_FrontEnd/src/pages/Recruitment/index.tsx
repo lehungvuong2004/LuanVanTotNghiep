@@ -7,6 +7,7 @@ import { Pagination } from "../../components/Pagination";
 import { formatDateTime } from "../../utils";
 
 import { Link } from "react-router-dom";
+import { CustomSelect } from "../../components/CustomSelect";
 
 export const Recruitment = () => {
   const { t } = useTranslation();
@@ -68,10 +69,9 @@ export const Recruitment = () => {
           <div className="px-5 py-4 flex flex-col gap-2.5">
             <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t("Loại công việc")}</p>
             {categories.length > 0 ? (
-              <select
+              <CustomSelect
                 value={selectedCategories[0] || "all"}
-                onChange={(e) => {
-                  const val = e.target.value;
+                onChange={(val) => {
                   if (val === "all") {
                     setSelectedCategories([]);
                   } else if (val === "other") {
@@ -80,16 +80,12 @@ export const Recruitment = () => {
                     setSelectedCategories([Number(val)]);
                   }
                 }}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-750 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#026E5F]/20 focus:border-[#026E5F] transition-all cursor-pointer font-medium"
-              >
-                <option value="all">{t("Tất cả")}</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {t(cat.name)}
-                  </option>
-                ))}
-                <option value="other">{t("Khác")}</option>
-              </select>
+                options={[
+                  { value: "all", label: t("Tất cả") },
+                  ...categories.map((cat) => ({ value: String(cat.id), label: t(cat.name) })),
+                  { value: "other", label: t("Khác") },
+                ]}
+              />
             ) : (
               <p className="text-xs text-gray-400 italic">{t("Đang tải danh mục...")}</p>
             )}
@@ -256,15 +252,16 @@ export const Recruitment = () => {
           <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:block font-medium">
             {totalItems} {t("kết quả")}
           </span>
-          <select
+          <CustomSelect
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 font-semibold text-slate-700 dark:text-slate-350 cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-[#026E5F] transition"
-          >
-            <option value="Mới nhất">{t("Mới nhất")}</option>
-            <option value="Lương cao nhất">{t("Lương cao nhất")}</option>
-            <option value="Cần gấp nhất">{t("Cần gấp nhất")}</option>
-          </select>
+            onChange={(val) => setSortBy(val)}
+            className="w-40"
+            options={[
+              { value: "Mới nhất", label: t("Mới nhất") },
+              { value: "Lương cao nhất", label: t("Lương cao nhất") },
+              { value: "Cần gấp nhất", label: t("Cần gấp nhất") },
+            ]}
+          />
         </div>
       </div>
       {isLoading ? (

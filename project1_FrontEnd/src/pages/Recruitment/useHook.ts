@@ -161,8 +161,8 @@ export const useRecruitment = () => {
             setAppliedJobIds(appIds);
           }
         }
-      } catch (err) {
-        // console.error("Error loading recruitment data:", err);
+      } catch {
+        // console.error("Error loading recruitment data:");
       } finally {
         setIsLoading(false);
       }
@@ -365,6 +365,11 @@ export const useRecruitment = () => {
 
   const applyJob = async (jobId: number) => {
     try {
+      const targetedJob = allJobs.find((j) => j.id === jobId);
+      if (targetedJob?.expired_at && new Date(targetedJob.expired_at).getTime() < Date.now()) {
+        showToast("error", t("Ứng tuyển thất bại"), t("Công việc này đã hết hạn ứng tuyển."));
+        return;
+      }
       const res = await applyJobPostApi(jobId);
       showToast("success", t("Ứng tuyển thành công"), res.message || t("Hồ sơ ứng tuyển của bạn đã được gửi thành công."));
       setAppliedJobIds((prev) => [...prev, jobId]);
@@ -385,8 +390,8 @@ export const useRecruitment = () => {
     try {
       const res = await getMyJobPostsApi({ limit: 100 });
       setMyJobPosts(res.data.data || []);
-    } catch (err) {
-      // console.error("Error loading my job posts:", err);
+    } catch {
+      // console.error("Error loading my job posts:");
     } finally {
       setMyPostsLoading(false);
     }
@@ -409,8 +414,8 @@ export const useRecruitment = () => {
     try {
       const res = await getHelperPublicProfileApi(helperId);
       setHelperProfile(res.data);
-    } catch (err) {
-      // console.error("Error loading helper profile:", err);
+    } catch {
+      // console.error("Error loading helper profile:");
     } finally {
       setHelperProfileLoading(false);
     }
@@ -443,8 +448,8 @@ export const useRecruitment = () => {
         }),
       );
       setApplicants(enriched);
-    } catch (err) {
-      // console.error("Error loading applications:", err);
+    } catch {
+      // console.error("Error loading applications:");
     } finally {
       setApplicantsLoading(false);
     }

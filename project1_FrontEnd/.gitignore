@@ -10,7 +10,9 @@ node_modules
 dist
 dist-ssr
 *.local
-
+/presentation_outline.md
+/presentation_script.md
+/comment_consoles.cjs
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

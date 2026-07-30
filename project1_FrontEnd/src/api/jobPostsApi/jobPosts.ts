@@ -17,6 +17,7 @@ export interface JobPost {
   expired_at: string | null;
   created_at: string;
   services?: Service[];
+  active_applications_count?: number;
 }
 
 export interface CreateJobPostRequest {

@@ -9,6 +9,7 @@ import { ROLES } from "../../../constants/roles";
 import { getInitials, getRoleBadge, getStatusBadge } from "../../../utils";
 import ImageUpload from "../../../components/ImageUpload";
 import { uploadUserAvatarAdmin } from "../../../api/usersApi/users";
+import { CustomSelect } from "../../../components/CustomSelect";
 
 export const Users = () => {
   const { hasPermission } = useAuth();
@@ -468,20 +469,18 @@ export const Users = () => {
 
             {/* Role Select (manual role changing) */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vai Trò Hệ Thống *</label>
-              <select
-                name="role_id"
+              <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Vai Trò Hệ Thống *</label>
+              <CustomSelect
                 value={formik.values.role_id}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                onChange={(val) => formik.setFieldValue("role_id", val)}
                 disabled={isViewMode}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-hidden focus:border-blue-500 transition-all disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:text-slate-400"
-              >
-                <option value={ROLES.CUSTOMER}>Khách hàng (Customer)</option>
-                <option value={ROLES.HELPER}>Người giúp việc (Helper)</option>
-                <option value={ROLES.OPERATOR}>Nhân viên vận hành (Operator)</option>
-                <option value={ROLES.ADMIN}>Quản trị viên (Admin)</option>
-              </select>
+                options={[
+                  { value: ROLES.CUSTOMER, label: "Khách hàng (Customer)" },
+                  { value: ROLES.HELPER, label: "Người giúp việc (Helper)" },
+                  { value: ROLES.OPERATOR, label: "Nhân viên vận hành (Operator)" },
+                  { value: ROLES.ADMIN, label: "Quản trị viên (Admin)" },
+                ]}
+              />
               {formik.touched.role_id && formik.errors.role_id && <p className="text-red-500 text-xs mt-1">{String(formik.errors.role_id)}</p>}
             </div>
 

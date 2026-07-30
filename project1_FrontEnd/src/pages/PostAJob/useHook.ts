@@ -2,7 +2,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profileApi/profile";
 import { createJobPostApi } from "../../api/jobPostsApi/jobPosts";
 import { getPostJobSchema } from "../../api/jobPostsApi/validation";
@@ -41,9 +41,44 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
   };
 };
 
+export const getAddressFieldName = (fieldVal: any): string => {
+  if (!fieldVal) return "";
+  if (typeof fieldVal === "object" && fieldVal !== null) {
+    return fieldVal.name || "";
+  }
+  return String(fieldVal);
+};
+
+interface PrefilledPost {
+  title?: string;
+  description?: string;
+  salary?: number | string;
+  address?: string;
+  district?: string;
+  city?: string;
+}
+
+export interface PostAJobFormValues {
+  jobTitle: string;
+  serviceCategory: string;
+  customCategory: string;
+  customServices: string;
+  salary: string;
+  requiredServices: number[];
+  workingTime: string;
+  expirationDate: string;
+  specificAddress: string;
+  district: string;
+  city: string;
+  jobDescription: string;
+}
+
 export const usePostAJobHook = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const prefilledPost = location.state?.prefilledPost as PrefilledPost | undefined;
 
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
   const [isNewAddress, setIsNewAddress] = useState(true);
@@ -55,19 +90,6 @@ export const usePostAJobHook = () => {
 
   const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
 
-  useEffect(() => {
-    if ((addressDetails || rawAddress) && isGeoActive) {
-      const parsed = parseVietnamAddress(addressDetails, rawAddress);
-
-      if (parsed.specificAddress) formik.setFieldValue("specificAddress", parsed.specificAddress);
-      if (parsed.district) formik.setFieldValue("district", parsed.district);
-      if (parsed.city) formik.setFieldValue("city", parsed.city);
-
-      setIsGeoActive(false);
-      clearLocation();
-    }
-  }, [addressDetails, rawAddress, isGeoActive, clearLocation]);
-
   const handleGeoLocation = () => {
     setIsGeoActive(true);
     getCurrentLocation();
@@ -75,23 +97,47 @@ export const usePostAJobHook = () => {
 
   const validationSchema = getPostJobSchema(t);
 
-  const formik = useFormik({
+  const formik = useFormik<PostAJobFormValues>({
     initialValues: {
-      jobTitle: "",
+      jobTitle: prefilledPost?.title || "",
       serviceCategory: "other",
-      customCategory: "",
-      customServices: "",
-      salary: "",
+      customCategory: (() => {
+        if (!prefilledPost) return "";
+        const catMatch = prefilledPost.description?.match(/^\[Danh mục:\s*([^\]]+)\]/);
+        return catMatch ? catMatch[1] : "";
+      })(),
+      customServices: (() => {
+        if (!prefilledPost) return "";
+        const serviceMatch = prefilledPost.description?.match(/^\[Dịch vụ:\s*([^\]]+)\]/);
+        return serviceMatch ? serviceMatch[1] : "";
+      })(),
+      salary: prefilledPost?.salary ? Math.round(Number(prefilledPost.salary)).toLocaleString("vi-VN") : "",
       requiredServices: [] as number[],
       workingTime: "",
       expirationDate: "",
-      specificAddress: "",
-      district: "",
-      city: "",
-      jobDescription: "",
+      specificAddress: prefilledPost?.address || "",
+      district: prefilledPost?.district || "",
+      city: prefilledPost?.city || "",
+      jobDescription: (() => {
+        if (!prefilledPost) return "";
+        let cleanDesc = prefilledPost.description || "";
+        cleanDesc = cleanDesc.replace(/^\[Danh mục:\s*[^\]]+\]\s*/, "");
+        cleanDesc = cleanDesc.replace(/^\[Dịch vụ:\s*[^\]]+\]\s*/, "");
+        return cleanDesc;
+      })(),
     },
     validationSchema,
     onSubmit: async (values) => {
+      const currentUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+      if (currentUser) {
+        if (!currentUser.full_name?.trim() || !currentUser.phone?.trim() || !currentUser.email?.trim()) {
+          showToast("warning", t("job.req_info_title"), t("job.toast.req_info_desc"));
+          setTimeout(() => {
+            navigate("/ho-so");
+          }, 2000);
+          return;
+        }
+      }
       setIsLoading(true);
       setErrorMsg("");
       try {
@@ -100,11 +146,11 @@ export const usePostAJobHook = () => {
           const isDuplicate = addresses.some(
             (item) =>
               item.address.trim().toLowerCase() === values.specificAddress.trim().toLowerCase() &&
-              (item.district || "").trim().toLowerCase() === values.district.trim().toLowerCase() &&
-              (item.city || "").trim().toLowerCase() === values.city.trim().toLowerCase(),
+              getAddressFieldName(item.district).trim().toLowerCase() === values.district.trim().toLowerCase() &&
+              getAddressFieldName(item.city).trim().toLowerCase() === values.city.trim().toLowerCase(),
           );
           if (isDuplicate) {
-            formik.setFieldError("specificAddress", t("Địa chỉ này đã tồn tại trong sổ địa chỉ của bạn. Vui lòng chọn từ danh sách."));
+            formik.setFieldError("specificAddress", t("job.validation.duplicate_address"));
             setIsLoading(false);
             return;
           }
@@ -115,8 +161,8 @@ export const usePostAJobHook = () => {
               city: values.city,
               is_default: addresses.length === 0,
             });
-          } catch (addrErr) {
-            // console.error("Failed to save new address to customer profile:", addrErr);
+          } catch {
+            // Error logged if needed
           }
         }
 
@@ -145,31 +191,35 @@ export const usePostAJobHook = () => {
           service_ids: isCustom ? [] : values.requiredServices.map(Number),
         });
 
-        showToast("success", t("Đăng bài thành công"), t("Bài tuyển dụng của bạn đã được đăng thành công và đang chờ duyệt."));
+        showToast("success", t("job.toast.post_success"), t("job.toast.post_success_desc"));
 
         formik.resetForm();
       } catch (err: any) {
         // console.error("Error creating job post:", err);
-        setErrorMsg(err?.response?.data?.message || t("Đã xảy ra lỗi khi đăng bài tuyển dụng. Vui lòng thử lại."));
+        setErrorMsg(err?.response?.data?.message || t("job.toast.post_error"));
       } finally {
         setIsLoading(false);
       }
     },
   });
 
+  useEffect(() => {
+    if ((addressDetails || rawAddress) && isGeoActive) {
+      const parsed = parseVietnamAddress(addressDetails, rawAddress);
+
+      if (parsed.specificAddress) formik.setFieldValue("specificAddress", parsed.specificAddress);
+      if (parsed.district) formik.setFieldValue("district", parsed.district);
+      if (parsed.city) formik.setFieldValue("city", parsed.city);
+
+      Promise.resolve().then(() => {
+        setIsGeoActive(false);
+        clearLocation();
+      });
+    }
+  }, [addressDetails, rawAddress, isGeoActive, clearLocation, formik]);
+
   // Fetch customer addresses on mount
   useEffect(() => {
-    const currentUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
-    if (currentUser) {
-      if (!currentUser.full_name?.trim() || !currentUser.phone?.trim() || !currentUser.email?.trim()) {
-        showToast("warning", t("Yêu cầu thông tin"), t("Vui lòng điền đầy đủ thông tin cá nhân (Họ tên, Số điện thoại, Email) trước khi đăng tin tuyển dụng."));
-        setTimeout(() => {
-          navigate("/ho-so");
-        }, 2000);
-        return;
-      }
-    }
-
     const fetchData = async () => {
       try {
         const addrRes = await getCustomerAddressesApi();
@@ -178,20 +228,20 @@ export const usePostAJobHook = () => {
           const defaultAddr = addrRes.data.find((a) => a.is_default === 1) || addrRes.data[0];
           setSelectedAddressId(defaultAddr.id);
           formik.setFieldValue("specificAddress", defaultAddr.address);
-          formik.setFieldValue("district", defaultAddr.district || "");
-          formik.setFieldValue("city", defaultAddr.city || "");
+          formik.setFieldValue("district", getAddressFieldName(defaultAddr.district));
+          formik.setFieldValue("city", getAddressFieldName(defaultAddr.city));
           setIsNewAddress(false);
         } else {
           setIsNewAddress(true);
           setSelectedAddressId("new");
         }
-      } catch (addrErr) {
-        // console.error("Could not fetch customer addresses:", addrErr);
+      } catch {
         setIsNewAddress(true);
         setSelectedAddressId("new");
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddressChange = (idStr: string) => {
@@ -208,14 +258,29 @@ export const usePostAJobHook = () => {
       const matched = addresses.find((a) => a.id === addrId);
       if (matched) {
         formik.setFieldValue("specificAddress", matched.address);
-        formik.setFieldValue("district", matched.district || "");
-        formik.setFieldValue("city", matched.city || "");
+        formik.setFieldValue("district", getAddressFieldName(matched.district));
+        formik.setFieldValue("city", getAddressFieldName(matched.city));
       }
     }
   };
 
   // Derived urgency from currently entered dates (reactive)
   const computedUrgency = getUrgencyFromDates(formik.values.workingTime, formik.values.expirationDate);
+
+  const handlePreSubmit = (e: any) => {
+    const currentUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+    if (currentUser) {
+      if (!currentUser.full_name?.trim() || !currentUser.phone?.trim() || !currentUser.email?.trim()) {
+        e.preventDefault();
+        showToast("warning", t("job.req_info_title"), t("job.toast.req_info_desc"));
+        setTimeout(() => {
+          navigate("/ho-so");
+        }, 2000);
+        return false;
+      }
+    }
+    return true;
+  };
 
   return {
     formik,
@@ -229,5 +294,6 @@ export const usePostAJobHook = () => {
     geoLoading,
     geoError,
     handleGeoLocation,
+    handlePreSubmit,
   };
 };

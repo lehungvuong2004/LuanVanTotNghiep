@@ -41,6 +41,7 @@ export const Profile = () => {
 
   const [workingDistrict, setWorkingDistrict] = useState("");
   const [workingCity, setWorkingCity] = useState("");
+  const [activeAddressDropdownId, setActiveAddressDropdownId] = useState<number | null>(null);
   const [geoTarget, setGeoTarget] = useState<"address" | "workingArea" | "residential" | null>(null);
   const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
 
@@ -72,19 +73,21 @@ export const Profile = () => {
     if ((addressDetails || rawAddress) && geoTarget) {
       const parsed = parseVietnamAddress(addressDetails, rawAddress);
 
-      if (geoTarget === "address") {
-        addressForm.setFieldValue("address", parsed.specificAddress);
-        addressForm.setFieldValue("district", parsed.district);
-        addressForm.setFieldValue("city", parsed.city);
-      } else if (geoTarget === "workingArea") {
-        setWorkingDistrict(parsed.district);
-        setWorkingCity(parsed.city);
-      } else if (geoTarget === "residential") {
-        const fullAddr = [parsed.specificAddress, parsed.district, parsed.city].filter((val) => val && val.trim() !== "").join(", ");
-        profileForm.setFieldValue("address", fullAddr);
-      }
-      setGeoTarget(null);
-      clearLocation();
+      Promise.resolve().then(() => {
+        if (geoTarget === "address") {
+          addressForm.setFieldValue("address", parsed.specificAddress);
+          addressForm.setFieldValue("district", parsed.district);
+          addressForm.setFieldValue("city", parsed.city);
+        } else if (geoTarget === "workingArea") {
+          setWorkingDistrict(parsed.district);
+          setWorkingCity(parsed.city);
+        } else if (geoTarget === "residential") {
+          const fullAddr = [parsed.specificAddress, parsed.district, parsed.city].filter((val) => val && val.trim() !== "").join(", ");
+          profileForm.setFieldValue("address", fullAddr);
+        }
+        setGeoTarget(null);
+        clearLocation();
+      });
     }
   }, [addressDetails, rawAddress, geoTarget, addressForm, profileForm, clearLocation]);
 
@@ -307,7 +310,7 @@ export const Profile = () => {
                 value={userProfile?.email || ""}
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-1.5">{t("Email định danh không thể thay đổi.")}</p>
+            <p className="text-xs text-slate-400 mt-1.5">{t("Email định danh không thể thay đổi.")}</p>
           </div>
 
           {/* Name */}
@@ -704,31 +707,73 @@ export const Profile = () => {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-1">
-                {addressItem.is_default === 0 && (
-                  <button
-                    onClick={() => handleSetDefaultAddress(addressItem.id)}
-                    title={t("Đặt làm mặc định")}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer"
-                  >
-                    <Icon icon="solar:star-bold" className="text-lg" />
-                  </button>
+              {/* Actions Dropdown */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveAddressDropdownId(activeAddressDropdownId === addressItem.id ? null : addressItem.id);
+                  }}
+                  title={t("Thêm tùy chọn")}
+                  className="p-2 rounded-full text-black hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                >
+                  <Icon icon="ri:more-fill" className="text-xl" />
+                </button>
+
+                {activeAddressDropdownId === addressItem.id && (
+                  <>
+                    {/* Invisible overlay window click detector */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveAddressDropdownId(null);
+                      }}
+                    />
+                    {/* Dropdown popup */}
+                    <div className="absolute right-0 mt-1.5 w-40 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 py-1.5 z-20 animate-fade-in text-black dark:text-white">
+                      {addressItem.is_default === 0 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveAddressDropdownId(null);
+                            handleSetDefaultAddress(addressItem.id);
+                          }}
+                          className="w-full px-4 py-2 text-left text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer"
+                        >
+                          <Icon icon="solar:star-bold" className="text-sm text-yellow-550" />
+                          <span>{t("Đặt làm mặc định")}</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveAddressDropdownId(null);
+                          handleEditAddressClick(addressItem);
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs font-semibold text-black dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Icon icon="solar:pen-bold" className="text-sm text-black dark:text-white" />
+                        <span>{t("Chỉnh sửa")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveAddressDropdownId(null);
+                          handleDeleteAddress(addressItem.id);
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Icon icon="solar:trash-bin-trash-bold" className="text-sm text-red-650 dark:text-red-400" />
+                        <span>{t("Xóa")}</span>
+                      </button>
+                    </div>
+                  </>
                 )}
-                <button
-                  onClick={() => handleEditAddressClick(addressItem)}
-                  title={t("Chỉnh sửa")}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-950 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer"
-                >
-                  <Icon icon="solar:pen-bold" className="text-lg" />
-                </button>
-                <button
-                  onClick={() => handleDeleteAddress(addressItem.id)}
-                  title={t("Xóa")}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer"
-                >
-                  <Icon icon="solar:trash-bin-trash-bold" className="text-lg" />
-                </button>
               </div>
             </div>
           ))

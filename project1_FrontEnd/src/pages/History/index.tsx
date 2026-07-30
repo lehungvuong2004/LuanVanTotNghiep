@@ -6,7 +6,7 @@ import type { Booking, StatusFilter } from "./useHook";
 import { useRecruitment } from "../Recruitment/useHook";
 import { Pagination } from "../../components/Pagination";
 
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { formatDateTime } from "../../utils";
 import { PaymentReceipt } from "../../components/PaymentReceipt";
 import { ReviewModal } from "../Review";
@@ -15,6 +15,7 @@ import { useToast } from "../../contexts/ToastContext";
 
 export const HistoryPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // ── History hook (direct bookings) ───────────────────────
   const {
@@ -70,7 +71,6 @@ export const HistoryPage = () => {
     deleteJobPost,
     editingJobPost,
     isEditModalOpen,
-    openEditJobPost,
     closeEditJobPost,
     updateJobPost,
     helperProfile,
@@ -449,13 +449,20 @@ export const HistoryPage = () => {
         {/* Employee / Customer */}
         <td className="px-6 py-4.5 whitespace-nowrap border-r last:border-r-0 border-slate-200 dark:border-slate-750">
           <div className="flex items-center gap-3">
-            <img src={booking.helper.avatar} alt={booking.helper.name} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
+            <img src={booking.helper.avatar} alt={booking.helper.name || (isHelper ? t("Khách hàng") : t("Người giúp việc"))} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
             <div className="flex flex-col text-left">
-              <span className="text-sm font-semibold text-slate-750 dark:text-slate-300">{booking.helper.name}</span>
-              {booking.helper.phone && (
+              <span className="text-sm font-semibold text-slate-750 dark:text-slate-300">
+                {booking.helper.name || (isHelper ? t("Khách hàng") : t("Người giúp việc"))}
+              </span>
+              {booking.helper.phone ? (
                 <span className="text-xs text-slate-550 dark:text-slate-400 mt-0.5 flex items-center gap-1">
                   <Icon icon="material-symbols:phone-enabled" className="text-xs text-[#026E5F] dark:text-teal-400 animate-pulse" />
                   {booking.helper.phone}
+                </span>
+              ) : (
+                <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-1">
+                  <Icon icon="material-symbols:phone-enabled" className="text-xs text-slate-300 dark:text-slate-655" />
+                  {t("Chưa cập nhật SĐT")}
                 </span>
               )}
             </div>
@@ -772,6 +779,7 @@ export const HistoryPage = () => {
     return (
       <div className="grid grid-cols-1 gap-4">
         {myJobPosts.map((post) => {
+          const isExpired = post.expired_at && new Date(post.expired_at).getTime() < Date.now();
           const isClosed = post.status === "closed";
           return (
             <div
@@ -781,7 +789,11 @@ export const HistoryPage = () => {
               <div className="flex flex-col gap-2 max-w-xl text-left">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-extrabold text-slate-450 dark:text-slate-500">#{post.id}</span>
-                  {isClosed ? (
+                  {isExpired ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
+                      🔴 {t("Đã hết hạn")}
+                    </span>
+                  ) : isClosed ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-450 border border-green-100 dark:border-green-900/30">
                       {t("Đã kết thúc")}
                     </span>
@@ -793,36 +805,58 @@ export const HistoryPage = () => {
                 </div>
                 <h3 className="text-base font-bold text-slate-850 dark:text-slate-100 leading-snug">{post.title}</h3>
                 <p className="text-xs text-slate-550 dark:text-slate-400 line-clamp-2">{post.description}</p>
-                <div className="flex flex-wrap gap-4 mt-1 text-xs text-slate-450 dark:text-slate-550">
-                  <span className="flex items-center gap-1">
-                    <Icon icon="material-symbols:payments-outline" className="text-sm" />
+                
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 text-xs text-slate-450 dark:text-slate-550 items-center">
+                  <span className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/30 px-2.5 py-1 rounded-lg">
+                    <Icon icon="material-symbols:payments-outline" className="text-sm text-slate-400" />
                     {post.salary ? `${Number(post.salary).toLocaleString()} VNĐ` : "Thỏa thuận"}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Icon icon="material-symbols:location-on-outline" className="text-sm" />
+                  <span className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/30 px-2.5 py-1 rounded-lg">
+                    <Icon icon="material-symbols:location-on-outline" className="text-sm text-slate-400" />
                     {post.district}, {post.city}
                   </span>
-                  <span className="flex items-center gap-1 font-semibold text-rose-500">
-                    <Icon icon="material-symbols:event-busy-outline" className="text-sm" />
-                    {t("Hết hạn")}: {post.expired_at ? formatDateTime(post.expired_at) : "N/A"}
-                  </span>
+                </div>
+
+                <div className="mt-2.5">
+                  {isExpired ? (
+                    <div className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                      <div className="text-xs text-slate-400 dark:text-slate-500 uppercase font-extrabold tracking-wider">{t("Đã hết hạn lúc")}</div>
+                      <div className="text-sm font-extrabold mt-0.5 flex items-center gap-1">
+                        <Icon icon="material-symbols:event-busy-outline" className="text-base text-rose-500" />
+                        {post.expired_at ? formatDateTime(post.expired_at) : "N/A"}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-slate-500 dark:text-slate-450 font-medium">
+                      <div className="text-xs text-slate-400 dark:text-slate-500 uppercase font-extrabold tracking-wider">{t("Hết hạn lúc")}</div>
+                      <div className="text-sm font-extrabold mt-0.5 flex items-center gap-1 text-slate-700 dark:text-slate-300">
+                        <Icon icon="material-symbols:calendar-month-outline" className="text-base text-[#026E5F] dark:text-teal-400" />
+                        {post.expired_at ? formatDateTime(post.expired_at) : "N/A"}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+              <div className="flex flex-wrap items-center gap-2 shrink-0 self-end md:self-center">
                 <button
                   onClick={() => openApplications(post)}
                   className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-[#026E5F] dark:hover:border-teal-500 hover:text-[#026E5F] dark:hover:text-teal-400 text-sm font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer flex items-center gap-2"
                 >
                   <Icon icon="material-symbols:group-outline" className="text-lg" />
-                  {t("Danh sách ứng viên")}
+                  {t("Xem ứng viên")}
+                  {post.active_applications_count !== undefined && post.active_applications_count > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-xs font-extrabold rounded-full bg-[#026E5F] text-white dark:bg-teal-500 dark:text-slate-900">
+                      {post.active_applications_count}
+                    </span>
+                  )}
                 </button>
-                {post.status === "open" && (
+                {isExpired && (
                   <button
-                    onClick={() => openEditJobPost(post)}
-                    className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-[#026E5F] dark:hover:border-teal-500 hover:text-[#026E5F] dark:hover:text-teal-400 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all cursor-pointer"
-                    title={t("Chỉnh sửa bài đăng")}
+                    onClick={() => navigate("/dang-bai-tuyen", { state: { prefilledPost: post } })}
+                    className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm hover:-translate-y-0.5"
                   >
-                    <Icon icon="solar:pen-bold" className="text-lg" />
+                    <Icon icon="material-symbols:autorenew" className="text-lg" />
+                    {t("Đăng lại")}
                   </button>
                 )}
                 <button
@@ -1479,7 +1513,7 @@ export const HistoryPage = () => {
           }
           return (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-              <div className="bg-white dark:bg-slate-850 w-full max-w-md rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+              <div className="bg-white dark:bg-slate-850 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-700/50">
                   <div className="text-left">

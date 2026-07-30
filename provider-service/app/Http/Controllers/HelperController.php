@@ -420,12 +420,12 @@ class HelperController extends Controller
 
     if ($request->has('city') && !is_numeric($request->city)) {
       $cityModel = $this->findCity($request->city);
-      $districtModel = $cityModel ? $this->findDistrict($cityModel->id, $request->district) : null;
-      if ($cityModel && $districtModel) {
-        $request->merge([
-          'city_id' => $cityModel->id,
-          'district_id' => $districtModel->id
-        ]);
+      if ($cityModel) {
+        $request->merge(['city_id' => $cityModel->id]);
+        $districtModel = $this->findDistrict($cityModel->id, $request->district);
+        if ($districtModel) {
+          $request->merge(['district_id' => $districtModel->id]);
+        }
       }
     }
 
@@ -769,10 +769,10 @@ class HelperController extends Controller
     if ($cityModel) return $cityModel;
 
     // 2. Fetch and match using normalization
-    $normalizedInput = strtolower(str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', $cityInput));
+    $normalizedInput = str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', strtolower($cityInput));
     $cities = City::all();
     foreach ($cities as $city) {
-      $normalizedDb = strtolower(str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', $city->name));
+      $normalizedDb = str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', strtolower($city->name));
       if ($normalizedDb === $normalizedInput || 
           ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) || 
           ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false) ||
@@ -783,7 +783,7 @@ class HelperController extends Controller
       }
     }
 
-    return City::first(); // fallback to default first city
+    return City::create(['name' => $cityInput]);
   }
 
   private function findDistrict($cityId, $districtName)
@@ -796,10 +796,55 @@ class HelperController extends Controller
     if ($districtModel) return $districtModel;
 
     // 2. Fetch and match using normalization
-    $normalizedInput = strtolower(str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố'], '', $districtInput));
+    $normalizedInput = str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố', 'xã', 'phường', 'thịtrấn'], '', strtolower($districtInput));
+    
+    // Common commune/ward fallback mappings for HCMC to their respective districts
+    $communeMap = [
+        'bìnhhưng' => 'bìnhchánh',
+        'phongphú' => 'bìnhchánh',
+        'vĩnhlộc' => 'bìnhchánh',
+        'hiệpphước' => 'nhàbè',
+        'phúxuân' => 'nhàbè',
+        'nhơnđức' => 'nhàbè',
+        'phướckiển' => 'nhàbè',
+        'phướclộc' => 'nhàbè',
+        'đakao' => 'quận1',
+        'bếnnghé' => 'quận1',
+        'bếnthành' => 'quận1',
+        'phạmngũlão' => 'quận1',
+        'nguyễncưtrinh' => 'quận1',
+        'nguyễntháibình' => 'quận1',
+        'cầukho' => 'quận1',
+        'cầuônglãnh' => 'quận1',
+        'côgiang' => 'quận1',
+        'tânđịnh' => 'quận1',
+        'thảođiền' => 'thủđức',
+        'cátlái' => 'thủđức',
+        'hiệpbìnhchánh' => 'thủđức',
+        'hiệpbìnhphước' => 'thủđức',
+        'linhđông' => 'thủđức',
+        'linhtây' => 'thủđức',
+        'linhchiểu' => 'thủđức',
+        'linhtrung' => 'thủđức',
+        'linhxuân' => 'thủđức',
+        'tambình' => 'thủđức',
+        'tamphú' => 'thủđức',
+        'trườngthọ' => 'thủđức',
+        'hiệpbình' => 'thủđức',
+        'anphú' => 'thủđức',
+        'longthạnhmỹ' => 'thủđức',
+        'longtrường' => 'thủđức',
+        'phướclong' => 'thủđức',
+        'hiệpphú' => 'thủđức',
+    ];
+
+    if (array_key_exists($normalizedInput, $communeMap)) {
+      $normalizedInput = $communeMap[$normalizedInput];
+    }
+
     $districts = District::where('city_id', $cityId)->get();
     foreach ($districts as $district) {
-      $normalizedDb = strtolower(str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố'], '', $district->name));
+      $normalizedDb = str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố', 'xã', 'phường', 'thịtrấn'], '', strtolower($district->name));
       if ($normalizedDb === $normalizedInput || 
           ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) || 
           ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false)
@@ -808,6 +853,9 @@ class HelperController extends Controller
       }
     }
 
-    return null;
+    return District::create([
+        'city_id' => $cityId,
+        'name' => $districtInput
+    ]);
   }
 }

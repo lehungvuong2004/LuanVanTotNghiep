@@ -80,6 +80,13 @@ export const formatDate = (dateStr: any) => {
   return `${dd}/${mm}/${yyyy}`;
 };
 
+export const formatDateWithDay = (dateStr: any, locale: string = "vi-VN") => {
+  if (!dateStr) return "";
+  const d = parseUtcDate(dateStr);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(locale, { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+};
+
 export const formatTimeOnly = (date?: Date) => {
   const d = date || new Date();
   return d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });

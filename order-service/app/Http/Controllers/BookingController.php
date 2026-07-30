@@ -128,7 +128,7 @@ class BookingController extends Controller
         $bookings = $query->orderByDesc('created_at')->paginate($limit);
 
         // Fetch helper user info from identity-service internally
-        $helperIds = collect($bookings->items())->pluck('helper_id')->filter()->unique()->toArray();
+        $helperIds = collect($bookings->items())->pluck('helper_id')->filter()->unique()->values()->toArray();
         $userMap = [];
 
         if (!empty($helperIds)) {
@@ -292,7 +292,7 @@ class BookingController extends Controller
         $limit    = $request->integer('limit', 20);
         $bookings = $query->orderByDesc('created_at')->paginate($limit);
 
-        $customerIds = collect($bookings->items())->pluck('customer_id')->filter()->unique()->toArray();
+        $customerIds = collect($bookings->items())->pluck('customer_id')->filter()->unique()->values()->toArray();
         $userMap = [];
 
         if (!empty($customerIds)) {

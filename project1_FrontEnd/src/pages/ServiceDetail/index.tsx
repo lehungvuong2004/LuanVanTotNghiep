@@ -11,58 +11,7 @@ function priceTypeLabel(pt: string, t: any) {
   return t("lần");
 }
 
-interface CustomSelectProps {
-  value: string | number;
-  onChange: (value: string) => void;
-  options: { value: string | number; label: string }[];
-  placeholder?: string;
-  className?: string;
-}
-
-const CustomSelect = ({ value, onChange, options, placeholder, className = "" }: CustomSelectProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectedOption = options.find((opt) => String(opt.value) === String(value));
-
-  return (
-    <div className={`relative w-full ${className}`}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-705 dark:text-slate-350 flex items-center justify-between cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-left"
-      >
-        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
-        <Icon icon="material-symbols:keyboard-arrow-down" className={`text-xl text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`} />
-      </button>
-
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-
-          <ul className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm">
-            {options.map((opt) => {
-              const isSelected = String(opt.value) === String(value);
-              return (
-                <li
-                  key={opt.value}
-                  onClick={() => {
-                    onChange(String(opt.value));
-                    setIsOpen(false);
-                  }}
-                  className={`px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors font-medium flex items-center justify-between ${
-                    isSelected ? "text-teal-650 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/20 font-bold" : "text-slate-700 dark:text-slate-350"
-                  }`}
-                >
-                  <span className="truncate">{opt.label}</span>
-                  {isSelected && <Icon icon="material-symbols:check" className="text-base text-teal-600 dark:text-teal-400" />}
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
-    </div>
-  );
-};
+import { CustomSelect } from "../../components/CustomSelect";
 
 export const ServiceDetail = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -483,7 +432,7 @@ export const ServiceDetail = () => {
             <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{t("Viết đánh giá của bạn")}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               {t("Đánh giá này sẽ được gửi trực tiếp cho nhân viên:")}{" "}
-              <span className="font-bold text-teal-600 dark:text-teal-400">{helperName}</span>
+              <span className="font-bold text-black dark:text-white">{helperName}</span>
             </p>
           </div>
 
