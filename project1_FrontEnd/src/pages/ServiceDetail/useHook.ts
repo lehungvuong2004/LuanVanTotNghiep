@@ -37,7 +37,6 @@ export const useServiceDetail = () => {
   // States for the review form (create mode)
   const [formRating, setFormRating] = useState<number>(5);
   const [formComment, setFormComment] = useState<string>("");
-  const [formHelperId, setFormHelperId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   // States for edit mode
@@ -89,6 +88,13 @@ export const useServiceDetail = () => {
       showToast("error", t("Quyền truy cập"), t("Chỉ có tài khoản Khách hàng mới có thể đặt dịch vụ."));
       return;
     }
+    if (!currentUser.full_name?.trim() || !currentUser.phone?.trim() || !currentUser.email?.trim()) {
+      showToast("warning", t("Yêu cầu thông tin"), t("Vui lòng điền đầy đủ thông tin cá nhân (Họ tên, Số điện thoại, Email) trước khi đặt lịch."));
+      setTimeout(() => {
+        navigate("/ho-so");
+      }, 2000);
+      return;
+    }
     setIsBookingModalOpen(true);
     await fetchAddresses();
   };
@@ -125,6 +131,8 @@ export const useServiceDetail = () => {
 
   const handleCreateBooking = async (e) => {
     e.preventDefault();
+    const bookingDateTime = new Date(`${bookingDate}T${bookingTime}`);
+    const now = new Date();
     if (!selectedAddressId) {
       showToast("error", t("Lỗi"), t("Vui lòng chọn hoặc thêm địa chỉ nhận việc."));
       return;
@@ -135,6 +143,10 @@ export const useServiceDetail = () => {
     }
     if (!bookingTime) {
       showToast("error", t("Lỗi"), t("Vui lòng chọn giờ làm việc."));
+      return;
+    }
+    if (bookingDateTime <= now) {
+      showToast("error", t("Lỗi"), t("Thời gian đặt lịch phải ở trong tương lai."));
       return;
     }
 
@@ -204,7 +216,6 @@ export const useServiceDetail = () => {
           const hasQueryHelper = res.helpers.some((h: any) => h.id === queryHelperId);
           const initialHelperId = hasQueryHelper ? queryHelperId! : res.helpers[0].id;
           setSelectedHelperId(initialHelperId);
-          setFormHelperId(initialHelperId);
           await fetchHelperReviews(initialHelperId);
         }
       } catch (err) {
@@ -226,14 +237,14 @@ export const useServiceDetail = () => {
 
   const handleCreateReview = async (e) => {
     e.preventDefault();
-    if (!formHelperId) {
-      showToast("error", t("Lỗi"), t("Vui lòng chọn nhân viên để đánh giá."));
+    if (!selectedHelperId) {
+      showToast("error", t("Lỗi"), t("Vui lòng chọn nhân viên để xem và đánh giá."));
       return;
     }
     setSubmitting(true);
     try {
       await createReviewCustomer({
-        helper_id: formHelperId,
+        helper_id: selectedHelperId,
         rating: formRating,
         comment: formComment || "",
       });
@@ -307,8 +318,6 @@ export const useServiceDetail = () => {
     setFormRating,
     formComment,
     setFormComment,
-    formHelperId,
-    setFormHelperId,
     submitting,
     editingReviewId,
     setEditingReviewId,

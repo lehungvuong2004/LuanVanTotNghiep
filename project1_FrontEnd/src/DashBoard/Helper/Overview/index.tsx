@@ -259,7 +259,7 @@ export const HelperOverview = () => {
                       <span className="text-lg text-slate-400 font-medium">{new Date(rev.created_at).toLocaleDateString("vi-VN")}</span>
                     </div>
                   </div>
-                  {renderStars(rev.rating, "text-2xl")}
+                  {renderStars(rev.rating)}
                 </div>
                 <p className="text-xl text-slate-650 dark:text-slate-300 italic leading-relaxed">"{rev.comment || "Không có bình luận"}"</p>
               </div>

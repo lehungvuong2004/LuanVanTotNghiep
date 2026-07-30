@@ -24,7 +24,7 @@ export const HelperReviewsPage = () => {
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center items-center text-center">
           <span className="text-lg font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block mb-2">Điểm Đánh Giá</span>
           <span className="text-5xl font-black text-slate-850 dark:text-slate-100 mb-2">{avg}</span>
-          {renderStars(Math.round(ratingAvg || 0), "text-2xl")}
+          {renderStars(Math.round(ratingAvg || 0))}
           <span className="text-base text-slate-400 dark:text-slate-550 mt-3 font-semibold">Dựa trên {totalReviews} lượt đánh giá</span>
         </div>
 

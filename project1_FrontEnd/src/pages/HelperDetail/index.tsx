@@ -1,80 +1,25 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
-import { useTranslation } from "react-i18next";
-import { getHelperPublic, type HelperProfile } from "../../api/helpers";
-import { getHelperReviewsPublic, type Review, type HelperReviewsResponse } from "../../api/reviews";
-import { ReviewCard, RatingDistributionRow } from "../../components/Reviews";
-import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import { fetchFavorites, toggleFavorite } from "../../redux/favoritesSlice";
-import { useAuth } from "../../hooks/useAuth";
-import { ROLES, getUserRole } from "../../constants/roles";
+import { ReviewCard, RatingDistributionRow, ReviewFilters } from "../../components/Reviews";
+import { useHelperDetail } from "./useHook";
 
 export const HelperDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-
-  const [helper, setHelper] = useState<HelperProfile | null>(null);
-  const [reviewData, setReviewData] = useState<HelperReviewsResponse | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filterRating, setFilterRating] = useState<number | null>(null);
-  const [showServiceDropdown, setShowServiceDropdown] = useState(false);
-  const [showAllReviews, setShowAllReviews] = useState(false);
-
-  const dispatch = useAppDispatch();
-  const { isLoggedIn, user: currentUser } = useAuth();
-  const isCustomer = isLoggedIn && getUserRole(currentUser) === ROLES.CUSTOMER;
-  const favoriteIds = useAppSelector((state) => state.favorites.favoriteIds);
-
-  useEffect(() => {
-    if (isCustomer) {
-      dispatch(fetchFavorites());
-    }
-  }, [dispatch, isCustomer]);
-
-  const handleToggleFavorite = (helperId: number) => {
-    if (!isLoggedIn) {
-      navigate("/dang-nhap");
-      return;
-    }
-    if (!isCustomer) return;
-    const isCurrentlyFavorite = favoriteIds.includes(helperId);
-    dispatch(toggleFavorite({ helperId, isCurrentlyFavorite }));
-  };
-
-  useEffect(() => {
-    if (!id) return;
-    const fetchHelper = async () => {
-      setLoading(true);
-      try {
-        const res = await getHelperPublic(Number(id));
-        setHelper(res.data);
-      } catch (err) {
-        console.error("Failed to fetch helper:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHelper();
-  }, [id]);
-
-  useEffect(() => {
-    if (!id) return;
-    const fetchReviews = async () => {
-      try {
-        const params: any = { limit: 50 };
-        if (filterRating) params.rating = filterRating;
-        const res = await getHelperReviewsPublic(Number(id), params);
-        setReviewData(res);
-        setReviews(res.data?.data ?? []);
-      } catch (err) {
-        console.error("Failed to fetch reviews:", err);
-      }
-    };
-    fetchReviews();
-  }, [id, filterRating]);
+  const {
+    navigate,
+    t,
+    helper,
+    reviewData,
+    reviews,
+    loading,
+    ratingFilter,
+    setRatingFilter,
+    showAllReviews,
+    setShowAllReviews,
+    favoriteIds,
+    isCustomer,
+    handleToggleFavorite,
+    showServiceDropdown,
+    setShowServiceDropdown,
+  } = useHelperDetail();
 
   if (loading) {
     return (
@@ -314,36 +259,40 @@ export const HelperDetail = () => {
                 star={star}
                 count={ratingDist[star] ?? 0}
                 total={reviewData.total_reviews}
-                isActive={filterRating === star}
-                onClick={() => setFilterRating(filterRating === star ? null : star)}
+                isActive={ratingFilter === star}
+                onClick={() => {
+                  setRatingFilter(ratingFilter === star ? "all" : star);
+                }}
               />
             ))}
           </div>
         </div>
       )}
 
-      {/* Filter Chip */}
-      {filterRating && (
-        <div className="mb-4">
-          <span className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-full text-xs font-bold">
-            <Icon icon="material-symbols:filter-list" className="text-sm" />
-            {t("Lọc")}: {filterRating} {t("sao")}
-            <button onClick={() => setFilterRating(null)} className="hover:text-red-500 cursor-pointer">
-              <Icon icon="material-symbols:close" className="text-sm" />
-            </button>
-          </span>
-        </div>
-      )}
+      {/* Review Filters */}
+      <ReviewFilters
+        ratingFilter={ratingFilter}
+        setRatingFilter={setRatingFilter}
+        t={t}
+      />
 
-      <div className="space-y-4">
-        {(showAllReviews ? reviews : reviews.slice(0, 3)).length > 0 ? (
-          (showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => <ReviewCard key={review.id} review={review} variant="line" t={t} />)
-        ) : (
-          <div className="text-center py-12 text-slate-400">
-            <Icon icon="material-symbols:rate-review-outline" className="text-4xl mb-2 mx-auto" />
-            <p className="font-semibold">{filterRating ? t("Không có đánh giá nào với số sao này.") : t("Chưa có đánh giá nào.")}</p>
-          </div>
-        )}
+      <div className="space-y-4 mt-8">
+        {(() => {
+          let filtered = reviews;
+          if (ratingFilter !== "all") {
+            filtered = filtered.filter((r) => r.rating === ratingFilter);
+          }
+          const displayedReviews = showAllReviews ? filtered : filtered.slice(0, 3);
+          
+          return displayedReviews.length > 0 ? (
+            displayedReviews.map((review) => <ReviewCard key={review.id} review={review} variant="line" t={t} />)
+          ) : (
+            <div className="text-center py-12 text-slate-400">
+              <Icon icon="material-symbols:rate-review-outline" className="text-4xl mb-2 mx-auto" />
+              <p className="font-semibold">{ratingFilter !== "all" ? t("Không có đánh giá nào phù hợp với bộ lọc.") : t("Chưa có đánh giá nào.")}</p>
+            </div>
+          );
+        })()}
 
         {reviews.length > 3 && (
           <div className="flex justify-center pt-2">
@@ -372,7 +321,7 @@ export const HelperDetail = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 pt-6 pb-16">
-      <div className="max-w-384 mx-auto px-4 sm:px-6 lg:px-10">
+      <div className="max-w-8xl">
         {renderBreadcrumb()}
         <div className="grid grid-cols-1 gap-8">
           {renderProfileHeader()}

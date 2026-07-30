@@ -119,7 +119,7 @@ export const ReviewCard = (props: any) => {
             <h4 className="text-xl font-bold text-slate-890 dark:text-slate-150 leading-tight">{review.customer?.full_name || "Khách hàng ẩn danh"}</h4>
             <span className="text-base text-slate-400 dark:text-slate-505 font-medium">{formatDate(review.created_at)}</span>
           </div>
-          <div className="justify-self-end">{renderStars(review.rating, "text-sm")}</div>
+          <div className="justify-self-end">{renderStars(review.rating)}</div>
         </div>
         <p className="text-xl text-slate-650 dark:text-slate-200 italic leading-relaxed pl-1 pt-1">"{review.comment || "Không có nội dung lời nhắn"}"</p>
       </div>
@@ -159,7 +159,7 @@ export const ReviewCard = (props: any) => {
             </div>
           </div>
           <div className="flex items-center gap-2 mb-2">
-            {renderStars(review.rating, "text-sm")}
+            {renderStars(review.rating)}
             <span className="text-xs text-slate-400">({review.created_at ? formatVietnamDateTime(review.created_at) : ""})</span>
           </div>
           {review.comment && <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">{review.comment}</p>}
@@ -201,7 +201,7 @@ export const ReviewCard = (props: any) => {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 mb-2">{renderStars(review.rating, "text-sm")}</div>
+          <div className="flex items-center gap-2 mb-2">{renderStars(review.rating)}</div>
           {review.comment && <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">{review.comment}</p>}
         </div>
       </div>
@@ -212,4 +212,49 @@ export const ReviewCard = (props: any) => {
   if (variant === "dashboard") return renderDashboard();
   if (variant === "line") return renderLine();
   return renderCard();
+};
+
+export const ReviewFilters = ({
+  ratingFilter,
+  setRatingFilter,
+  t,
+}: {
+  ratingFilter: number | "all";
+  setRatingFilter: (rating: number | "all") => void;
+  t: any;
+}) => {
+  return (
+    <div className="flex flex-wrap items-center gap-2.5 my-2">
+      <button
+        type="button"
+        onClick={() => {
+          setRatingFilter("all");
+        }}
+        className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+          ratingFilter === "all"
+            ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
+            : "bg-slate-50 dark:bg-slate-800/85 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+        }`}
+      >
+        {t("Tất cả")}
+      </button>
+
+      {[5, 4, 3, 2, 1].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => {
+            setRatingFilter(ratingFilter === star ? "all" : star);
+          }}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            ratingFilter === star
+              ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
+              : "bg-slate-50 dark:bg-slate-800/85 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+          }`}
+        >
+          {star} {t("sao")}
+        </button>
+      ))}
+    </div>
+  );
 };

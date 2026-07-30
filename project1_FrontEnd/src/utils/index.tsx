@@ -185,14 +185,14 @@ export const getRoleBadge = (role?: any) => {
   }
 };
 
-export const renderStars = (rating: number, sizeClass = "text-lg") => {
+export const renderStars = (rating: number) => {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
     stars.push(
       <Icon
         key={i}
         icon={i <= rating ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
-        className={`${sizeClass} ${i <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}`}
+        className={`text-xl ${i <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}`}
       />,
     );
   }

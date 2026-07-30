@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 
 import { useServiceDetail } from "./useHook";
 import { formatNumberVI } from "../../utils";
-import { RatingDistributionRow, ReviewCard } from "../../components/Reviews";
+import { RatingDistributionRow, ReviewCard, ReviewFilters } from "../../components/Reviews";
 
 function priceTypeLabel(pt: string, t: any) {
   if (pt === "hourly") return t("giờ");
@@ -67,7 +67,6 @@ const CustomSelect = ({ value, onChange, options, placeholder, className = "" }:
 export const ServiceDetail = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [ratingFilter, setRatingFilter] = useState<number | "all">("all");
-  const [hasCommentFilter, setHasCommentFilter] = useState<boolean>(false);
   const {
     navigate,
     t,
@@ -86,8 +85,6 @@ export const ServiceDetail = () => {
     setFormRating,
     formComment,
     setFormComment,
-    formHelperId,
-    setFormHelperId,
     submitting,
     editingReviewId,
     setEditingReviewId,
@@ -465,89 +462,35 @@ export const ServiceDetail = () => {
 
         <div className="md:col-span-2 space-y-2.5 w-full">
           {[5, 4, 3, 2, 1].map((star) => (
-            <RatingDistributionRow key={star} star={star} count={statsToDisplay.rating_distribution?.[star] ?? 0} total={statsToDisplay.total_reviews} colorClass="bg-teal-805 dark:bg-teal-400" />
+            <RatingDistributionRow key={star} star={star} count={statsToDisplay.rating_distribution?.[star] ?? 0} total={statsToDisplay.total_reviews} colorClass="bg-teal-600 dark:bg-teal-400" />
           ))}
         </div>
       </div>
     );
   };
 
-  const renderReviewFilters = () => (
-    <div className="flex flex-wrap items-center gap-2.5 my-2">
-      <button
-        type="button"
-        onClick={() => {
-          setRatingFilter("all");
-          setHasCommentFilter(false);
-        }}
-        className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-          ratingFilter === "all" && !hasCommentFilter
-            ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
-            : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-      >
-        {t("Tất cả")}
-      </button>
-
-      {[5, 4].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => {
-            setRatingFilter(ratingFilter === star ? "all" : star);
-            setHasCommentFilter(false);
-          }}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            ratingFilter === star && !hasCommentFilter
-              ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
-              : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-          }`}
-        >
-          {star} {t("sao")}
-        </button>
-      ))}
-
-      <button
-        type="button"
-        onClick={() => {
-          setHasCommentFilter(!hasCommentFilter);
-          setRatingFilter("all");
-        }}
-        className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-          hasCommentFilter
-            ? "bg-teal-100/80 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 dark:border-teal-700"
-            : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-      >
-        {t("Có bình luận")}
-      </button>
-    </div>
-  );
+  const renderReviewFilters = () => <ReviewFilters ratingFilter={ratingFilter} setRatingFilter={setRatingFilter} t={t} />;
 
   const renderReviewForm = () => {
     if (!isCustomer || helpers.length === 0) return null;
+    const selectedHelperObj = helpers.find((h: any) => h.id === selectedHelperId);
+    const helperName = selectedHelperObj?.user?.full_name ?? `Helper #${selectedHelperId}`;
+
     return (
       <form onSubmit={handleCreateReview} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-6 space-y-4 shadow-sm text-left">
-        <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{t("Viết đánh giá của bạn")}</h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Select Helper to Review */}
-          <div className="text-left">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t("Chọn nhân viên để đánh giá")}</label>
-            <CustomSelect
-              value={formHelperId ?? ""}
-              onChange={(val) => setFormHelperId(Number(val))}
-              options={helpers.map((h: any) => ({
-                value: h.id,
-                label: h.user?.full_name ?? `Helper #${h.id}`,
-              }))}
-            />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700/60 pb-4">
+          <div>
+            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{t("Viết đánh giá của bạn")}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {t("Đánh giá này sẽ được gửi trực tiếp cho nhân viên:")}{" "}
+              <span className="font-bold text-teal-600 dark:text-teal-400">{helperName}</span>
+            </p>
           </div>
 
           {/* Rating Select */}
-          <div className="text-left">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t("Số sao đánh giá")}</label>
-            <div className="flex items-center gap-1.5 py-1">
+          <div className="text-left shrink-0">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t("Số sao đánh giá")}</label>
+            <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button key={star} type="button" onClick={() => setFormRating(star)} className="text-2xl transition-transform hover:scale-110 focus:outline-none cursor-pointer">
                   <Icon icon="material-symbols:star" className={star <= formRating ? "text-amber-400" : "text-slate-200 dark:text-slate-700"} />
@@ -588,14 +531,11 @@ export const ServiceDetail = () => {
     if (ratingFilter !== "all") {
       filtered = filtered.filter((r) => r.rating === ratingFilter);
     }
-    if (hasCommentFilter) {
-      filtered = filtered.filter((r) => Boolean(r.comment && r.comment.trim() !== ""));
-    }
 
     const displayedReviews = showAllReviews ? filtered : filtered.slice(0, 3);
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 mt-6">
         {displayedReviews.length > 0 ? (
           <>
             {displayedReviews.map((review) => {
@@ -762,11 +702,11 @@ export const ServiceDetail = () => {
                     <button
                       type="button"
                       onClick={() => setIsAddingNewAddress(false)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition-all"
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
                     >
                       {t("Hủy")}
                     </button>
-                    <button type="submit" className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition-all">
+                    <button type="submit" className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer">
                       {t("Lưu địa chỉ")}
                     </button>
                   </div>
@@ -779,7 +719,7 @@ export const ServiceDetail = () => {
                       onChange={(val) => setSelectedAddressId(Number(val))}
                       options={addresses.map((addr) => ({
                         value: addr.id,
-                        label: `${addr.address}, ${addr.district}, ${addr.city} ${addr.is_default ? `(${t("Mặc định")})` : ""}`,
+                        label: `${addr.address}, ${addr.district ? (typeof addr.district === "object" ? (addr.district as any).name : addr.district) : ""}, ${addr.city ? (typeof addr.city === "object" ? (addr.city as any).name : addr.city) : ""} ${addr.is_default ? `(${t("Mặc định")})` : ""}`,
                       }))}
                     />
                   ) : (
@@ -787,7 +727,7 @@ export const ServiceDetail = () => {
                       <Icon icon="material-symbols:warning-amber-rounded" className="text-lg shrink-0" />
                       <div>
                         {t("Bạn chưa có địa chỉ nhận việc nào.")}{" "}
-                        <button type="button" onClick={() => setIsAddingNewAddress(true)} className="underline font-bold hover:text-amber-700">
+                        <button type="button" onClick={() => setIsAddingNewAddress(true)} className="underline font-bold hover:text-amber-700 cursor-pointer">
                           {t("Thêm địa chỉ ngay")}
                         </button>
                       </div>
@@ -939,7 +879,7 @@ export const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen dark:bg-slate-900 py-8">
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10">
+      <div className="max-w-8xl">
         {renderBreadcrumb()}
         {renderHeroSection()}
         {renderTabNavigation()}

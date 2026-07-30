@@ -179,7 +179,7 @@ export const PostAJob = () => {
                 >
                   {addresses.map((addr) => (
                     <option key={addr.id} value={addr.id}>
-                      {`${addr.address}, ${addr.district}, ${addr.city}`}
+                      {`${addr.address}, ${addr.district ? (typeof addr.district === "object" ? (addr.district as any).name : addr.district) : ""}, ${addr.city ? (typeof addr.city === "object" ? (addr.city as any).name : addr.city) : ""}`}
                     </option>
                   ))}
                   <option value="new">{t("Nhập địa chỉ mới...")}</option>

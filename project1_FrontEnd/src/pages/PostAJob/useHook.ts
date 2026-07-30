@@ -2,6 +2,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profileApi/profile";
 import { createJobPostApi } from "../../api/jobPostsApi/jobPosts";
 import { getPostJobSchema } from "../../api/jobPostsApi/validation";
@@ -42,6 +43,7 @@ export const getUrgencyFromDates = (workingTime: string, expirationDate: string)
 
 export const usePostAJobHook = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
   const [isNewAddress, setIsNewAddress] = useState(true);
@@ -157,6 +159,17 @@ export const usePostAJobHook = () => {
 
   // Fetch customer addresses on mount
   useEffect(() => {
+    const currentUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+    if (currentUser) {
+      if (!currentUser.full_name?.trim() || !currentUser.phone?.trim() || !currentUser.email?.trim()) {
+        showToast("warning", t("Yêu cầu thông tin"), t("Vui lòng điền đầy đủ thông tin cá nhân (Họ tên, Số điện thoại, Email) trước khi đăng tin tuyển dụng."));
+        setTimeout(() => {
+          navigate("/ho-so");
+        }, 2000);
+        return;
+      }
+    }
+
     const fetchData = async () => {
       try {
         const addrRes = await getCustomerAddressesApi();

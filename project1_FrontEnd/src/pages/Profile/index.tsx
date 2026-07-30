@@ -699,7 +699,7 @@ export const Profile = () => {
                     )}
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {addressItem.district}, {addressItem.city}
+                    {addressItem.district ? (typeof addressItem.district === "object" ? (addressItem.district as any).name : addressItem.district) : ""}, {addressItem.city ? (typeof addressItem.city === "object" ? (addressItem.city as any).name : addressItem.city) : ""}
                   </p>
                 </div>
               </div>
@@ -1021,7 +1021,7 @@ export const Profile = () => {
                   <div className="flex items-center gap-2.5">
                     <Icon icon="solar:map-point-bold-duotone" className="text-xl text-teal-550" />
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-350">
-                      {wa.district}, {wa.city}
+                      {wa.district ? (typeof wa.district === "object" ? (wa.district as any).name : wa.district) : ""}, {wa.city ? (typeof wa.city === "object" ? (wa.city as any).name : wa.city) : ""}
                     </span>
                   </div>
                   <button
