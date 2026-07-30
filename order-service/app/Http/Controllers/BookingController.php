@@ -16,7 +16,7 @@ use App\Models\JobApplication;
 use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
+use Carbon\Carbon;
 class BookingController extends Controller
 {
     // =====================================================================
@@ -60,6 +60,12 @@ class BookingController extends Controller
 
         $totalPrice = collect($fields['services'])
             ->sum(fn($s) => $s['price'] * ($s['quantity'] ?? 1));
+
+        // Validate booking date and time is in the future
+        $bookingDateTime = Carbon::parse($fields['booking_date'] . ' ' . $fields['start_time']);
+        if ($bookingDateTime->isPast()) {
+            return $this->errorResponse('Thời gian đặt lịch phải ở trong tương lai.', Response::HTTP_BAD_REQUEST);
+        }
 
         if (!empty($fields['helper_id'])) {
             $durationHours = collect($fields['services'])

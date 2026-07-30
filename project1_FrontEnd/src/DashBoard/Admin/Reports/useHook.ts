@@ -32,7 +32,7 @@ export const useAdminReports = () => {
       });
       setUsersMap(map);
     } catch (error) {
-      console.error("Failed to load users map in Reports", error);
+      // console.error("Failed to load users map in Reports", error);
     }
   }, []);
 

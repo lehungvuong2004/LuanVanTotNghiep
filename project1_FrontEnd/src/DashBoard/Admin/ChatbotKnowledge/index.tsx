@@ -86,7 +86,7 @@ export const ChatbotKnowledgeBase = () => {
       handleCloseModal();
       fetchKnowledges();
     } catch (error: any) {
-      console.error("Error saving chatbot knowledge:", error);
+      // console.error("Error saving chatbot knowledge:", error);
       showToast("error", "Thao tác thất bại", error?.response?.data?.message || "Lỗi xử lý yêu cầu.");
     } finally {
       setSubmitting(false);
@@ -101,7 +101,7 @@ export const ChatbotKnowledgeBase = () => {
       showToast("success", "Đã xóa", res.message || "Xóa tri thức thành công.");
       fetchKnowledges();
     } catch (error: any) {
-      console.error("Error deleting chatbot knowledge:", error);
+      // console.error("Error deleting chatbot knowledge:", error);
       showToast("error", "Xóa thất bại", error?.response?.data?.message || "Lỗi xử lý yêu cầu.");
     }
   };
@@ -112,7 +112,7 @@ export const ChatbotKnowledgeBase = () => {
       const res = await syncChatbotKnowledgeAdminApi();
       showToast("success", "Đồng bộ RAG thành công", res.message || "Đã đẩy dữ liệu tri thức sang vector database.");
     } catch (error: any) {
-      console.error("Error syncing chatbot knowledge:", error);
+      // console.error("Error syncing chatbot knowledge:", error);
       showToast("error", "Đồng bộ thất bại", error?.response?.data?.message || "Lỗi đồng bộ dữ liệu.");
     } finally {
       setSyncing(false);
@@ -138,7 +138,7 @@ export const ChatbotKnowledgeBase = () => {
       setCurrentPage(1);
       fetchKnowledges();
     } catch (error: any) {
-      console.error("Error importing file:", error);
+      // console.error("Error importing file:", error);
       showToast("error", "Nạp tệp thất bại", error?.response?.data?.message || "Có lỗi xảy ra khi phân tích nội dung tệp CSV.");
     } finally {
       setImporting(false);

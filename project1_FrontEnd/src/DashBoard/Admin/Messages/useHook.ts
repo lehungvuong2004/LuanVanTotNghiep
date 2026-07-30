@@ -22,7 +22,7 @@ export const useAdminMessages = () => {
       setPage(response.current_page);
       setLastPage(response.last_page);
     } catch (error) {
-      console.error("Failed to fetch admin messages:", error);
+      // console.error("Failed to fetch admin messages:", error);
       showToast("error", t("Lỗi tải tin nhắn"), t("Không thể tải danh sách tin nhắn từ hệ thống."));
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ export const useAdminMessages = () => {
       // Refresh
       fetchMessages(page, searchQuery);
     } catch (error: any) {
-      console.error("Failed to delete message:", error);
+      // console.error("Failed to delete message:", error);
       const errMsg = error?.response?.data?.message || t("Xóa tin nhắn thất bại. Vui lòng thử lại.");
       showToast("error", t("Lỗi hệ thống"), errMsg);
     } finally {

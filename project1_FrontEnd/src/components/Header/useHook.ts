@@ -157,12 +157,12 @@ export const useHeader = () => {
       socketRef.current = socket;
 
       socket.on("connect", () => {
-        console.log("Connected to Socket.IO server");
+        // console.log("Connected to Socket.IO server");
         socket.emit("join", user.id);
       });
 
       socket.on("notification", (notif: Notification) => {
-        console.log("Received real-time notification:", notif);
+        // console.log("Received real-time notification:", notif);
         setNotifications((prev) => [notif, ...prev]);
         setUnreadCount((c) => c + 1);
         showToast("info", notif.title || t("Thông báo mới"), notif.message || "");

@@ -20,7 +20,7 @@ export const ImageUpload = ({ label, value = "", onChange = () => {}, onUpload =
       const imgUrl = res?.url || res?.data?.url || res?.path || res?.data?.path || "";
       if (imgUrl) onChange(imgUrl);
     } catch {
-      console.error("Lỗi upload ảnh");
+      // console.error("Lỗi upload ảnh");
     } finally {
       setLoading(false);
       e.target.value = "";

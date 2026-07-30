@@ -40,7 +40,7 @@ export const useChatbotKnowledge = () => {
         setTotalItems(response.data.total || 0);
       }
     } catch (error: any) {
-      console.error("Error fetching chatbot knowledges:", error);
+      // console.error("Error fetching chatbot knowledges:", error);
       showToast("error", "Lỗi nạp dữ liệu", "Không thể tải danh sách tri thức từ máy chủ.");
     } finally {
       setLoading(false);

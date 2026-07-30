@@ -116,7 +116,7 @@ export const usePostAJobHook = () => {
               is_default: addresses.length === 0,
             });
           } catch (addrErr) {
-            console.error("Failed to save new address to customer profile:", addrErr);
+            // console.error("Failed to save new address to customer profile:", addrErr);
           }
         }
 
@@ -149,7 +149,7 @@ export const usePostAJobHook = () => {
 
         formik.resetForm();
       } catch (err: any) {
-        console.error("Error creating job post:", err);
+        // console.error("Error creating job post:", err);
         setErrorMsg(err?.response?.data?.message || t("Đã xảy ra lỗi khi đăng bài tuyển dụng. Vui lòng thử lại."));
       } finally {
         setIsLoading(false);
@@ -186,7 +186,7 @@ export const usePostAJobHook = () => {
           setSelectedAddressId("new");
         }
       } catch (addrErr) {
-        console.error("Could not fetch customer addresses:", addrErr);
+        // console.error("Could not fetch customer addresses:", addrErr);
         setIsNewAddress(true);
         setSelectedAddressId("new");
       }

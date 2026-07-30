@@ -35,7 +35,7 @@ export const useApplicationReview = () => {
       });
       setUsersMap(map);
     } catch (error) {
-      console.error("Failed to load users map:", error);
+      // console.error("Failed to load users map:", error);
     }
   }, []);
 

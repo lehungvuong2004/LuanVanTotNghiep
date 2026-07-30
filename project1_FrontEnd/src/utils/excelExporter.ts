@@ -50,7 +50,7 @@ export function exportToExcel({ filename = "bao_cao_xuat.xlsx", sheetName = "D�
     URL.revokeObjectURL(url);
     return true;
   } catch (error) {
-    console.error("Lỗi khi xuất file Excel:", error);
+    // console.error("Lỗi khi xuất file Excel:", error);
     return false;
   }
 }

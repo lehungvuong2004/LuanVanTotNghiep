@@ -44,7 +44,7 @@ export const useHelperReviews = () => {
         setRatingDistribution(reviewsRes.rating_distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
         setError(null);
       } catch (err: any) {
-        console.error("Lỗi khi tải đánh giá của Helper:", err);
+        // console.error("Lỗi khi tải đánh giá của Helper:", err);
         setError(err.response?.data?.message || "Không thể tải danh sách đánh giá.");
       } finally {
         setLoading(false);

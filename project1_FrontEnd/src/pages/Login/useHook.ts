@@ -53,7 +53,7 @@ export const useLogin = () => {
         // Redirect based on role
         navigate(getRoleDashboard(getUserRole(response.user)));
       } catch (error: any) {
-        console.error("Login failed:", error);
+        // console.error("Login failed:", error);
         const serverError = error?.response?.data?.message || t("Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.");
         setErrorMessage(serverError);
       } finally {
@@ -64,7 +64,7 @@ export const useLogin = () => {
 
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log("Google Login Success:", tokenResponse);
+      // console.log("Google Login Success:", tokenResponse);
       setLoading(true);
       setErrorMessage(null);
       try {
@@ -80,14 +80,14 @@ export const useLogin = () => {
         // Redirect to Home (or specific role route if desired)
         navigate(getRoleDashboard(getUserRole(response.user)));
       } catch (error: any) {
-        console.error("Google Login fail:", error);
+        // console.error("Google Login fail:", error);
         setErrorMessage(error?.response?.data?.message || t("Đăng nhập bằng Google thất bại. Tài khoản chưa đăng ký."));
       } finally {
         setLoading(false);
       }
     },
     onError: () => {
-      console.error("Google Login Failed");
+      // console.error("Google Login Failed");
       setErrorMessage(t("Đăng nhập bằng Google thất bại."));
     },
   });

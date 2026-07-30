@@ -111,7 +111,7 @@ export const usePayment = () => {
       setTotalPayments(paginator.total || 0);
       setLastPage(paginator.last_page || 1);
     } catch (err) {
-      console.error("Failed to load customer payments:", err);
+      // console.error("Failed to load customer payments:", err);
     } finally {
       setIsPaymentsLoading(false);
     }

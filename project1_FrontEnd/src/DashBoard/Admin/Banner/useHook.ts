@@ -42,7 +42,7 @@ export const useBanner = () => {
         setTotalItems(total);
         setPerPage(per_page);
       } catch (err: any) {
-        console.error(err);
+        // console.error(err);
         showToast("error", "Lỗi tải dữ liệu", err.response?.data?.message || "Không thể tải danh sách banner");
       } finally {
         setLoading(false);
@@ -104,7 +104,7 @@ export const useBanner = () => {
         closeModal();
         fetchBanners(currentPage);
       } catch (err: any) {
-        console.error(err);
+        // console.error(err);
         showToast("error", "Lỗi lưu dữ liệu", err.response?.data?.message || "Có lỗi xảy ra khi lưu banner");
       } finally {
         setLoading(false);
@@ -151,7 +151,7 @@ export const useBanner = () => {
       const isLastItemOnPage = banners.length === 1 && currentPage > 1;
       fetchBanners(isLastItemOnPage ? currentPage - 1 : currentPage);
     } catch (err: any) {
-      console.error(err);
+      // console.error(err);
       showToast("error", "Lỗi xóa banner", err.response?.data?.message || "Không thể xóa banner này");
       setLoading(false);
     }
@@ -165,7 +165,7 @@ export const useBanner = () => {
       showToast("success", "Thành công", `Đã ${newStatus === "active" ? "hiện" : "ẩn"} banner thành công!`);
       fetchBanners(currentPage);
     } catch (err: any) {
-      console.error(err);
+      // console.error(err);
       showToast("error", "Lỗi cập nhật", err.response?.data?.message || "Không thể thay đổi trạng thái banner");
       setLoading(false);
     }

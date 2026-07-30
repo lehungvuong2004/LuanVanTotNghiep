@@ -72,7 +72,7 @@ export const useServiceDetail = () => {
         setSelectedAddressId(defaultAddr ? defaultAddr.id : addrList[0].id);
       }
     } catch (err) {
-      console.error("Failed to fetch customer addresses:", err);
+      // console.error("Failed to fetch customer addresses:", err);
     }
   };
 
@@ -124,7 +124,7 @@ export const useServiceDetail = () => {
       setIsAddingNewAddress(false);
       await fetchAddresses();
     } catch (err: any) {
-      console.error("Failed to add address:", err);
+      // console.error("Failed to add address:", err);
       showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể thêm địa chỉ."));
     }
   };
@@ -185,7 +185,7 @@ export const useServiceDetail = () => {
         navigate("/lich-su-dat-lich");
       }, 1500);
     } catch (err: any) {
-      console.error("Failed to create booking:", err);
+      // console.error("Failed to create booking:", err);
       showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể tạo lịch đặt."));
     } finally {
       setIsBookingSubmitting(false);
@@ -198,7 +198,7 @@ export const useServiceDetail = () => {
       setReviewStats(revRes);
       setReviews(revRes.data?.data ?? []);
     } catch (err) {
-      console.error("Failed to fetch helper reviews:", err);
+      // console.error("Failed to fetch helper reviews:", err);
       setReviews([]);
       setReviewStats(null);
     }
@@ -219,7 +219,7 @@ export const useServiceDetail = () => {
           await fetchHelperReviews(initialHelperId);
         }
       } catch (err) {
-        console.error("Failed to fetch service detail:", err);
+        // console.error("Failed to fetch service detail:", err);
       } finally {
         setLoading(false);
       }
@@ -255,7 +255,7 @@ export const useServiceDetail = () => {
         await fetchHelperReviews(selectedHelperId);
       }
     } catch (err: any) {
-      console.error("Failed to create review:", err);
+      // console.error("Failed to create review:", err);
       showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể gửi đánh giá."));
     } finally {
       setSubmitting(false);
@@ -280,7 +280,7 @@ export const useServiceDetail = () => {
         await fetchHelperReviews(selectedHelperId);
       }
     } catch (err: any) {
-      console.error("Failed to update review:", err);
+      // console.error("Failed to update review:", err);
       showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể cập nhật đánh giá."));
     }
   };
@@ -294,7 +294,7 @@ export const useServiceDetail = () => {
         await fetchHelperReviews(selectedHelperId);
       }
     } catch (err: any) {
-      console.error("Failed to delete review:", err);
+      // console.error("Failed to delete review:", err);
       showToast("error", t("Lỗi"), err.response?.data?.message || t("Không thể xóa đánh giá."));
     }
   };

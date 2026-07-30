@@ -72,7 +72,7 @@ export const PaymentReturn = () => {
         });
         await verifyVnpayReturnApi(queryObj);
       } catch (err: any) {
-        console.error("Payment verification failed:", err);
+        // console.error("Payment verification failed:", err);
         setVerificationError(err.response?.data?.message || "Không thể xác thực chữ ký hoặc trạng thái thanh toán từ VNPay.");
       } finally {
         setIsVerifying(false);

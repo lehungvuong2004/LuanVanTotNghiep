@@ -29,7 +29,7 @@ export const useNotificationsForm = () => {
       });
       setUsersList(response.data.data);
     } catch (error) {
-      console.error("Failed to fetch users:", error);
+      // console.error("Failed to fetch users:", error);
     } finally {
       setFetchingUsers(false);
     }
@@ -73,7 +73,7 @@ export const useNotificationsForm = () => {
         setSelectedUserIds([]);
         setSearchQuery("");
       } catch (error: any) {
-        console.error("Send notification error:", error);
+        // console.error("Send notification error:", error);
         const errMsg = error?.response?.data?.message || t("Gửi thông báo thất bại. Vui lòng kiểm tra lại.");
         showToast("error", t("Lỗi hệ thống"), errMsg);
       } finally {

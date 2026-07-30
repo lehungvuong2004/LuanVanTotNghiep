@@ -32,7 +32,7 @@ export const useAdminContacts = () => {
       setContacts(response.data.data);
       setTotalItems(response.data.total);
     } catch (error: any) {
-      console.error("Fetch contacts error:", error);
+      // console.error("Fetch contacts error:", error);
       showToast("error", t("Lỗi"), t("Không thể tải danh sách liên hệ."));
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export const useAdminContacts = () => {
       // Refresh list
       fetchContacts();
     } catch (error: any) {
-      console.error("Process contact error:", error);
+      // console.error("Process contact error:", error);
       showToast("error", t("Lỗi"), error?.response?.data?.message || t("Xử lý liên hệ thất bại."));
     }
   };

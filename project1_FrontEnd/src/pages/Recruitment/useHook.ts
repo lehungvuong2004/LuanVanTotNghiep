@@ -162,7 +162,7 @@ export const useRecruitment = () => {
           }
         }
       } catch (err) {
-        console.error("Error loading recruitment data:", err);
+        // console.error("Error loading recruitment data:", err);
       } finally {
         setIsLoading(false);
       }
@@ -176,7 +176,7 @@ export const useRecruitment = () => {
     const socket = io(socketUrl);
 
     socket.on("connect", () => {
-      console.log("Recruitment page socket connected");
+      // console.log("Recruitment page socket connected");
       const userStr = localStorage.getItem("user");
       if (userStr) {
         const user = JSON.parse(userStr);
@@ -185,7 +185,7 @@ export const useRecruitment = () => {
     });
 
     socket.on("new_job_post", (newJob: JobPost) => {
-      console.log("Received real-time job post:", newJob);
+      // console.log("Received real-time job post:", newJob);
       setAllJobs((prev) => {
         if (prev.some((j) => j.id === newJob.id)) return prev;
         return [newJob, ...prev];
@@ -386,7 +386,7 @@ export const useRecruitment = () => {
       const res = await getMyJobPostsApi({ limit: 100 });
       setMyJobPosts(res.data.data || []);
     } catch (err) {
-      console.error("Error loading my job posts:", err);
+      // console.error("Error loading my job posts:", err);
     } finally {
       setMyPostsLoading(false);
     }
@@ -410,7 +410,7 @@ export const useRecruitment = () => {
       const res = await getHelperPublicProfileApi(helperId);
       setHelperProfile(res.data);
     } catch (err) {
-      console.error("Error loading helper profile:", err);
+      // console.error("Error loading helper profile:", err);
     } finally {
       setHelperProfileLoading(false);
     }
@@ -444,7 +444,7 @@ export const useRecruitment = () => {
       );
       setApplicants(enriched);
     } catch (err) {
-      console.error("Error loading applications:", err);
+      // console.error("Error loading applications:", err);
     } finally {
       setApplicantsLoading(false);
     }

@@ -7,6 +7,8 @@ use App\Models\CustomerProfile;
 use App\Models\CustomerAddress;
 use App\Constants\Role;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\City;
+use App\Models\District;
 
 class CustomerProfileController extends Controller
 {
@@ -112,8 +114,8 @@ class CustomerProfileController extends Controller
     $user = $this->getAuthUser();
 
     if ($request->has('city') && !is_numeric($request->city)) {
-      $cityModel = \App\Models\City::where('name', $request->city)->first();
-      $districtModel = $cityModel ? \App\Models\District::where('city_id', $cityModel->id)->where('name', $request->district)->first() : null;
+      $cityModel = $this->findCity($request->city);
+      $districtModel = $cityModel ? $this->findDistrict($cityModel->id, $request->district) : null;
       if ($cityModel && $districtModel) {
         $request->merge([
           'city_id' => $cityModel->id,
@@ -177,8 +179,8 @@ class CustomerProfileController extends Controller
     }
 
     if ($request->has('city') && !is_numeric($request->city)) {
-      $cityModel = \App\Models\City::where('name', $request->city)->first();
-      $districtModel = $cityModel ? \App\Models\District::where('city_id', $cityModel->id)->where('name', $request->district)->first() : null;
+      $cityModel = $this->findCity($request->city);
+      $districtModel = $cityModel ? $this->findDistrict($cityModel->id, $request->district) : null;
       if ($cityModel && $districtModel) {
         $request->merge([
           'city_id' => $cityModel->id,
@@ -300,5 +302,57 @@ class CustomerProfileController extends Controller
       }
       
       return response()->json(['is_complete' => true], Response::HTTP_OK);
+  }
+
+  private function findCity($cityName)
+  {
+    if (empty($cityName)) return null;
+
+    $cityInput = trim($cityName);
+    // 1. Exact match first
+    $cityModel = City::where('name', $cityInput)->first();
+    if ($cityModel) return $cityModel;
+
+    // 2. Fetch and match using normalization
+    $normalizedInput = strtolower(str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', $cityInput));
+    $cities = City::all();
+    foreach ($cities as $city) {
+      $normalizedDb = strtolower(str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', $city->name));
+      if ($normalizedDb === $normalizedInput || 
+          ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) || 
+          ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false) ||
+          ($normalizedDb === 'hcm' && $normalizedInput === 'hồchíminh') ||
+          ($normalizedDb === 'hồchíminh' && $normalizedInput === 'hcm')
+      ) {
+        return $city;
+      }
+    }
+
+    return City::first(); // fallback to default first city
+  }
+
+  private function findDistrict($cityId, $districtName)
+  {
+    if (empty($districtName) || !$cityId) return null;
+
+    $districtInput = trim($districtName);
+    // 1. Exact match first
+    $districtModel = District::where('city_id', $cityId)->where('name', $districtInput)->first();
+    if ($districtModel) return $districtModel;
+
+    // 2. Fetch and match using normalization
+    $normalizedInput = strtolower(str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố'], '', $districtInput));
+    $districts = District::where('city_id', $cityId)->get();
+    foreach ($districts as $district) {
+      $normalizedDb = strtolower(str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố'], '', $district->name));
+      if ($normalizedDb === $normalizedInput || 
+          ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) || 
+          ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false)
+      ) {
+        return $district;
+      }
+    }
+
+    return null;
   }
 }

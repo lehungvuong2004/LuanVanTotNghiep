@@ -10,7 +10,7 @@ export const fetchReverseGeocoding = async (lat: number, lon: number): Promise<R
     const data: ReverseGeocodeResponse = await response.json();
     return data;
   } catch (err: any) {
-    console.warn("Nominatim fetch failed, trying fallback API...", err);
+    // console.warn("Nominatim fetch failed, trying fallback API...", err);
     try {
       const fallbackUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=vi`;
       const fallbackRes = await fetch(fallbackUrl);

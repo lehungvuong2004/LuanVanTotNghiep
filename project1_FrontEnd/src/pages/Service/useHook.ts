@@ -142,7 +142,7 @@ export const useService = () => {
         const res = await getRegionsPublic();
         setRegions(res?.data ?? []);
       } catch (err) {
-        console.error("[useService] fetchRegions failed:", err);
+        // console.error("[useService] fetchRegions failed:", err);
       }
     };
     fetchRegions();
@@ -216,7 +216,7 @@ export const useService = () => {
         const res = await getCategoriesApi();
         setCategories(res?.data ?? []);
       } catch (err) {
-        console.error("[useService] fetchCategories failed:", err);
+        // console.error("[useService] fetchCategories failed:", err);
       }
     };
     fetchCategories();
@@ -237,7 +237,7 @@ export const useService = () => {
         const rawServices = res?.data?.data ?? [];
         setServices(rawServices.map((s) => mapService(s, t)));
       } catch (err) {
-        console.error("[useService] fetchServices failed:", err);
+        // console.error("[useService] fetchServices failed:", err);
         setServices([]);
       } finally {
         setLoading(false);
@@ -267,7 +267,7 @@ export const useService = () => {
         setHelperPage(pagination?.current_page ?? 1);
         setHelperLastPage(pagination?.last_page ?? 1);
       } catch (err) {
-        console.error("[useService] fetchHelpers failed:", err);
+        // console.error("[useService] fetchHelpers failed:", err);
         setHelpers([]);
       } finally {
         setHelperLoading(false);

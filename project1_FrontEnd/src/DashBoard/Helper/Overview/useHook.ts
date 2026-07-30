@@ -52,7 +52,7 @@ export const useHelperOverview = () => {
         setData(res);
         setError(null);
       } catch (err: any) {
-        console.error(err);
+        // console.error(err);
         setError(err.response?.data?.message || "Không thể tải dữ liệu thống kê bảng điều khiển.");
       } finally {
         setLoading(false);

@@ -17,7 +17,7 @@ export const FloatingActionMenu = () => {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        console.error(e);
+        // console.error(e);
       }
     }
     return [
@@ -103,7 +103,7 @@ export const FloatingActionMenu = () => {
         },
       ]);
     } catch (error) {
-      console.error("Chatbot logic API error:", error);
+      // console.error("Chatbot logic API error:", error);
       setMessages((prev) => [
         ...prev,
         {

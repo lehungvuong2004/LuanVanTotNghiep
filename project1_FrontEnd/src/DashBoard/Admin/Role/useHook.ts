@@ -34,7 +34,7 @@ export const useRolesAdmin = () => {
       const res = await getPermissionsAdmin();
       setPermissions(res);
     } catch (err: any) {
-      console.error("Lỗi tải danh sách quyền:", err);
+      // console.error("Lỗi tải danh sách quyền:", err);
     }
   }, []);
 

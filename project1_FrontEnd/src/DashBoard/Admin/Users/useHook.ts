@@ -142,7 +142,7 @@ export const useUsers = () => {
       showToast("success", "Thành công", "Tải ảnh đại diện lên thành công!");
       return res.url && res.url.startsWith("http") ? res.url : res.path;
     } catch (err: any) {
-      console.error(err);
+      // console.error(err);
       showToast("error", "Lỗi tải ảnh", err.response?.data?.message || "Không thể tải ảnh lên server");
       return null;
     } finally {

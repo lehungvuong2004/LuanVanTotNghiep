@@ -88,7 +88,7 @@ export const useHistory = () => {
           }
         });
       } catch (payErr) {
-        console.error("Error fetching payments for history map:", payErr);
+        // console.error("Error fetching payments for history map:", payErr);
       }
 
       const mapped: Booking[] = rawBookings.map((b: any) => {
@@ -161,7 +161,7 @@ export const useHistory = () => {
 
       setBookings(mapped);
     } catch (err) {
-      console.error("Error fetching bookings:", err);
+      // console.error("Error fetching bookings:", err);
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +200,7 @@ export const useHistory = () => {
       const appList = Array.isArray(rawApps) ? rawApps : (rawApps?.data ?? []);
       setApplications(appList);
     } catch (err) {
-      console.error("Error fetching helper applications:", err);
+      // console.error("Error fetching helper applications:", err);
     } finally {
       setIsApplicationsLoading(false);
     }

@@ -35,7 +35,7 @@ export const useForgetPassword = () => {
         setSuccessMessage(res.message);
         setStep(2);
       } catch (error: any) {
-        console.error("Step 1 failed:", error);
+        // console.error("Step 1 failed:", error);
         setErrorMessage(error?.response?.data?.message || t("Gửi yêu cầu thất bại. Vui lòng kiểm tra lại."));
       } finally {
         setLoading(false);
@@ -59,7 +59,7 @@ export const useForgetPassword = () => {
         setSuccessMessage(res.message);
         setStep(3);
       } catch (error: any) {
-        console.error("Step 2 failed:", error);
+        // console.error("Step 2 failed:", error);
         setErrorMessage(error?.response?.data?.message || t("Xác thực OTP thất bại."));
       } finally {
         setLoading(false);
@@ -110,7 +110,7 @@ export const useForgetPassword = () => {
           navigate("/dang-nhap");
         }, 2000);
       } catch (error: any) {
-        console.error("Step 3 failed:", error);
+        // console.error("Step 3 failed:", error);
         setErrorMessage(error?.response?.data?.message || t("Đặt lại mật khẩu thất bại."));
       } finally {
         setLoading(false);
@@ -127,7 +127,7 @@ export const useForgetPassword = () => {
       const res = await forgotPasswordApi(email);
       setSuccessMessage(res.message || t("Mã OTP mới đã được gửi lại thành công."));
     } catch (error: any) {
-      console.error("Resend OTP failed:", error);
+      // console.error("Resend OTP failed:", error);
       setErrorMessage(error?.response?.data?.message || t("Không thể gửi lại mã OTP."));
     } finally {
       setLoading(false);
