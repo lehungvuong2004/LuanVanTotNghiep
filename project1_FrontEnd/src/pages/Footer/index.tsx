@@ -35,12 +35,14 @@ export const Footer = () => {
         <button
           onClick={handleShare}
           className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 transition-all duration-300 p-2 rounded-full hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:shadow-sm cursor-pointer"
+          aria-label={t("Chia sẻ liên kết")}
         >
           <Icon icon="material-symbols:share-outline" className="text-xl" />
         </button>
         <button
           onClick={handleMail}
           className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 transition-all duration-300 p-2 rounded-full hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:shadow-sm cursor-pointer"
+          aria-label={t("Gửi email liên hệ")}
         >
           <Icon icon="lucide:mail" className="text-xl" />
         </button>
@@ -106,6 +108,7 @@ export const Footer = () => {
           className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:border-teal-300 dark:hover:border-teal-500 hover:text-[#1877F2] transition-all duration-300 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Facebook"
         >
           <Icon icon="selfhst:facebook" className="text-xl" />
         </Link>
@@ -114,6 +117,7 @@ export const Footer = () => {
           className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:border-teal-300 dark:hover:border-teal-500 hover:text-[#0068FF] transition-all duration-300 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Zalo"
         >
           <Icon icon="simple-icons:zalo" className="text-xl" />
         </Link>
@@ -122,6 +126,7 @@ export const Footer = () => {
           className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:border-teal-300 dark:hover:border-teal-500 hover:text-red-500 transition-all duration-300 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Email"
         >
           <Icon icon="skill-icons:gmail-light" className="text-xl" />
         </a>

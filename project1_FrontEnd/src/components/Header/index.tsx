@@ -303,6 +303,7 @@ export const Header = () => {
               <button
                 onClick={toggleDarkMode}
                 className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all duration-300 cursor-pointer hover:scale-105"
+                aria-label={isDarkMode ? t("Chuyển sang giao diện sáng") : t("Chuyển sang giao diện tối")}
               >
                 <Icon icon={isDarkMode ? "circum:dark" : "entypo:light-up"} className="text-xl" />
               </button>
@@ -314,6 +315,7 @@ export const Header = () => {
                 disabled={geoLoading}
                 className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-all duration-300 cursor-pointer hover:scale-105 disabled:opacity-50"
                 title={t("Lấy vị trí hiện tại")}
+                aria-label={t("Lấy vị trí hiện tại")}
               >
                 <Icon icon={geoLoading ? "line-md:loading-twotone-loop" : "boxicons:location"} className="text-xl" />
               </button>
@@ -344,6 +346,7 @@ export const Header = () => {
                           <button
                             onClick={() => setIsMobileNotifOpen(false)}
                             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer"
+                            aria-label={t("Quay lại")}
                           >
                             <Icon icon="material-symbols:arrow-back" className="text-2xl" />
                           </button>
@@ -513,9 +516,9 @@ export const Header = () => {
               )}
             </div>
 
-            <div className="hidden lg:flex flex-1 justify-end items-center gap-6">
+            <div className="hidden lg:flex flex-1 justify-end items-center gap-4">
               {/* Language picker — own py = full header height */}
-              <div className={`relative group h-full flex items-center cursor-pointer px-3 transition-all duration-300 ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
+              <div className={`relative group h-full flex items-center cursor-pointer pl-6 transition-all duration-300 ${isScrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
                 <div className="flex items-center gap-2 cursor-pointer font-medium text-base text-white transition-colors">
                   <Icon icon={isEn ? "twemoji:flag-us-outlying-islands" : "twemoji:flag-vietnam"} className="text-2xl shrink-0" />
                   <span className="whitespace-nowrap">{isEn ? t("English") : t("Việt Nam")}</span>
@@ -544,7 +547,8 @@ export const Header = () => {
               <div className="flex items-stretch gap-3 text-white self-stretch">
                 <button
                   onClick={toggleDarkMode}
-                  className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105"
+                  className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105"
+                  aria-label={isDarkMode ? t("Chuyển sang giao diện sáng") : t("Chuyển sang giao diện tối")}
                 >
                   <Icon icon={isDarkMode ? "tdesign:mode-dark" : "entypo:light-up"} className="text-xl" />
                 </button>
@@ -552,8 +556,9 @@ export const Header = () => {
                   type="button"
                   onClick={handleGetCurrentLocation}
                   disabled={geoLoading}
-                  className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 disabled:opacity-50"
+                  className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 disabled:opacity-50"
                   title={t("Lấy vị trí hiện tại")}
+                  aria-label={t("Lấy vị trí hiện tại")}
                 >
                   <Icon icon={geoLoading ? "line-md:loading-twotone-loop" : "boxicons:location"} className="text-xl" />
                 </button>
@@ -562,7 +567,7 @@ export const Header = () => {
                   {isLoggedIn && (
                     <button
                       onClick={handleChatIconClick}
-                      className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 relative"
+                      className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs cursor-pointer self-center hover:scale-105 relative"
                     >
                       <Icon icon="material-symbols:chat-outline" className="text-xl" />
                       {chatUnreadCount > 0 && (
@@ -574,7 +579,7 @@ export const Header = () => {
                   )}
                 */}
                 <div className="relative group h-full flex items-center cursor-pointer">
-                  <div className="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-xl transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs self-center hover:scale-105 relative">
+                  <div className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200/80 dark:border-slate-600 rounded-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-600/80 shadow-xs self-center hover:scale-105 relative">
                     <Icon icon="mdi:bell-outline" className="text-xl" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold ring-2 ring-white dark:ring-slate-700">

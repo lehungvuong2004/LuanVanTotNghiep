@@ -11,6 +11,7 @@ import { getBannersPublic } from "../../api/bannersApi/banners";
 import type { Banner } from "../../api/bannersApi/banners";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { parseVietnamAddress } from "../../types/location";
+import { getImageUrl } from "../../utils/images";
 
 export const useHome = () => {
   const { t } = useTranslation();
@@ -56,7 +57,13 @@ export const useHome = () => {
     try {
       const res = await getBannersPublic();
       setBanners(res.data);
-    } catch (err) {
+      if (res.data && res.data.length > 0 && res.data[0].image) {
+        const firstUrl = getImageUrl(res.data[0].image);
+        if (firstUrl) {
+          localStorage.setItem("lcp_banner", firstUrl);
+        }
+      }
+    } catch {
       // console.error("Lỗi khi tải danh sách banner công khai:", err);
     } finally {
       setLoadingBanners(false);
@@ -64,7 +71,10 @@ export const useHome = () => {
   }, []);
 
   useEffect(() => {
-    fetchBanners();
+    const timer = setTimeout(() => {
+      fetchBanners();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchBanners]);
 
   const bannerData = {

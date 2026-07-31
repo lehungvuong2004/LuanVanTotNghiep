@@ -8,6 +8,21 @@
   <meta name="description"
     content="Family Vietnam connects families with trusted domestic helpers through an easy-to-use booking and job board platform. Find jobs, hire helpers, and manage bookings online" />
   <title>Family Vietnam - Booking & Job Board Platform</title>
+  <script>
+    (function () {
+      try {
+        var lcp = localStorage.getItem("lcp_banner");
+        if (lcp) {
+          var link = document.createElement("link");
+          link.rel = "preload";
+          link.as = "image";
+          link.href = lcp;
+          link.fetchPriority = "high";
+          document.head.appendChild(link);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>

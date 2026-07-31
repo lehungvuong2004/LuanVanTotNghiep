@@ -1,5 +1,5 @@
 // thử
-import { Route, Routes, HashRouter } from "react-router-dom";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
 import { ToastProvider } from "./contexts/ToastContext";
 import { useEffect } from "react";
 import { MainLayout } from "./layouts/MainLayout";
@@ -59,7 +59,6 @@ function App() {
     }
 
     const sessionActive = sessionStorage.getItem("session_active");
-    // console.log(sessionActive);
     if (!sessionActive) {
       const rememberMe = localStorage.getItem("remember_me");
       if (rememberMe !== "true") {
@@ -72,7 +71,7 @@ function App() {
 
   return (
     <ToastProvider>
-      <HashRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
@@ -141,7 +140,7 @@ function App() {
           </Route>
           <Route path="*" element={<Errors404 />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </ToastProvider>
   );
 }

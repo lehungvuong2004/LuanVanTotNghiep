@@ -14,9 +14,9 @@ export const MainLayout = () => (
       <InformationMarquee />
 
       {/* Main */}
-      <div className="w-full px-4 md:px-16 mx-auto">
+      <main className="w-full px-4 md:px-16 mx-auto">
         <Outlet />
-      </div>
+      </main>
 
       {/* Footer */}
       <div className="w-full px-4 md:px-16 mx-auto">

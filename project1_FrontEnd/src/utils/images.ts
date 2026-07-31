@@ -34,6 +34,20 @@ export const getImageUrl = (
     return trimmed;
   }
 
+  // Handle local frontend assets or files from the public folder
+  if (
+    trimmed.startsWith("/") &&
+    (trimmed.startsWith("/src/") ||
+      trimmed.startsWith("/assets/") ||
+      trimmed.startsWith("/error404.webp"))
+  ) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("src/") || trimmed.startsWith("assets/")) {
+    return `/${trimmed}`;
+  }
+
   const cleanPath = trimmed.startsWith("/") ? trimmed.slice(1) : trimmed;
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const baseUrl = apiUrl.replace(/\/api$/, "");

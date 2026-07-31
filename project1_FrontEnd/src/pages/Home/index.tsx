@@ -1,11 +1,10 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Icon } from "@iconify/react";
-import bannerHome from "../../assets/images/banner_home.webp";
 import neatlyClothe from "../../assets/images/home_service/neatlyClothe.webp";
 import repairCondition from "../../assets/images/home_service/repairCondition.webp";
 import repairLight from "../../assets/images/home_service/repairLight.webp";
@@ -15,6 +14,7 @@ import { useHome } from "./useHook";
 import { Link } from "react-router-dom";
 import { getImageUrl } from "../../utils/images";
 import AnimateOnScrollReveal from "../../components/AnimateOnScrollReveal";
+import gsap from "gsap";
 
 export const Home = () => {
   const { t } = useTranslation();
@@ -22,33 +22,31 @@ export const Home = () => {
     useHome();
 
   const swiperRef = useRef<any>(null);
+  const dynamicBgRef = useRef<HTMLDivElement>(null);
 
-  const renderBanner = () => {
-    if (loadingBanners) {
-      return (
-        <div className="relative w-full overflow-hidden flex items-center justify-center bg-gray-900/10 h-[60vh] md:h-[85vh]">
-          {/* Skeleton Overlay */}
-          <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
-          <div className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10 animate-pulse">
-            {/* Title Skeleton */}
-            <div className="h-10 md:h-14 bg-white/20 rounded-lg w-11/12 max-w-2xl mb-8" />
-            {/* Search Bar Skeleton */}
-            <div className="h-14 md:h-16 bg-white/20 rounded-full w-full max-w-2xl mb-10" />
-            {/* Button Skeleton */}
-            <div className="h-10 bg-white/20 rounded-full w-40" />
-          </div>
-        </div>
+  useEffect(() => {
+    if (!loadingBanners && banners && banners.length > 0 && dynamicBgRef.current) {
+      gsap.fromTo(
+        dynamicBgRef.current,
+        { clipPath: "circle(0% at 100% 0%)" },
+        {
+          clipPath: "circle(150% at 100% 0%)",
+          duration: 2.2,
+          ease: "power2.inOut",
+        }
       );
     }
+  }, [loadingBanners, banners]);
 
+  const renderBanner = () => {
     const bannerList =
       banners && banners.length > 0
         ? banners
         : [
-            {
+             {
               id: 0,
               title: t("home.banner.defaultTitle"),
-              image: bannerHome,
+              image: "",
               link: null,
               status: "active" as const,
             },
@@ -65,95 +63,258 @@ export const Home = () => {
           className="w-full h-full hero-swiper"
         >
           {bannerList.map((banner, index) => (
-            <SwiperSlide key={banner.id || index} className="relative w-full h-full flex items-center justify-center">
-              <img
-                ref={index === 0 ? imageRef : undefined}
-                src={getImageUrl(banner.image)}
-                alt={t(banner.title) || "Banner"}
-                loading="eager"
-                decoding="async"
-                className="absolute inset-0 w-full h-full object-cover will-change-transform"
-                style={{ transformOrigin: "center center" }}
-              />
-              <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
+            <SwiperSlide key={banner.id || index} className="relative w-full h-full flex items-center justify-center select-none overflow-hidden bg-linear-to-r from-[#022b30] via-[#034d54] to-[#008080]">
+              {banner.image ? (
+                index === 0 ? (
+                  <>
+                    {/* Fallback space-gradient background - Rendered only under the first dynamic image during transition */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                      {/* Rich Left-to-Right background gradient overlay */}
+                      <div className="absolute inset-0 bg-linear-to-r from-[#011618] via-[#023138] to-[#045661]" />
+                      
+                      {/* Large ambient star glow radiating from the upper-right corner */}
+                      <div 
+                        className="absolute -top-24 -right-24 w-160 h-160 rounded-full blur-3xl opacity-35 animate-[pulse_8s_infinite]"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(45,212,191,0.6) 0%, rgba(13,148,136,0.2) 60%, transparent 100%)'
+                        }}
+                      />
+                      
+                      {/* Secondary medium halo glow centered near the star */}
+                      <div 
+                        className="absolute top-8 right-8 w-80 h-80 rounded-full blur-2xl opacity-50"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(20,184,166,0.1) 50%, transparent 100%)'
+                        }}
+                      />
 
-              <div ref={index === 0 ? contentRef : undefined} className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10">
-                <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl max-w-4xl tracking-tight">{banner.title}</h1>
+                      {/* High-intensity star core glow */}
+                      <div 
+                        className="absolute top-1/5 right-1/6 w-32 h-32 rounded-full blur-md opacity-80"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(45,212,191,0.35) 45%, transparent 90%)'
+                        }}
+                      />
 
-                <div className="w-full max-w-2xl bg-white p-2 md:p-2.5 rounded-none md:rounded-full shadow-xl flex flex-col md:flex-row items-center gap-2 mb-8">
-                  <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-1.5 md:py-0">
-                    <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
-                    <input
-                      type="text"
-                      value={searchVal}
-                      onChange={(e) => setSearchVal(e.target.value)}
-                      placeholder={bannerData.searchPlaceholders.service}
-                      className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSearch();
-                      }}
-                    />
-                  </div>
+                      {/* Main Bright Four-Pointed Star (AI concept style sparkle) */}
+                      <div className="absolute top-1/5 right-1/6 -translate-y-1/2 translate-x-1/2 flex items-center justify-center scale-90 md:scale-100">
+                        {/* Ring flare of the star */}
+                        <div className="absolute w-24 h-24 rounded-full border border-white/20 blur-xs animate-[ping_5s_infinite] opacity-30" />
+                        
+                        {/* Cinematic vertical light ray */}
+                        <div className="absolute w-0.5 h-32 bg-linear-to-t from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
+                        {/* Cinematic horizontal light ray */}
+                        <div className="absolute h-0.5 w-32 bg-linear-to-r from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
 
-                  <div className="w-full flex items-center gap-2 px-4 py-1.5 md:py-0">
-                    <Icon icon="lucide:map-pin" className="text-gray-400 text-xl shrink-0" />
-                    <input
-                      type="text"
-                      value={locationVal}
-                      onChange={(e) => setLocationVal(e.target.value)}
-                      placeholder={bannerData.searchPlaceholders.location}
-                      className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSearch();
-                      }}
-                    />
-                  </div>
+                        {/* Main SVG Star */}
+                        <svg
+                          viewBox="0 0 100 100"
+                          className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]"
+                          fill="currentColor"
+                        >
+                          <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                        </svg>
 
-                  <button
-                    onClick={handleSearch}
-                    className="w-full md:w-auto cursor-pointer bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-md"
-                  >
-                    <Icon icon="lucide:search" className="text-lg" />
-                    {t("Tìm kiếm")}
-                  </button>
-                </div>
-
-                {banner.link &&
-                  (() => {
-                    const getNormalizedLink = (lnk: string) => {
-                      if (!lnk) return "";
-                      if (lnk.startsWith("http")) return lnk;
-                      if (lnk.startsWith("/#/")) return lnk.substring(2);
-                      return lnk;
-                    };
-                    const normalizedLink = getNormalizedLink(banner.link);
-                    const isExternal = normalizedLink.startsWith("http");
-
-                    return (
-                      <div>
-                        {isExternal ? (
-                          <a
-                            href={normalizedLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
-                          >
-                            <Icon icon="lucide:external-link" className="text-base" />
-                            {t("home.banner.exploreDetail")}
-                          </a>
-                        ) : (
-                          <Link
-                            to={normalizedLink}
-                            className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
-                          >
-                            <Icon icon="lucide:arrow-right" className="text-base" />
-                            {t("home.banner.exploreDetail")}
-                          </Link>
-                        )}
+                        {/* Constellation of small twinkling stars/sparks around the beacon */}
+                        <div className="absolute -top-12 -right-16 animate-[pulse_1.8s_infinite] delay-150 opacity-60">
+                          <svg viewBox="0 0 100 100" className="w-3.5 h-3.5 text-teal-200 drop-shadow-[0_0_6px_rgba(45,212,191,0.8)]" fill="currentColor">
+                            <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                          </svg>
+                        </div>
+                        <div className="absolute top-16 -left-12 animate-[pulse_2.5s_infinite] delay-600 opacity-50">
+                          <svg viewBox="0 0 100 100" className="w-2.5 h-2.5 text-white drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" fill="currentColor">
+                            <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                          </svg>
+                        </div>
+                        <div className="absolute -top-6 -left-20 animate-[pulse_3.2s_infinite] delay-1200 opacity-70">
+                          <svg viewBox="0 0 100 100" className="w-4 h-4 text-teal-100 drop-shadow-[0_0_8px_rgba(204,251,241,0.8)]" fill="currentColor">
+                            <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                          </svg>
+                        </div>
                       </div>
-                    );
-                  })()}
-              </div>
+                    </div>
+
+                    {/* Dynamic Image layer (reveals on load using clip-path) */}
+                    <div
+                      ref={dynamicBgRef}
+                      className="absolute inset-0 z-0 overflow-hidden"
+                      style={{ clipPath: "circle(0% at 100% 0%)" }}
+                    >
+                      <img
+                        ref={imageRef}
+                        src={getImageUrl(banner.image)}
+                        alt={t(banner.title) || "Banner"}
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                        style={{ transformOrigin: "center center" }}
+                      />
+                      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30" />
+                    </div>
+                  </>
+                ) : (
+                  // Old code block: normal rendering logic for subsequent dynamic slides
+                  <>
+                    <img
+                      src={getImageUrl(banner.image)}
+                      alt={t(banner.title) || "Banner"}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover will-change-transform z-0"
+                      style={{ transformOrigin: "center center" }}
+                    />
+                    <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/30 z-0" />
+                  </>
+                )
+              ) : (
+                // Old code block: static fallback stars background when banner.image is falsy
+                <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                  {/* Rich Left-to-Right background gradient overlay */}
+                  <div className="absolute inset-0 bg-linear-to-r from-[#011618] via-[#023138] to-[#045661]" />
+                  
+                  {/* Large ambient star glow radiating from the upper-right corner */}
+                  <div 
+                    className="absolute -top-24 -right-24 w-160 h-160 rounded-full blur-3xl opacity-35 animate-[pulse_8s_infinite]"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(45,212,191,0.6) 0%, rgba(13,148,136,0.2) 60%, transparent 100%)'
+                    }}
+                  />
+                  
+                  {/* Secondary medium halo glow centered near the star */}
+                  <div 
+                    className="absolute top-8 right-8 w-80 h-80 rounded-full blur-2xl opacity-50"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(20,184,166,0.1) 50%, transparent 100%)'
+                    }}
+                  />
+
+                  {/* High-intensity star core glow */}
+                  <div 
+                    className="absolute top-1/5 right-1/6 w-32 h-32 rounded-full blur-md opacity-80"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(45,212,191,0.35) 45%, transparent 90%)'
+                    }}
+                  />
+
+                  {/* Main Bright Four-Pointed Star (AI concept style sparkle) */}
+                  <div className="absolute top-1/5 right-1/6 -translate-y-1/2 translate-x-1/2 flex items-center justify-center scale-90 md:scale-100">
+                    {/* Ring flare of the star */}
+                    <div className="absolute w-24 h-24 rounded-full border border-white/20 blur-xs animate-[ping_5s_infinite] opacity-30" />
+                    
+                    {/* Cinematic vertical light ray */}
+                    <div className="absolute w-0.5 h-32 bg-linear-to-t from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
+                    {/* Cinematic horizontal light ray */}
+                    <div className="absolute h-0.5 w-32 bg-linear-to-r from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
+
+                    {/* Main SVG Star */}
+                    <svg
+                      viewBox="0 0 100 100"
+                      className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]"
+                      fill="currentColor"
+                    >
+                      <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                    </svg>
+
+                    {/* Constellation of small twinkling stars/sparks around the beacon */}
+                    <div className="absolute -top-12 -right-16 animate-[pulse_1.8s_infinite] delay-150 opacity-60">
+                      <svg viewBox="0 0 100 100" className="w-3.5 h-3.5 text-teal-200 drop-shadow-[0_0_6px_rgba(45,212,191,0.8)]" fill="currentColor">
+                        <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                      </svg>
+                    </div>
+                    <div className="absolute top-16 -left-12 animate-[pulse_2.5s_infinite] delay-600 opacity-50">
+                      <svg viewBox="0 0 100 100" className="w-2.5 h-2.5 text-white drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" fill="currentColor">
+                        <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                      </svg>
+                    </div>
+                    <div className="absolute -top-6 -left-20 animate-[pulse_3.2s_infinite] delay-1200 opacity-70">
+                      <svg viewBox="0 0 100 100" className="w-4 h-4 text-teal-100 drop-shadow-[0_0_8px_rgba(204,251,241,0.8)]" fill="currentColor">
+                        <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!loadingBanners && (
+                <div ref={index === 0 ? contentRef : undefined} className="absolute inset-0 flex flex-col justify-center items-center px-4 md:px-16 text-center z-10">
+                  <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl max-w-4xl tracking-tight">{banner.title}</h1>
+
+                  <div className="w-full max-w-2xl bg-white p-2 md:p-2.5 rounded-none md:rounded-full shadow-xl flex flex-col md:flex-row items-center gap-2 mb-8">
+                    <div className="w-full flex items-center gap-2 px-4 border-b md:border-b-0 md:border-r border-gray-200 py-1.5 md:py-0">
+                      <Icon icon="lucide:search" className="text-gray-400 text-xl shrink-0" />
+                      <input
+                        type="text"
+                        value={searchVal}
+                        onChange={(e) => setSearchVal(e.target.value)}
+                        placeholder={bannerData.searchPlaceholders.service}
+                        className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSearch();
+                        }}
+                      />
+                    </div>
+
+                    <div className="w-full flex items-center gap-2 px-4 py-1.5 md:py-0">
+                      <Icon icon="lucide:map-pin" className="text-gray-400 text-xl shrink-0" />
+                      <input
+                        type="text"
+                        value={locationVal}
+                        onChange={(e) => setLocationVal(e.target.value)}
+                        placeholder={bannerData.searchPlaceholders.location}
+                        className="w-full bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 font-medium text-sm md:text-base"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSearch();
+                        }}
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleSearch}
+                      className="w-full md:w-auto cursor-pointer bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 shadow-md"
+                    >
+                      <Icon icon="lucide:search" className="text-lg" />
+                      {t("Tìm kiếm")}
+                    </button>
+                  </div>
+
+                  {banner.link &&
+                    (() => {
+                      const getNormalizedLink = (lnk: string) => {
+                        if (!lnk) return "";
+                        if (lnk.startsWith("http")) return lnk;
+                        if (lnk.startsWith("/#/")) return lnk.substring(2);
+                        return lnk;
+                      };
+                      const normalizedLink = getNormalizedLink(banner.link);
+                      const isExternal = normalizedLink.startsWith("http");
+
+                      return (
+                        <div>
+                          {isExternal ? (
+                            <a
+                              href={normalizedLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
+                            >
+                              <Icon icon="lucide:external-link" className="text-base" />
+                              {t("home.banner.exploreDetail")}
+                            </a>
+                          ) : (
+                            <Link
+                              to={normalizedLink}
+                              className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
+                            >
+                              <Icon icon="lucide:arrow-right" className="text-base" />
+                              {t("home.banner.exploreDetail")}
+                            </Link>
+                          )}
+                        </div>
+                      );
+                    })()}
+                </div>
+              )}
             </SwiperSlide>
           ))}
         </Swiper>
@@ -263,20 +424,20 @@ export const Home = () => {
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
               style={{ transform: "rotateY(0deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
-              <img src={neatlyClothe} alt="Service 1" className="w-full h-full object-cover" />
+              <img src={neatlyClothe} alt="Service 1" className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
               style={{ transform: "rotateY(90deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
-              <img src={repairCondition} alt="Service 2" className="w-full h-full object-cover" />
+              <img src={repairCondition} alt="Service 2" className="w-full h-full object-cover" loading="lazy" />
             </div>
 
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
               style={{ transform: "rotateY(180deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
-              <img src={repairLight} alt="Service 3" className="w-full h-full object-cover" />
+              <img src={repairLight} alt="Service 3" className="w-full h-full object-cover" loading="lazy" />
             </div>
 
             {/* Card 4 */}
@@ -284,7 +445,7 @@ export const Home = () => {
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
               style={{ transform: "rotateY(270deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
             >
-              <img src={repairPlumber} alt="Service 4" className="w-full h-full object-cover" />
+              <img src={repairPlumber} alt="Service 4" className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
         </div>
@@ -303,7 +464,7 @@ export const Home = () => {
         <div className="flex w-full h-full gap-2 md:gap-4">
           {produceData.map((item) => (
             <div key={item.id} className="group relative h-full flex-1 hover:flex-4 transition-all duration-500 ease-in-out cursor-pointer overflow-hidden rounded-2xl">
-              <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
 
               <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
               <div className="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300 delay-100">
@@ -397,12 +558,14 @@ export const Home = () => {
             <button
               onClick={() => swiperRef.current?.slidePrev()}
               className="w-12 h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-[#008080] hover:text-white hover:border-[#008080] shadow-sm transition-all cursor-pointer z-10"
+              aria-label={t("Bài đánh giá trước")}
             >
               <Icon icon="ooui:previous-ltr" className="text-xl" />
             </button>
             <button
               onClick={() => swiperRef.current?.slideNext()}
               className="w-12 h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-[#008080] hover:text-white hover:border-[#008080] shadow-sm transition-all cursor-pointer z-10"
+              aria-label={t("Bài đánh giá tiếp theo")}
             >
               <Icon icon="grommet-icons:next" className="text-xl" />
             </button>
@@ -429,9 +592,9 @@ export const Home = () => {
               <div className="w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-4">
-                    <img src={item.avatar} alt={item.name} className="w-14 h-14 rounded-full object-cover" />
+                    <img src={item.avatar} alt={item.name} className="w-14 h-14 rounded-full object-cover" loading="lazy" />
                     <div>
-                      <h4 className="font-bold text-[#0f2830] text-sm md:text-base">{item.name}</h4>
+                      <h3 className="font-bold text-[#0f2830] text-sm md:text-base">{item.name}</h3>
                       <p className="text-gray-500 text-xs md:text-sm">{item.location}</p>
                     </div>
                   </div>
