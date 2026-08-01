@@ -111,3 +111,5 @@ export const HelperReviewsPage = () => {
     </div>
   );
 };
+
+export default HelperReviewsPage;

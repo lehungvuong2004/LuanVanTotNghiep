@@ -285,3 +285,5 @@ export const HelperOverview = () => {
     </div>
   );
 };
+
+export default HelperOverview;

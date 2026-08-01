@@ -163,3 +163,5 @@ export const DashboardOverview = () => {
     </div>
   );
 };
+
+export default DashboardOverview;

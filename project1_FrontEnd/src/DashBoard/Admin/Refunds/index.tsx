@@ -190,3 +190,5 @@ export const Refunds = () => {
     </div>
   );
 };
+
+export default Refunds;

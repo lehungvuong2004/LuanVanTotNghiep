@@ -288,3 +288,5 @@ export const Payments = () => {
     </div>
   );
 };
+
+export default Payments;

@@ -5,7 +5,6 @@ import { useRecruitment, URGENCY_OPTS } from "./useHook";
 import { PriceFilter } from "../../components/PriceFilter";
 import { Pagination } from "../../components/Pagination";
 import { formatDateTime } from "../../utils";
-
 import { Link } from "react-router-dom";
 import { CustomSelect } from "../../components/CustomSelect";
 
@@ -31,7 +30,6 @@ export const Recruitment = () => {
     clearFilters,
     categories,
     isLoading,
-
     applyJob,
     appliedJobIds,
   } = useRecruitment();
@@ -80,11 +78,7 @@ export const Recruitment = () => {
                     setSelectedCategories([Number(val)]);
                   }
                 }}
-                options={[
-                  { value: "all", label: t("Tất cả") },
-                  ...categories.map((cat) => ({ value: String(cat.id), label: t(cat.name) })),
-                  { value: "other", label: t("Khác") },
-                ]}
+                options={[{ value: "all", label: t("Tất cả") }, ...categories.map((cat) => ({ value: String(cat.id), label: t(cat.name) })), { value: "other", label: t("Khác") }]}
               />
             ) : (
               <p className="text-xs text-gray-400 italic">{t("Đang tải danh mục...")}</p>
@@ -249,7 +243,7 @@ export const Recruitment = () => {
           />
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:block font-medium">
+          <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:block font-medium whitespace-nowrap">
             {totalItems} {t("kết quả")}
           </span>
           <CustomSelect

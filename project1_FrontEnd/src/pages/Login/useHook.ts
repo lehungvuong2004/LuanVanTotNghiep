@@ -20,7 +20,6 @@ export const useLogin = () => {
 
   const rememberedEmail = localStorage.getItem("remembered_email") || "";
   const initialRememberMe = localStorage.getItem("remember_me") === "true";
-
   const formik = useFormik({
     initialValues: {
       email: state?.email || rememberedEmail,

@@ -245,7 +245,7 @@ export const Register = () => {
         </div>
 
         {/* Info Message */}
-        <div className="rounded-lg p-3.5 flex items-start gap-3 border border-amber-300/30 dark:border-amber-500/30 mx-auto max-w-[21.25rem] bg-amber-300/10 dark:bg-amber-500/10">
+        <div className="rounded-lg p-3.5 flex items-start gap-3 border border-amber-300/30 dark:border-amber-500/30 mx-auto max-w-85 bg-amber-300/10 dark:bg-amber-500/10">
           <Icon icon="mdi:information-outline" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-sm font-medium text-amber-900 dark:text-amber-300 leading-relaxed text-center">{t("Bạn có thể đăng ký trở thành người giúp việc sau khi tạo tài khoản.")}</p>
         </div>
@@ -264,3 +264,5 @@ export const Register = () => {
     </div>
   );
 };
+
+export default Register;

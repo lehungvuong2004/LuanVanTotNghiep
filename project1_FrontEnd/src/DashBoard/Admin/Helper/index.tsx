@@ -692,3 +692,5 @@ export const Helpers = () => {
     </div>
   );
 };
+
+export default Helpers;

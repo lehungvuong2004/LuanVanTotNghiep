@@ -379,3 +379,5 @@ export const NewsAdmin = () => {
     </div>
   );
 };
+
+export default NewsAdmin;
