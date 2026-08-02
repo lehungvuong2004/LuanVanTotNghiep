@@ -60,7 +60,7 @@ class AuthController extends Controller
     $fields = $request->validate([
       'full_name' => 'required|string|min:2|max:50',
       'email'     => 'required|string|email|max:191|unique:users,email',
-      'phone'     => ['required', 'string', 'regex:/^(0[3|5|7|8|9])[0-9]{8}$/', 'unique:users,phone'],
+      'phone'     => ['required', 'string', 'regex:/^(03|05|07|08|09)[0-9]{8}$/', 'unique:users,phone'],
       'password'  => ['required', 'string', 'min:6', 'max:32', new StrongPassword()],
     ], [
       'full_name.required' => 'Vui lòng nhập họ và tên.',
@@ -85,7 +85,7 @@ class AuthController extends Controller
       'password' => Hash::make($fields['password']),
       'status'   => 'active',
     ]);
-
+    // Tạo token cho user này.
     $token = auth('api')->login($user);
 
     ActivityLogService::log($user->id, 'REGISTER', "Đăng ký tài khoản mới thành công.");
@@ -453,6 +453,7 @@ class AuthController extends Controller
     $helperUserIds = [];
     try {
       $response = Http::timeout(3)
+      // User ID 3 có profile, User ID 4 có profile
         ->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/helper-user-ids');
       if ($response->successful()) {
         $helperUserIds = $response->json() ?? [];

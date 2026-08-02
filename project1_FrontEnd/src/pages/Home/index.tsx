@@ -18,8 +18,7 @@ import gsap from "gsap";
 
 export const Home = () => {
   const { t } = useTranslation();
-  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } =
-    useHome();
+  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } =  useHome();
 
   const swiperRef = useRef<any>(null);
   const dynamicBgRef = useRef<HTMLDivElement>(null);
@@ -33,7 +32,7 @@ export const Home = () => {
           clipPath: "circle(150% at 100% 0%)",
           duration: 2.2,
           ease: "power2.inOut",
-        }
+        },
       );
     }
   }, [loadingBanners, banners]);
@@ -43,7 +42,7 @@ export const Home = () => {
       banners && banners.length > 0
         ? banners
         : [
-             {
+            {
               id: 0,
               title: t("home.banner.defaultTitle"),
               image: "",
@@ -63,7 +62,10 @@ export const Home = () => {
           className="w-full h-full hero-swiper"
         >
           {bannerList.map((banner, index) => (
-            <SwiperSlide key={banner.id || index} className="relative w-full h-full flex items-center justify-center select-none overflow-hidden bg-linear-to-r from-[#022b30] via-[#034d54] to-[#008080]">
+            <SwiperSlide
+              key={banner.id || index}
+              className="relative w-full h-full flex items-center justify-center select-none overflow-hidden bg-linear-to-r from-[#022b30] via-[#034d54] to-[#008080]"
+            >
               {banner.image ? (
                 index === 0 ? (
                   <>
@@ -71,28 +73,28 @@ export const Home = () => {
                     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
                       {/* Rich Left-to-Right background gradient overlay */}
                       <div className="absolute inset-0 bg-linear-to-r from-[#011618] via-[#023138] to-[#045661]" />
-                      
+
                       {/* Large ambient star glow radiating from the upper-right corner */}
-                      <div 
+                      <div
                         className="absolute -top-24 -right-24 w-160 h-160 rounded-full blur-3xl opacity-35 animate-[pulse_8s_infinite]"
                         style={{
-                          background: 'radial-gradient(circle, rgba(45,212,191,0.6) 0%, rgba(13,148,136,0.2) 60%, transparent 100%)'
+                          background: "radial-gradient(circle, rgba(45,212,191,0.6) 0%, rgba(13,148,136,0.2) 60%, transparent 100%)",
                         }}
                       />
-                      
+
                       {/* Secondary medium halo glow centered near the star */}
-                      <div 
+                      <div
                         className="absolute top-8 right-8 w-80 h-80 rounded-full blur-2xl opacity-50"
                         style={{
-                          background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(20,184,166,0.1) 50%, transparent 100%)'
+                          background: "radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(20,184,166,0.1) 50%, transparent 100%)",
                         }}
                       />
 
                       {/* High-intensity star core glow */}
-                      <div 
+                      <div
                         className="absolute top-1/5 right-1/6 w-32 h-32 rounded-full blur-md opacity-80"
                         style={{
-                          background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(45,212,191,0.35) 45%, transparent 90%)'
+                          background: "radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(45,212,191,0.35) 45%, transparent 90%)",
                         }}
                       />
 
@@ -100,18 +102,14 @@ export const Home = () => {
                       <div className="absolute top-1/5 right-1/6 -translate-y-1/2 translate-x-1/2 flex items-center justify-center scale-90 md:scale-100">
                         {/* Ring flare of the star */}
                         <div className="absolute w-24 h-24 rounded-full border border-white/20 blur-xs animate-[ping_5s_infinite] opacity-30" />
-                        
+
                         {/* Cinematic vertical light ray */}
                         <div className="absolute w-0.5 h-32 bg-linear-to-t from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
                         {/* Cinematic horizontal light ray */}
                         <div className="absolute h-0.5 w-32 bg-linear-to-r from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
 
                         {/* Main SVG Star */}
-                        <svg
-                          viewBox="0 0 100 100"
-                          className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]"
-                          fill="currentColor"
-                        >
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]" fill="currentColor">
                           <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
                         </svg>
 
@@ -135,11 +133,7 @@ export const Home = () => {
                     </div>
 
                     {/* Dynamic Image layer (reveals on load using clip-path) */}
-                    <div
-                      ref={dynamicBgRef}
-                      className="absolute inset-0 z-0 overflow-hidden"
-                      style={{ clipPath: "circle(0% at 100% 0%)" }}
-                    >
+                    <div ref={dynamicBgRef} className="absolute inset-0 z-0 overflow-hidden" style={{ clipPath: "circle(0% at 100% 0%)" }}>
                       <img
                         ref={imageRef}
                         src={getImageUrl(banner.image)}
@@ -172,28 +166,28 @@ export const Home = () => {
                 <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
                   {/* Rich Left-to-Right background gradient overlay */}
                   <div className="absolute inset-0 bg-linear-to-r from-[#011618] via-[#023138] to-[#045661]" />
-                  
+
                   {/* Large ambient star glow radiating from the upper-right corner */}
-                  <div 
+                  <div
                     className="absolute -top-24 -right-24 w-160 h-160 rounded-full blur-3xl opacity-35 animate-[pulse_8s_infinite]"
                     style={{
-                      background: 'radial-gradient(circle, rgba(45,212,191,0.6) 0%, rgba(13,148,136,0.2) 60%, transparent 100%)'
+                      background: "radial-gradient(circle, rgba(45,212,191,0.6) 0%, rgba(13,148,136,0.2) 60%, transparent 100%)",
                     }}
                   />
-                  
+
                   {/* Secondary medium halo glow centered near the star */}
-                  <div 
+                  <div
                     className="absolute top-8 right-8 w-80 h-80 rounded-full blur-2xl opacity-50"
                     style={{
-                      background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(20,184,166,0.1) 50%, transparent 100%)'
+                      background: "radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(20,184,166,0.1) 50%, transparent 100%)",
                     }}
                   />
 
                   {/* High-intensity star core glow */}
-                  <div 
+                  <div
                     className="absolute top-1/5 right-1/6 w-32 h-32 rounded-full blur-md opacity-80"
                     style={{
-                      background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(45,212,191,0.35) 45%, transparent 90%)'
+                      background: "radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(45,212,191,0.35) 45%, transparent 90%)",
                     }}
                   />
 
@@ -201,18 +195,14 @@ export const Home = () => {
                   <div className="absolute top-1/5 right-1/6 -translate-y-1/2 translate-x-1/2 flex items-center justify-center scale-90 md:scale-100">
                     {/* Ring flare of the star */}
                     <div className="absolute w-24 h-24 rounded-full border border-white/20 blur-xs animate-[ping_5s_infinite] opacity-30" />
-                    
+
                     {/* Cinematic vertical light ray */}
                     <div className="absolute w-0.5 h-32 bg-linear-to-t from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
                     {/* Cinematic horizontal light ray */}
                     <div className="absolute h-0.5 w-32 bg-linear-to-r from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
 
                     {/* Main SVG Star */}
-                    <svg
-                      viewBox="0 0 100 100"
-                      className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]"
-                      fill="currentColor"
-                    >
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]" fill="currentColor">
                       <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
                     </svg>
 

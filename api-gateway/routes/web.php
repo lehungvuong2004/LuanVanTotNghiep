@@ -33,18 +33,23 @@ function proxyTo($targetUrl, Request $request)
 
     // Đọc tất cả input & file để đóng gói gửi đi
     foreach ($request->all() as $name => $value) {
+      // Nếu trường đó là File (ảnh, tài liệu)
       if ($request->hasFile($name)) {
         $file = $request->file($name);
         $pendingRequest->attach(
           $name,
+          // Đọc nội dung file.
           file_get_contents($file->getRealPath()),
+          // Lấy định dạng MIME của file (VD: image/png).
           $file->getClientOriginalName(),
           ['Content-Type' => $file->getClientMimeType()]
         );
       } else {
+        // Đóng gói file vào request để gửi sang Microservice.
         $pendingRequest->attach($name, $value);
       }
     }
+    // Nếu chỉ là dữ liệu văn bản bình thường trong Form, đính kèm dạng text
     $response = $pendingRequest->send($request->method(), $targetUrl, [
       'query' => $request->query(),
       'multipart' => []
@@ -63,10 +68,14 @@ function proxyTo($targetUrl, Request $request)
   // Trả lại kết quả và kiểu dữ liệu (Content-Type) từ microservice về cho Client
   $body = $response->body();
   $resContentType = $response->header('Content-Type');
-
+  // : Nếu phản hồi trả về là dữ liệu JSON:
   if ($resContentType && str_contains(strtolower($resContentType), 'application/json')) {
+    // Lấy tên miền/IP hiện tại của Gateway
     $gatewayUrl = $request->getSchemeAndHttpHost();
+    // Chuẩn bị chuỗi để thay thế (thêm dấu \ trước dấu / để tránh lỗi cú pháp)
     $escapedGatewayUrl = str_replace('/', '\/', $gatewayUrl);
+    // Tìm toàn bộ các địa chỉ Docker nội bộ mục dích Giúp giấu tên 
+    // miền nội bộ Docker và đảm bảo các đường link ảnh/link API gửi về cho Client có thể click/truy cập từ bên ngoài được.
     $body = str_replace(
       [
         'http://identity-service:8000',
@@ -98,6 +107,7 @@ function proxyTo($targetUrl, Request $request)
 
 // 2. Định tuyến cho Identity Service (Xác thực, Phân quyền, Quản lý User và Admin)
 Route::any('/api/auth/{any?}', function (Request $request, $any = '') {
+  // var_dump($any);
   $targetUrl = 'http://identity-service:8000/api/auth/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');

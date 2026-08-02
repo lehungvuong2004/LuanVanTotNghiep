@@ -5,7 +5,8 @@ import { useBooking } from "./useHook";
 import type { BookingItem } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
 
-import { formatNumberVI, fmtVND, exportToExcel } from "../../../utils";
+import { formatNumberVI, fmtVND } from "../../../utils";
+import { exportToExcel } from "../../../utils/excelExporter";
 import { BulkDeleteBar } from "../../../components/BulkDeleteBar";
 import { useToast } from "../../../contexts/ToastContext";
 

@@ -1,7 +1,6 @@
 import { Icon } from "@iconify/react";
 import { ROLES, getUserRole } from "../constants/roles";
 import i18n from "../i18n";
-export { exportToExcel } from "./excelExporter";
 
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 

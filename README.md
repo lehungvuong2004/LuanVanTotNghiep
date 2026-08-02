@@ -9,10 +9,10 @@ Hệ thống được thiết kế và xây dựng nhằm giải quyết nhu c�
 
 Dự án áp dụng kiến trúc **Microservices** hiện đại chạy trên nền tảng **Docker**, bao gồm ứng dụng **Frontend (React)** và các dịch vụ **Backend (Laravel PHP)** giao tiếp thông qua **API Gateway**.
 
-## Link Deploy Frontend lên GitHub Pages
+## Link Deploy Frontend lên GitHub Pages (chưa deloy BE)
 ### GitHub Pages: https://lehungvuong2004.github.io/LuanVanTotNghiep/
-
-
+### Figma: https://www.figma.com/design/HopgMjHLrMNXIPl4WjrBVi/Untitled?node-id=2081-2100&t=AjU7b3k5Aerj1Sr7-1
+### Word mô tả: https://docs.google.com/document/d/1Dc0Uf1Qw2p0mTvxZtwHKABQ6kYzW1mOV/edit?usp=sharing&ouid=108572835779169857774&rtpof=true&sd=true
 ## 🛠️ Công Nghệ Sử Dụng
 
 ### 1. Backend (Laravel Microservices)
