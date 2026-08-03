@@ -1,5 +1,4 @@
 import axiosInstance from "../axios";
-
 export interface Banner {
   id: number;
   title: string;
@@ -38,83 +37,81 @@ export interface PublicBannersResponse {
   data: Banner[];
 }
 
+export interface GetBannersAdminParams {
+  search?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateBannerRequest {
+  title: string;
+  image: string;
+  link?: string | null;
+  status?: "active" | "inactive";
+}
+
+export interface UpdateBannerRequest {
+  title?: string;
+  image?: string;
+  link?: string | null;
+  status?: "active" | "inactive";
+}
+
+export interface BannerMutateResponse {
+  message: string;
+  data: Banner;
+}
+
+export interface DeleteBannerResponse {
+  message: string;
+}
+
+export interface UploadBannerResponse {
+  message: string;
+  url: string;
+  path: string;
+}
+
 export const getBannersPublic = async (): Promise<PublicBannersResponse> => {
   const response = await axiosInstance.get<PublicBannersResponse>("/banners");
   return response.data;
 };
 
-export const getBannersAdmin = async (params?: {
-  search?: string;
-  status?: string;
-  page?: number;
-  limit?: number;
-}): Promise<AdminBannersResponse> => {
+export const getBannersAdmin = async (params?: GetBannersAdminParams): Promise<AdminBannersResponse> => {
   const response = await axiosInstance.get<AdminBannersResponse>("/admin/banners", {
     params,
   });
   return response.data;
 };
 
-export const createBannerAdmin = async (data: {
-  title: string;
-  image: string;
-  link?: string | null;
-  status?: "active" | "inactive";
-}): Promise<{ message: string; data: Banner }> => {
-  const response = await axiosInstance.post<{ message: string; data: Banner }>(
-    "/admin/banners",
-    data
-  );
+export const createBannerAdmin = async (data: CreateBannerRequest): Promise<BannerMutateResponse> => {
+  const response = await axiosInstance.post<BannerMutateResponse>("/admin/banners", data);
   return response.data;
 };
 
-export const updateBannerAdmin = async (
-  id: number,
-  data: {
-    title?: string;
-    image?: string;
-    link?: string | null;
-    status?: "active" | "inactive";
-  }
-): Promise<{ message: string; data: Banner }> => {
-  const response = await axiosInstance.put<{ message: string; data: Banner }>(
-    `/admin/banners/${id}`,
-    data
-  );
+export const updateBannerAdmin = async (id: number, data: UpdateBannerRequest): Promise<BannerMutateResponse> => {
+  const response = await axiosInstance.put<BannerMutateResponse>(`/admin/banners/${id}`, data);
   return response.data;
 };
 
-export const toggleBannerStatusAdmin = async (
-  id: number,
-  status: "active" | "inactive"
-): Promise<{ message: string; data: Banner }> => {
-  const response = await axiosInstance.patch<{ message: string; data: Banner }>(
-    `/admin/banners/${id}/status`,
-    { status }
-  );
+export const toggleBannerStatusAdmin = async (id: number, status: "active" | "inactive"): Promise<BannerMutateResponse> => {
+  const response = await axiosInstance.patch<BannerMutateResponse>(`/admin/banners/${id}/status`, { status });
   return response.data;
 };
 
-export const deleteBannerAdmin = async (
-  id: number
-): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(
-    `/admin/banners/${id}`
-  );
+export const deleteBannerAdmin = async (id: number): Promise<DeleteBannerResponse> => {
+  const response = await axiosInstance.delete<DeleteBannerResponse>(`/admin/banners/${id}`);
   return response.data;
 };
 
-export const uploadBannerImage = async (file: File): Promise<{ message: string; url: string; path: string }> => {
+export const uploadBannerImage = async (file: File): Promise<UploadBannerResponse> => {
   const formData = new FormData();
   formData.append("image", file);
-  const response = await axiosInstance.post<{ message: string; url: string; path: string }>(
-    "/admin/banners/upload",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
+  const response = await axiosInstance.post<UploadBannerResponse>("/admin/banners/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };

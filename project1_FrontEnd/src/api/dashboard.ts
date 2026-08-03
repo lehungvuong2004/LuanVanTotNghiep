@@ -38,6 +38,5 @@ export interface DashboardOverviewResponse {
 
 export const getDashboardOverview = async (): Promise<DashboardOverviewResponse> => {
   const response = await axiosInstance.get<DashboardOverviewResponse>("/orders/admin/dashboard-overview");
-  // console.log(response.data);
   return response.data;
 };

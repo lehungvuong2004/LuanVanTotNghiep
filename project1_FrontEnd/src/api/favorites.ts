@@ -26,22 +26,25 @@ export interface PaginatedFavoritesResponse {
     total: number;
   };
 }
-
+// lấy yêu thích
 export const getFavorites = async (params?: { page?: number; limit?: number }): Promise<PaginatedFavoritesResponse> => {
   const response = await axiosInstance.get<PaginatedFavoritesResponse>("/providers/favorites", { params });
   return response.data;
 };
 
+// thêm yêu thích
 export const addFavorite = async (helperId: number): Promise<{ message: string; data: FavoriteItem }> => {
   const response = await axiosInstance.post<{ message: string; data: FavoriteItem }>(`/providers/favorites/${helperId}`);
   return response.data;
 };
 
+// xóa yêu thích
 export const removeFavorite = async (helperId: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/providers/favorites/${helperId}`);
   return response.data;
 };
 
+// kiểm tra yêu thích
 export const checkFavorite = async (helperId: number): Promise<{ data: { is_favorite: boolean } }> => {
   const response = await axiosInstance.get<{ data: { is_favorite: boolean } }>(`/providers/favorites/${helperId}/check`);
   return response.data;

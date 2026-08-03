@@ -39,37 +39,42 @@ export interface CreateReportParams {
   reason: string;
 }
 
-// CUSTOMER / HELPER — Submit a report
+export interface ProcessReportAdminParams {
+  status: "resolved" | "dismissed";
+  note?: string;
+}
+
+// Người dùng gửi báo cáo vi phạm
 export const createReportApi = async (data: CreateReportParams): Promise<{ message: string; data: Report }> => {
   const response = await axiosInstance.post<{ message: string; data: Report }>("/orders/reports", data);
   return response.data;
 };
 
-// ADMIN / OPERATOR — List all violation reports
+// Admin lấy danh sách báo cáo vi phạm
 export const getReportsAdminApi = async (params?: GetReportsParams): Promise<PaginatedReportsResponse> => {
   const response = await axiosInstance.get<PaginatedReportsResponse>("/orders/admin/reports", { params });
   return response.data;
 };
 
-// ADMIN / OPERATOR — Get single violation report details
+// Admin xem chi tiết báo cáo vi phạm
 export const getReportAdminShowApi = async (id: number): Promise<{ data: Report }> => {
   const response = await axiosInstance.get<{ data: Report }>(`/orders/admin/reports/${id}`);
   return response.data;
 };
 
-// ADMIN / OPERATOR — Process (resolve or dismiss) a report
-export const processReportAdminApi = async (id: number, data: { status: "resolved" | "dismissed"; note?: string }): Promise<{ message: string; data: Report }> => {
+// Admin xử lý báo cáo vi phạm (phê duyệt hoặc hủy bỏ)
+export const processReportAdminApi = async (id: number, data: ProcessReportAdminParams): Promise<{ message: string; data: Report }> => {
   const response = await axiosInstance.patch<{ message: string; data: Report }>(`/orders/admin/reports/${id}/process`, data);
   return response.data;
 };
 
-// ADMIN / OPERATOR — Delete a report
+// Admin xóa báo cáo vi phạm
 export const deleteReportAdminApi = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/orders/admin/reports/${id}`);
   return response.data;
 };
 
-// ADMIN / OPERATOR — Bulk delete reports
+// Admin xóa hàng loạt báo cáo vi phạm
 export const bulkDeleteReportsAdminApi = async (ids: number[]): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>("/orders/admin/reports/bulk-delete", { data: { ids } });
   return response.data;

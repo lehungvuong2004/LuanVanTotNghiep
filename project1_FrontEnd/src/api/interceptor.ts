@@ -2,24 +2,23 @@ import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosErr
 import i18n from "../i18n";
 
 export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
-  // Request interceptor: add access token to headers & set current language
   axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       const token = localStorage.getItem("access_token");
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      
+
       const currentLanguage = localStorage.getItem("language") || "vn";
       if (config.headers) {
         config.headers["Accept-Language"] = currentLanguage === "vn" ? "vi" : currentLanguage;
       }
-      
+
       return config;
     },
     (error: AxiosError) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   // Response interceptor: handle errors & messages globally with i18n translations
@@ -42,7 +41,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
           localStorage.removeItem("access_token");
           localStorage.removeItem("user");
         }
-        
+
         const resData = error.response.data as any;
         if (resData && typeof resData === "object" && "message" in resData) {
           if (typeof resData.message === "string") {
@@ -54,6 +53,6 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
         }
       }
       return Promise.reject(error);
-    }
+    },
   );
 };

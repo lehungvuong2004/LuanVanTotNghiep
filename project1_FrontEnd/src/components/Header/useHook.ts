@@ -119,7 +119,7 @@ export const useHeader = () => {
     if (!localStorage.getItem("access_token")) return;
     setNotifLoading(true);
     try {
-      const res = await getNotifications(undefined, 20, page);
+      const res = await getNotifications({ limit: 20, page });
       const items = res.data.data;
       setNotifications((prev) => (replace ? items : [...prev, ...items]));
       setUnreadCount(res.unread_count);

@@ -52,58 +52,83 @@ export interface HelperReviewsResponse {
     per_page: number;
   };
 }
-//  PUBLIC — Reviews for a helper (enriched with customer info)
-export const getHelperReviewsPublic = async (helperId: number, params?: { page?: number; limit?: number; rating?: number }): Promise<HelperReviewsResponse> => {
-  const response = await axiosInstance.get<HelperReviewsResponse>(`/orders/reviews/helper/${helperId}`, { params });
-  return response.data;
-};
 
-//  CUSTOMER — Submit a review
-export const createReviewCustomer = async (data: {
+export interface GetHelperReviewsPublicParams {
+  page?: number;
+  limit?: number;
+  rating?: number;
+}
+
+export interface CreateReviewCustomerPayload {
   helper_id: number;
   rating: number;
   comment?: string | null;
   booking_id?: number | null;
   job_post_id?: number | null;
-}): Promise<{ message: string; data: Review }> => {
-  const response = await axiosInstance.post<{ message: string; data: Review }>("/orders/reviews", data);
-  return response.data;
-};
+}
 
-//  ADMIN — Review management
-export const getReviewsAdmin = async (params: GetReviewsParams): Promise<PaginatedReviewsResponse> => {
-  const response = await axiosInstance.get<PaginatedReviewsResponse>("/orders/admin/reviews", { params });
-  return response.data;
-};
+export interface UpdateReviewAdminPayload {
+  rating?: number;
+  comment?: string | null;
+}
 
-export const updateReviewAdmin = async (id: number, data: { rating?: number; comment?: string | null }): Promise<{ message: string; data: Review }> => {
-  const response = await axiosInstance.put<{ message: string; data: Review }>(`/orders/admin/reviews/${id}`, data);
-  return response.data;
-};
-
-export const deleteReviewAdmin = async (id: number): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(`/orders/admin/reviews/${id}`);
-  return response.data;
-};
-
-export const createReviewAdmin = async (data: {
+export interface CreateReviewAdminPayload {
   customer_id: number;
   helper_id: number;
   rating: number;
   comment?: string | null;
   booking_id?: number | null;
   job_post_id?: number | null;
-}): Promise<{ message: string; data: Review }> => {
+}
+
+export interface UpdateReviewCustomerPayload {
+  rating?: number;
+  comment?: string | null;
+}
+
+// Tìm kiếm danh sách đánh giá công khai của một người giúp việc
+export const getHelperReviewsPublic = async (helperId: number, params?: GetHelperReviewsPublicParams): Promise<HelperReviewsResponse> => {
+  const response = await axiosInstance.get<HelperReviewsResponse>(`/orders/reviews/helper/${helperId}`, { params });
+  return response.data;
+};
+
+// Khách hàng gửi đánh giá cho người giúp việc
+export const createReviewCustomer = async (data: CreateReviewCustomerPayload): Promise<{ message: string; data: Review }> => {
+  const response = await axiosInstance.post<{ message: string; data: Review }>("/orders/reviews", data);
+  return response.data;
+};
+
+// Admin lấy danh sách tất cả các đánh giá
+export const getReviewsAdmin = async (params: GetReviewsParams): Promise<PaginatedReviewsResponse> => {
+  const response = await axiosInstance.get<PaginatedReviewsResponse>("/orders/admin/reviews", { params });
+  return response.data;
+};
+
+// Admin cập nhật thông tin một đánh giá
+export const updateReviewAdmin = async (id: number, data: UpdateReviewAdminPayload): Promise<{ message: string; data: Review }> => {
+  const response = await axiosInstance.put<{ message: string; data: Review }>(`/orders/admin/reviews/${id}`, data);
+  return response.data;
+};
+
+// Admin xóa một đánh giá
+export const deleteReviewAdmin = async (id: number): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(`/orders/admin/reviews/${id}`);
+  return response.data;
+};
+
+// Admin tạo bổ sung đánh giá mới
+export const createReviewAdmin = async (data: CreateReviewAdminPayload): Promise<{ message: string; data: Review }> => {
   const response = await axiosInstance.post<{ message: string; data: Review }>("/orders/admin/reviews", data);
   return response.data;
 };
 
-//  CUSTOMER — Edit & Delete reviews
-export const updateReviewCustomer = async (id: number, data: { rating?: number; comment?: string | null }): Promise<{ message: string; data: Review }> => {
+// Khách hàng tự chỉnh sửa đánh giá của mình
+export const updateReviewCustomer = async (id: number, data: UpdateReviewCustomerPayload): Promise<{ message: string; data: Review }> => {
   const response = await axiosInstance.put<{ message: string; data: Review }>(`/orders/reviews/${id}`, data);
   return response.data;
 };
 
+// Khách hàng tự xóa đánh giá của mình
 export const deleteReviewCustomer = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/orders/reviews/${id}`);
   return response.data;

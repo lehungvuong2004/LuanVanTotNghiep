@@ -65,19 +65,6 @@ export interface AdminRefundsResponse {
   };
 }
 
-export const getPaymentsAdmin = async (params?: {
-  status?: string;
-  payment_method?: string;
-  booking_id?: number | string;
-  job_post_id?: number | string;
-  page?: number;
-  limit?: number;
-}): Promise<AdminPaymentsResponse> => {
-  const response = await axiosInstance.get<AdminPaymentsResponse>("/payments/admin", {
-    params });
-  return response.data;
-};
-
 export interface PaymentStatsResponse {
   data: {
     total_revenue: number;
@@ -87,47 +74,6 @@ export interface PaymentStatsResponse {
   };
 }
 
-export const getPaymentStatsAdmin = async (): Promise<PaymentStatsResponse> => {
-  const response = await axiosInstance.get<PaymentStatsResponse>("/payments/admin/stats");
-  return response.data;
-};
-
-export const updatePaymentStatusAdmin = async (
-  id: number,
-  status: "pending" | "completed" | "failed" | "refunded"
-): Promise<{ message: string; data: Payment }> => {
-  const response = await axiosInstance.patch<{ message: string; data: Payment }>(
-    `/payments/admin/${id}/status`,
-    { status }
-  );
-  return response.data;
-};
-
-export const getRefundsAdmin = async (params?: {
-  status?: string;
-  page?: number;
-  limit?: number;
-}): Promise<AdminRefundsResponse> => {
-  const response = await axiosInstance.get<AdminRefundsResponse>("/payments/admin/refunds", {
-    params });
-  return response.data;
-};
-
-export const processRefundAdmin = async (
-  id: number,
-  status: "approved" | "rejected" | "completed"
-): Promise<{ message: string; data: Refund }> => {
-  const response = await axiosInstance.patch<{ message: string; data: Refund }>(
-    `/payments/admin/refunds/${id}/process`,
-    { status }
-  );
-  return response.data;
-};
-
-// ──────────────────────────────────────────────────────────
-//  Customer-facing APIs
-// ──────────────────────────────────────────────────────────
-
 export interface CreatePaymentPayload {
   booking_id?: number | null;
   job_post_id?: number | null;
@@ -135,80 +81,11 @@ export interface CreatePaymentPayload {
   amount: number;
 }
 
-export const createPaymentApi = async (
-  payload: CreatePaymentPayload
-): Promise<{ message: string; data: Payment }> => {
-  const response = await axiosInstance.post<{ message: string; data: Payment }>(
-    "/payments",
-    payload
-  );
-  return response.data;
-};
-
-export const getMyPaymentApi = async (
-  id: number
-): Promise<{ data: Payment & { refunds?: Refund[] } }> => {
-  const response = await axiosInstance.get<{ data: Payment & { refunds?: Refund[] } }>(
-    `/payments/${id}`
-  );
-  return response.data;
-};
-
-export const getMyPaymentsApi = async (params?: {
-  page?: number;
-  limit?: number;
-}): Promise<AdminPaymentsResponse> => {
-  const response = await axiosInstance.get<AdminPaymentsResponse>("/payments", {
-    params });
-  return response.data;
-};
-
-export const simulatePaymentCallbackApi = async (
-  id: number
-): Promise<{ message: string; data: Payment }> => {
-  const response = await axiosInstance.post<{ message: string; data: Payment }>(
-    `/payments/${id}/callback`
-  );
-  return response.data;
-};
-
-export const confirmCashReceiptApi = async (
-  id: number
-): Promise<{ message: string; data: Payment }> => {
-  const response = await axiosInstance.post<{ message: string; data: Payment }>(
-    `/payments/${id}/confirm-cash`
-  );
-  return response.data;
-};
-
 export interface CreateRefundPayload {
   payment_id: number;
   amount: number;
   reason?: string;
 }
-
-export const requestRefundApi = async (
-  payload: CreateRefundPayload
-): Promise<{ message: string; data: Refund }> => {
-  const response = await axiosInstance.post<{ message: string; data: Refund }>(
-    "/payments/refunds",
-    payload
-  );
-  return response.data;
-};
-
-export const getMyPaymentRefundsApi = async (
-  paymentId: number
-): Promise<{ data: Refund[] }> => {
-  const response = await axiosInstance.get<{ data: Refund[] }>(
-    `/payments/${paymentId}/refunds`
-  );
-  return response.data;
-};
-
-// ──────────────────────────────────────────────────────────
-//  VNPay APIs
-// ──────────────────────────────────────────────────────────
 
 export interface CreateVnpayPayload {
   booking_id?: number | null;
@@ -224,20 +101,114 @@ export interface CreateVnpayResponse {
   payment_url: string;
 }
 
-export const createVnpayUrlApi = async (
-  payload: CreateVnpayPayload
-): Promise<CreateVnpayResponse> => {
-  const response = await axiosInstance.post<CreateVnpayResponse>(
-    "/payments/vnpay/create",
-    payload
-  );
+export interface GetPaymentsAdminParams {
+  status?: string;
+  payment_method?: string;
+  booking_id?: number | string;
+  job_post_id?: number | string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetRefundsAdminParams {
+  status?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetMyPaymentsParams {
+  page?: number;
+  limit?: number;
+}
+
+// Admin lấy danh sách các giao dịch thanh toán
+export const getPaymentsAdmin = async (params?: GetPaymentsAdminParams): Promise<AdminPaymentsResponse> => {
+  const response = await axiosInstance.get<AdminPaymentsResponse>("/payments/admin", {
+    params,
+  });
   return response.data;
 };
 
-export const verifyVnpayReturnApi = async (
-  queryParams: Record<string, string>
-): Promise<any> => {
+// Admin lấy thông số thống kê doanh thu thanh toán
+export const getPaymentStatsAdmin = async (): Promise<PaymentStatsResponse> => {
+  const response = await axiosInstance.get<PaymentStatsResponse>("/payments/admin/stats");
+  return response.data;
+};
+
+// Admin cập nhật thủ công trạng thái giao dịch thanh toán
+export const updatePaymentStatusAdmin = async (id: number, status: "pending" | "completed" | "failed" | "refunded"): Promise<{ message: string; data: Payment }> => {
+  const response = await axiosInstance.patch<{ message: string; data: Payment }>(`/payments/admin/${id}/status`, { status });
+  return response.data;
+};
+
+// Admin lấy danh sách yêu cầu hoàn tiền
+export const getRefundsAdmin = async (params?: GetRefundsAdminParams): Promise<AdminRefundsResponse> => {
+  const response = await axiosInstance.get<AdminRefundsResponse>("/payments/admin/refunds", {
+    params,
+  });
+  return response.data;
+};
+
+// Admin xử lý phê duyệt/từ chối yêu cầu hoàn tiền
+export const processRefundAdmin = async (id: number, status: "approved" | "rejected" | "completed"): Promise<{ message: string; data: Refund }> => {
+  const response = await axiosInstance.patch<{ message: string; data: Refund }>(`/payments/admin/refunds/${id}/process`, { status });
+  return response.data;
+};
+
+// Khởi tạo một giao dịch thanh toán mới (phương thức thủ công/tiền mặt)
+export const createPaymentApi = async (payload: CreatePaymentPayload): Promise<{ message: string; data: Payment }> => {
+  const response = await axiosInstance.post<{ message: string; data: Payment }>("/payments", payload);
+  return response.data;
+};
+
+// Lấy thông tin chi tiết một giao dịch thanh toán của tôi
+export const getMyPaymentApi = async (id: number): Promise<{ data: Payment & { refunds?: Refund[] } }> => {
+  const response = await axiosInstance.get<{ data: Payment & { refunds?: Refund[] } }>(`/payments/${id}`);
+  return response.data;
+};
+
+// Lấy danh sách lịch sử giao dịch thanh toán của tôi
+export const getMyPaymentsApi = async (params?: GetMyPaymentsParams): Promise<AdminPaymentsResponse> => {
+  const response = await axiosInstance.get<AdminPaymentsResponse>("/payments", {
+    params,
+  });
+  return response.data;
+};
+
+// Mô phỏng callback phản hồi thanh toán (dùng cho môi trường thử nghiệm)
+export const simulatePaymentCallbackApi = async (id: number): Promise<{ message: string; data: Payment }> => {
+  const response = await axiosInstance.post<{ message: string; data: Payment }>(`/payments/${id}/callback`);
+  return response.data;
+};
+
+// Xác nhận đã nhận tiền mặt từ khách hàng (cho người giúp việc/admin nhận tiền mặt)
+export const confirmCashReceiptApi = async (id: number): Promise<{ message: string; data: Payment }> => {
+  const response = await axiosInstance.post<{ message: string; data: Payment }>(`/payments/${id}/confirm-cash`);
+  return response.data;
+};
+
+// Gửi yêu cầu hoàn tiền cho một giao dịch thanh toán đã thanh toán
+export const requestRefundApi = async (payload: CreateRefundPayload): Promise<{ message: string; data: Refund }> => {
+  const response = await axiosInstance.post<{ message: string; data: Refund }>("/payments/refunds", payload);
+  return response.data;
+};
+
+// Lấy danh sách các yêu cầu hoàn tiền liên quan đến giao dịch thanh toán cụ thể
+export const getMyPaymentRefundsApi = async (paymentId: number): Promise<{ data: Refund[] }> => {
+  const response = await axiosInstance.get<{ data: Refund[] }>(`/payments/${paymentId}/refunds`);
+  return response.data;
+};
+
+// Tạo cổng liên kết thanh toán trực tuyến qua ví VNPay (trả về URL thanh toán)
+export const createVnpayUrlApi = async (payload: CreateVnpayPayload): Promise<CreateVnpayResponse> => {
+  const response = await axiosInstance.post<CreateVnpayResponse>("/payments/vnpay/create", payload);
+  return response.data;
+};
+
+// Xác thực chữ ký và cập nhật trạng thái sau khi VNPay redirect về trang return URL
+export const verifyVnpayReturnApi = async (queryParams: Record<string, string>): Promise<any> => {
   const response = await axiosInstance.get("/payments/vnpay/return", {
-    params: queryParams });
+    params: queryParams,
+  });
   return response.data;
 };

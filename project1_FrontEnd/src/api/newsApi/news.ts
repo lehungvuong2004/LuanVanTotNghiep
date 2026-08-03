@@ -1,5 +1,4 @@
 import axiosInstance from "../axios";
-
 export interface NewsItem {
   id: number;
   title: string;
@@ -39,62 +38,43 @@ export interface NewsDetailResponse {
   data: NewsItem;
 }
 
-export const getNewsList = async (params?: {
+export interface GetNewsListParams {
   page?: number;
   limit?: number;
   status?: string;
-}): Promise<NewsListResponse> => {
-  const response = await axiosInstance.get<NewsListResponse>("/news", { params });
-  return response.data;
-};
+}
 
-export const getNewsDetail = async (slug: string): Promise<NewsDetailResponse> => {
-  const response = await axiosInstance.get<NewsDetailResponse>(`/news/${slug}`);
-  return response.data;
-};
-
-// Admin endpoints
-export const getNewsAdmin = async (params?: {
+export interface GetNewsAdminParams {
   search?: string;
   status?: string;
   page?: number;
   limit?: number;
-}): Promise<NewsListResponse> => {
-  const response = await axiosInstance.get<NewsListResponse>("/admin/news", { params });
-  return response.data;
-};
+}
 
-export const createNewsAdmin = async (data: {
+export interface CreateNewsAdminRequest {
   title: string;
   thumbnail?: string | null;
   summary?: string | null;
   content: string;
   status: "draft" | "published";
-}): Promise<{ message: string; data: NewsItem }> => {
-  const response = await axiosInstance.post<{ message: string; data: NewsItem }>("/admin/news", data);
-  return response.data;
-};
+}
 
-export const updateNewsAdmin = async (id: number, data: {
+export interface UpdateNewsAdminRequest {
   title?: string;
   thumbnail?: string | null;
   summary?: string | null;
   content?: string;
   status?: "draft" | "published";
-}): Promise<{ message: string; data: NewsItem }> => {
-  const response = await axiosInstance.put<{ message: string; data: NewsItem }>(`/admin/news/${id}`, data);
-  return response.data;
-};
+}
 
-export const toggleNewsStatusAdmin = async (id: number, status: "draft" | "published"): Promise<{ message: string; data: NewsItem }> => {
-  const response = await axiosInstance.patch<{ message: string; data: NewsItem }>(`/admin/news/${id}/status`, { status });
-  return response.data;
-};
+export interface NewsAdminMutateResponse {
+  message: string;
+  data: NewsItem;
+}
 
-export const deleteNewsAdmin = async (id: number): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete<{ message: string }>(`/admin/news/${id}`);
-  return response.data;
-};
+export interface DeleteNewsAdminResponse {
+  message: string;
+}
 
 export interface UploadNewsImageResponse {
   message: string;
@@ -102,11 +82,56 @@ export interface UploadNewsImageResponse {
   url: string;
 }
 
+// Lấy danh sách tin tức công khai hiển thị trên trang chủ hoặc trang tin tức.
+export const getNewsList = async (params?: GetNewsListParams): Promise<NewsListResponse> => {
+  const response = await axiosInstance.get<NewsListResponse>("/news", { params });
+  return response.data;
+};
+
+// Lấy thông tin chi tiết một bài viết tin tức dựa trên slug.
+export const getNewsDetail = async (slug: string): Promise<NewsDetailResponse> => {
+  const response = await axiosInstance.get<NewsDetailResponse>(`/news/${slug}`);
+  return response.data;
+};
+
+//  Quản trị viên (Admin/Operator) lấy danh sách tin tức (hỗ trợ phân trang, tìm kiếm và lọc trạng thái).
+export const getNewsAdmin = async (params?: GetNewsAdminParams): Promise<NewsListResponse> => {
+  const response = await axiosInstance.get<NewsListResponse>("/admin/news", { params });
+  return response.data;
+};
+
+// Quản trị viên (Admin/Operator) tạo mới bài viết tin tức.
+export const createNewsAdmin = async (data: CreateNewsAdminRequest): Promise<NewsAdminMutateResponse> => {
+  const response = await axiosInstance.post<NewsAdminMutateResponse>("/admin/news", data);
+  return response.data;
+};
+
+// Quản trị viên (Admin/Operator) cập nhật nội dung bài viết tin tức theo ID.
+export const updateNewsAdmin = async (id: number, data: UpdateNewsAdminRequest): Promise<NewsAdminMutateResponse> => {
+  const response = await axiosInstance.put<NewsAdminMutateResponse>(`/admin/news/${id}`, data);
+  return response.data;
+};
+
+// Quản trị viên (Admin/Operator) thay đổi nhanh trạng thái ẩn/hiện (nháp/xuất bản) của tin tức.
+export const toggleNewsStatusAdmin = async (id: number, status: "draft" | "published"): Promise<NewsAdminMutateResponse> => {
+  const response = await axiosInstance.patch<NewsAdminMutateResponse>(`/admin/news/${id}/status`, { status });
+  return response.data;
+};
+
+// Quản trị viên (Admin/Operator) xóa tin tức vĩnh viễn khỏi hệ thống.
+export const deleteNewsAdmin = async (id: number): Promise<DeleteNewsAdminResponse> => {
+  const response = await axiosInstance.delete<DeleteNewsAdminResponse>(`/admin/news/${id}`);
+  return response.data;
+};
+
+// Quản trị viên (Admin/Operator) tải ảnh bìa/ảnh minh họa cho bài viết tin tức.
 export const uploadNewsImage = async (file: File): Promise<UploadNewsImageResponse> => {
   const formData = new FormData();
   formData.append("image", file);
   const response = await axiosInstance.post<UploadNewsImageResponse>("/admin/news/upload", formData, {
     headers: {
-      "Content-Type": "multipart/form-data" } });
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };

@@ -51,8 +51,29 @@ export interface CustomerAddressRequest {
   city?: string;
   is_default?: boolean;
 }
+export interface HelperProfile {
+  id: number;
+  user_id: number;
+  bio?: string;
+  experience_year?: number;
+  gender?: "male" | "female" | "other" | string;
+  birthday?: string;
+  address?: string;
+  status?: string;
+  skills?: any[];
+  workingAreas?: any[];
+  verifications?: any[];
+}
 
-// 1. Lấy thông tin cá nhân của chính mình (users table)
+export interface UpdateHelperProfileRequest {
+  bio?: string;
+  experience_year?: number;
+  gender?: "male" | "female" | "other" | string;
+  birthday?: string;
+  address?: string;
+}
+
+// 1. Lấy thông tin cá nhân của chính mình
 export const getProfileApi = async (): Promise<{ data: UserProfile }> => {
   const response = await axiosInstance.get<{ data: UserProfile }>("/profile");
   return response.data;
@@ -112,38 +133,19 @@ export const uploadAvatarApi = async (file: File): Promise<{ message: string; ur
   formData.append("avatar", file);
   const response = await axiosInstance.post<{ message: string; url: string; data: UserProfile }>("/profile/avatar", formData, {
     headers: {
-      "Content-Type": "multipart/form-data" } });
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
-// 11. Helper Profile & Skills APIs
-export interface HelperProfile {
-  id: number;
-  user_id: number;
-  bio?: string;
-  experience_year?: number;
-  gender?: "male" | "female" | "other" | string;
-  birthday?: string;
-  address?: string;
-  status?: string;
-  skills?: any[];
-  workingAreas?: any[];
-  verifications?: any[];
-}
-
-export interface UpdateHelperProfileRequest {
-  bio?: string;
-  experience_year?: number;
-  gender?: "male" | "female" | "other" | string;
-  birthday?: string;
-  address?: string;
-}
-
+// Lấy thông tin hồ sơ của helper
 export const getHelperProfileApi = async (): Promise<{ data: HelperProfile | null }> => {
   const response = await axiosInstance.get<{ data: HelperProfile | null }>("/providers/helper/profile");
   return response.data;
 };
 
+// Cập nhật thông tin hồ sơ của helper
 export const updateHelperProfileApi = async (data: UpdateHelperProfileRequest): Promise<{ message: string; data: HelperProfile }> => {
   try {
     const response = await axiosInstance.put<{ message: string; data: HelperProfile }>("/providers/helper/profile", data);
@@ -157,42 +159,49 @@ export const updateHelperProfileApi = async (data: UpdateHelperProfileRequest): 
   }
 };
 
+// Lấy danh sách kỹ năng của helper
 export const getHelperSkillsApi = async (): Promise<{ data: any[] }> => {
   const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/skills");
   return response.data;
 };
 
+// Thêm kỹ năng cho helper
 export const addHelperSkillApi = async (serviceId: number): Promise<{ message: string; data: any }> => {
   const response = await axiosInstance.post<{ message: string; data: any }>("/providers/helper/skills", { service_id: serviceId });
   return response.data;
 };
 
+// Xóa kỹ năng của helper
 export const removeHelperSkillApi = async (serviceId: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/skills/${serviceId}`);
   return response.data;
 };
 
+// Lấy danh sách khu vực làm việc của helper
 export const getHelperWorkingAreasApi = async (): Promise<{ data: any[] }> => {
   const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/working-areas");
   return response.data;
 };
 
+// Thêm khu vực làm việc cho helper
 export const addHelperWorkingAreaApi = async (data: { district: string; city: string }): Promise<{ message: string; data: any }> => {
   const response = await axiosInstance.post<{ message: string; data: any }>("/providers/helper/working-areas", data);
   return response.data;
 };
 
+// Xóa khu vực làm việc của helper
 export const removeHelperWorkingAreaApi = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete<{ message: string }>(`/providers/helper/working-areas/${id}`);
   return response.data;
 };
 
-// 12. Helper Verification APIs
+// Gửi yêu cầu xác minh
 export const submitHelperVerificationApi = async (): Promise<{ message: string; data: any }> => {
   const response = await axiosInstance.post<{ message: string; data: any }>("/providers/helper/verification");
   return response.data;
 };
 
+// Lấy trạng thái xác minh
 export const getHelperVerificationStatusApi = async (): Promise<{ data: any[] }> => {
   const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/verification");
   return response.data;

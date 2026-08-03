@@ -31,12 +31,7 @@ export interface PaginatedActivityLogs {
   total: number;
 }
 
-export const getActivityLogsAdmin = async (params?: {
-  search?: string;
-  user_id?: number | string;
-  page?: number;
-  limit?: number;
-}): Promise<PaginatedActivityLogs> => {
+export const getActivityLogsAdmin = async (params?: { search?: string; user_id?: number | string; page?: number; limit?: number }): Promise<PaginatedActivityLogs> => {
   const response = await axiosInstance.get<PaginatedActivityLogs>("/admin/activity-logs", { params });
   return response.data;
 };
