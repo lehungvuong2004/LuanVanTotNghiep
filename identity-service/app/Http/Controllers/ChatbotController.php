@@ -342,7 +342,7 @@ Câu hỏi của khách hàng: {$message}"]
   }
 
   /**
-   * Admin API: Đồng bộ dữ liệu sang Vector Store thông qua n8n
+   * Admin API: Đồng bộ dữ liệu sang Vector Store thông qua n8n sử dụng retrieval và generation
    */
   public function adminSync(Request $request)
   {

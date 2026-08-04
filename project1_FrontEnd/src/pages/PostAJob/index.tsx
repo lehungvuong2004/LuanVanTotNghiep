@@ -112,32 +112,62 @@ export const PostAJob = () => {
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
                   {t("job.working_time")} <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="datetime-local"
-                  name="workingTime"
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all"
-                  value={formik.values.workingTime}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.workingTime && formik.errors.workingTime && <p className="text-red-500 text-sm mt-1">{formik.errors.workingTime}</p>}
+                <div className="flex gap-2">
+                  <input
+                    type="time"
+                    name="workingTimeOnly"
+                    className="w-24 min-w-0 shrink-0 px-2 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all text-sm"
+                    value={formik.values.workingTimeOnly}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  <input
+                    type="date"
+                    name="workingDate"
+                    className="flex-1 min-w-0 px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all text-sm"
+                    value={formik.values.workingDate}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                </div>
+                {(formik.touched.workingDate || formik.submitCount > 0) && formik.errors.workingDate && <p className="text-red-500 text-sm mt-1">{formik.errors.workingDate}</p>}
+                {(formik.touched.workingTimeOnly || formik.submitCount > 0) && formik.errors.workingTimeOnly && <p className="text-red-500 text-sm mt-1">{formik.errors.workingTimeOnly}</p>}
+                {(formik.touched.workingDate || formik.touched.workingTimeOnly || formik.submitCount > 0) && formik.errors.workingTime && (
+                  <p className="text-red-500 text-sm mt-1">{formik.errors.workingTime}</p>
+                )}
               </div>
 
-              {/* Ngày hết hạn — người dùng tự chọn */}
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
                   {t("job.expiration_date")} <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="datetime-local"
-                  name="expirationDate"
-                  min={formik.values.workingTime || undefined}
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all"
-                  value={formik.values.expirationDate}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.expirationDate && formik.errors.expirationDate && <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDate}</p>}
+                <div className="flex gap-2">
+                  <input
+                    type="time"
+                    name="expirationTimeOnly"
+                    className="w-24 min-w-0 shrink-0 px-2 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all text-sm"
+                    value={formik.values.expirationTimeOnly}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  <input
+                    type="date"
+                    name="expirationDateOnly"
+                    min={formik.values.workingDate || undefined}
+                    className="flex-1 min-w-0 px-3 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all text-sm"
+                    value={formik.values.expirationDateOnly}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                </div>
+                {/* Ngày hết hạn bắt buộc nhập */}
+                {(formik.touched.expirationDateOnly || formik.submitCount > 0) && formik.errors.expirationDateOnly && <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDateOnly}</p>}
+                {/* Giờ hết hạn bắt buộc nhập */}
+                {(formik.touched.expirationTimeOnly || formik.submitCount > 0) && formik.errors.expirationTimeOnly && <p className="text-red-500 text-sm mt-1">{formik.errors.expirationTimeOnly}</p>}
+                {/* Hết hạn phải sau thời gian làm việc */}
+                {(formik.touched.expirationDateOnly || formik.touched.expirationTimeOnly || formik.submitCount > 0) && formik.errors.expirationDate && (
+                  <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDate}</p>
+                )}
               </div>
             </div>
 
@@ -155,9 +185,7 @@ export const PostAJob = () => {
                 )}
                 {formik.values.salary && computedUrgency && (
                   <div className="bg-slate-50 dark:bg-slate-700/50 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-                      {t("job.salary_markup").replace("{pct}", Math.round((computedUrgency.multiplier - 1) * 100).toString())}
-                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{t("job.salary_markup").replace("{pct}", Math.round((computedUrgency.multiplier - 1) * 100).toString())}</span>
                     <span className="text-lg font-bold text-[#0d5c63] dark:text-teal-400">
                       {Math.round((Number(formik.values.salary.replace(/\D/g, "")) || 0) * computedUrgency.multiplier).toLocaleString("vi-VN")} VND
                     </span>
@@ -401,15 +429,15 @@ export const PostAJob = () => {
     </div>
   );
   return (
-    <div className="w-full py-8">
+    <div className="w-full py-8 overflow-x-hidden">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#0d5c63] dark:text-teal-400">{t("job.post_button")}</h1>
         <p className="text-gray-700 dark:text-gray-300 mt-2">{t("job.create_post_desc")}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div className="col-span-7">{renderAddressForm()}</div>
-        <div className="col-span-5">{renderInformationForm()}</div>
+        <div className="col-span-1 md:col-span-7">{renderAddressForm()}</div>
+        <div className="col-span-1 md:col-span-5">{renderInformationForm()}</div>
       </div>
     </div>
   );

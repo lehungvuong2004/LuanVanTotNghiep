@@ -146,6 +146,8 @@ class HelperController extends Controller
       Log::error('Không thể lấy thông tin chi tiết người dùng cho hồ sơ người giúp việc: ' . $e->getMessage());
     }
 
+    HelperProfile::enrichAvailabilities($helper);
+
     return $this->successResponse($helper);
   }
 

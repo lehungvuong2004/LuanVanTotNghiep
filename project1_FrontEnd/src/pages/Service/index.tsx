@@ -15,6 +15,7 @@ import { fetchFavorites, toggleFavorite } from "../../redux/favoritesSlice";
 import { useAuth } from "../../hooks/useAuth";
 import { ROLES, getUserRole } from "../../constants/roles";
 import { CustomSelect } from "../../components/CustomSelect";
+import { ExpandToggleButton } from "../../components/ExpandToggleButton";
 
 // ─── 1. Sidebar Filter ──────────────────────────────────────────────────────
 interface SidebarFilterProps {
@@ -189,12 +190,15 @@ interface ServiceListProps {
 }
 
 const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateService }: ServiceListProps) => {
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [prevServices, setPrevServices] = useState(services);
 
-  useEffect(() => {
-    // eslint-disable-next-line
-    setVisibleCount(6);
-  }, [services]);
+  if (services !== prevServices) {
+    setPrevServices(services);
+    setIsExpanded(false);
+  }
+
+  const visibleCount = isExpanded ? services.length : 6;
 
   const renderServiceImage = (url?: string, title?: string) => {
     if (url) {
@@ -296,15 +300,12 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
               </article>
             ))}
           </div>
-          {visibleCount < services.length && (
+          {services.length > 6 && (
             <div className="flex justify-center mt-12">
-              <button
-                onClick={() => setVisibleCount((prev) => prev + 3)}
-                className="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-full font-bold shadow-md hover:shadow-teal-600/10 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
-              >
-                {t("Xem thêm")}
-                <Icon icon="material-symbols:keyboard-arrow-down" className="text-xl" />
-              </button>
+              <ExpandToggleButton
+                isExpanded={isExpanded}
+                onClick={() => setIsExpanded(!isExpanded)}
+              />
             </div>
           )}
         </>

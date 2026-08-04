@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useServiceDetail } from "./useHook";
 import { formatNumberVI } from "../../utils";
 import { RatingDistributionRow, ReviewCard, ReviewFilters } from "../../components/Reviews";
+import { ExpandToggleButton } from "../../components/ExpandToggleButton";
 
 function priceTypeLabel(pt: string, t: any) {
   if (pt === "hourly") return t("giờ");
@@ -234,23 +235,6 @@ export const ServiceDetail = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                {/* 
-                  Code cũ nút Nhắn tin (đã ghi chú lại, không xóa):
-                  {selectedHelperObj && (
-                    <button
-                      onClick={() => {
-                        const helperUserId = selectedHelperObj.user?.id || selectedHelperObj.user_id;
-                        if (helperUserId) {
-                          navigate(`/messages/${helperUserId}`);
-                        }
-                      }}
-                      className="flex-1 sm:flex-initial bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold hover:border-teal-500 hover:text-teal-600 transition-all cursor-pointer flex items-center justify-center gap-2 text-base shadow-sm"
-                    >
-                      <Icon icon="material-symbols:chat-outline" className="text-xl" />
-                      {t("Nhắn tin")}
-                    </button>
-                  )}
-                */}
                 {selectedHelperObj && (
                   <a
                     href={selectedHelperObj.user?.phone ? `tel:${selectedHelperObj.user.phone}` : "javascript:void(0)"}
@@ -431,8 +415,7 @@ export const ServiceDetail = () => {
           <div>
             <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{t("Viết đánh giá của bạn")}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {t("Đánh giá này sẽ được gửi trực tiếp cho nhân viên:")}{" "}
-              <span className="font-bold text-black dark:text-white">{helperName}</span>
+              {t("Đánh giá này sẽ được gửi trực tiếp cho nhân viên:")} <span className="font-bold text-black dark:text-white">{helperName}</span>
             </p>
           </div>
 
@@ -511,23 +494,7 @@ export const ServiceDetail = () => {
 
             {filtered.length > 3 && (
               <div className="flex justify-center pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAllReviews(!showAllReviews)}
-                  className="flex items-center gap-1.5 px-6 py-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-all cursor-pointer shadow-xs active:scale-95"
-                >
-                  {showAllReviews ? (
-                    <>
-                      {t("Thu gọn")}
-                      <Icon icon="material-symbols:keyboard-arrow-up-rounded" className="text-base" />
-                    </>
-                  ) : (
-                    <>
-                      {t("Xem thêm")}
-                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="text-base" />
-                    </>
-                  )}
-                </button>
+                <ExpandToggleButton isExpanded={showAllReviews} onClick={() => setShowAllReviews(!showAllReviews)} />
               </div>
             )}
           </>
@@ -605,7 +572,7 @@ export const ServiceDetail = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t("Quận/Huyện")}</label>
                       <CustomSelect
@@ -687,7 +654,7 @@ export const ServiceDetail = () => {
             </div>
 
             {/* Date & Time Selectors */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("Ngày làm việc")}</label>
                 <input
@@ -772,6 +739,7 @@ export const ServiceDetail = () => {
                   { value: 8, label: `8 ${t("giờ")}` },
                 ]}
               />
+              {!isHourly && <p className="text-xs text-amber-500 font-semibold flex items-center gap-1">{t("Gói cố định — giá không đổi theo số giờ")}</p>}
             </div>
 
             {/* Booking Note */}

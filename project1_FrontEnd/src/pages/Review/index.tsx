@@ -85,11 +85,11 @@ export const ReviewModal = ({ isOpen, onClose, helperId, helperName, helperAvata
                   onClick={() => handleStarClick(star)}
                   onMouseEnter={() => handleStarMouseEnter(star)}
                   onMouseLeave={handleStarMouseLeave}
-                  className="p-1 hover:scale-125 transition-transform duration-150 cursor-pointer"
+                  className="p-0 bg-transparent border-none outline-none focus:outline-none focus:ring-0 shadow-none hover:scale-125 transition-transform duration-150 cursor-pointer"
                 >
                   <Icon
                     icon={isFilled ? "material-symbols:star-rounded" : "material-symbols:star-outline-rounded"}
-                    className={`text-4xl ${isFilled ? "text-amber-500 shadow-sm shadow-amber-500/20" : "text-slate-300 dark:text-slate-600"}`}
+                    className={`text-4xl ${isFilled ? "text-amber-500" : "text-slate-300 dark:text-slate-600"}`}
                   />
                 </button>
               );

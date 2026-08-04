@@ -101,7 +101,7 @@ class ServiceController extends Controller
   /**
    * Chi tiết 1 dịch vụ kèm thống kê helpers, rating (public).
    */
-  public function showService($id)
+  public function showService(Request $request, $id)
   {
     $service = Service::with('category')
       ->where('status', 'active')
@@ -109,6 +109,12 @@ class ServiceController extends Controller
 
     if (!$service) {
       return $this->notFoundResponse('Không tìm thấy dịch vụ.');
+    }
+
+    if ($request->query('simple')) {
+      return response()->json([
+        'data' => $service,
+      ], Response::HTTP_OK);
     }
 
     // Đếm số helpers active, đã đăng ký kỹ năng & có khu vực hoạt động cho dịch vụ này
@@ -165,6 +171,8 @@ class ServiceController extends Controller
     } catch (\Exception $e) {
       Log::error('Không thể lấy thống kê đánh giá cho dịch vụ: ' . $e->getMessage());
     }
+
+    HelperProfile::enrichAvailabilities($helpers);
 
     return response()->json([
       'data' => $service,
@@ -223,6 +231,8 @@ class ServiceController extends Controller
         Log::error('Không thể lấy thông tin chi tiết danh sách người giúp việc theo dịch vụ: ' . $e->getMessage());
       }
     }
+
+    HelperProfile::enrichAvailabilities($helpers->items());
 
     return $this->successResponse($helpers);
   }

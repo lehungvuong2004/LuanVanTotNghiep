@@ -5,6 +5,7 @@ import { ROLES } from "../../constants/roles";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { parseVietnamAddress } from "../../types/location";
 import { getRoleBadge, formatDate } from "../../utils";
+import { ExpandToggleButton } from "../../components/ExpandToggleButton";
 
 export const Profile = () => {
   const {
@@ -43,6 +44,7 @@ export const Profile = () => {
   const [workingCity, setWorkingCity] = useState("");
   const [activeAddressDropdownId, setActiveAddressDropdownId] = useState<number | null>(null);
   const [geoTarget, setGeoTarget] = useState<"address" | "workingArea" | "residential" | null>(null);
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const { getCurrentLocation, addressDetails, address: rawAddress, loading: geoLoading, error: geoError, clearLocation } = useGeolocation();
 
   const getGenderText = () => {
@@ -234,7 +236,7 @@ export const Profile = () => {
           }`}
         >
           <div className="flex items-center gap-3">
-            <Icon icon="solar:user-circle-bold-duotone" className="text-2xl" />
+            <Icon icon="mingcute:profile-fill" className="text-2xl" />
             <span>{t("Thông tin cá nhân")}</span>
           </div>
           <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "info" ? "translate-x-1" : "opacity-0"}`} />
@@ -248,7 +250,7 @@ export const Profile = () => {
             }`}
           >
             <div className="flex items-center gap-3">
-              <Icon icon="solar:map-point-wave-bold-duotone" className="text-2xl" />
+              <Icon icon="mdi:location" className="text-2xl" />
               <span>{t("Sổ địa chỉ")}</span>
             </div>
             <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "address" ? "translate-x-1" : "opacity-0"}`} />
@@ -279,7 +281,7 @@ export const Profile = () => {
           }`}
         >
           <div className="flex items-center gap-3">
-            <Icon icon="solar:lock-keyhole-minimalistic-bold-duotone" className="text-2xl" />
+            <Icon icon="mdi:password" className="text-2xl" />
             <span>{t("Đổi mật khẩu")}</span>
           </div>
           <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "password" ? "translate-x-1" : "opacity-0"}`} />
@@ -614,32 +616,47 @@ export const Profile = () => {
               <div>
                 <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-4">{t("Thêm kỹ năng mới")}</h5>
                 <div className="space-y-6">
-                  {allCategories.map((category) => (
-                    <div key={category.id} className="border-b border-slate-100 dark:border-slate-700/40 pb-4 last:border-0 last:pb-0">
-                      <h6 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">{category.name}</h6>
-                      <div className="flex flex-wrap gap-2.5">
-                        {category.services?.map((svc) => {
-                          const isAdded = helperSkills.some((sk) => sk.service_id === svc.id);
-                          return (
-                            <button
-                              key={svc.id}
-                              type="button"
-                              onClick={() => (isAdded ? handleRemoveSkill(svc.id) : handleAddSkill(svc.id))}
-                              disabled={updating}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                                isAdded
-                                  ? "border-teal-500 bg-teal-50 text-teal-600 dark:border-teal-500 dark:bg-teal-950/30 dark:text-teal-400"
-                                  : "border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900/40"
-                              }`}
-                            >
-                              <Icon icon={isAdded ? "solar:check-circle-bold" : "solar:add-circle-bold"} className="text-sm" />
-                              {svc.name}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                  {(() => {
+                    const activeCategories = allCategories.filter((category) => category.services && category.services.length > 0);
+                    const displayedCategories = showAllCategories ? activeCategories : activeCategories.slice(0, 4);
+
+                    return (
+                      <>
+                        {displayedCategories.map((category) => (
+                          <div key={category.id} className="border-b border-slate-100 dark:border-slate-700/40 pb-4 last:border-0 last:pb-0">
+                            <h6 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">{category.name}</h6>
+                            <div className="flex flex-wrap gap-2.5">
+                              {category.services?.map((svc) => {
+                                const isAdded = helperSkills.some((sk) => sk.service_id === svc.id);
+                                return (
+                                  <button
+                                    key={svc.id}
+                                    type="button"
+                                    onClick={() => (isAdded ? handleRemoveSkill(svc.id) : handleAddSkill(svc.id))}
+                                    disabled={updating}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                      isAdded
+                                        ? "border-teal-500 bg-teal-50 text-teal-600 dark:border-teal-500 dark:bg-teal-950/30 dark:text-teal-400"
+                                        : "border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900/40"
+                                    }`}
+                                  >
+                                    <Icon icon={isAdded ? "solar:check-circle-bold" : "solar:add-circle-bold"} className="text-sm" />
+                                    {svc.name}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+
+                        {activeCategories.length > 4 && (
+                          <div className="flex justify-center pt-2">
+                            <ExpandToggleButton isExpanded={showAllCategories} onClick={() => setShowAllCategories(!showAllCategories)} />
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -690,7 +707,7 @@ export const Profile = () => {
                 <div
                   className={`p-2.5 rounded-xl mt-0.5 shrink-0 ${addressItem.is_default === 1 ? "bg-teal-500/10 text-teal-600 dark:text-teal-400" : "bg-slate-100 dark:bg-slate-700 text-slate-400"}`}
                 >
-                  <Icon icon="solar:map-point-bold-duotone" className="text-2xl" />
+                  <Icon icon="mdi:location" className="text-2xl" />
                 </div>
                 <div>
                   <div className="flex items-center flex-wrap gap-2">
@@ -702,7 +719,8 @@ export const Profile = () => {
                     )}
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {addressItem.district ? (typeof addressItem.district === "object" ? (addressItem.district as any).name : addressItem.district) : ""}, {addressItem.city ? (typeof addressItem.city === "object" ? (addressItem.city as any).name : addressItem.city) : ""}
+                    {addressItem.district ? (typeof addressItem.district === "object" ? (addressItem.district as any).name : addressItem.district) : ""},{" "}
+                    {addressItem.city ? (typeof addressItem.city === "object" ? (addressItem.city as any).name : addressItem.city) : ""}
                   </p>
                 </div>
               </div>
@@ -936,9 +954,9 @@ export const Profile = () => {
                     getCurrentLocation();
                   }}
                   disabled={geoLoading}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/80 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] disabled:opacity-50"
                 >
-                  {geoLoading && geoTarget === "address" ? <Icon icon="line-md:loading-twotone-loop" className="text-lg animate-spin" /> : <Icon icon="solar:gps-bold" className="text-lg" />}
+                  {geoLoading && geoTarget === "address" ? <Icon icon="line-md:loading-twotone-loop" className="text-lg animate-spin" /> : <Icon icon="solar:gps-linear" className="text-lg" />}
                   {t("Định vị vị trí hiện tại của tôi")}
                 </button>
                 {geoError && geoTarget === "address" && <p className="text-red-500 text-xs font-semibold mt-1.5 text-center">{geoError}</p>}
@@ -1029,14 +1047,14 @@ export const Profile = () => {
               <button
                 type="button"
                 onClick={() => setIsAddressModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 {t("Hủy")}
               </button>
               <button
                 type="submit"
                 disabled={updating}
-                className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 disabled:opacity-50 text-white font-bold py-2 px-5 rounded-xl text-xs transition-all duration-300 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 disabled:opacity-50 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-all duration-300 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {updating && <Icon icon="line-md:loading-twotone-loop" className="text-sm" />}
                 {editingAddress ? t("Lưu thay đổi") : t("Tạo mới")}

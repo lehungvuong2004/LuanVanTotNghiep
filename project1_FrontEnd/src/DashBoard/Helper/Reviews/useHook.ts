@@ -25,8 +25,7 @@ export const useHelperReviews = () => {
           setLoading(false);
           return;
         }
-
-        const helperId = profileRes.data.id;
+        const helperId = profileRes.data.user_id;
 
         // 2. Tải danh sách đánh giá của chính Helper này
         const params: { page: number; limit: number; rating?: number } = {
@@ -44,7 +43,6 @@ export const useHelperReviews = () => {
         setRatingDistribution(reviewsRes.rating_distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
         setError(null);
       } catch (err: any) {
-        // console.error("Lỗi khi tải đánh giá của Helper:", err);
         setError(err.response?.data?.message || "Không thể tải danh sách đánh giá.");
       } finally {
         setLoading(false);

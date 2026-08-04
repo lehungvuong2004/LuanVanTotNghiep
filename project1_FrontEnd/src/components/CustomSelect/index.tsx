@@ -13,9 +13,10 @@ export interface CustomSelectProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  position?: "bottom" | "top";
 }
 
-export const CustomSelect = ({ value, onChange, options, placeholder = "", className = "", disabled = false }: CustomSelectProps) => {
+export const CustomSelect = ({ value, onChange, options, placeholder = "", className = "", disabled = false, position = "bottom" }: CustomSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = options.find((opt) => String(opt.value) === String(value));
 
@@ -38,7 +39,11 @@ export const CustomSelect = ({ value, onChange, options, placeholder = "", class
           {/* Transparent Backdrop to close on click outside */}
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
-          <ul className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm">
+          <ul
+            className={`absolute left-0 right-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto text-sm ${
+              position === "top" ? "bottom-full mb-1.5" : "top-full mt-1.5"
+            }`}
+          >
             {options.map((opt, idx) => {
               const isSelected = String(opt.value) === String(value);
               const isNotLast = idx < options.length - 1;
@@ -53,8 +58,10 @@ export const CustomSelect = ({ value, onChange, options, placeholder = "", class
                     isNotLast ? "border-b" : ""
                   } ${isSelected ? "text-[#026E5F] dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/20 font-bold" : "text-slate-700 dark:text-slate-300"}`}
                 >
-                  <span className="truncate">{opt.label}</span>
-                  {isSelected && <Icon icon="material-symbols:check" className="text-base text-[#026E5F] dark:text-teal-400" />}
+                  <span className="whitespace-normal pr-4 flex-1 text-left" style={{ wordBreak: "break-word", overflowWrap: "break-word" }}>
+                    {opt.label}
+                  </span>
+                  {isSelected && <Icon icon="material-symbols:check" className="text-base text-[#026E5F] dark:text-teal-400 shrink-0" />}
                 </li>
               );
             })}

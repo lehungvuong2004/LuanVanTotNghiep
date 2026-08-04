@@ -406,6 +406,7 @@ export const Services = () => {
                 <CustomSelect
                   value={formik.values.price_type}
                   onChange={(val) => formik.setFieldValue("price_type", val)}
+                  position="top"
                   options={[
                     { value: "hourly", label: "Theo giờ" },
                     { value: "fixed", label: "Cố định" },

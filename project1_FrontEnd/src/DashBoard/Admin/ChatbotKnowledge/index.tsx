@@ -152,9 +152,9 @@ export const ChatbotKnowledgeBase = () => {
         <div>
           <h2 className="text-2xl font-extrabold text-slate-855 dark:text-slate-100 tracking-tight flex items-center gap-2">
             <Icon icon="material-symbols:smart-toy-outline-rounded" className="text-[#026E5F] text-3xl" />
-            Quản Lý Tri Thức Chatbot (RAG)
+            Quản Lý Tri Thức Chatbot
           </h2>
-          <p className="text-sm text-slate-505 dark:text-slate-400 mt-1">Thiết lập dữ liệu câu hỏi, câu trả lời cục bộ để AI (Gemini) tham chiếu trả lời khách hàng dưới dạng RAG.</p>
+          <p className="text-sm text-slate-505 dark:text-slate-400 mt-1">Thiết lập dữ liệu câu hỏi, câu trả lời cục bộ để AI tham chiếu trả lời khách hàng dưới dạng RAG.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -265,9 +265,9 @@ export const ChatbotKnowledgeBase = () => {
               <thead>
                 <tr className="bg-slate-50/75 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-700/60 text-slate-400 dark:text-slate-500 font-bold text-xxs tracking-wider uppercase">
                   <th className="py-4 px-5 w-24">ID</th>
-                  <th className="py-4 px-5 w-36">Chủ đề (Keyword)</th>
+                  <th className="py-4 px-5 w-36">Chủ đề</th>
                   <th className="py-4 px-5">Câu hỏi phổ biến</th>
-                  <th className="py-4 px-5">Nội dung phản hồi (Context)</th>
+                  <th className="py-4 px-5">Nội dung phản hồi</th>
                   <th className="py-4 px-5 w-32">Người tạo</th>
                   <th className="py-4 px-5 text-right w-28">Thao tác</th>
                 </tr>

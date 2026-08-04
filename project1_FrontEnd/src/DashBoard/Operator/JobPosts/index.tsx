@@ -329,7 +329,7 @@ export const ApplicationReview = () => {
                 </h3>
                 <p className="text-xxs text-slate-400 dark:text-slate-550 mt-0.5">Kiểm duyệt các thông tin công việc</p>
               </div>
-              <button onClick={handleCloseDetail} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <button onClick={handleCloseDetail} className="p-1 rounded-lg text-slate-400 hover:text-slate-655 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                 <Icon icon="material-symbols:close-rounded" className="text-xl" />
               </button>
             </div>

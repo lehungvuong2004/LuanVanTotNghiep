@@ -7,11 +7,6 @@ import { getHelperReviewsPublic, type Review, createReviewCustomer, updateReview
 import { getCustomerAddressesApi, addCustomerAddressApi, type CustomerAddress } from "../../api/profileApi/profile";
 import { createBookingApi } from "../../api/bookings";
 
-export interface ToastState {
-  type: "success" | "error" | "warning" | "info";
-  title: string;
-  message?: string;
-}
 
 export const useServiceDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -96,6 +91,14 @@ export const useServiceDetail = () => {
       return;
     }
     setIsBookingModalOpen(true);
+    const serviceObj = detail?.data;
+    if (serviceObj) {
+      if (serviceObj.price_type === "fixed") {
+        setDurationHours(4);
+      } else {
+        setDurationHours(2);
+      }
+    }
     await fetchAddresses();
   };
 

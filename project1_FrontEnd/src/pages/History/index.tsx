@@ -449,11 +449,13 @@ export const HistoryPage = () => {
         {/* Employee / Customer */}
         <td className="px-6 py-4.5 whitespace-nowrap border-r last:border-r-0 border-slate-200 dark:border-slate-750">
           <div className="flex items-center gap-3">
-            <img src={booking.helper.avatar} alt={booking.helper.name || (isHelper ? t("Khách hàng") : t("Người giúp việc"))} className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700" />
+            <img
+              src={booking.helper.avatar}
+              alt={booking.helper.name || (isHelper ? t("Khách hàng") : t("Người giúp việc"))}
+              className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-slate-700"
+            />
             <div className="flex flex-col text-left">
-              <span className="text-sm font-semibold text-slate-750 dark:text-slate-300">
-                {booking.helper.name || (isHelper ? t("Khách hàng") : t("Người giúp việc"))}
-              </span>
+              <span className="text-sm font-semibold text-slate-750 dark:text-slate-300">{booking.helper.name || (isHelper ? t("Khách hàng") : t("Người giúp việc"))}</span>
               {booking.helper.phone ? (
                 <span className="text-xs text-slate-550 dark:text-slate-400 mt-0.5 flex items-center gap-1">
                   <Icon icon="material-symbols:phone-enabled" className="text-xs text-[#026E5F] dark:text-teal-400 animate-pulse" />
@@ -727,7 +729,7 @@ export const HistoryPage = () => {
               disabled={isReporting || !reportReason.trim()}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white text-sm font-bold transition active:scale-95 cursor-pointer disabled:pointer-events-none shadow-sm"
             >
-              {isReporting ? <Icon icon="svg-spinners:3-dots-fade" className="text-lg" /> : <Icon icon="material-symbols:send-rounded" className="text-lg" />}
+              {isReporting ? <Icon icon="mynaui:send-solid" className="text-lg" /> : <Icon icon="material-symbols:send-rounded" className="text-lg" />}
               {t("Gửi báo cáo")}
             </button>
           </div>
@@ -794,7 +796,7 @@ export const HistoryPage = () => {
                       🔴 {t("Đã hết hạn")}
                     </span>
                   ) : isClosed ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-450 border border-green-100 dark:border-green-900/30">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">
                       {t("Đã kết thúc")}
                     </span>
                   ) : (
@@ -805,7 +807,7 @@ export const HistoryPage = () => {
                 </div>
                 <h3 className="text-base font-bold text-slate-850 dark:text-slate-100 leading-snug">{post.title}</h3>
                 <p className="text-xs text-slate-550 dark:text-slate-400 line-clamp-2">{post.description}</p>
-                
+
                 <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 text-xs text-slate-450 dark:text-slate-550 items-center">
                   <span className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/30 px-2.5 py-1 rounded-lg">
                     <Icon icon="material-symbols:payments-outline" className="text-sm text-slate-400" />
@@ -845,9 +847,7 @@ export const HistoryPage = () => {
                   <Icon icon="material-symbols:group-outline" className="text-lg" />
                   {t("Xem ứng viên")}
                   {post.active_applications_count !== undefined && post.active_applications_count > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 text-xs font-extrabold rounded-full bg-[#026E5F] text-white dark:bg-teal-500 dark:text-slate-900">
-                      {post.active_applications_count}
-                    </span>
+                    <span className="ml-1 px-1.5 py-0.5 text-xs font-extrabold rounded-full bg-[#026E5F] text-white dark:bg-teal-500 dark:text-slate-900">{post.active_applications_count}</span>
                   )}
                 </button>
                 {isExpired && (

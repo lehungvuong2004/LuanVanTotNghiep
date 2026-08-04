@@ -4,7 +4,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 
-// 1. Trang chủ hiển thị trạng thái của API Gateway
+// ============================================================
+// 1. TRANG CHỦ & PHƯƠNG THỨC TRUNG CHUYỂN (PROXY CORE)
+// ============================================================
+
+// Trang chủ hiển thị trạng thái hoạt động tức thời của API Gateway
 Route::get('/', function () {
   return response()->json([
     'service' => 'API Gateway',
@@ -14,48 +18,49 @@ Route::get('/', function () {
 });
 
 /**
- * Hàm trung chuyển (Proxy) request từ Gateway tới từng Microservice đích.
+ * Hàm trung chuyển (Proxy) nhận request từ Client, truyền tiếp dữ liệu và tiêu đề (Header)
+ * đến các Microservices cụ thể chạy ngầm trong Docker Network, sau đó phản hồi ngược lại Client.
  * 
- * @param string $targetUrl - URL đích của Microservice nội bộ (VD: http://identity-service:8000/api/auth/login)
- * @param Request $request - Request gốc nhận được từ Client
+ * @param string $targetUrl - URL đích của Microservice nội bộ cần xử lý
+ * @param Request $request - Đối tượng Request nguyên bản từ Client
  */
 function proxyTo($targetUrl, Request $request)
 {
-  // Lấy Token Authorization để đảm bảo quyền truy cập (JWT) được truyền đi tiếp
+  // Giữ lại token và cấu hình định dạng phản hồi JSON
   $headers = [
     'Authorization' => $request->header('Authorization'),
     'Accept' => 'application/json',
   ];
 
   $contentType = $request->header('Content-Type', '');
+
+  // TRƯỜNG HỢP 1: Dữ liệu tải lên có chứa tập tin (Ảnh đại diện, tài liệu, file CSV...)
   if (str_contains($contentType, 'multipart/form-data')) {
     $pendingRequest = Http::withHeaders($headers);
 
-    // Đọc tất cả input & file để đóng gói gửi đi
+    // Duyệt qua tất cả các input và file đính kèm để đóng gói luồng dữ liệu
     foreach ($request->all() as $name => $value) {
-      // Nếu trường đó là File (ảnh, tài liệu)
       if ($request->hasFile($name)) {
         $file = $request->file($name);
         $pendingRequest->attach(
           $name,
-          // Đọc nội dung file.
-          file_get_contents($file->getRealPath()),
-          // Lấy định dạng MIME của file (VD: image/png).
-          $file->getClientOriginalName(),
-          ['Content-Type' => $file->getClientMimeType()]
+          file_get_contents($file->getRealPath()), // Đọc nội dung file thô
+          $file->getClientOriginalName(),           // Tên file gốc
+          ['Content-Type' => $file->getClientMimeType()] // Định dạng file (MIME type)
         );
       } else {
-        // Đóng gói file vào request để gửi sang Microservice.
+        // Đóng gói tham số text thường vào request multipart
         $pendingRequest->attach($name, $value);
       }
     }
-    // Nếu chỉ là dữ liệu văn bản bình thường trong Form, đính kèm dạng text
+
+    // Gửi request multipart đi sang Microservice tương ứng
     $response = $pendingRequest->send($request->method(), $targetUrl, [
       'query' => $request->query(),
       'multipart' => []
     ]);
   }
-  // TH 2: Request dạng JSON hoặc dữ liệu thường
+  // TRƯỜNG HỢP 2: Các request thông thường (GET, POST JSON, PUT, DELETE...)
   else {
     $headers['Content-Type'] = 'application/json';
     $response = Http::withHeaders($headers)
@@ -65,17 +70,16 @@ function proxyTo($targetUrl, Request $request)
       ]);
   }
 
-  // Trả lại kết quả và kiểu dữ liệu (Content-Type) từ microservice về cho Client
   $body = $response->body();
   $resContentType = $response->header('Content-Type');
-  // : Nếu phản hồi trả về là dữ liệu JSON:
+
+  // Xử lý viết lại đường dẫn (URL Rewriting):
+  // Nếu dữ liệu trả về từ Microservice là chuỗi JSON chứa các link ảnh hoặc link API nội bộ (VD: http://identity-service:8000/uploads/...)
+  // cần thay thế sang tên miền/IP công khai của API Gateway để Client/Frontend bên ngoài có thể truy cập được.
   if ($resContentType && str_contains(strtolower($resContentType), 'application/json')) {
-    // Lấy tên miền/IP hiện tại của Gateway
     $gatewayUrl = $request->getSchemeAndHttpHost();
-    // Chuẩn bị chuỗi để thay thế (thêm dấu \ trước dấu / để tránh lỗi cú pháp)
     $escapedGatewayUrl = str_replace('/', '\/', $gatewayUrl);
-    // Tìm toàn bộ các địa chỉ Docker nội bộ mục dích Giúp giấu tên 
-    // miền nội bộ Docker và đảm bảo các đường link ảnh/link API gửi về cho Client có thể click/truy cập từ bên ngoài được.
+
     $body = str_replace(
       [
         'http://identity-service:8000',
@@ -101,80 +105,102 @@ function proxyTo($targetUrl, Request $request)
     );
   }
 
+  // Trả về kết quả cuối cùng cho Client kèm mã HTTP Status Code tương ứng
   return response($body, $response->status())
     ->header('Content-Type', $resContentType);
 }
 
-// 2. Định tuyến cho Identity Service (Xác thực, Phân quyền, Quản lý User và Admin)
+// ============================================================
+// 2. ĐỊNH TUYẾN PROXY CHO IDENTITY SERVICE (Dịch vụ định danh)
+// ============================================================
+
+// Proxy cho các API xác thực thành viên (Đăng nhập, Đăng ký, Quên mật khẩu...)
 Route::any('/api/auth/{any?}', function (Request $request, $any = '') {
-  // var_dump($any);
   $targetUrl = 'http://identity-service:8000/api/auth/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
+// Proxy các thao tác quản trị viên cấp cao (Quản lý User, vai trò, phân quyền, logs, liên hệ...)
 Route::any('/api/admin/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/admin/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
+// Proxy cho các API quản lý thông tin hồ sơ của khách hàng
 Route::any('/api/customer/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/customer/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
+// Proxy cho các API quản lý thông báo, chuông báo của người dùng
 Route::any('/api/notifications/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/notifications/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-
+// Proxy cho các tác vụ thay đổi, tải lên avatar của riêng cá nhân đăng nhập
 Route::any('/api/profile/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/profile' . ($any !== '' ? '/' . $any : '');
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
+// Proxy cho việc hiển thị banner quảng cáo công khai
 Route::any('/api/banners/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/banners/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-// Tin tức — proxy sang Identity Service
+// Proxy cho việc xem danh sách và chi tiết các bài đăng tin tức
 Route::any('/api/news/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/news/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-// Liên hệ — proxy sang Identity Service
+// Proxy cho việc gửi yêu cầu thắc mắc, phản hồi qua form Contact Us
 Route::any('/api/contacts/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/contacts' . ($any !== '' ? '/' . $any : '');
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-// Chatbot — proxy sang Identity Service
+// Proxy cho các truy vấn giải đáp thông tin từ Chatbot AI RAG
 Route::any('/api/chatbot/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/api/chatbot' . ($any !== '' ? '/' . $any : '');
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-// 3. Định tuyến cho Order Service (Quản lý đơn đặt dịch vụ)
+
+
+// ============================================================
+// 3. ĐỊNH TUYẾN PROXY CHO ORDER SERVICE (Dịch vụ đơn hàng/đặt lịch)
+// ============================================================
+// Proxy các API liên quan đến đặt lịch giúp việc trực tiếp và đăng tin tuyển dụng thợ
 Route::any('/api/orders/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://order-service:8000/api/orders/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
-
-// 4. Định tuyến cho Payment Service (Quản lý giao dịch, thanh toán)
+// ::prefix('payments')
+// ============================================================
+// 4. ĐỊNH TUYẾN PROXY CHO PAYMENT SERVICE (Dịch vụ thanh toán/hoàn tiền)
+// ============================================================
+// Proxy các yêu cầu khởi tạo hoá đơn, liên kết VNPay và quản lý doanh thu
 Route::any('/api/payments/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://payment-service:8000/api/payments/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-// 5. Định tuyến cho Provider Service (Quản lý thợ, nhà cung cấp dịch vụ)
+// ============================================================
+// 5. ĐỊNH TUYẾN PROXY CHO PROVIDER SERVICE (Dịch vụ người giúp việc)
+// ============================================================
+// Proxy các yêu cầu cài đặt kỹ năng, vùng nhận việc và lịch biểu rảnh rỗi của thợ
 Route::any('/api/providers/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://provider-service:8000/api/providers/' . $any;
   return proxyTo($targetUrl, $request);
 })->where('any', '.*');
 
-// 6. Định tuyến tải ảnh tĩnh (uploads) từ Identity Service
+// ============================================================
+// 6. ĐỊNH TUYẾN TẢI THƯ MỤC TĨNH (STATIC UPLOADS PROXY)
+// ============================================================
+// Chuyển hướng các request tải tài nguyên tĩnh (Avatars, Banners, ảnh mô tả dịch vụ) từ Identity-Service
 Route::any('/uploads/{any?}', function (Request $request, $any = '') {
   $targetUrl = 'http://identity-service:8000/uploads/' . $any;
   return proxyTo($targetUrl, $request);

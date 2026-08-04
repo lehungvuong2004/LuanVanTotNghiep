@@ -66,7 +66,11 @@ export interface PostAJobFormValues {
   salary: string;
   requiredServices: number[];
   workingTime: string;
+  workingDate: string;
+  workingTimeOnly: string;
   expirationDate: string;
+  expirationDateOnly: string;
+  expirationTimeOnly: string;
   specificAddress: string;
   district: string;
   city: string;
@@ -114,7 +118,11 @@ export const usePostAJobHook = () => {
       salary: prefilledPost?.salary ? Math.round(Number(prefilledPost.salary)).toLocaleString("vi-VN") : "",
       requiredServices: [] as number[],
       workingTime: "",
+      workingDate: "",
+      workingTimeOnly: "",
       expirationDate: "",
+      expirationDateOnly: "",
+      expirationTimeOnly: "",
       specificAddress: prefilledPost?.address || "",
       district: prefilledPost?.district || "",
       city: prefilledPost?.city || "",
@@ -166,9 +174,12 @@ export const usePostAJobHook = () => {
           }
         }
 
-        // Compute multiplier from (expirationDate - workingTime) diff
+        // Ghép ngày + giờ tách biệt thành chuỗi ISO để gửi API và tính urgency
+        const derivedWorkingTime = values.workingDate && values.workingTimeOnly ? `${values.workingDate}T${values.workingTimeOnly}` : values.workingTime;
+        const derivedExpirationDate = values.expirationDateOnly && values.expirationTimeOnly ? `${values.expirationDateOnly}T${values.expirationTimeOnly}` : values.expirationDate;
+
         const baseSalary = Number(values.salary.replace(/\D/g, "")) || 0;
-        const urgencyInfo = getUrgencyFromDates(values.workingTime, values.expirationDate);
+        const urgencyInfo = getUrgencyFromDates(derivedWorkingTime, derivedExpirationDate);
         const multiplier = urgencyInfo?.multiplier ?? 1.0;
         const salaryVal = Math.round(baseSalary * multiplier);
 
@@ -186,8 +197,8 @@ export const usePostAJobHook = () => {
           address: values.specificAddress,
           district: values.district,
           city: values.city,
-          working_time: values.workingTime,
-          expired_at: values.expirationDate || undefined,
+          working_time: derivedWorkingTime,
+          expired_at: derivedExpirationDate || undefined,
           service_ids: isCustom ? [] : values.requiredServices.map(Number),
         });
 
@@ -196,7 +207,9 @@ export const usePostAJobHook = () => {
         formik.resetForm();
       } catch (err: any) {
         // console.error("Error creating job post:", err);
-        setErrorMsg(err?.response?.data?.message || t("job.toast.post_error"));
+        const errMsg = err?.response?.data?.message || t("job.toast.post_error");
+        setErrorMsg(errMsg);
+        showToast("error", t("Lỗi"), errMsg);
       } finally {
         setIsLoading(false);
       }

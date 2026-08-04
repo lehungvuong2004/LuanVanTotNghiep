@@ -697,7 +697,7 @@ class PaymentController extends Controller
     }
 
     $totalIncome = Payment::where('status', 'completed')
-      ->where(function($q) use ($bookingIds, $jobPostIds) {
+      ->where(function ($q) use ($bookingIds, $jobPostIds) {
         if (!empty($bookingIds)) {
           $q->whereIn('booking_id', $bookingIds);
         }
@@ -722,7 +722,7 @@ class PaymentController extends Controller
     }
 
     $monthlyQuery = Payment::where('status', 'completed')
-      ->where(function($q) use ($bookingIds, $jobPostIds) {
+      ->where(function ($q) use ($bookingIds, $jobPostIds) {
         if (!empty($bookingIds)) {
           $q->whereIn('booking_id', $bookingIds);
         }

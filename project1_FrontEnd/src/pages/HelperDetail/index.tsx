@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { ReviewCard, RatingDistributionRow, ReviewFilters } from "../../components/Reviews";
 import { useHelperDetail } from "./useHook";
+import { ExpandToggleButton } from "../../components/ExpandToggleButton";
 
 export const HelperDetail = () => {
   const {
@@ -296,23 +297,10 @@ export const HelperDetail = () => {
 
         {reviews.length > 3 && (
           <div className="flex justify-center pt-2">
-            <button
-              type="button"
+            <ExpandToggleButton
+              isExpanded={showAllReviews}
               onClick={() => setShowAllReviews(!showAllReviews)}
-              className="flex items-center gap-1.5 px-6 py-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-all cursor-pointer shadow-xs active:scale-95"
-            >
-              {showAllReviews ? (
-                <>
-                  {t("Thu gọn")}
-                  <Icon icon="material-symbols:keyboard-arrow-up-rounded" className="text-base" />
-                </>
-              ) : (
-                <>
-                  {t("Xem thêm")}
-                  <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="text-base" />
-                </>
-              )}
-            </button>
+            />
           </div>
         )}
       </div>

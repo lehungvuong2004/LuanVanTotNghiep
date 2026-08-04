@@ -60,9 +60,9 @@ const HelperReviewsPage = lazy(() => import("./DashBoard/Helper/Reviews"));
 function App() {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.has("vnp_ResponseCode") && searchParams.has("vnp_TxnRef")) {
+    if (searchParams.has("vnp_ResponseCode") && searchParams.has("vnp_TxnRef") && !window.location.pathname.includes("/thanh-toan/ket-qua")) {
       const hashQuery = searchParams.toString();
-      window.location.href = `${window.location.origin}/#/thanh-toan/ket-qua?${hashQuery}`;
+      window.location.href = `${window.location.origin}/thanh-toan/ket-qua?${hashQuery}`;
       return;
     }
 

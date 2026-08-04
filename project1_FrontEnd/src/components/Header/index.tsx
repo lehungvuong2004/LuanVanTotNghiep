@@ -55,7 +55,7 @@ export const Header = () => {
 
   const handleNotificationClick = (notif: Notification) => {
     toggleRead(notif.id);
-    if (notif.type === "booking" || notif.type === "recruitment") {
+    if (notif.type === "booking" || notif.type === "recruitment" || notif.type === "payment") {
       const titleLower = notif.title?.toLowerCase() || "";
       const msgLower = notif.message?.toLowerCase() || "";
       const isRecruitment = notif.type === "recruitment" || titleLower.includes("ứng tuyển") || msgLower.includes("ứng tuyển") || msgLower.includes("tuyển dụng");

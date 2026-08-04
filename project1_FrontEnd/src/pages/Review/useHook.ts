@@ -1,15 +1,10 @@
 import { useState, useCallback } from "react";
+import { useToast } from "../../contexts/ToastContext";
 import { createReviewCustomer, updateReviewCustomer, deleteReviewCustomer, getHelperReviewsPublic, type Review, type HelperReviewsResponse } from "../../api/reviews";
 
 export interface ReviewForm {
   rating: number;
   comment: string;
-}
-
-export interface ToastState {
-  show: boolean;
-  message: string;
-  type: "success" | "error";
 }
 
 export const useReview = () => {
@@ -32,12 +27,7 @@ export const useReview = () => {
   const [isLoadingHelperReviews, setIsLoadingHelperReviews] = useState(false);
 
   // ── Toast ────────────────────────────────────────────────
-  const [toast, setToast] = useState<ToastState>({ show: false, message: "", type: "success" });
-
-  const showToast = (message: string, type: "success" | "error" = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
-  };
+  const { showToast } = useToast();
 
   // ── Submit new review ────────────────────────────────────
   const handleSubmitReview = useCallback(
@@ -52,17 +42,17 @@ export const useReview = () => {
           booking_id: params.booking_id ?? null,
           job_post_id: params.job_post_id ?? null,
         });
-        showToast("Cảm ơn bạn đã đánh giá người giúp việc!", "success");
+        showToast("success", "Đánh giá thành công", "Cảm ơn bạn đã đánh giá người giúp việc!");
         setReviewForm({ rating: 5, comment: "" });
         params.onSuccess?.();
       } catch (err: any) {
         const msg = err?.response?.data?.message || "Gửi đánh giá thất bại. Vui lòng thử lại.";
-        showToast(msg, "error");
+        showToast("error", "Gửi đánh giá thất bại", msg);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [reviewForm],
+    [reviewForm, showToast],
   );
 
   // ── Open edit modal ──────────────────────────────────────
@@ -87,17 +77,17 @@ export const useReview = () => {
           rating: editForm.rating,
           comment: editForm.comment.trim() || null,
         });
-        showToast("Cập nhật đánh giá thành công!", "success");
+        showToast("success", "Cập nhật đánh giá", "Cập nhật đánh giá thành công!");
         closeEditReview();
         onSuccess?.();
       } catch (err: any) {
         const msg = err?.response?.data?.message || "Cập nhật thất bại. Vui lòng thử lại.";
-        showToast(msg, "error");
+        showToast("error", "Cập nhật thất bại", msg);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [editingReview, editForm, closeEditReview],
+    [editingReview, editForm, closeEditReview, showToast],
   );
 
   // ── Delete confirm ───────────────────────────────────────
@@ -117,17 +107,17 @@ export const useReview = () => {
       setIsDeleting(true);
       try {
         await deleteReviewCustomer(deletingReviewId);
-        showToast("Đã xóa đánh giá thành công!", "success");
+        showToast("success", "Xóa đánh giá", "Đã xóa đánh giá thành công!");
         closeDeleteConfirm();
         onSuccess?.();
       } catch (err: any) {
         const msg = err?.response?.data?.message || "Xóa đánh giá thất bại.";
-        showToast(msg, "error");
+        showToast("error", "Xóa đánh giá thất bại", msg);
       } finally {
         setIsDeleting(false);
       }
     },
-    [deletingReviewId, closeDeleteConfirm],
+    [deletingReviewId, closeDeleteConfirm, showToast],
   );
 
   // ── Load helper reviews ──────────────────────────────────
@@ -168,8 +158,5 @@ export const useReview = () => {
     helperReviews,
     isLoadingHelperReviews,
     loadHelperReviews,
-    // Toast
-    toast,
-    setToast,
   };
 };

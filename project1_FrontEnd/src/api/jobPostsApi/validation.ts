@@ -35,25 +35,22 @@ export const getPostJobSchema = (t: any) =>
         const num = Number(val.replace(/\D/g, ""));
         return num <= 1000000000;
       }),
-    workingTime: Yup.string()
-      .required(t("job.validation.working_time_req"))
-      .test("not-past", t("job.validation.working_time_past"), (val) => {
-        if (!val) return true;
-        return new Date(val).getTime() >= Date.now();
-      }),
-    expirationDate: Yup.string()
-      .required(t("job.validation.expire_req"))
-      .test(
-        "after-working",
-        t("job.validation.expire_after"),
-        function (val) {
-          const { workingTime } = this.parent;
-          if (!val || !workingTime) return true;
-          return new Date(val).getTime() > new Date(workingTime).getTime();
-        }
-      ),
+    workingDate: Yup.string().required("Vui lòng chọn ngày làm việc"),
+    workingTimeOnly: Yup.string().required("Vui lòng chọn giờ làm việc"),
+    workingTime: Yup.string().test("not-past", t("job.validation.working_time_past"), function () {
+      const { workingDate, workingTimeOnly } = this.parent;
+      if (!workingDate || !workingTimeOnly) return true;
+      return new Date(`${workingDate}T${workingTimeOnly}`).getTime() >= Date.now();
+    }),
+    expirationDateOnly: Yup.string().required("Vui lòng chọn ngày hết hạn"),
+    expirationTimeOnly: Yup.string().required("Vui lòng chọn giờ hết hạn"),
+    expirationDate: Yup.string().test("after-working", t("job.validation.expire_after"), function () {
+      const { workingDate, workingTimeOnly, expirationDateOnly, expirationTimeOnly } = this.parent;
+      if (!expirationDateOnly || !expirationTimeOnly || !workingDate || !workingTimeOnly) return true;
+      return new Date(`${expirationDateOnly}T${expirationTimeOnly}`).getTime() > new Date(`${workingDate}T${workingTimeOnly}`).getTime();
+    }),
     specificAddress: Yup.string().required(t("job.validation.address_req")),
     district: Yup.string().required(t("job.validation.district_req")),
     city: Yup.string().required(t("job.validation.city_req")),
-    jobDescription: Yup.string().required(t("job.validation.desc_req"))
+    jobDescription: Yup.string().required(t("job.validation.desc_req")),
   });
