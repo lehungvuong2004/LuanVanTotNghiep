@@ -254,7 +254,7 @@ export const usePostAJobHook = () => {
       }
     };
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // missing dependency
   }, []);
 
   const handleAddressChange = (idStr: string) => {

@@ -18,10 +18,11 @@ import gsap from "gsap";
 
 export const Home = () => {
   const { t } = useTranslation();
-  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } =  useHome();
+  const { bannerData, serviceData, containerRef, imageRef, contentRef, cubeRef, produceData, reviewData, banners, loadingBanners, searchVal, setSearchVal, locationVal, setLocationVal, handleSearch } =
+    useHome();
 
   const swiperRef = useRef<any>(null);
-  const dynamicBgRef = useRef<HTMLDivElement>(null);
+  const dynamicBgRef = useRef(null);
 
   useEffect(() => {
     if (!loadingBanners && banners && banners.length > 0 && dynamicBgRef.current) {
@@ -69,12 +70,9 @@ export const Home = () => {
               {banner.image ? (
                 index === 0 ? (
                   <>
-                    {/* Fallback space-gradient background - Rendered only under the first dynamic image during transition */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                      {/* Rich Left-to-Right background gradient overlay */}
                       <div className="absolute inset-0 bg-linear-to-r from-[#011618] via-[#023138] to-[#045661]" />
 
-                      {/* Large ambient star glow radiating from the upper-right corner */}
                       <div
                         className="absolute -top-24 -right-24 w-160 h-160 rounded-full blur-3xl opacity-35 animate-[pulse_8s_infinite]"
                         style={{
@@ -82,7 +80,6 @@ export const Home = () => {
                         }}
                       />
 
-                      {/* Secondary medium halo glow centered near the star */}
                       <div
                         className="absolute top-8 right-8 w-80 h-80 rounded-full blur-2xl opacity-50"
                         style={{
@@ -90,7 +87,6 @@ export const Home = () => {
                         }}
                       />
 
-                      {/* High-intensity star core glow */}
                       <div
                         className="absolute top-1/5 right-1/6 w-32 h-32 rounded-full blur-md opacity-80"
                         style={{
@@ -98,22 +94,14 @@ export const Home = () => {
                         }}
                       />
 
-                      {/* Main Bright Four-Pointed Star (AI concept style sparkle) */}
                       <div className="absolute top-1/5 right-1/6 -translate-y-1/2 translate-x-1/2 flex items-center justify-center scale-90 md:scale-100">
-                        {/* Ring flare of the star */}
                         <div className="absolute w-24 h-24 rounded-full border border-white/20 blur-xs animate-[ping_5s_infinite] opacity-30" />
-
-                        {/* Cinematic vertical light ray */}
                         <div className="absolute w-0.5 h-32 bg-linear-to-t from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
-                        {/* Cinematic horizontal light ray */}
                         <div className="absolute h-0.5 w-32 bg-linear-to-r from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
 
-                        {/* Main SVG Star */}
                         <svg viewBox="0 0 100 100" className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]" fill="currentColor">
                           <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
                         </svg>
-
-                        {/* Constellation of small twinkling stars/sparks around the beacon */}
                         <div className="absolute -top-12 -right-16 animate-[pulse_1.8s_infinite] delay-150 opacity-60">
                           <svg viewBox="0 0 100 100" className="w-3.5 h-3.5 text-teal-200 drop-shadow-[0_0_6px_rgba(45,212,191,0.8)]" fill="currentColor">
                             <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
@@ -132,7 +120,6 @@ export const Home = () => {
                       </div>
                     </div>
 
-                    {/* Dynamic Image layer (reveals on load using clip-path) */}
                     <div ref={dynamicBgRef} className="absolute inset-0 z-0 overflow-hidden" style={{ clipPath: "circle(0% at 100% 0%)" }}>
                       <img
                         ref={imageRef}
@@ -148,7 +135,6 @@ export const Home = () => {
                     </div>
                   </>
                 ) : (
-                  // Old code block: normal rendering logic for subsequent dynamic slides
                   <>
                     <img
                       src={getImageUrl(banner.image)}
@@ -162,12 +148,9 @@ export const Home = () => {
                   </>
                 )
               ) : (
-                // Old code block: static fallback stars background when banner.image is falsy
                 <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                  {/* Rich Left-to-Right background gradient overlay */}
                   <div className="absolute inset-0 bg-linear-to-r from-[#011618] via-[#023138] to-[#045661]" />
 
-                  {/* Large ambient star glow radiating from the upper-right corner */}
                   <div
                     className="absolute -top-24 -right-24 w-160 h-160 rounded-full blur-3xl opacity-35 animate-[pulse_8s_infinite]"
                     style={{
@@ -175,7 +158,6 @@ export const Home = () => {
                     }}
                   />
 
-                  {/* Secondary medium halo glow centered near the star */}
                   <div
                     className="absolute top-8 right-8 w-80 h-80 rounded-full blur-2xl opacity-50"
                     style={{
@@ -183,7 +165,6 @@ export const Home = () => {
                     }}
                   />
 
-                  {/* High-intensity star core glow */}
                   <div
                     className="absolute top-1/5 right-1/6 w-32 h-32 rounded-full blur-md opacity-80"
                     style={{
@@ -191,22 +172,16 @@ export const Home = () => {
                     }}
                   />
 
-                  {/* Main Bright Four-Pointed Star (AI concept style sparkle) */}
                   <div className="absolute top-1/5 right-1/6 -translate-y-1/2 translate-x-1/2 flex items-center justify-center scale-90 md:scale-100">
-                    {/* Ring flare of the star */}
                     <div className="absolute w-24 h-24 rounded-full border border-white/20 blur-xs animate-[ping_5s_infinite] opacity-30" />
 
-                    {/* Cinematic vertical light ray */}
                     <div className="absolute w-0.5 h-32 bg-linear-to-t from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
-                    {/* Cinematic horizontal light ray */}
                     <div className="absolute h-0.5 w-32 bg-linear-to-r from-transparent via-white/80 to-transparent blur-xs animate-[pulse_3s_infinite]" />
 
-                    {/* Main SVG Star */}
                     <svg viewBox="0 0 100 100" className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.95)] animate-[pulse_2s_infinite]" fill="currentColor">
                       <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
                     </svg>
 
-                    {/* Constellation of small twinkling stars/sparks around the beacon */}
                     <div className="absolute -top-12 -right-16 animate-[pulse_1.8s_infinite] delay-150 opacity-60">
                       <svg viewBox="0 0 100 100" className="w-3.5 h-3.5 text-teal-200 drop-shadow-[0_0_6px_rgba(45,212,191,0.8)]" fill="currentColor">
                         <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
@@ -366,11 +341,8 @@ export const Home = () => {
               {t("Kiểm tra kết quả, thanh toán và để lại phản hồi cho chúng tôi.")}
             </p>
           </div>
-
-          {/* Background Connecting Line (Static) */}
           <div className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-gray-200 dark:bg-gray-700 z-0"></div>
 
-          {/* Active Running Line (CSS Animated, Non-rounded, Glowing) */}
           <div
             className="hidden md:block absolute top-10 h-1 left-[15%] right-[15%] bg-[#008080] dark:bg-teal-400 z-0 origin-left scale-x-0 transition-transform duration-500 ease-out shadow-[0_0_8px_rgba(0,128,128,0.6)] dark:shadow-[0_0_8px_rgba(45,212,191,0.6)]
             peer-hover/step1:scale-x-0
@@ -398,8 +370,6 @@ export const Home = () => {
               </li>
             ))}
           </ul>
-
-          {/* Explore Button */}
           <div>
             <Link to="/dich-vu" className="cursor-pointer bg-[#034d54] hover:bg-[#023c42] active:scale-95 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 shadow-md">
               {t("home.banner.exploreNow")}
@@ -409,7 +379,6 @@ export const Home = () => {
 
         <div className="col-span-12 md:col-span-6 flex items-center justify-center relative min-h-120" style={{ perspective: "75rem" }}>
           <div ref={cubeRef} className="w-40 h-52 relative" style={{ transformStyle: "preserve-3d" }}>
-            {/* Card 1 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
               style={{ transform: "rotateY(0deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}
@@ -430,7 +399,6 @@ export const Home = () => {
               <img src={repairLight} alt="Service 3" className="w-full h-full object-cover" loading="lazy" />
             </div>
 
-            {/* Card 4 */}
             <div
               className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-white shadow-2xl bg-white"
               style={{ transform: "rotateY(270deg) translateZ(11.875rem)", backfaceVisibility: "visible" }}

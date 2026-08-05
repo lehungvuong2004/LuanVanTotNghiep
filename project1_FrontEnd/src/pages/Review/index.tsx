@@ -32,7 +32,7 @@ export const ReviewModal = ({ isOpen, onClose, helperId, helperName, helperAvata
     setHoverRating(null);
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     await handleSubmitReview({
       helper_id: helperId,
@@ -51,7 +51,6 @@ export const ReviewModal = ({ isOpen, onClose, helperId, helperName, helperAvata
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-850 w-full max-w-md rounded-3xl shadow-2xl border border-slate-150 dark:border-slate-700/60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/50">
           <h3 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
             <Icon icon="material-symbols:star-outline-rounded" className="text-2xl text-[#026E5F] dark:text-teal-400" />
@@ -67,7 +66,6 @@ export const ReviewModal = ({ isOpen, onClose, helperId, helperName, helperAvata
 
         {/* Content & Form */}
         <form onSubmit={onSubmit} className="p-6 flex flex-col gap-5 text-center">
-          {/* Helper details */}
           <div className="flex flex-col items-center gap-2">
             <img src={avatarUrl} alt={helperName} className="w-20 h-20 rounded-full object-cover border-4 border-[#026E5F]/10 dark:border-teal-500/20 shadow-md" />
             <span className="text-base font-bold text-slate-800 dark:text-slate-100">{helperName}</span>

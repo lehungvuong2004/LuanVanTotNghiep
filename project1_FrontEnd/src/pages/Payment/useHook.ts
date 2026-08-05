@@ -16,7 +16,6 @@ import {
   getMyPaymentRefundsApi,
 } from "../../api/payments";
 
-// ── Payment modal form state ──────────────────────────────
 export interface PaymentFormState {
   booking_id: string;
   job_post_id: string;
@@ -31,7 +30,6 @@ const DEFAULT_FORM: PaymentFormState = {
   amount: "",
 };
 
-// ── Refund modal form state ──────────────────────────────
 export interface RefundFormState {
   amount: string;
   reason: string;
@@ -198,7 +196,6 @@ export const usePayment = () => {
         job_post_id: form.job_post_id ? parseInt(form.job_post_id) : null,
       };
 
-      // ── VNPay: redirect instead of creating locally ──────────────
       if (form.payment_method === "vnpay") {
         const vnpayPayload: CreateVnpayPayload = {
           amount: parseFloat(form.amount),
@@ -228,7 +225,6 @@ export const usePayment = () => {
     }
   };
 
-  // ── Simulate payment ──────────────────────────────────────
   const handleSimulate = async () => {
     if (!payment) return;
     setIsSimulating(true);
@@ -244,7 +240,6 @@ export const usePayment = () => {
     }
   };
 
-  // ── Request refund ────────────────────────────────────────
   const handleRefundOpen = () => {
     setRefundForm(DEFAULT_REFUND_FORM);
     setRefundError(null);
@@ -279,7 +274,7 @@ export const usePayment = () => {
       setRefunds((prev) => [res.data, ...prev]);
       setShowRefundModal(false);
       notify("success", "Yêu cầu gửi thành công", "Yêu cầu hoàn tiền của bạn đang được xử lý.");
-      fetchMyPayments(paymentsPage); // Refresh list
+      fetchMyPayments(paymentsPage); 
     } catch (err: any) {
       setRefundError(err.response?.data?.message || "Không thể gửi yêu cầu hoàn tiền.");
     } finally {
@@ -288,7 +283,6 @@ export const usePayment = () => {
   };
 
   return {
-    // create
     showCreateModal,
     setShowCreateModal,
     form,
@@ -297,7 +291,6 @@ export const usePayment = () => {
     handleFormChange,
     handleCreateSubmit,
     isCreating,
-    // lookup
     payment,
     refunds,
     lookupId,
@@ -305,12 +298,9 @@ export const usePayment = () => {
     isLooking,
     handleLookup,
     loadPayment,
-    // simulate
     handleSimulate,
     isSimulating,
-    // vnpay
     isVnpayLoading,
-    // refund
     showRefundModal,
     setShowRefundModal,
     refundForm,
@@ -319,7 +309,6 @@ export const usePayment = () => {
     handleRefundChange,
     handleRefundSubmit,
     isRefunding,
-    // payments list
     myPayments,
     paymentsPage,
     setPaymentsPage,

@@ -40,8 +40,6 @@ export const PaymentReturn = () => {
   const responseCode = params.get("vnp_ResponseCode") ?? "";
   const txnRef = params.get("vnp_TxnRef") ?? "";
   const amount = params.get("vnp_Amount") ?? null;
-  // const bankCode     = params.get("vnp_BankCode") ?? "";
-  // const orderInfo    = params.get("vnp_OrderInfo") ?? "";
   const transactionNo = params.get("vnp_TransactionNo") ?? "";
   const payDate = params.get("vnp_PayDate") ?? null;
 
@@ -72,7 +70,6 @@ export const PaymentReturn = () => {
         });
         await verifyVnpayReturnApi(queryObj);
       } catch (err: any) {
-        // console.error("Payment verification failed:", err);
         setVerificationError(err.response?.data?.message || "Không thể xác thực chữ ký hoặc trạng thái thanh toán từ VNPay.");
       } finally {
         setIsVerifying(false);

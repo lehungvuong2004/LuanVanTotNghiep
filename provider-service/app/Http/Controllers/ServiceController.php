@@ -416,6 +416,54 @@ class ServiceController extends Controller
     return $this->successResponse($services);
   }
 
+  public function popularServices(Request $request)
+  {
+    if ($unauthorized = $this->authorizeAdminOrOperator($request)) {
+      return $unauthorized;
+    }
+
+    $usageStats = [];
+    try {
+      $orderServiceUrl = env('ORDER_SERVICE_URL', 'http://order-service:8000');
+      $response = Http::timeout(5)
+        ->get($orderServiceUrl . '/api/orders/internal/service-usage-stats');
+
+      if ($response->successful()) {
+        $usageStats = $response->json('data') ?? [];
+      }
+    } catch (\Exception $e) {
+      Log::error('ServiceController@popularServices - Error fetching order stats: ' . $e->getMessage());
+    }
+
+    $statsMap = [];
+    foreach ($usageStats as $stat) {
+      $statsMap[$stat['service_id']] = [
+        'unique_users_count' => (int) ($stat['unique_users_count'] ?? 0),
+        'booking_count' => (int) ($stat['booking_count'] ?? 0),
+      ];
+    }
+
+    $services = Service::with('category')->get();
+
+    foreach ($services as $service) {
+      $sid = $service->id;
+      $service->unique_users_count = $statsMap[$sid]['unique_users_count'] ?? 0;
+      $service->booking_count = $statsMap[$sid]['booking_count'] ?? 0;
+    }
+
+    $sortedServices = $services->sort(function ($a, $b) {
+      if ($a->unique_users_count !== $b->unique_users_count) {
+        return $b->unique_users_count <=> $a->unique_users_count;
+      }
+      if ($a->booking_count !== $b->booking_count) {
+        return $b->booking_count <=> $a->booking_count;
+      }
+      return strcmp($a->name, $b->name);
+    })->values();
+
+    return $this->successResponse($sortedServices);
+  }
+
   public function createService(Request $request)
   {
     if ($unauthorized = $this->authorizeRoles($request, [Role::ADMIN])) {

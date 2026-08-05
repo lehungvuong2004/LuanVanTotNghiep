@@ -2,12 +2,14 @@ import { useToast } from "../../../contexts/ToastContext";
 import { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import type { Service, ServiceCategory } from "../../../api/servicesApi/services";
-import { getServicesAdmin, createServiceAdmin, updateServiceAdmin, deleteServiceAdmin, getCategoriesAdmin } from "../../../api/servicesApi/services";
+import { getServicesAdmin, createServiceAdmin, updateServiceAdmin, deleteServiceAdmin, getCategoriesAdmin, getPopularServicesAdmin } from "../../../api/servicesApi/services";
 import { getServiceValidationSchema } from "../../../api/servicesApi/validation";
 
 export const useServicesAdmin = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [popularServices, setPopularServices] = useState<Service[]>([]);
+  const [popularLoading, setPopularLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -24,11 +26,32 @@ export const useServicesAdmin = () => {
 
   const { showToast } = useToast();
 
+  const fetchPopularServices = useCallback(async () => {
+    setPopularLoading(true);
+    try {
+      const data = await getPopularServicesAdmin();
+      setPopularServices(data);
+    } catch (err: any) {
+      showToast("error", "Lỗi tải dữ liệu", err.response?.data?.message || "Không thể tải mức độ phổ biến dịch vụ");
+    } finally {
+      setPopularLoading(false);
+    }
+  }, [showToast]);
+
   useEffect(() => {
+    let active = true;
     getCategoriesAdmin()
-      .then((res) => setCategories(res.data))
+      .then((res) => {
+        if (active) setCategories(res.data);
+      })
       .catch(() => {});
-  }, []);
+    Promise.resolve().then(() => {
+      if (active) fetchPopularServices();
+    });
+    return () => {
+      active = false;
+    };
+  }, [fetchPopularServices]);
 
   const fetchServices = useCallback(
     async (page = 1) => {
@@ -55,7 +78,9 @@ export const useServicesAdmin = () => {
   );
 
   useEffect(() => {
-    fetchServices(1);
+    Promise.resolve().then(() => {
+      fetchServices(1);
+    });
   }, [fetchServices]);
 
   const filteredServices = services.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -183,6 +208,9 @@ export const useServicesAdmin = () => {
   return {
     services: filteredServices,
     categories,
+    popularServices,
+    popularLoading,
+    fetchPopularServices,
     PRICE_TYPE_LABELS,
     totalItems,
     loading,

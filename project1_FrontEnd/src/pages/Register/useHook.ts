@@ -34,12 +34,10 @@ export const useRegister = () => {
           phone: values.phone,
           password: values.password,
         });
-        // console.log("Register response:", response);
 
         // Redirect to login page
         navigate("/dang-nhap", { state: { email: values.email } });
       } catch (error: any) {
-        // console.error("Register failed:", error);
         const validationErrors = error?.response?.data?.errors;
         if (validationErrors) {
           if (validationErrors.email) {
@@ -60,25 +58,21 @@ export const useRegister = () => {
   });
 
   const registerWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      // console.log("Google Register Success:", tokenResponse);
+    onSuccess: async (tokenResponse) => {;
       setLoading(true);
       setErrorMessage(null);
       try {
         await googleLoginApi(tokenResponse.access_token, "register");
-        // console.log("Google Register response:", response);
 
         // Redirect to login page
         navigate("/dang-nhap");
       } catch (error: any) {
-        // console.error("Google Register fail:", error);
         setErrorMessage(error?.response?.data?.message || t("Đăng ký bằng Google thất bại."));
       } finally {
         setLoading(false);
       }
     },
     onError: () => {
-      // console.error("Google Register Failed");
       setErrorMessage(t("Đăng ký bằng Google thất bại."));
     },
   });

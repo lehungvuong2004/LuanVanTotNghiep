@@ -75,7 +75,7 @@ export const Chatbot = () => {
           time: formatTimeOnly(),
         },
       ]);
-    } catch (error) {
+    } catch {
       // console.error("Chatbot logic API error:", error);
       setMessages((prev) => [
         ...prev,

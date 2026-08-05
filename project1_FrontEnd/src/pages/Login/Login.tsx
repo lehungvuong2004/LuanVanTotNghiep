@@ -152,7 +152,6 @@ export const Login = () => {
     </div>
   );
 
-  // ROOT RETURN
   return (
     <div className="flex-1 flex flex-col justify-center w-full bg-[#f8f9fa] dark:bg-slate-900 py-8 relative transition-colors duration-300">
       <div className="w-full px-4 md:px-16 mx-auto">

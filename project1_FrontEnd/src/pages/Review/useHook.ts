@@ -134,12 +134,10 @@ export const useReview = () => {
   }, []);
 
   return {
-    // Form
     reviewForm,
     setReviewForm,
     isSubmitting,
     handleSubmitReview,
-    // Edit
     editingReview,
     editForm,
     setEditForm,
@@ -147,14 +145,12 @@ export const useReview = () => {
     openEditReview,
     closeEditReview,
     handleUpdateReview,
-    // Delete
     deletingReviewId,
     isDeleteConfirmOpen,
     isDeleting,
     openDeleteConfirm,
     closeDeleteConfirm,
     handleDeleteReview,
-    // Helper reviews
     helperReviews,
     isLoadingHelperReviews,
     loadHelperReviews,

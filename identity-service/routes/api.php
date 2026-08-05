@@ -55,6 +55,8 @@ Route::post('internal/users/by-ids',  [AuthController::class, 'getUsersByIdsInte
 Route::get('internal/users/search-ids', [AuthController::class, 'searchUserIds']);
 // Xem nhanh trạng thái thông tin hồ sơ của khách hàng
 Route::post('internal/customer/profile-status', [CustomerProfileController::class, 'getCustomerProfileStatusInternal']);
+// Xem chi tiết danh sách địa chỉ bằng danh sách ids[]
+Route::post('internal/addresses/by-ids', [CustomerProfileController::class, 'getAddressesByIdsInternal']);
 
 // ============================================================
 //  AUTHENTICATED — Yêu cầu JWT token xác định danh tính

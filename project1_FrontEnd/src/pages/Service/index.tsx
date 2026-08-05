@@ -33,7 +33,6 @@ const RATINGS = [
   { value: 3.5, label: "3.5+" },
 ];
 
-
 const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, regions }: SidebarFilterProps) => {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
 
@@ -302,10 +301,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
           </div>
           {services.length > 6 && (
             <div className="flex justify-center mt-12">
-              <ExpandToggleButton
-                isExpanded={isExpanded}
-                onClick={() => setIsExpanded(!isExpanded)}
-              />
+              <ExpandToggleButton isExpanded={isExpanded} onClick={() => setIsExpanded(!isExpanded)} />
             </div>
           )}
         </>
@@ -413,9 +409,7 @@ const FeaturedHelpers = ({
                   >
                     <Icon
                       icon={favoriteIds.includes(helper.id) ? "material-symbols:favorite" : "material-symbols:favorite-outline"}
-                      className={`text-xl transition-colors ${
-                        favoriteIds.includes(helper.id) ? "text-rose-500 fill-rose-500" : "text-slate-400 group-hover/heart:text-rose-500"
-                      }`}
+                      className={`text-xl transition-colors ${favoriteIds.includes(helper.id) ? "text-rose-500 fill-rose-500" : "text-slate-400 group-hover/heart:text-rose-500"}`}
                     />
                   </button>
                 )}
@@ -423,9 +417,7 @@ const FeaturedHelpers = ({
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-700 group-hover:border-teal-500 dark:group-hover:border-teal-400 transition-colors duration-300">
                     {renderHelperAvatar(helper.avatar, helper.name)}
                   </div>
-                  {helper.isOnline && (
-                    <span className="absolute bottom-0.5 right-0.5 flex h-3.5 w-3.5 rounded-full border-2 border-white dark:border-slate-800 bg-emerald-500 shadow-sm z-10" />
-                  )}
+                  {helper.isOnline && <span className="absolute bottom-0.5 right-0.5 flex h-3.5 w-3.5 rounded-full border-2 border-white dark:border-slate-800 bg-emerald-500 shadow-sm z-10" />}
                 </div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">{helper.name}</h3>
                 <div className="flex items-center gap-1 text-xs font-bold text-amber-500 mb-1">
@@ -527,20 +519,20 @@ export const Service = () => {
         <div className="lg:col-span-9 flex flex-col gap-6">
           <ServiceList t={t} services={services} loading={loading} sortBy={sortBy} onSortChange={setSortBy} onNavigateService={(id) => navigate(`/dich-vu/${id}`)} />
 
-            <FeaturedHelpers
-              t={t}
-              helpers={helpers}
-              loading={helperLoading}
-              totalHelpers={totalHelpers}
-              helperPage={helperPage}
-              helperLastPage={helperLastPage}
-              itemsPerPage={filterParams.limit ?? 8}
-              onPageChange={goToHelperPage}
-              onNavigateHelper={(userId) => navigate(`/nguoi-giup-viec/${userId}`)}
-              isCustomer={isCustomer}
-              favoriteIds={favoriteIds}
-              onToggleFavorite={handleToggleFavorite}
-            />
+          <FeaturedHelpers
+            t={t}
+            helpers={helpers}
+            loading={helperLoading}
+            totalHelpers={totalHelpers}
+            helperPage={helperPage}
+            helperLastPage={helperLastPage}
+            itemsPerPage={filterParams.limit ?? 8}
+            onPageChange={goToHelperPage}
+            onNavigateHelper={(userId) => navigate(`/nguoi-giup-viec/${userId}`)}
+            isCustomer={isCustomer}
+            favoriteIds={favoriteIds}
+            onToggleFavorite={handleToggleFavorite}
+          />
         </div>
       </div>
     </div>

@@ -1,9 +1,13 @@
 import { useToast } from "../../../contexts/ToastContext";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { getRootFontSizePx } from "../../../utils";
 import { QUALITATIVE_PALETTE } from "../../../constants/colors";
 import { getUsersAdmin, type User } from "../../../api/usersApi/users";
+import { getServicesApi } from "../../../api/servicesApi/services";
+import { getPaymentsAdmin, updatePaymentStatusAdmin } from "../../../api/payments";
+import { getBookingsAdminApi, updateBookingStatusAdminApi } from "../../../api/bookings";
 import { ROLES } from "../../../constants/roles";
+import { io } from "socket.io-client";
 
 const getUniqueColor = (index: number): string => {
   return QUALITATIVE_PALETTE[index % QUALITATIVE_PALETTE.length];
@@ -50,249 +54,9 @@ export interface BookingItem {
   createdAt: string;
 }
 
-// HARDCODED DATA
-const INITIAL_BOOKINGS: BookingItem[] = [
-  {
-    id: "BK-001",
-    bookingCode: "BK-20260619-001",
-    customerName: "Nguyễn Văn Hải",
-    customerPhone: "0987654321",
-    customerEmail: "hainv@gmail.com",
-    helperName: "Nguyễn Thị Mai",
-    helperAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0912345678",
-    address: "123 Đường Nguyễn Trãi, Phường 2",
-    district: "Quận 5",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-20",
-    startTime: "08:00:00",
-    totalPrice: 350000,
-    status: "confirmed",
-    note: "Nhà có người lớn tuổi, vui lòng làm nhẹ tay sạch sẽ.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "paid",
-    services: [{ name: "Dọn dẹp nhà cửa", price: 350000, duration_hours: 2, quantity: 1 }],
-    rating: null,
-    reviewComment: null,
-    createdAt: "2026-06-19 14:22:01",
-  },
-  {
-    id: "BK-002",
-    bookingCode: "BK-20260619-002",
-    customerName: "Trần Thị Lan",
-    customerPhone: "0909888777",
-    customerEmail: "lantt@gmail.com",
-    helperName: "Trần Văn Hùng",
-    helperAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0933111222",
-    address: "456 Lê Hồng Phong, Phường 10",
-    district: "Quận 10",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-19",
-    startTime: "16:30:00",
-    totalPrice: 200000,
-    status: "completed",
-    note: "Vui lòng đến đúng giờ để nấu bữa tối.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "paid",
-    services: [{ name: "Nấu ăn gia đình", price: 200000, duration_hours: 2, quantity: 1 }],
-    rating: 5,
-    reviewComment: "Đồ ăn rất vừa vị, nhân viên sạch sẽ chu đáo.",
-    createdAt: "2026-06-18 09:10:45",
-  },
-  {
-    id: "BK-003",
-    bookingCode: "BK-20260618-003",
-    customerName: "Lê Hoàng Nam",
-    customerPhone: "0977666555",
-    customerEmail: "namlh@gmail.com",
-    helperName: "Lê Thị Lan",
-    helperAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0944555666",
-    address: "789 CMT8, Phường 15",
-    district: "Quận Tân Bình",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-18",
-    startTime: "09:00:00",
-    totalPrice: 150000,
-    status: "cancelled",
-    note: "Yêu cầu giặt xả thơm tho.",
-    cancelBy: "Customer",
-    cancelReason: "Khách hàng bận việc đột xuất không có nhà.",
-    refundStatus: "refunded",
-    paymentStatus: "refunded",
-    services: [{ name: "Giặt ủi", price: 150000, duration_hours: 2, quantity: 1 }],
-    rating: null,
-    reviewComment: null,
-    createdAt: "2026-06-17 15:30:12",
-  },
-  {
-    id: "BK-004",
-    bookingCode: "BK-20260617-004",
-    customerName: "Phạm Minh Quân",
-    customerPhone: "0911222333",
-    customerEmail: "quanpm@gmail.com",
-    helperName: "Phạm Văn Nam",
-    helperAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0922333444",
-    address: "101 Hoàng Văn Thụ",
-    district: "Quận Phú Nhuận",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-17",
-    startTime: "08:00:00",
-    totalPrice: 600000,
-    status: "completed",
-    note: "Chăm sóc người già ốm yếu, cần người có kinh nghiệm.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "paid",
-    services: [{ name: "Chăm sóc người già", price: 600000, duration_hours: 4, quantity: 1 }],
-    rating: 4,
-    reviewComment: "Nhân viên nhiệt tình, chăm sóc chu đáo chu toàn.",
-    createdAt: "2026-06-16 11:20:00",
-  },
-  {
-    id: "BK-005",
-    bookingCode: "BK-20260616-005",
-    customerName: "Hoàng Thu Trang",
-    customerPhone: "0988777666",
-    customerEmail: "tranght@gmail.com",
-    helperName: "Hoàng Thanh Mai",
-    helperAvatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0955666777",
-    address: "222 Điện Biên Phủ",
-    district: "Quận 3",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-16",
-    startTime: "14:00:00",
-    totalPrice: 450000,
-    status: "completed",
-    note: "Trông bé 3 tuổi, chơi cùng bé và cho bé ăn xế.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "paid",
-    services: [{ name: "Trông trẻ em", price: 450000, duration_hours: 3, quantity: 1 }],
-    rating: 5,
-    reviewComment: "Chăm bé rất khéo, bé rất thích cô Mai.",
-    createdAt: "2026-06-15 16:45:00",
-  },
-  {
-    id: "BK-006",
-    bookingCode: "BK-20260615-006",
-    customerName: "Nguyễn Hoàng Long",
-    customerPhone: "0966555444",
-    customerEmail: "longnh@gmail.com",
-    helperName: "Lê Văn Nam",
-    helperAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0966777888",
-    address: "55/12 Võ Thị Sáu",
-    district: "Quận 1",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-15",
-    startTime: "08:00:00",
-    totalPrice: 900000,
-    status: "completed",
-    note: "Tổng vệ sinh nhà 3 tầng trước khi dọn vào ở.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "paid",
-    services: [{ name: "Tổng vệ sinh nhà cửa", price: 900000, duration_hours: 6, quantity: 1 }],
-    rating: 5,
-    reviewComment: "Dọn dẹp rất sạch sẽ, mọi ngóc ngách đều sạch bóng.",
-    createdAt: "2026-06-14 08:30:00",
-  },
-  {
-    id: "BK-007",
-    bookingCode: "BK-20260625-007",
-    customerName: "Đỗ Minh Khang",
-    customerPhone: "0955444333",
-    customerEmail: "khangdm@gmail.com",
-    helperName: "Trần Văn Tú",
-    helperAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0977888999",
-    address: "77 Trần Hưng Đạo",
-    district: "Quận 1",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-25",
-    startTime: "09:00:00",
-    totalPrice: 250000,
-    status: "pending",
-    note: "Vệ sinh 2 máy lạnh Samsung 1.5 HP.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "pending",
-    services: [{ name: "Vệ sinh máy lạnh", price: 250000, duration_hours: 2, quantity: 1 }],
-    rating: null,
-    reviewComment: null,
-    createdAt: "2026-06-19 10:15:30",
-  },
-  {
-    id: "BK-008",
-    bookingCode: "BK-20260622-008",
-    customerName: "Nguyễn Khánh Chi",
-    customerPhone: "0944333222",
-    customerEmail: "chink@gmail.com",
-    helperName: null,
-    helperAvatar: null,
-    helperPhone: null,
-    address: "99 Lê Lợi",
-    district: "Quận 1",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-22",
-    startTime: "13:00:00",
-    totalPrice: 240000,
-    status: "pending",
-    note: "Dọn dẹp căn hộ 70m2, dọn dẹp phòng khách và bếp.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "pending",
-    services: [{ name: "Dọn dẹp nhà cửa", price: 240000, duration_hours: 2, quantity: 1 }],
-    rating: null,
-    reviewComment: null,
-    createdAt: "2026-06-19 11:45:00",
-  },
-  {
-    id: "BK-009",
-    bookingCode: "BK-20260621-009",
-    customerName: "Vũ Minh Tuấn",
-    customerPhone: "0933222111",
-    customerEmail: "tuanvm@gmail.com",
-    helperName: "Lê Thị Lan",
-    helperAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop",
-    helperPhone: "0944555666",
-    address: "321 Nguyễn Đình Chiểu",
-    district: "Quận 3",
-    city: "TP. Hồ Chí Minh",
-    bookingDate: "2026-06-21",
-    startTime: "10:00:00",
-    totalPrice: 300000,
-    status: "confirmed",
-    note: "Ủi 20 áo sơ mi và quần tây nam.",
-    cancelBy: null,
-    cancelReason: null,
-    refundStatus: "none",
-    paymentStatus: "pending",
-    services: [{ name: "Giặt ủi", price: 150000, duration_hours: 2, quantity: 2 }],
-    rating: null,
-    reviewComment: null,
-    createdAt: "2026-06-19 09:20:10",
-  },
-];
-
 export const useBooking = () => {
-  const [bookings, setBookings] = useState<BookingItem[]>(() => {
-    const saved = localStorage.getItem("admin_bookings");
-    return saved ? JSON.parse(saved) : INITIAL_BOOKINGS;
-  });
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
@@ -313,6 +77,7 @@ export const useBooking = () => {
   // Dynamic helper list fetched from identity-service database
   const [helperList, setHelperList] = useState<HelperOption[]>([{ name: "Chưa phân phối", value: "", avatar: null, phone: null }]);
 
+  // Fetch helpers
   useEffect(() => {
     let isMounted = true;
     const fetchHelpers = async () => {
@@ -331,8 +96,8 @@ export const useBooking = () => {
           ];
           setHelperList(formatted);
         }
-      } catch (err) {
-        // console.error("Dashboard Booking - Failed to fetch helpers from DB:", err);
+      } catch {
+        // ignore error gracefully
       }
     };
     fetchHelpers();
@@ -343,28 +108,142 @@ export const useBooking = () => {
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // Clear selection when filters or page changes
-  useEffect(() => {
-    setSelectedIds([]);
-  }, [currentPage, searchQuery, selectedStatus, selectedPayment]);
+  // Fetch & mapping bookings
+  const fetchBookings = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // 1. Fetch public services list
+      const svcRes = await getServicesApi({ limit: 1000 });
+      const svcMap = new Map((svcRes.data?.data || []).map((s) => [s.id, s.name]));
 
-  // Persist data
-  useEffect(() => {
-    localStorage.setItem("admin_bookings", JSON.stringify(bookings));
-  }, [bookings]);
+      // 2. Fetch payments list to map paymentStatus
+      const paymentMap = new Map<number, string>();
+      try {
+        const payRes = await getPaymentsAdmin({ limit: 1000 });
+        const payments = payRes.data || [];
+        const paymentsData = Array.isArray(payments) ? payments : payments.data || [];
+        paymentsData.forEach((p: any) => {
+          if (p.booking_id) {
+            paymentMap.set(p.booking_id, p.status);
+          }
+        });
+      } catch {
+        // ignore
+      }
 
-  // Wrapper functions to reset page when search query or filters change
+      // 3. Fetch admin bookings
+      const bookingRes = await getBookingsAdminApi({ limit: 1000 });
+      const rawBookings = bookingRes.data?.data?.data || bookingRes.data?.data || bookingRes.data || [];
+
+      // 4. Map to BookingItem
+      const mapped: BookingItem[] = rawBookings.map((b: any) => {
+        const formattedServices: BookingService[] = (b.services || []).map((s: any) => ({
+          name: svcMap.get(s.service_id) || `Dịch vụ #${s.service_id}`,
+          price: Number(s.price),
+          duration_hours: Number(s.duration_hours),
+          quantity: Number(s.quantity || 1),
+        }));
+
+        let pStatus: "pending" | "paid" | "failed" | "refunded" = "pending";
+        const rawPayStatus = paymentMap.get(b.id);
+        if (rawPayStatus === "completed") {
+          pStatus = "paid";
+        } else if (rawPayStatus === "refunded") {
+          pStatus = "refunded";
+        } else if (rawPayStatus === "failed") {
+          pStatus = "failed";
+        }
+
+        const primaryReview = b.reviews?.[0] || null;
+
+        const defaultAvatar = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop";
+        const helperAvatarUrl = b.helper?.avatar ? (b.helper.avatar.startsWith("http") ? b.helper.avatar : `http://localhost:8000${b.helper.avatar}`) : defaultAvatar;
+
+        return {
+          id: b.id.toString(),
+          bookingCode: b.booking_code || `#BK-${b.id}`,
+          customerName: b.customer?.full_name || `Khách hàng #${b.customer_id}`,
+          customerPhone: b.customer?.phone || "N/A",
+          customerEmail: b.customer?.email || "N/A",
+          helperName: b.helper?.full_name || null,
+          helperAvatar: b.helper ? helperAvatarUrl : null,
+          helperPhone: b.helper?.phone || null,
+          address: b.address_details?.address || "N/A",
+          district: b.address_details?.district?.name || "N/A",
+          city: b.address_details?.city?.name || "N/A",
+          bookingDate: b.booking_date,
+          startTime: b.start_time,
+          totalPrice: Number(b.total_price),
+          status: b.status,
+          note: b.note || "",
+          cancelBy: b.cancel_by ? (Number(b.cancel_by) === Number(b.customer_id) ? "Customer" : "Helper") : null,
+          cancelReason: b.cancel_reason || null,
+          refundStatus: b.refund_status || "none",
+          paymentStatus: pStatus,
+          services: formattedServices,
+          rating: primaryReview ? primaryReview.rating : null,
+          reviewComment: primaryReview ? primaryReview.comment : null,
+          createdAt: b.created_at || "",
+        };
+      });
+
+      setBookings(mapped);
+    } catch {
+      // console.error("Failed to load booking list: ", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Fetch bookings on mount & setup socket.io refresh
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      fetchBookings();
+    });
+
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:8005";
+    const socket = io(socketUrl);
+
+    socket.on("connect", () => {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        socket.emit("join", user.id);
+      }
+    });
+
+    socket.on("notification", () => {
+      fetchBookings();
+    });
+
+    socket.on("booking_updated", () => {
+      fetchBookings();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [fetchBookings]);
+
+  // Wrapper functions to reset pages and clear selection when values change (prevents cascading state updates inside effects)
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
     setCurrentPage(1);
+    setSelectedIds([]);
   };
   const handleStatusFilterChange = (val: string) => {
     setSelectedStatus(val);
     setCurrentPage(1);
+    setSelectedIds([]);
   };
   const handlePaymentFilterChange = (val: string) => {
     setSelectedPayment(val);
     setCurrentPage(1);
+    setSelectedIds([]);
+  };
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedIds([]);
   };
 
   // Actions
@@ -388,67 +267,66 @@ export const useBooking = () => {
     setIsEditOpen(false);
   };
 
-  const handleUpdateBooking = (updated: BookingItem) => {
-    setBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
-    if (selectedBooking && selectedBooking.id === updated.id) {
-      setSelectedBooking(updated);
+  const handleUpdateBooking = async (updated: BookingItem) => {
+    try {
+      // 1. Update Booking status and note via API
+      await updateBookingStatusAdminApi(updated.id, {
+        status: updated.status,
+        note: updated.note,
+      });
+
+      // 2. Sync payment status if changed
+      const originalBooking = bookings.find((b) => b.id === updated.id);
+      if (originalBooking && originalBooking.paymentStatus !== updated.paymentStatus) {
+        const payRes = await getPaymentsAdmin({ booking_id: updated.id });
+        const payments = payRes.data || [];
+        const paymentsData = Array.isArray(payments) ? payments : payments.data || [];
+        const bookingPayment = paymentsData.find((p: any) => Number(p.booking_id) === Number(updated.id));
+        if (bookingPayment) {
+          const mapToBackendStatus =
+            {
+              paid: "completed",
+              pending: "pending",
+              failed: "failed",
+              refunded: "refunded",
+            }[updated.paymentStatus] || "pending";
+          await updatePaymentStatusAdmin(bookingPayment.id, mapToBackendStatus as any);
+        }
+      }
+
+      showToast("success", "Cập nhật thành công", `Cập nhật thông tin đơn đặt lịch ${updated.bookingCode} thành công!`);
+      handleCloseEdit();
+      fetchBookings();
+      if (selectedBooking && selectedBooking.id === updated.id) {
+        setSelectedBooking(updated);
+      }
+    } catch {
+      showToast("error", "Lỗi cập nhật", "Có lỗi xảy ra khi cập nhật đơn lịch.");
     }
-    showToast("success", "Cập nhật thành công", `Cập nhật thông tin đơn đặt lịch ${updated.bookingCode} thành công!`);
-    handleCloseEdit();
   };
 
   const handleDeleteBooking = (id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đơn đặt lịch này?")) {
-      const booking = bookings.find((b) => b.id === id);
-      setBookings((prev) => prev.filter((b) => b.id !== id));
-      showToast("success", "Xóa thành công", `Đã xóa đơn đặt lịch ${booking?.bookingCode || id} khỏi hệ thống.`);
-      if (selectedBooking?.id === id) {
-        handleCloseDetail();
-      }
-    }
+    showToast("error", "Không thể xóa", `Không hỗ trợ xóa đơn đặt lịch trực tiếp khỏi hệ thống (ID: ${id}).`);
   };
 
-  const handleQuickStatusChange = (id: string, newStatus: "pending" | "confirmed" | "completed" | "cancelled") => {
-    setBookings((prev) =>
-      prev.map((b) => {
-        if (b.id === id) {
-          const updated: BookingItem = { ...b, status: newStatus };
-          if (newStatus === "completed") {
-            updated.paymentStatus = "paid";
-          }
-          if (newStatus === "cancelled") {
-            updated.cancelBy = "Admin";
-            updated.cancelReason = "Được hủy bởi quản trị viên hệ thống.";
-            if (updated.paymentStatus === "paid") {
-              updated.refundStatus = "pending";
-            }
-          }
-          return updated;
-        }
-        return b;
-      }),
-    );
-
-    // Update Detail modal if open
-    if (selectedBooking && selectedBooking.id === id) {
-      setSelectedBooking((prev) => {
-        if (!prev) return null;
-        const updated: BookingItem = { ...prev, status: newStatus };
-        if (newStatus === "completed") {
-          updated.paymentStatus = "paid";
-        }
-        if (newStatus === "cancelled") {
-          updated.cancelBy = "Admin";
-          updated.cancelReason = "Được hủy bởi quản trị viên hệ thống.";
-          if (updated.paymentStatus === "paid") {
-            updated.refundStatus = "pending";
-          }
-        }
-        return updated;
+  const handleQuickStatusChange = async (id: string, newStatus: "pending" | "confirmed" | "completed" | "cancelled") => {
+    try {
+      await updateBookingStatusAdminApi(id, {
+        status: newStatus,
+        note: "Trạng thái được cập nhật trực quan bởi Admin/Operator.",
       });
-    }
 
-    showToast("success", "Cập nhật trạng thái", `Đã đổi trạng thái booking thành công sang "${newStatus}".`);
+      showToast("success", "Cập nhật trạng thái", `Đã đổi trạng thái booking thành công sang "${newStatus}".`);
+      fetchBookings();
+      if (selectedBooking && selectedBooking.id === id) {
+        setSelectedBooking((prev) => {
+          if (!prev) return null;
+          return { ...prev, status: newStatus };
+        });
+      }
+    } catch {
+      showToast("error", "Lỗi cập nhật", "Không thể cập nhật trạng thái đơn đặt lịch.");
+    }
   };
 
   // Filter Bookings
@@ -495,7 +373,9 @@ export const useBooking = () => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredBookings.slice(start, start + itemsPerPage);
   }, [filteredBookings, currentPage, itemsPerPage]);
+
   const rem = getRootFontSizePx();
+
   const pieOption = useMemo(() => {
     const data = [
       { name: "Completed", value: bookings.filter((b) => b.status === "completed").length },
@@ -642,20 +522,12 @@ export const useBooking = () => {
   };
 
   const handleBulkDelete = () => {
-    if (selectedIds.length === 0) return;
-    if (window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch đã chọn?`)) {
-      const remainingBookings = bookings.filter((b) => !selectedIds.includes(b.id));
-      setBookings(remainingBookings);
-      showToast("success", "Xóa thành công", `Đã xóa vĩnh viễn ${selectedIds.length} đơn đặt lịch khỏi hệ thống.`);
-      setSelectedIds([]);
-      if (selectedBooking && selectedIds.includes(selectedBooking.id)) {
-        handleCloseDetail();
-      }
-    }
+    showToast("error", "Không thể xóa", "Không hỗ trợ xóa hàng loạt đơn đặt lịch trực tiếp khỏi hệ thống.");
   };
 
   return {
     bookings,
+    isLoading,
     helperList,
     searchQuery,
     setSearchQuery: handleSearchChange,
@@ -664,7 +536,7 @@ export const useBooking = () => {
     selectedPayment,
     setSelectedPayment: handlePaymentFilterChange,
     currentPage,
-    setCurrentPage,
+    setCurrentPage: handlePageChange,
     itemsPerPage,
     filteredBookings,
     filteredCount: filteredBookings.length,

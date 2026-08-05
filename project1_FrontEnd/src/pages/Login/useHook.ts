@@ -44,8 +44,17 @@ export const useLogin = () => {
           password: values.password,
         });
 
-        localStorage.setItem("access_token", response.access_token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        // if (values.rememberMe) {
+          localStorage.setItem("access_token", response.access_token);
+          localStorage.setItem("user", JSON.stringify(response.user));
+        //   sessionStorage.removeItem("access_token");
+        //   sessionStorage.removeItem("user");
+        // } else {
+        //   sessionStorage.setItem("access_token", response.access_token);
+        //   sessionStorage.setItem("user", JSON.stringify(response.user));
+        //   localStorage.removeItem("access_token");
+        //   localStorage.removeItem("user");
+        // }
         dispatch(loginSuccess(response));
         sessionStorage.setItem("show_login_toast", "true");
 
@@ -63,16 +72,15 @@ export const useLogin = () => {
 
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      // console.log("Google Login Success:", tokenResponse);
       setLoading(true);
       setErrorMessage(null);
       try {
         const response = await googleLoginApi(tokenResponse.access_token, "login");
-
-        // Store token & user details
         localStorage.setItem("remember_me", "true");
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        // sessionStorage.removeItem("access_token");
+        // sessionStorage.removeItem("user");
         dispatch(loginSuccess(response));
         sessionStorage.setItem("show_login_toast", "true");
 
@@ -86,7 +94,6 @@ export const useLogin = () => {
       }
     },
     onError: () => {
-      // console.error("Google Login Failed");
       setErrorMessage(t("Đăng nhập bằng Google thất bại."));
     },
   });

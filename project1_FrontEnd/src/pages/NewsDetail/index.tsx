@@ -4,15 +4,7 @@ import { useNewsDetail } from "./useHook";
 import { getImageUrl } from "../../utils/images";
 
 export const NewsDetail = () => {
-  const {
-    t,
-    i18n,
-    article,
-    relatedNews,
-    loading,
-    error,
-    formatDate,
-  } = useNewsDetail();
+  const { t, i18n, article, relatedNews, loading, error, formatDate } = useNewsDetail();
 
   if (loading) {
     return (
@@ -140,7 +132,6 @@ export const NewsDetail = () => {
   return (
     <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pt-16 pb-16">
       <div className="grid grid-cols-12 gap-10 mt-6">
-        {/* Main Article */}
         <article className="col-span-12 lg:col-span-8 flex flex-col">
           {renderBreadcrumb()}
           {renderHeader()}
@@ -149,10 +140,7 @@ export const NewsDetail = () => {
           {renderContent()}
         </article>
 
-        {/* Sidebar */}
-        <aside className="col-span-12 lg:col-span-4 lg:sticky lg:top-24 lg:h-fit lg:self-start">
-          {renderRelatedNews()}
-        </aside>
+        <aside className="col-span-12 lg:col-span-4 lg:sticky lg:top-24 lg:h-fit lg:self-start">{renderRelatedNews()}</aside>
       </div>
     </div>
   );

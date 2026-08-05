@@ -25,6 +25,8 @@ Route::prefix('orders')->group(function () {
   Route::post('internal/reviews-by-helpers', [ReviewController::class, 'reviewsByHelpers']);
   // Internal — Lấy danh sách lịch bận của helpers để kiểm tra chéo ca rảnh/đặt trùng ca
   Route::post('internal/helpers-busy-bookings', [BookingController::class, 'helpersBusyBookings']);
+  // Internal — Lấy thống kê số lượng khách hàng và lượt đặt lịch của từng dịch vụ
+  Route::get('internal/service-usage-stats', [BookingController::class, 'serviceUsageStats']);
 
   // ============================================================
   //  AUTHENTICATED — Yêu cầu JWT token xác thực thông tin

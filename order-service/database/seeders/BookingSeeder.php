@@ -104,6 +104,32 @@ class BookingSeeder extends Seeder
         'cancel_reason' => 'Trùng lịch với cuộc họp công ty.',
         'created_at'   => Carbon::now()->subDays(5),
       ],
+      // 7. Completed — Pet Grooming
+      [
+        'booking_code' => 'BK-20260707-007',
+        'customer_id'  => 15,
+        'helper_id'    => 3,
+        'address_id'   => 4,
+        'booking_date' => Carbon::now()->subDays(4)->toDateString(),
+        'start_time'   => '10:00:00',
+        'total_price'  => 200000,
+        'status'       => 'completed',
+        'note'         => 'Chăm sóc và dọn vệ sinh cho thú cưng.',
+        'created_at'   => Carbon::now()->subDays(5),
+      ],
+      // 8. Completed — Weekday Childcare
+      [
+        'booking_code' => 'BK-20260708-008',
+        'customer_id'  => 16,
+        'helper_id'    => 10,
+        'address_id'   => 5,
+        'booking_date' => Carbon::now()->subDays(3)->toDateString(),
+        'start_time'   => '08:00:00',
+        'total_price'  => 240000,
+        'status'       => 'completed',
+        'note'         => 'Trông trẻ ngày thường.',
+        'created_at'   => Carbon::now()->subDays(4),
+      ],
     ];
 
     foreach ($bookings as $bData) {
@@ -127,6 +153,10 @@ class BookingSeeder extends Seeder
       ['booking_code' => 'BK-20260705-005', 'service_id' => 1, 'price' => 500000, 'duration_hours' => 4, 'quantity' => 1, 'service_order' => 1, 'note' => null],
       // Booking 6 — Sofa Cleaning (cancelled)
       ['booking_code' => 'BK-20260706-006', 'service_id' => 2, 'price' => 350000, 'duration_hours' => 2, 'quantity' => 1, 'service_order' => 1, 'note' => null],
+      // Booking 7 — Pet Grooming
+      ['booking_code' => 'BK-20260707-007', 'service_id' => 5, 'price' => 200000, 'duration_hours' => 2, 'quantity' => 1, 'service_order' => 1, 'note' => null],
+      // Booking 8 — Weekday Childcare
+      ['booking_code' => 'BK-20260708-008', 'service_id' => 6, 'price' => 120000, 'duration_hours' => 2, 'quantity' => 2, 'service_order' => 1, 'note' => null],
     ];
 
     foreach ($bookingServices as $bs) {
@@ -167,6 +197,14 @@ class BookingSeeder extends Seeder
       // Booking 6 — cancelled
       ['booking_code' => 'BK-20260706-006', 'old_status' => null,           'new_status' => 'pending',     'changed_by' => 4,  'note' => 'Khách hàng tạo đơn.'],
       ['booking_code' => 'BK-20260706-006', 'old_status' => 'pending',      'new_status' => 'cancelled',   'changed_by' => 4,  'note' => 'Khách hàng hủy đơn.'],
+      // Booking 7 — Pet Grooming
+      ['booking_code' => 'BK-20260707-007', 'old_status' => null,           'new_status' => 'pending',     'changed_by' => 15, 'note' => 'Khách hàng tạo đơn.'],
+      ['booking_code' => 'BK-20260707-007', 'old_status' => 'pending',      'new_status' => 'confirmed',   'changed_by' => 3,  'note' => 'Helper chấp nhận.'],
+      ['booking_code' => 'BK-20260707-007', 'old_status' => 'confirmed',    'new_status' => 'completed',   'changed_by' => 3,  'note' => 'Hoàn thành.'],
+      // Booking 8 — Weekday Childcare
+      ['booking_code' => 'BK-20260708-008', 'old_status' => null,           'new_status' => 'pending',     'changed_by' => 16, 'note' => 'Khách hàng tạo đơn.'],
+      ['booking_code' => 'BK-20260708-008', 'old_status' => 'pending',      'new_status' => 'confirmed',   'changed_by' => 10, 'note' => 'Helper chấp nhận.'],
+      ['booking_code' => 'BK-20260708-008', 'old_status' => 'confirmed',    'new_status' => 'completed',   'changed_by' => 10, 'note' => 'Hoàn thành.'],
     ];
 
     $dayOffset = 0;
@@ -190,6 +228,8 @@ class BookingSeeder extends Seeder
       ['booking_code' => 'BK-20260701-001', 'helper_id' => 3, 'status' => 'completed'],
       ['booking_code' => 'BK-20260702-002', 'helper_id' => 10, 'status' => 'completed'],
       ['booking_code' => 'BK-20260703-003', 'helper_id' => 11, 'status' => 'completed'],
+      ['booking_code' => 'BK-20260707-007', 'helper_id' => 3, 'status' => 'completed'],
+      ['booking_code' => 'BK-20260708-008', 'helper_id' => 10, 'status' => 'completed'],
     ];
 
     foreach ($workLogs as $idx => $wl) {

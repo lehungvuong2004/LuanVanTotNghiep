@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 export const Register = () => {
   const { formik, showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword, registerWithGoogle, loading, errorMessage } = useRegister();
   const { t } = useTranslation();
-  // console.log("error message : ",errorMessage);
   const imgRegister = () => (
     <div className="relative hidden md:block h-full">
       <img src={registerImage} alt="Register background" className="absolute inset-0 w-full h-full object-cover" />
@@ -53,7 +52,6 @@ export const Register = () => {
         )}
 
         <form className="space-y-4" onSubmit={formik.handleSubmit}>
-          {/* Full Name */}
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 dark:text-gray-200 block">{t("Họ và tên")}</label>
             <div className="relative">
@@ -75,7 +73,6 @@ export const Register = () => {
             {formik.touched.fullName && formik.errors.fullName && <p className="text-base text-red-500">{formik.errors.fullName as string}</p>}
           </div>
 
-          {/* Email */}
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 dark:text-gray-200 block">{t("Email")}</label>
             <div className="relative">
@@ -97,7 +94,6 @@ export const Register = () => {
             {formik.touched.email && formik.errors.email && <p className="text-base text-red-500">{formik.errors.email as string}</p>}
           </div>
 
-          {/* Phone */}
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 dark:text-gray-200 block">{t("Số điện thoại")}</label>
             <div className="relative">
@@ -119,7 +115,6 @@ export const Register = () => {
             {formik.touched.phone && formik.errors.phone && <p className="text-base text-red-500">{formik.errors.phone as string}</p>}
           </div>
 
-          {/* Password */}
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 dark:text-gray-200 block">{t("Mật khẩu")}</label>
             <div className="relative">
@@ -148,7 +143,6 @@ export const Register = () => {
             {formik.touched.password && formik.errors.password && <p className="text-base text-red-500">{formik.errors.password as string}</p>}
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-1.5">
             <label className="text-base font-bold text-gray-700 dark:text-gray-200 block">{t("Xác nhận mật khẩu")}</label>
             <div className="relative">
@@ -177,7 +171,6 @@ export const Register = () => {
             {formik.touched.confirmPassword && formik.errors.confirmPassword && <p className="text-base text-red-500">{formik.errors.confirmPassword as string}</p>}
           </div>
 
-          {/* Agree Terms Checkbox */}
           <div className="pt-1 pb-1">
             <label className="flex items-start gap-2.5 cursor-pointer group">
               <input
@@ -202,7 +195,6 @@ export const Register = () => {
             {formik.touched.agreeTerms && formik.errors.agreeTerms && <p className="text-base text-red-500 mt-1.5">{formik.errors.agreeTerms as string}</p>}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -219,14 +211,12 @@ export const Register = () => {
           </button>
         </form>
 
-        {/* Divider */}
         <div className="mt-6 mb-5 flex items-center">
           <div className="flex-1 border-t border-gray-200 dark:border-gray-600"></div>
           <span className="px-4 text-base font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-slate-800">{t("HOẶC")}</span>
           <div className="flex-1 border-t border-gray-200 dark:border-gray-600"></div>
         </div>
 
-        {/* Google Login */}
         <button
           type="button"
           onClick={() => registerWithGoogle()}
@@ -235,8 +225,6 @@ export const Register = () => {
           <Icon icon="logos:google-icon" className="w-4 h-4" />
           <span className="text-base">{t("Đăng ký với Google")}</span>
         </button>
-
-        {/* Login Link */}
         <div className="text-center text-base text-gray-600 dark:text-gray-400 mb-8">
           {t("Đã có tài khoản?")}{" "}
           <Link to="/dang-nhap" className="font-bold text-[#066d72] dark:text-teal-400 hover:text-[#055a5e] dark:hover:text-teal-300 hover:underline transition-all cursor-pointer">
@@ -244,7 +232,6 @@ export const Register = () => {
           </Link>
         </div>
 
-        {/* Info Message */}
         <div className="rounded-lg p-3.5 flex items-start gap-3 border border-amber-300/30 dark:border-amber-500/30 mx-auto max-w-85 bg-amber-300/10 dark:bg-amber-500/10">
           <Icon icon="mdi:information-outline" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-sm font-medium text-amber-900 dark:text-amber-300 leading-relaxed text-center">{t("Bạn có thể đăng ký trở thành người giúp việc sau khi tạo tài khoản.")}</p>

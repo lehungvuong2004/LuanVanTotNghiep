@@ -10,26 +10,11 @@ import type { Notification } from "../../api/notificationsApi/notifications";
 import { useToast } from "../../contexts/ToastContext";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { parseVietnamAddress } from "../../types/location";
+import { useAuth } from "../../hooks/useAuth";
 
 export interface Category {
   name: string;
 }
-
-// export interface ServiceDetail {
-//   name: string;
-//   price: string;
-//   desc: string;
-//   icon: string;
-// }
-
-// export interface FeaturedHelper {
-//   name: string;
-//   rating: number;
-//   exp: string;
-//   desc: string;
-//   area: string;
-//   avatar: string;
-// }
 
 export interface NewsItem {
   title: string;
@@ -46,19 +31,9 @@ export const useHeader = () => {
   const [isLocating, setIsLocating] = useState(false);
   const { getCurrentLocation, loading: geoLoading, error: geoError, address, addressDetails } = useGeolocation();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return !!localStorage.getItem("access_token");
-  });
+  const { isLoggedIn, user } = useAuth();
 
-  const [user, setUser] = useState<any>(() => {
-    const userStr = localStorage.getItem("user");
-    return userStr ? JSON.parse(userStr) : null;
-  });
-
-  const { logout: handleLogout } = useLogout(() => {
-    setIsLoggedIn(false);
-    setUser(null);
-  });
+  const { logout: handleLogout } = useLogout();
 
   const { showToast } = useToast();
 
@@ -88,10 +63,6 @@ export const useHeader = () => {
   }, [address, addressDetails, isLocating, showToast, t]);
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("access_token"));
-    const userStr = localStorage.getItem("user");
-    setUser(userStr ? JSON.parse(userStr) : null);
-
     const showLoginToast = sessionStorage.getItem("show_login_toast");
     if (showLoginToast === "true") {
       showToast("success", t("Thành công"), t("Đăng nhập thành công!"));
@@ -116,7 +87,7 @@ export const useHeader = () => {
 
   /** Tải trang đầu hoặc tải thêm (infinite scroll) */
   const fetchNotifications = useCallback(async (page = 1, replace = true) => {
-    if (!localStorage.getItem("access_token")) return;
+    if (!(localStorage.getItem("access_token") || sessionStorage.getItem("access_token"))) return;
     setNotifLoading(true);
     try {
       const res = await getNotifications({ limit: 20, page });
@@ -380,34 +351,6 @@ export const useHeader = () => {
   const isEn = i18n.language === "en";
 
   const chatUnreadCount = 0;
-
-  // const fetchChatUnreadCount = useCallback(async () => {
-  //   if (!localStorage.getItem("access_token")) {
-  //     setChatUnreadCount(0);
-  //     return;
-  //   }
-  //   try {
-  //     const { getConversations } = await import("../../api/messages");
-  //     const res = await getConversations();
-  //     const sum = res.data.reduce((total, c) => total + c.unread_count, 0);
-  //     setChatUnreadCount(sum);
-  //   } catch {
-  //     // silent on errors
-  //   }
-  // }, []);
-
-  // // Poll chat unread count every 10 seconds
-  // useEffect(() => {
-  //   const delayTimer = setTimeout(() => {
-  //     fetchChatUnreadCount();
-  //   }, 0);
-  //   const interval = setInterval(fetchChatUnreadCount, 10000);
-  //   return () => {
-  //     clearTimeout(delayTimer);
-  //     clearInterval(interval);
-  //   };
-  // }, [fetchChatUnreadCount]);
-
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

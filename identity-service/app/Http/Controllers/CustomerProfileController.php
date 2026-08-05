@@ -276,32 +276,48 @@ class CustomerProfileController extends Controller
    */
   public function getCustomerProfileStatusInternal(Request $request)
   {
-      $request->validate([
-          'user_id' => 'required|integer'
-      ]);
-      
-      $userId = $request->input('user_id');
-      
-      $user = \App\Models\User::find($userId);
-      if (!$user) {
-          return response()->json(['is_complete' => false, 'message' => 'Người dùng không tồn tại.'], Response::HTTP_NOT_FOUND);
-      }
-      
-      if (empty($user->phone)) {
-          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật số điện thoại liên hệ.'], Response::HTTP_OK);
-      }
-      
-      $profile = CustomerProfile::where('user_id', $userId)->first();
-      if (!$profile || empty($profile->gender) || empty($profile->birthday)) {
-          return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật giới tính và ngày sinh.'], Response::HTTP_OK);
-      }
-      
-      $hasAddress = CustomerAddress::where('customer_id', $profile->id)->exists();
-      if (!$hasAddress) {
-          return response()->json(['is_complete' => false, 'message' => 'Vui lòng thêm ít nhất một địa chỉ liên hệ.'], Response::HTTP_OK);
-      }
-      
-      return response()->json(['is_complete' => true], Response::HTTP_OK);
+    $request->validate([
+      'user_id' => 'required|integer'
+    ]);
+
+    $userId = $request->input('user_id');
+
+    $user = \App\Models\User::find($userId);
+    if (!$user) {
+      return response()->json(['is_complete' => false, 'message' => 'Người dùng không tồn tại.'], Response::HTTP_NOT_FOUND);
+    }
+
+    if (empty($user->phone)) {
+      return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật số điện thoại liên hệ.'], Response::HTTP_OK);
+    }
+
+    $profile = CustomerProfile::where('user_id', $userId)->first();
+    if (!$profile || empty($profile->gender) || empty($profile->birthday)) {
+      return response()->json(['is_complete' => false, 'message' => 'Vui lòng cập nhật giới tính và ngày sinh.'], Response::HTTP_OK);
+    }
+
+    $hasAddress = CustomerAddress::where('customer_id', $profile->id)->exists();
+    if (!$hasAddress) {
+      return response()->json(['is_complete' => false, 'message' => 'Vui lòng thêm ít nhất một địa chỉ liên hệ.'], Response::HTTP_OK);
+    }
+
+    return response()->json(['is_complete' => true], Response::HTTP_OK);
+  }
+
+  /**
+   * API nội bộ: Lấy danh sách địa chỉ dựa trên danh sách IDs.
+   */
+  public function getAddressesByIdsInternal(Request $request)
+  {
+    $request->validate([
+      'ids' => 'required|array',
+      'ids.*' => 'integer'
+    ]);
+
+    $ids = array_values($request->input('ids') ?? []);
+    $addresses = CustomerAddress::with(['city', 'district'])->whereIn('id', $ids)->get();
+
+    return $this->successResponse($addresses);
   }
 
   private function findCity($cityName)
@@ -318,11 +334,12 @@ class CustomerProfileController extends Controller
     $cities = City::all();
     foreach ($cities as $city) {
       $normalizedDb = str_replace(['.', ' ', '-', 'thànhphố', 'tp', 'tỉnh'], '', strtolower($city->name));
-      if ($normalizedDb === $normalizedInput || 
-          ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) || 
-          ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false) ||
-          ($normalizedDb === 'hcm' && $normalizedInput === 'hồchíminh') ||
-          ($normalizedDb === 'hồchíminh' && $normalizedInput === 'hcm')
+      if (
+        $normalizedDb === $normalizedInput ||
+        ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) ||
+        ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false) ||
+        ($normalizedDb === 'hcm' && $normalizedInput === 'hồchíminh') ||
+        ($normalizedDb === 'hồchíminh' && $normalizedInput === 'hcm')
       ) {
         return $city;
       }
@@ -342,45 +359,45 @@ class CustomerProfileController extends Controller
 
     // 2. Fetch and match using normalization
     $normalizedInput = str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố', 'xã', 'phường', 'thịtrấn'], '', strtolower($districtInput));
-    
+
     // Common commune/ward fallback mappings for HCMC to their respective districts
     $communeMap = [
-        'bìnhhưng' => 'bìnhchánh',
-        'phongphú' => 'bìnhchánh',
-        'vĩnhlộc' => 'bìnhchánh',
-        'hiệpphước' => 'nhàbè',
-        'phúxuân' => 'nhàbè',
-        'nhơnđức' => 'nhàbè',
-        'phướckiển' => 'nhàbè',
-        'phướclộc' => 'nhàbè',
-        'đakao' => 'quận1',
-        'bếnnghé' => 'quận1',
-        'bếnthành' => 'quận1',
-        'phạmngũlão' => 'quận1',
-        'nguyễncưtrinh' => 'quận1',
-        'nguyễntháibình' => 'quận1',
-        'cầukho' => 'quận1',
-        'cầuônglãnh' => 'quận1',
-        'côgiang' => 'quận1',
-        'tânđịnh' => 'quận1',
-        'thảođiền' => 'thủđức',
-        'cátlái' => 'thủđức',
-        'hiệpbìnhchánh' => 'thủđức',
-        'hiệpbìnhphước' => 'thủđức',
-        'linhđông' => 'thủđức',
-        'linhtây' => 'thủđức',
-        'linhchiểu' => 'thủđức',
-        'linhtrung' => 'thủđức',
-        'linhxuân' => 'thủđức',
-        'tambình' => 'thủđức',
-        'tamphú' => 'thủđức',
-        'trườngthọ' => 'thủđức',
-        'hiệpbình' => 'thủđức',
-        'anphú' => 'thủđức',
-        'longthạnhmỹ' => 'thủđức',
-        'longtrường' => 'thủđức',
-        'phướclong' => 'thủđức',
-        'hiệpphú' => 'thủđức',
+      'bìnhhưng' => 'bìnhchánh',
+      'phongphú' => 'bìnhchánh',
+      'vĩnhlộc' => 'bìnhchánh',
+      'hiệpphước' => 'nhàbè',
+      'phúxuân' => 'nhàbè',
+      'nhơnđức' => 'nhàbè',
+      'phướckiển' => 'nhàbè',
+      'phướclộc' => 'nhàbè',
+      'đakao' => 'quận1',
+      'bếnnghé' => 'quận1',
+      'bếnthành' => 'quận1',
+      'phạmngũlão' => 'quận1',
+      'nguyễncưtrinh' => 'quận1',
+      'nguyễntháibình' => 'quận1',
+      'cầukho' => 'quận1',
+      'cầuônglãnh' => 'quận1',
+      'côgiang' => 'quận1',
+      'tânđịnh' => 'quận1',
+      'thảođiền' => 'thủđức',
+      'cátlái' => 'thủđức',
+      'hiệpbìnhchánh' => 'thủđức',
+      'hiệpbìnhphước' => 'thủđức',
+      'linhđông' => 'thủđức',
+      'linhtây' => 'thủđức',
+      'linhchiểu' => 'thủđức',
+      'linhtrung' => 'thủđức',
+      'linhxuân' => 'thủđức',
+      'tambình' => 'thủđức',
+      'tamphú' => 'thủđức',
+      'trườngthọ' => 'thủđức',
+      'hiệpbình' => 'thủđức',
+      'anphú' => 'thủđức',
+      'longthạnhmỹ' => 'thủđức',
+      'longtrường' => 'thủđức',
+      'phướclong' => 'thủđức',
+      'hiệpphú' => 'thủđức',
     ];
 
     if (array_key_exists($normalizedInput, $communeMap)) {
@@ -390,17 +407,18 @@ class CustomerProfileController extends Controller
     $districts = District::where('city_id', $cityId)->get();
     foreach ($districts as $district) {
       $normalizedDb = str_replace(['.', ' ', '-', 'quận', 'huyện', 'thịxã', 'thànhphố', 'xã', 'phường', 'thịtrấn'], '', strtolower($district->name));
-      if ($normalizedDb === $normalizedInput || 
-          ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) || 
-          ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false)
+      if (
+        $normalizedDb === $normalizedInput ||
+        ($normalizedDb !== '' && strpos($normalizedInput, $normalizedDb) !== false) ||
+        ($normalizedInput !== '' && strpos($normalizedDb, $normalizedInput) !== false)
       ) {
         return $district;
       }
     }
 
     return District::create([
-        'city_id' => $cityId,
-        'name' => $districtInput
+      'city_id' => $cityId,
+      'name' => $districtInput
     ]);
   }
 }

@@ -218,7 +218,6 @@ export const useProfile = () => {
         const msg = t("Cập nhật thông tin cá nhân thành công.");
         showToast("success", t("Thành công"), msg);
       } catch (error: any) {
-        // console.error("Update profile failed:", error);
         const msg = error?.response?.data?.message || t("Cập nhật thông tin thất bại. Vui lòng thử lại.");
         showToast("error", t("Thất bại"), msg);
       } finally {
@@ -310,7 +309,6 @@ export const useProfile = () => {
         showToast("success", t("Thành công"), msg);
         resetForm();
       } catch (error: any) {
-        // console.error("Change password failed:", error);
         const msg = error?.response?.data?.message || t("Đổi mật khẩu thất bại. Vui lòng thử lại.");
         showToast("error", t("Thất bại"), msg);
       } finally {
@@ -349,14 +347,12 @@ export const useProfile = () => {
         }
 
         if (editingAddress) {
-          // Update address details
           await updateCustomerAddressApi(editingAddress.id, {
             address: values.address,
             district: values.district,
             city: values.city,
           });
 
-          // If is_default changed to true, trigger the default patch
           if (values.is_default && editingAddress.is_default === 0) {
             await setDefaultCustomerAddressApi(editingAddress.id);
           }
@@ -364,7 +360,6 @@ export const useProfile = () => {
           const msg = t("Cập nhật địa chỉ thành công.");
           showToast("success", t("Thành công"), msg);
         } else {
-          // Create new address
           await addCustomerAddressApi({
             address: values.address,
             district: values.district,
@@ -380,7 +375,6 @@ export const useProfile = () => {
         resetForm();
         await fetchAddresses();
       } catch (error: any) {
-        // console.error("Address operation failed:", error);
         const msg = error?.response?.data?.message || t("Lỗi thao tác địa chỉ. Vui lòng thử lại.");
         showToast("error", t("Thất bại"), msg);
       } finally {
@@ -418,7 +412,6 @@ export const useProfile = () => {
       showToast("success", t("Thành công"), msg);
       await fetchAddresses();
     } catch (err: any) {
-      // console.error("Failed to delete address:", err);
       const msg = err?.response?.data?.message || t("Xóa địa chỉ thất bại.");
       showToast("error", t("Thất bại"), msg);
     } finally {
@@ -435,7 +428,6 @@ export const useProfile = () => {
       showToast("success", t("Thành công"), msg);
       await fetchAddresses();
     } catch (err: any) {
-      // console.error("Failed to set default address:", err);
       const msg = err?.response?.data?.message || t("Đặt địa chỉ mặc định thất bại.");
       showToast("error", t("Thất bại"), msg);
     } finally {
@@ -451,7 +443,6 @@ export const useProfile = () => {
       showToast("success", t("Thành công"), msg);
       await fetchAllData();
     } catch (err: any) {
-      // console.error("Failed to submit verification:", err);
       const msg = err?.response?.data?.message || t("Nộp hồ sơ xét duyệt thất bại.");
       showToast("error", t("Thất bại"), msg);
     } finally {

@@ -150,7 +150,6 @@ export const useService = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize filter params from URL if present
   const [filterParams, setFilterParams] = useState<ServiceFilterParams>(() => {
     const searchVal = searchParams.get("search") || undefined;
     const districtVal = searchParams.get("district") || undefined;
@@ -178,7 +177,6 @@ export const useService = () => {
     };
   });
 
-  // Watch URL params (e.g. back button, direct navigation)
   useEffect(() => {
     const searchVal = searchParams.get("search") || undefined;
     const districtVal = searchParams.get("district") || undefined;

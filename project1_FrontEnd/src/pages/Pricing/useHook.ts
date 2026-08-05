@@ -1,26 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { formatNumberVI } from "../../utils";
 
-export interface PricingPackage {
-  name: string;
-  description: string;
-  hours: number;
-  pricePerHour: number;
-  price: number;
-  features: string[];
-}
-
-export interface PricingCategory {
-  id: string;
-  name?: string;
-  icon?: string;
-  packages: PricingPackage[];
-}
-
 export const usePricing = () => {
   const { t } = useTranslation();
 
-  const pricingCategories: PricingCategory[] = [
+  const pricingCategories = [
     {
       id: "cleaning",
       name: t("Dọn dẹp nhà cửa"),

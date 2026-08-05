@@ -101,6 +101,30 @@ class DatabaseSeeder extends Seeder
       ]
     );
 
+    $petGrooming = Service::updateOrCreate(
+      ['name' => 'Pet Grooming'],
+      [
+        'category_id' => $care->id,
+        'description' => 'Professional pet grooming and hygiene maintenance at home.',
+        'base_price'  => 200000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $childcare = Service::updateOrCreate(
+      ['name' => 'Weekday Childcare'],
+      [
+        'category_id' => $care->id,
+        'description' => 'Reliable child supervision and nursery support during weekdays.',
+        'base_price'  => 120000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
     // 3. Seed Helper Profiles (5 records)
     // helper1: user_id=3  (helper@gmail.com — Người giúp việc B)
     $helper1 = HelperProfile::updateOrCreate(
@@ -256,13 +280,15 @@ class DatabaseSeeder extends Seeder
     );
 
     // 6. Seed Helper Skills
-    // helper1: Dọn nhà sâu, Sofa
+    // helper1: Dọn nhà sâu, Sofa, Pet Grooming
     HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $deepCleaning->id], []);
     HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $sofaCleaning->id], []);
-
-    // helper2: Điều hòa, Chăm sóc người già
+    HelperSkill::updateOrCreate(['helper_id' => $helper1->id, 'service_id' => $petGrooming->id],    []);
+ 
+    // helper2: Điều hòa, Chăm sóc người già, Childcare
     HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $acRepair->id],    []);
     HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $elderlyCare->id], []);
+    HelperSkill::updateOrCreate(['helper_id' => $helper2->id, 'service_id' => $childcare->id],   []);
 
     // helper3: Chăm sóc người già, Dọn nhà sâu
     HelperSkill::updateOrCreate(['helper_id' => $helper3->id, 'service_id' => $elderlyCare->id], []);

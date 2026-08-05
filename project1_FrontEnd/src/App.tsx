@@ -63,17 +63,6 @@ function App() {
     if (searchParams.has("vnp_ResponseCode") && searchParams.has("vnp_TxnRef") && !window.location.pathname.includes("/thanh-toan/ket-qua")) {
       const hashQuery = searchParams.toString();
       window.location.href = `${window.location.origin}/thanh-toan/ket-qua?${hashQuery}`;
-      return;
-    }
-
-    const sessionActive = sessionStorage.getItem("session_active");
-    if (!sessionActive) {
-      const rememberMe = localStorage.getItem("remember_me");
-      if (rememberMe !== "true") {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user");
-      }
-      sessionStorage.setItem("session_active", "true");
     }
   }, []);
 
@@ -113,6 +102,7 @@ function App() {
               <Route path="services" element={<Services />} />
               <Route path="schedules" element={<Schedules />} />
               <Route path="bookings" element={<Booking />} />
+              <Route path="booking" element={<Booking />} />
               <Route path="job-posts" element={<ApplicationReview />} />
               <Route path="banners" element={<Banners />} />
               <Route path="news" element={<NewsAdmin />} />

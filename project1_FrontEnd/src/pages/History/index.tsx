@@ -52,10 +52,6 @@ export const HistoryPage = () => {
     markAsReported,
   } = useHistory();
 
-  // ── Review states ────────────────────────────────────────
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [reviewTargetBooking, setReviewTargetBooking] = useState<Booking | null>(null);
-
   // ── Recruitment hook (job postings) ──────────────────────
   const {
     myJobPosts,
@@ -93,6 +89,9 @@ export const HistoryPage = () => {
   const [isReporting, setIsReporting] = useState(false);
   const { showToast } = useToast();
 
+  // ── Review states ────────────────────────────────────────
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewTargetBooking, setReviewTargetBooking] = useState<Booking | null>(null);
   const handleOpenReportModal = (booking: Booking) => {
     setReportBooking(booking);
     setReportReason("");
@@ -793,7 +792,7 @@ export const HistoryPage = () => {
                   <span className="text-xs font-extrabold text-slate-450 dark:text-slate-500">#{post.id}</span>
                   {isExpired ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
-                      🔴 {t("Đã hết hạn")}
+                      {t("Đã hết hạn")}
                     </span>
                   ) : isClosed ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">

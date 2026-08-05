@@ -151,7 +151,7 @@ export const News = () => {
         </div>
 
         {/* Pagination */}
-        <Pagination currentPage={currentPage} totalItems={total} itemsPerPage={9} onPageChange={fetchNews} />
+        <Pagination currentPage={currentPage} totalItems={total} itemsPerPage={10} onPageChange={fetchNews} />
       </div>
     );
   };

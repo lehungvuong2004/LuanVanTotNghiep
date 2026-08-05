@@ -14,7 +14,6 @@ export const Pricing = () => {
       const id = location.hash.replace("#", "");
       const element = document.getElementById(id);
       if (element) {
-        // Delay slightly for smooth rendering layout setup
         const timer = setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 100);
@@ -29,7 +28,6 @@ export const Pricing = () => {
     </div>
   );
 
-  // 3. RENDER PRICING TABLES (stacked vertically for each category)
   const renderPricingTables = () => {
     return (
       <div className="flex flex-col gap-12">
@@ -66,7 +64,6 @@ export const Pricing = () => {
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-750">
                   {category.packages.map((pkg, idx) => (
                     <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-200">
-                      {/* Service Name & Description */}
                       <td className="px-6 py-6 border-r last:border-r-0 border-slate-200 dark:border-slate-750 w-60">
                         <div className="flex flex-col gap-1.5">
                           <span className="font-extrabold text-slate-800 dark:text-white text-base">{pkg.name}</span>
@@ -74,7 +71,6 @@ export const Pricing = () => {
                         </div>
                       </td>
 
-                      {/* Duration */}
                       <td className="px-6 py-6 border-r last:border-r-0 border-slate-200 dark:border-slate-750 whitespace-nowrap">
                         <span className="inline-flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/40 text-[#026E5F] dark:text-teal-400 text-base font-bold px-3 py-2 rounded-full border border-teal-105/50 dark:border-teal-900/30">
                           <Icon icon="material-symbols:schedule-outline" className="text-base" />
@@ -82,17 +78,13 @@ export const Pricing = () => {
                         </span>
                       </td>
 
-                      {/* Hourly Rate */}
                       <td className="px-6 py-6 border-r last:border-r-0 border-slate-200 dark:border-slate-750 whitespace-nowrap text-base font-semibold text-slate-700 dark:text-slate-350">
                         {formatCurrency(pkg.pricePerHour)} <span className="text-base font-normal text-slate-450">/ {t("giờ")}</span>
                       </td>
-
-                      {/* Fixed Total Price */}
                       <td className="px-6 py-6 border-r last:border-r-0 border-slate-200 dark:border-slate-750 whitespace-nowrap">
                         <span className="text-base font-black text-[#026E5F] dark:text-teal-455">{formatCurrency(pkg.price)}</span>
                       </td>
 
-                      {/* Work Features */}
                       <td className="px-6 py-6 border-r last:border-r-0 border-slate-200 dark:border-slate-750">
                         <div className="flex flex-wrap gap-1.5 max-w-xs">
                           {pkg.features.map((feat, fIdx) => (
@@ -114,7 +106,6 @@ export const Pricing = () => {
           </div>
         ))}
 
-        {/* Single CTA Button block */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-750 mt-4">
           <div className="flex flex-col gap-1">
             <h4 className="font-bold text-slate-850 dark:text-white text-base">{t("Bạn đã chọn được gói dịch vụ ưng ý?")}</h4>

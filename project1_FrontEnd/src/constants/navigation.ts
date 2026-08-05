@@ -10,6 +10,7 @@ export const NAV_ITEMS = {
     { name: "Quản lý Dịch vụ", path: "/admin/services", icon: "grommet-icons:services", permission: "services.view" }, // có
     { name: "Quản lý Danh mục Phân loại", path: "/admin/categories", icon: "boxicons:categories", permission: "categories.view" }, // có
     { name: "Quản lý Thanh toán", path: "/admin/payments", icon: "material-symbols:payments-outline-rounded", permission: "payments.view" }, // cps
+    { name: "Quản lý Đơn đặt lịch", path: "/admin/booking", icon: "material-symbols:calendar-month-outline-rounded", permission: "bookings.view" },
     { name: "Quản lý Hoàn tiền", path: "/admin/refunds", icon: "material-symbols:undo-rounded", permission: "refunds.view" }, // có
     { name: "Quản lý Đánh giá", path: "/admin/reviews", icon: "material-symbols:rate-review-outline-rounded", permission: "reviews.view" }, // có
     { name: "Quản lý Bài đăng Tuyển dụng", path: "/admin/job-posts", icon: "material-symbols:post-add-rounded", permission: "job_posts.view" }, // có

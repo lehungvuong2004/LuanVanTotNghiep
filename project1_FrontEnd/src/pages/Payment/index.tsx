@@ -51,8 +51,6 @@ export const Payment = () => {
 
   const paymentMethodLabel = payment?.payment_method ? (PAYMENT_METHODS.find((m) => m.value === payment.payment_method)?.label ?? payment.payment_method) : "—";
 
-  // ─── Render Sub-Sections ──────────────────────────────────────────────────
-
   const renderHeader = () => {
     return (
       <div className="bg-linear-to-r from-[#066d72] to-[#0a9ea6] text-white">
@@ -97,7 +95,6 @@ export const Payment = () => {
           </button>
         </div>
 
-        {/* Create payment */}
         <button
           onClick={handleCreateOpen}
           className="flex items-center justify-center gap-2 px-5 py-3 bg-[#066d72] hover:bg-[#055a5f] text-white font-semibold text-sm rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer shrink-0"
@@ -113,7 +110,6 @@ export const Payment = () => {
     if (!payment) return null;
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
-        {/* Card header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center">
@@ -247,7 +243,6 @@ export const Payment = () => {
             </button>
           </div>
           <div className="px-6 py-5 overflow-y-auto max-h-[75vh] space-y-4">
-            {/* Method selector */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 {t("Phương thức thanh toán")} <span className="text-red-500">*</span>
@@ -289,7 +284,6 @@ export const Payment = () => {
               />
             </div>
 
-            {/* Booking / Job post */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{t("Mã đặt lịch")}</label>
@@ -528,8 +522,6 @@ export const Payment = () => {
       </div>
     );
   };
-
-  // ─── Main Render ──────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-teal-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/20">

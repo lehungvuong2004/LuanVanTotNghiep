@@ -57,9 +57,6 @@ export const Footer = () => {
         {t("Về Chúng Tôi")}
       </h3>
       <div className="flex flex-col gap-3 mt-2">
-        {/* <Link to="/about" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
-          {t("Giới thiệu Gia Đình Việt")}
-        </Link> */}
         <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-300 hover:translate-x-1 inline-block text-sm transition-all duration-300">
           {t("Cam kết chất lượng")}
         </Link>

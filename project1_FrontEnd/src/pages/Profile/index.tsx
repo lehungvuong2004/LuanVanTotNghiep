@@ -1259,7 +1259,6 @@ export const Profile = () => {
       );
     }
 
-    // rejected or inactive/pending-submit
     return (
       <div className="bg-slate-50/50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-6 flex flex-col gap-5 shadow-xs">
         <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -1282,7 +1281,6 @@ export const Profile = () => {
           </div>
         </div>
 
-        {/* Requirements status checklist */}
         <div className="bg-white dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4">
           <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">{t("Danh sách điều kiện cần hoàn thiện:")}</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -1321,7 +1319,6 @@ export const Profile = () => {
           </div>
         </div>
 
-        {/* Action Button */}
         <div className="flex justify-end">
           <button
             type="button"
@@ -1337,25 +1334,19 @@ export const Profile = () => {
     );
   };
 
-  // MAIN PAGE LAYOUT (GRID STRUCTURE)
   return (
     <div className="w-full min-h-screen transition-colors duration-300 py-8 md:px-16">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
-        {/* Page Header */}
         {renderHeader()}
 
-        {/* Status Messages */}
         {renderAlerts()}
 
-        {/* 12-column Grid Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Navigation Panel (4 Columns) */}
           <div className="lg:col-span-4 flex flex-col gap-6">
             {renderProfileCard()}
             {renderSidebarNavigation()}
           </div>
 
-          {/* Right Main Content (8 Columns) */}
           <div className="lg:col-span-8 flex flex-col gap-6">
             {userProfile?.role_id === ROLES.HELPER && renderHelperVerificationWidget()}
             {activeTab === "info" && renderProfileInfoTab()}
@@ -1365,8 +1356,6 @@ export const Profile = () => {
           </div>
         </div>
       </div>
-
-      {/* Address Book Modal Portal Overlay */}
       {renderAddressModal()}
     </div>
   );

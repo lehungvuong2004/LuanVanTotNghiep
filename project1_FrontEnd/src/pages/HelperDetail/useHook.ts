@@ -49,7 +49,7 @@ export const useHelperDetail = () => {
       try {
         const res = await getHelperPublic(Number(id));
         setHelper(res.data);
-      } catch (err) {
+      } catch {
         // console.error("Failed to fetch helper:", err);
       } finally {
         setLoading(false);
@@ -66,7 +66,7 @@ export const useHelperDetail = () => {
         const res = await getHelperReviewsPublic(Number(id), params);
         setReviewData(res);
         setReviews(res.data?.data ?? []);
-      } catch (err) {
+      } catch {
         // console.error("Failed to fetch reviews:", err);
       }
     };

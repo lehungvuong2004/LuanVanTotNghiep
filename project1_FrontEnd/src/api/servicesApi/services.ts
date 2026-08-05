@@ -23,6 +23,8 @@ export interface Service {
   helpers_count?: number;
   total_reviews?: number;
   avg_rating?: number;
+  unique_users_count?: number;
+  booking_count?: number;
 }
 export interface AdminServicesResponse {
   data: {
@@ -261,3 +263,10 @@ export const getServiceHelpersApi = async (id: number, params?: GetServiceHelper
   const response = await axiosInstance.get<ServiceHelpersResponse>(`/providers/services/${id}/helpers`, { params });
   return response.data;
 };
+
+// Lấy danh sách dịch vụ phổ biến nhất (do khách hàng sử dụng nhiều nhất)
+export const getPopularServicesAdmin = async (): Promise<Service[]> => {
+  const response = await axiosInstance.get<{ data: Service[] }>("/providers/admin/services/popular");
+  return response.data.data;
+};
+

@@ -79,6 +79,6 @@ export const getBookingDetailAdminApi = (id: number | string) => {
 };
 
 // Admin cập nhật trạng thái booking manually
-export const updateBookingStatusAdminApi = (id: number | string, data: { new_status: string; note?: string }) => {
+export const updateBookingStatusAdminApi = (id: number | string, data: { status: string; note?: string }) => {
   return axiosInstance.patch(`/orders/admin/bookings/${id}/status`, data);
 };

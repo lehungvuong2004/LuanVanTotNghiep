@@ -368,19 +368,16 @@ export const useTermsOfService = () => {
 
   const activeContent = i18n.language === "en" ? contentEn : contentVi;
 
-  // Track active section on scroll
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200;
 
-      // Check intro
       const introElement = document.getElementById("intro");
       if (introElement && scrollPosition >= introElement.offsetTop && scrollPosition < introElement.offsetTop + introElement.offsetHeight) {
         setActiveSection("intro");
         return;
       }
 
-      // Check others
       for (const sec of activeContent.sections) {
         const el = document.getElementById(sec.id);
         if (el) {

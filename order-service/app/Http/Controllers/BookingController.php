@@ -656,9 +656,29 @@ class BookingController extends Controller
       }
     }
 
+    $addressIds  = collect($bookings->items())->pluck('address_id')->filter()->unique()->toArray();
+    $addressMap  = [];
+
+    if (!empty($addressIds)) {
+      try {
+        $response = Http::timeout(3)
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/addresses/by-ids', ['ids' => array_values($addressIds)]);
+
+        if ($response->successful()) {
+          $addresses = $response->json('data') ?? [];
+          foreach ($addresses as $a) {
+            $addressMap[$a['id']] = $a;
+          }
+        }
+      } catch (\Exception $e) {
+        Log::error('Không thể lấy thông tin địa chỉ cho adminIndex bookings: ' . $e->getMessage());
+      }
+    }
+
     foreach ($bookings->items() as $b) {
       $b->customer = $userMap[$b->customer_id] ?? null;
       $b->helper   = $userMap[$b->helper_id] ?? null;
+      $b->address_details = $addressMap[$b->address_id] ?? null;
     }
 
     return $this->successResponse($bookings);
@@ -677,6 +697,41 @@ class BookingController extends Controller
     if (!$booking) {
       return $this->notFoundResponse('Không tìm thấy đơn đặt lịch.');
     }
+
+    // Resolve customer and helper details
+    $userIds = array_filter([$booking->customer_id, $booking->helper_id]);
+    $userMap = [];
+    if (!empty($userIds)) {
+      try {
+        $response = Http::timeout(3)
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/users/by-ids', ['ids' => array_values($userIds)]);
+        if ($response->successful()) {
+          foreach ($response->json('data') ?? [] as $u) {
+            $userMap[$u['id']] = $u;
+          }
+        }
+      } catch (\Exception $e) {
+        Log::error('Không thể lấy thông tin chi tiết người dùng cho adminShow booking: ' . $e->getMessage());
+      }
+    }
+
+    // Resolve address details
+    $addressDetails = null;
+    if ($booking->address_id) {
+      try {
+        $response = Http::timeout(3)
+          ->post(env('IDENTITY_SERVICE_URL', 'http://identity-service:8000') . '/api/internal/addresses/by-ids', ['ids' => [$booking->address_id]]);
+        if ($response->successful() && !empty($response->json('data'))) {
+          $addressDetails = $response->json('data')[0];
+        }
+      } catch (\Exception $e) {
+        Log::error('Không thể lấy thông tin địa chỉ cho adminShow booking: ' . $e->getMessage());
+      }
+    }
+
+    $booking->customer = $userMap[$booking->customer_id] ?? null;
+    $booking->helper   = $booking->helper_id ? ($userMap[$booking->helper_id] ?? null) : null;
+    $booking->address_details = $addressDetails;
 
     return $this->successResponse($booking);
   }
@@ -1109,5 +1164,16 @@ class BookingController extends Controller
     }
 
     return $this->successResponse($result);
+  }
+  // Lấy số lượt sử dụng dịch vụ
+  public function serviceUsageStats(Request $request)
+  {
+    $stats = BookingService::select('booking_services.service_id')
+      ->selectRaw('COUNT(DISTINCT bookings.customer_id) as unique_users_count')
+      ->selectRaw('COUNT(*) as booking_count')
+      ->join('bookings', 'booking_services.booking_id', '=', 'bookings.id')
+      ->groupBy('booking_services.service_id')
+      ->get();
+    return $this->successResponse($stats);
   }
 }

@@ -170,13 +170,11 @@ export const useRecruitment = () => {
     fetchData();
   }, []);
 
-  // Real-time Socket.IO for new job posts
   useEffect(() => {
     const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:8005";
     const socket = io(socketUrl);
 
     socket.on("connect", () => {
-      // console.log("Recruitment page socket connected");
       const userStr = localStorage.getItem("user");
       if (userStr) {
         const user = JSON.parse(userStr);
@@ -185,7 +183,6 @@ export const useRecruitment = () => {
     });
 
     socket.on("new_job_post", (newJob: JobPost) => {
-      // console.log("Received real-time job post:", newJob);
       setAllJobs((prev) => {
         if (prev.some((j) => j.id === newJob.id)) return prev;
         return [newJob, ...prev];
@@ -282,7 +279,6 @@ export const useRecruitment = () => {
     let displayDescription = job.description || "";
 
     if (job.description) {
-      // Extract Category Tag
       const catMatch = displayDescription.match(/^\[Danh mục:\s*([^\]]+)\]\s*/);
       if (catMatch) {
         customCategory = catMatch[1];
@@ -303,7 +299,6 @@ export const useRecruitment = () => {
     const catName = customCategory || matchedCat?.name || "Khác";
     const categoryIcon = matchedCat?.icon || "material-symbols:work-outline";
 
-    // Dynamic color matching based on category_id
     let categoryColor = "text-teal-500";
     if (job.category_id) {
       const colors = ["text-amber-500", "text-violet-500", "text-sky-500", "text-emerald-500", "text-rose-500"];
@@ -436,7 +431,6 @@ export const useRecruitment = () => {
       const res = await getApplicationsApi(jobPost.id);
       const apps: Applicant[] = res.data || [];
 
-      // Fetch helper profiles for each applicant (skills, experience, rating)
       const enriched = await Promise.all(
         apps.map(async (app) => {
           try {
@@ -529,7 +523,6 @@ export const useRecruitment = () => {
         showToast("success", t("Cập nhật thành công"), t("Bài đăng tuyển dụng đã được cập nhật thành công."));
         closeEditJobPost();
         fetchMyJobPosts();
-        // Refresh browse page jobs
         const jobRes = await getJobPostsApi({ limit: 1000 });
         setAllJobs(jobRes.data.data || []);
       } catch (err: any) {
@@ -570,14 +563,11 @@ export const useRecruitment = () => {
 
     applyJob,
     appliedJobIds,
-    // Tab switching
     activeTab,
     setActiveTab,
-    // Customer: My posts
     myJobPosts,
     myPostsLoading,
     fetchMyJobPosts,
-    // Customer: Applications modal
     selectedJobPost,
     applicants,
     applicantsLoading,
@@ -587,13 +577,11 @@ export const useRecruitment = () => {
     acceptHelper,
     rejectHelper,
     deleteJobPost,
-    // Customer: Edit job post
     editingJobPost,
     isEditModalOpen,
     openEditJobPost,
     closeEditJobPost,
     updateJobPost,
-    // Helper profile
     helperProfile,
     helperProfileLoading,
     showHelperProfile,

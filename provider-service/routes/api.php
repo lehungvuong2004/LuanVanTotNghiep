@@ -135,6 +135,8 @@ Route::prefix('providers')->group(function () {
       Route::delete('service-categories/{id}', [ServiceController::class, 'deleteCategory'])->middleware('permission:categories.delete');
 
       // Services (Quản lý Dịch vụ con chi tiết)
+      // Lấy danh sách dịch vụ phổ biến nhất (phổ dụng theo người dùng)
+      Route::get('services/popular',  [ServiceController::class, 'popularServices'])->middleware('permission:services.view');
       // Admin lấy danh sách phân trang các dịch vụ con chi tiết
       Route::get('services',          [ServiceController::class, 'adminListServices'])->middleware('permission:services.view');
       // Tạo mới một dịch vụ chi tiết (tên dọn dẹp, mô tả, đơn giá, thời lượng)
