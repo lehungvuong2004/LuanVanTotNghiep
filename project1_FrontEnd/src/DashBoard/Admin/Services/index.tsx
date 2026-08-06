@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import ReactECharts from "echarts-for-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { Pagination } from "../../../components/Pagination";
 import { useServicesAdmin } from "./useHook";
@@ -9,6 +10,7 @@ import Toggle from "../../../components/Toggle";
 import ImageUpload from "../../../components/ImageUpload";
 import { uploadServiceImageAdmin } from "../../../api/servicesApi/services";
 import { CustomSelect } from "../../../components/CustomSelect";
+const ECHARTS_STYLE = { height: "100%", width: "100%" };
 
 export const Services = () => {
   const { hasPermission } = useAuth();
@@ -22,8 +24,6 @@ export const Services = () => {
     services,
     categories,
     popularServices,
-    popularLoading,
-    fetchPopularServices,
     totalItems,
     loading,
     searchQuery,
@@ -35,6 +35,7 @@ export const Services = () => {
     isModalOpen,
     modalMode,
     PRICE_TYPE_LABELS,
+    barOption,
     openAddModal,
     openEditModal,
     closeModal,
@@ -44,7 +45,6 @@ export const Services = () => {
   } = useServicesAdmin();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [activeTab, setActiveTab] = useState<"list" | "popularity">("list");
 
   const toggleSelectOne = (id: number) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -136,10 +136,7 @@ export const Services = () => {
         <CustomSelect
           value={categoryFilter}
           onChange={(val) => setCategoryFilter(val)}
-          options={[
-            { value: "all", label: "Tất cả danh mục" },
-            ...categories.map((c) => ({ value: c.id, label: c.name })),
-          ]}
+          options={[{ value: "all", label: "Tất cả danh mục" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
           className="min-w-50"
         />
       </div>
@@ -304,37 +301,24 @@ export const Services = () => {
     );
   };
 
-  const renderTabs = () => (
-    <div className="flex border-b border-slate-200 dark:border-slate-700/85">
-      <button
-        onClick={() => setActiveTab("list")}
-        className={`px-5 py-3 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-          activeTab === "list"
-            ? "border-cyan-805 text-cyan-900 dark:text-cyan-400 font-bold"
-            : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-        }`}
-      >
-        <Icon icon="material-symbols:list-alt-outline-rounded" className="text-lg" />
-        Dịch vụ hệ thống
-      </button>
-      <button
-        onClick={() => {
-          setActiveTab("popularity");
-          fetchPopularServices();
-        }}
-        className={`px-5 py-3 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-          activeTab === "popularity"
-            ? "border-cyan-805 text-cyan-900 dark:text-cyan-400 font-bold"
-            : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-        }`}
-      >
-        <Icon icon="material-symbols:leaderboard-outline-rounded" className="text-lg" />
-        Mức độ phổ biến (Bảng xếp hạng)
-      </button>
-    </div>
-  );
+  const renderPopularityChart = () => {
+    return (
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex flex-col justify-between h-full">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Top 7 Dịch Vụ Được Yêu Thích Nhất</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Xếp hạng theo số lượt đặt trực tuyến và số khách hàng sử dụng</p>
+          </div>
+          <span className="text-xxs px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 font-semibold uppercase">Biểu đồ ECharts</span>
+        </div>
+        <div className="h-100 w-full">
+          <ReactECharts option={barOption} style={ECHARTS_STYLE} />
+        </div>
+      </div>
+    );
+  };
 
-  const renderPopularityStats = () => {
+  const renderPopularityStatsStack = () => {
     const topService = popularServices[0];
     const totalBookingsCount = popularServices.reduce((sum, s) => sum + (s.booking_count || 0), 0);
     const servicesWithCustomers = popularServices.filter((s) => (s.unique_users_count || 0) > 0).length;
@@ -365,140 +349,21 @@ export const Services = () => {
     ];
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="flex flex-col gap-4 h-full">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4">
+          <div key={s.label} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs flex items-center gap-4 flex-1">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${s.color}`}>
               <Icon icon={s.icon} />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{s.label}</p>
-              <p className="font-extrabold text-base mt-1 text-slate-850 dark:text-slate-100 truncate max-w-50" title={s.value}>{s.value}</p>
+              <p className="font-black text-2xl mt-0.5 text-slate-800 dark:text-slate-100 truncate" title={s.value}>
+                {s.value}
+              </p>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{s.subText}</p>
             </div>
           </div>
         ))}
-      </div>
-    );
-  };
-
-  const renderPopularityTable = () => {
-    if (popularLoading) {
-      return (
-        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs">
-          <div className="w-12 h-12 border-4 border-cyan-900 border-t-transparent rounded-full animate-spin" />
-          <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Đang phân tích mức độ phổ biến...</p>
-        </div>
-      );
-    }
-
-    const filtered = popularServices.filter((s) => {
-      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === "all" || s.category_id === Number(categoryFilter);
-      return matchesSearch && matchesCategory;
-    });
-
-    if (filtered.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs text-center">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy kết quả phù hợp</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Điều chỉnh bộ lọc tìm kiếm để xem các thống kê khác.</p>
-        </div>
-      );
-    }
-
-    const maxUniqueUsers = Math.max(...popularServices.map((s) => s.unique_users_count || 1), 1);
-
-    return (
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-700/50">
-                <th className="text-center px-4 py-3.5 w-16 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hạng</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Dịch Vụ</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Danh Mục</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-64">Phổ Dụng (Người Dùng)</th>
-                <th className="text-center px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số Lượt Đặt</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
-              {filtered.map((item, index) => {
-                const category = item.category;
-                const rank = index + 1;
-
-                let rankView = <span className="font-bold text-slate-550 dark:text-slate-400">{rank}</span>;
-                if (rank === 1) {
-                  rankView = (
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 font-extrabold text-sm shadow-xs border border-amber-200 dark:border-amber-900/30">
-                      1
-                    </span>
-                  );
-                } else if (rank === 2) {
-                  rankView = (
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700/50 text-slate-650 dark:text-slate-300 font-extrabold text-sm shadow-xs border border-slate-200 dark:border-slate-800">
-                      2
-                    </span>
-                  );
-                } else if (rank === 3) {
-                  rankView = (
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-extrabold text-sm shadow-xs border border-orange-200 dark:border-orange-900/30">
-                      3
-                    </span>
-                  );
-                }
-
-                const usagePct = Math.round(((item.unique_users_count || 0) / maxUniqueUsers) * 100);
-
-                return (
-                  <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
-                    <td className="px-4 py-4 text-center">{rankView}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-lg shrink-0">
-                          {category?.icon ? <Icon icon={category.icon} /> : <Icon icon="material-symbols:home-repair-service-outline-rounded" />}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
-                          <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-50">{item.description || "Chưa có mô tả chi tiết"}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      {category ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
-                          {category.icon && <Icon icon={category.icon} className="text-base" />}
-                          {category.name}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-semibold">
-                          <span className="text-slate-700 dark:text-slate-300">{item.unique_users_count || 0} khách hàng</span>
-                          <span className="text-slate-400">{usagePct}%</span>
-                        </div>
-                        <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-cyan-850 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${usagePct}%` }}
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-center">
-                      <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30">
-                        {item.booking_count || 0} lượt đặt
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
       </div>
     );
   };
@@ -645,10 +510,17 @@ export const Services = () => {
   return (
     <div className="p-6 space-y-6 mx-auto min-h-screen text-slate-800 w-full dark:text-slate-100 transition-colors duration-200">
       {renderHeader()}
-      {renderTabs()}
-      {activeTab === "list" ? renderStats() : renderPopularityStats()}
+      {renderStats()}
+
+      {/* Top dashboard section: vertical bar chart (col-span-8) and stats stack (col-span-4) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-8">{renderPopularityChart()}</div>
+        <div className="lg:col-span-4">{renderPopularityStatsStack()}</div>
+      </div>
+
       {renderFilters()}
-      {activeTab === "list" && permissions.delete && selectedIds.length > 0 && (
+
+      {permissions.delete && selectedIds.length > 0 && (
         <div className="my-2">
           <BulkDeleteBar
             selectedIds={selectedIds}
@@ -660,7 +532,8 @@ export const Services = () => {
           />
         </div>
       )}
-      {activeTab === "list" ? renderTable() : renderPopularityTable()}
+
+      {renderTable()}
       {renderModal()}
     </div>
   );

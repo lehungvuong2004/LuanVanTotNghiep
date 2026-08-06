@@ -48,11 +48,11 @@ class DatabaseSeeder extends Seeder
 
     // Seed Admin Account (role_id = 1)
     User::updateOrCreate(
-      ['email' => 'admin@gmail.com'],
+      ['email' => 'adminvuong@gmail.com'],
       [
         'id' => 1,
         'role_id' => 1,
-        'full_name' => 'Quản trị viên',
+        'full_name' => 'Adminvuong',
         'phone' => $adminPhone,
         'password' => Hash::make($adminPass),
         'status' => 'active',
@@ -61,11 +61,11 @@ class DatabaseSeeder extends Seeder
 
     // Seed Operator Account (role_id = 2)
     User::updateOrCreate(
-      ['email' => 'operator@gmail.com'],
+      ['email' => 'operatorvuong@gmail.com'],
       [
         'id' => 2,
         'role_id' => 2,
-        'full_name' => 'Nhân viên vận hành C',
+        'full_name' => 'Operatorvuong',
         'phone' => $operatorPhone,
         'password' => Hash::make($operatorPass),
         'status' => 'active',

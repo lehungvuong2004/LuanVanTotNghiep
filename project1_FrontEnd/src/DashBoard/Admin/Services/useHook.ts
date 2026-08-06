@@ -1,9 +1,10 @@
 import { useToast } from "../../../contexts/ToastContext";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useFormik } from "formik";
 import type { Service, ServiceCategory } from "../../../api/servicesApi/services";
 import { getServicesAdmin, createServiceAdmin, updateServiceAdmin, deleteServiceAdmin, getCategoriesAdmin, getPopularServicesAdmin } from "../../../api/servicesApi/services";
 import { getServiceValidationSchema } from "../../../api/servicesApi/validation";
+import { getRootFontSizePx } from "../../../utils";
 
 export const useServicesAdmin = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -205,6 +206,79 @@ export const useServicesAdmin = () => {
     },
   };
 
+  const rem = getRootFontSizePx();
+
+  const barOption = useMemo(() => {
+    const filtered = popularServices.filter((s) => {
+      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === "all" || s.category_id === Number(categoryFilter);
+      return matchesSearch && matchesCategory;
+    });
+
+    const top7 = filtered.slice(0, 7);
+    const serviceNames = top7.map((item) => item.name);
+    const bookingCounts = top7.map((item) => item.booking_count || 0);
+    const userCounts = top7.map((item) => item.unique_users_count || 0);
+
+    return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+      },
+      legend: {
+        data: ["Số lượt đặt", "Khách hàng sử dụng"],
+        textStyle: { color: "#64748b", fontSize: 0.75 * rem },
+        itemWidth: 1.5 * rem,
+        itemHeight: 0.8 * rem,
+      },
+      grid: {
+        left: 2 * rem,
+        right: 1 * rem,
+        bottom: 2.5 * rem,
+        top: 2.5 * rem,
+        containLabel: true,
+      },
+      xAxis: {
+        type: "category",
+        data: serviceNames,
+        axisLabel: {
+          color: "#64748b",
+          fontFamily: "Inter, sans-serif",
+          fontSize: 0.625 * rem,
+          rotate: 15,
+          interval: 0,
+        },
+      },
+      yAxis: {
+        type: "value",
+        axisLabel: { color: "#64748b", fontSize: 0.625 * rem },
+        splitLine: { lineStyle: { type: "dashed", color: "#e2e8f0" } },
+      },
+      series: [
+        {
+          name: "Số lượt đặt",
+          type: "bar",
+          data: bookingCounts,
+          itemStyle: {
+            color: "#0891b2",
+            borderRadius: [0.25 * rem, 0.25 * rem, 0, 0],
+          },
+          barGap: "20%",
+          barCategoryGap: "30%",
+        },
+        {
+          name: "Khách hàng sử dụng",
+          type: "bar",
+          data: userCounts,
+          itemStyle: {
+            color: "#6366f1",
+            borderRadius: [0.25 * rem, 0.25 * rem, 0, 0],
+          },
+        },
+      ],
+    };
+  }, [popularServices, searchQuery, categoryFilter, rem]);
+
   return {
     services: filteredServices,
     categories,
@@ -212,6 +286,7 @@ export const useServicesAdmin = () => {
     popularLoading,
     fetchPopularServices,
     PRICE_TYPE_LABELS,
+    barOption,
     totalItems,
     loading,
     searchQuery,

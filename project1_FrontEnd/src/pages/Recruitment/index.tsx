@@ -57,9 +57,10 @@ export const Recruitment = () => {
               e.stopPropagation();
               clearFilters();
             }}
-            className="text-xs font-semibold text-[#026E5F] dark:text-teal-400 hover:underline cursor-pointer"
+            className="flex items-center gap-1 text-sm font-bold text-[#026E5F] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-all duration-300 cursor-pointer"
           >
-            {t("Xóa tất cả")}
+            <Icon icon="material-symbols:restart-alt-rounded" className="text-lg" />
+            <span>{t("Xóa tất cả")}</span>
           </button>
         </div>
 
@@ -243,7 +244,7 @@ export const Recruitment = () => {
           />
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:block font-medium whitespace-nowrap">
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-305 hidden sm:block whitespace-nowrap">
             {totalItems} {t("kết quả")}
           </span>
           <CustomSelect

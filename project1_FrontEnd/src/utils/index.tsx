@@ -238,8 +238,8 @@ export const getStatusBadge = (status: string, type?: BadgeType) => {
       pulse = true;
     } else if (s === "suspended") {
       text = "Tạm ngưng";
-      bgCls = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/30";
-      dotCls = "bg-slate-400";
+      bgCls = "bg-rose-50 dark:bg-rose-955/20 text-rose-600 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30";
+      dotCls = "bg-rose-500";
     } else {
       text = "Từ chối";
       bgCls = "bg-rose-50 dark:bg-rose-955/20 text-rose-600 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30";

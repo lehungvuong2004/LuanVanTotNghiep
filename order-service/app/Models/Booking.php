@@ -23,6 +23,20 @@ class Booking extends Model
     'created_at',
   ];
 
+  protected $appends = ['job_post_id'];
+
+  public function getJobPostIdAttribute()
+  {
+    if (preg_match('/\[Bài tuyển dụng:\s*([^\]]+)\]/', $this->note ?? '', $matches)) {
+      $jobTitle = trim($matches[1]);
+      $jobPost = \App\Models\JobPost::where('title', $jobTitle)
+        ->where('customer_id', $this->customer_id)
+        ->first();
+      return $jobPost ? $jobPost->id : null;
+    }
+    return null;
+  }
+
 
   public static function hasConflict(int $helperId, string $date, string $startTime, int|float $durationHours, ?int $excludeBookingId = null): bool
   {

@@ -130,8 +130,8 @@ export const NewsDetail = () => {
   );
 
   return (
-    <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pt-16 pb-16">
-      <div className="grid grid-cols-12 gap-10 mt-6">
+    <div className="dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pt-6 md:pt-12 pb-16">
+      <div className="grid grid-cols-12 gap-10 mt-4 md:mt-6">
         <article className="col-span-12 lg:col-span-8 flex flex-col">
           {renderBreadcrumb()}
           {renderHeader()}

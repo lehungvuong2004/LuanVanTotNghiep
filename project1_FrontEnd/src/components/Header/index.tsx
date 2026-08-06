@@ -129,14 +129,10 @@ export const Header = () => {
                   <Icon icon="bitcoin-icons:menu-outline" className="text-3xl" /> {t("Danh Mục")}
                 </div>
 
-                {/* Submenu Dropdown */}
                 <div className="absolute top-full left-0 w-max max-w-7xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50">
                   <div className="bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border-b-2 border-slate-100 dark:border-slate-700/50 overflow-hidden text-slate-800 dark:text-slate-100 p-5 flex gap-5 h-144">
-                    {/* Left Sidebar */}
                     <div className="w-56 shrink-0 flex flex-col gap-3 pr-4 border-r border-slate-100 dark:border-slate-700/50">
-                      {/* Service Categories (Scrollable) */}
                       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-                        {/* Top 4 Navigation Links */}
                         {navLinks.map((navLink) => (
                           <Link
                             key={navLink.name}
@@ -169,7 +165,6 @@ export const Header = () => {
                         })}
                       </div>
 
-                      {/* Links Below */}
                       <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 flex flex-col gap-1">
                         {bottomLinks.map((link) => (
                           <Link
@@ -183,9 +178,7 @@ export const Header = () => {
                       </div>
                     </div>
 
-                    {/* Right Content Area */}
                     <div className="flex-1 flex flex-col gap-4 min-w-140">
-                      {/* Search bar inside submenu */}
                       <div className="relative">
                         <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
                         <input
@@ -196,7 +189,6 @@ export const Header = () => {
                       </div>
 
                       <div className="flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 flex flex-col gap-4">
-                        {/* Active Category detail */}
                         {categoryDetails[activeCategory] && (
                           <div>
                             <div className="flex justify-between items-end mb-2">
@@ -420,7 +412,7 @@ export const Header = () => {
 
               {/* Avatar / Login */}
               {isLoggedIn ? (
-                <div className="relative flex items-center cursor-pointer">
+                <div key="mobile-user-logged-in" className="relative flex items-center cursor-pointer">
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
@@ -507,6 +499,7 @@ export const Header = () => {
                 </div>
               ) : (
                 <Link
+                  key="mobile-user-logged-out"
                   to="/dang-nhap"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold text-white bg-white/10 hover:bg-white/20 whitespace-nowrap transition-all duration-200"
                 >
@@ -727,7 +720,7 @@ export const Header = () => {
                   </div>
                 </div>
                 {isLoggedIn ? (
-                  <div className="relative group h-full flex items-center cursor-pointer">
+                  <div key="header-user-logged-in" className="relative group h-full flex items-center cursor-pointer">
                     <div className="border-2 border-white/50 hover:border-white rounded-full p-0.5 transition-all duration-300 flex items-center justify-center cursor-pointer">
                       {user?.avatar ? (
                         <img src={user.avatar} alt="User Avatar" className="w-9 h-9 rounded-full object-cover" />
@@ -798,7 +791,7 @@ export const Header = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div key="header-user-logged-out" className="flex items-center gap-2 shrink-0">
                     <Link
                       to="/dang-nhap"
                       className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white border border-white/40 hover:bg-white/15 whitespace-nowrap transition-all duration-200 shrink-0"
@@ -808,10 +801,12 @@ export const Header = () => {
                     </Link>
                     <Link
                       to="/dang-ky"
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-white text-teal-700 hover:bg-teal-50 shadow-sm whitespace-nowrap transition-all duration-200 shrink-0"
+                      className="group flex items-center justify-center w-9 hover:w-28 h-9 rounded-full text-sm font-semibold bg-white text-teal-700 hover:bg-teal-50 shadow-sm transition-all duration-300 shrink-0"
                     >
                       <Icon icon="lucide:user-plus" className="text-base shrink-0" />
-                      <span className="whitespace-nowrap">{t("Đăng ký")}</span>
+                      <span className="max-w-0 opacity-0 group-hover:max-w-20 group-hover:opacity-100 group-hover:ml-1.5 transition-all duration-300 ease-out overflow-hidden inline-block align-middle whitespace-nowrap">
+                        {t("Đăng ký")}
+                      </span>
                     </Link>
                   </div>
                 )}

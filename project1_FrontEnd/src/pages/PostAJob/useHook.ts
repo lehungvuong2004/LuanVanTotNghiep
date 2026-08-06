@@ -75,6 +75,7 @@ export interface PostAJobFormValues {
   district: string;
   city: string;
   jobDescription: string;
+  workingDuration: string;
 }
 
 export const usePostAJobHook = () => {
@@ -129,9 +130,15 @@ export const usePostAJobHook = () => {
       jobDescription: (() => {
         if (!prefilledPost) return "";
         let cleanDesc = prefilledPost.description || "";
+        cleanDesc = cleanDesc.replace(/^\[Thời lượng:\s*[^\]]+\]\s*/, "");
         cleanDesc = cleanDesc.replace(/^\[Danh mục:\s*[^\]]+\]\s*/, "");
         cleanDesc = cleanDesc.replace(/^\[Dịch vụ:\s*[^\]]+\]\s*/, "");
         return cleanDesc;
+      })(),
+      workingDuration: (() => {
+        if (!prefilledPost) return "2";
+        const durMatch = prefilledPost.description?.match(/^\[Thời lượng:\s*(\d+)/);
+        return durMatch ? durMatch[1] : "2";
       })(),
     },
     validationSchema,
@@ -149,7 +156,6 @@ export const usePostAJobHook = () => {
       setIsLoading(true);
       setErrorMsg("");
       try {
-        // Save new address to customer profile if needed
         if (isNewAddress) {
           const isDuplicate = addresses.some(
             (item) =>
@@ -170,11 +176,10 @@ export const usePostAJobHook = () => {
               is_default: addresses.length === 0,
             });
           } catch {
-            // Error logged if needed
+            // 
           }
         }
 
-        // Ghép ngày + giờ tách biệt thành chuỗi ISO để gửi API và tính urgency
         const derivedWorkingTime = values.workingDate && values.workingTimeOnly ? `${values.workingDate}T${values.workingTimeOnly}` : values.workingTime;
         const derivedExpirationDate = values.expirationDateOnly && values.expirationTimeOnly ? `${values.expirationDateOnly}T${values.expirationTimeOnly}` : values.expirationDate;
 
@@ -185,6 +190,7 @@ export const usePostAJobHook = () => {
 
         const isCustom = values.serviceCategory === "other";
         let prefix = "";
+        prefix += `[Thời lượng: ${values.workingDuration} giờ]\n`;
         if (isCustom) prefix += `[Danh mục: ${values.customCategory}]\n`;
         if (values.customServices.trim()) prefix += `[Dịch vụ: ${values.customServices.trim()}]\n`;
         const finalDescription = prefix ? `${prefix}\n${values.jobDescription}` : values.jobDescription;
@@ -254,7 +260,7 @@ export const usePostAJobHook = () => {
       }
     };
     fetchData();
-    // missing dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddressChange = (idStr: string) => {
@@ -276,9 +282,9 @@ export const usePostAJobHook = () => {
       }
     }
   };
-
-  // Derived urgency from currently entered dates (reactive)
-  const computedUrgency = getUrgencyFromDates(formik.values.workingTime, formik.values.expirationDate);
+  const derivedWorkingTime = formik.values.workingDate && formik.values.workingTimeOnly ? `${formik.values.workingDate}T${formik.values.workingTimeOnly}` : "";
+  const derivedExpirationDate = formik.values.expirationDateOnly && formik.values.expirationTimeOnly ? `${formik.values.expirationDateOnly}T${formik.values.expirationTimeOnly}` : "";
+  const computedUrgency = getUrgencyFromDates(derivedWorkingTime, derivedExpirationDate);
 
   const handlePreSubmit = (e: any) => {
     const currentUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;

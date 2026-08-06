@@ -139,12 +139,18 @@ export const HelperOverview = () => {
       </div>
       <div className="mt-4 space-y-3.5 border-t border-slate-100 dark:border-slate-700 pt-4 text-xl">
         <div className="flex justify-between items-center">
-          <span className="text-slate-500 font-semibold">Đặt lịch trực tiếp:</span>
+          <div className="flex flex-col">
+            <span className="text-slate-500 font-semibold">Đặt lịch trực tiếp</span>
+            <span className="text-xs text-slate-450 dark:text-slate-550 mt-0.5">(Thu nhập đã khấu trừ 20% hoa hồng vận hành)</span>
+          </div>
           <span className="font-bold text-emerald-650">{formatNumberVI(earnings.booking_income)} ₫</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-slate-500 font-semibold">Bài đăng tuyển dụng:</span>
-          <span className="font-bold text-violet-650">{formatNumberVI(earnings.job_post_income)} ₫</span>
+          <div className="flex flex-col">
+            <span className="text-slate-500 font-semibold">Bài đăng tuyển dụng</span>
+            <span className="text-xs text-slate-455 dark:text-slate-550 mt-0.5">(Thu nhập đã khấu trừ 10% hoa hồng kết nối)</span>
+          </div>
+          <span className="font-bold text-violet-600">{formatNumberVI(earnings.job_post_income)} ₫</span>
         </div>
       </div>
     </div>

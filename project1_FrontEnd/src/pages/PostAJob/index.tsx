@@ -106,7 +106,6 @@ export const PostAJob = () => {
               {formik.touched.customServices && formik.errors.customServices && <p className="text-red-500 text-sm mt-1">{formik.errors.customServices}</p>}
             </div>
 
-            {/* Thời gian làm việc (ngày bắt đầu) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
@@ -160,18 +159,37 @@ export const PostAJob = () => {
                     onBlur={formik.handleBlur}
                   />
                 </div>
-                {/* Ngày hết hạn bắt buộc nhập */}
                 {(formik.touched.expirationDateOnly || formik.submitCount > 0) && formik.errors.expirationDateOnly && <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDateOnly}</p>}
-                {/* Giờ hết hạn bắt buộc nhập */}
                 {(formik.touched.expirationTimeOnly || formik.submitCount > 0) && formik.errors.expirationTimeOnly && <p className="text-red-500 text-sm mt-1">{formik.errors.expirationTimeOnly}</p>}
-                {/* Hết hạn phải sau thời gian làm việc */}
                 {(formik.touched.expirationDateOnly || formik.touched.expirationTimeOnly || formik.submitCount > 0) && formik.errors.expirationDate && (
                   <p className="text-red-500 text-sm mt-1">{formik.errors.expirationDate}</p>
                 )}
               </div>
             </div>
 
-            {/* Computed urgency badge + salary preview */}
+            <div>
+              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-1.5 text-sm">
+                {t("Thời lượng làm việc")} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  name="workingDuration"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-1 focus:ring-[#0d5c63] dark:focus:ring-teal-500 focus:border-[#0d5c63] outline-none transition-all appearance-none bg-white cursor-pointer"
+                  value={formik.values.workingDuration}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
+                  <option value="2">2 {t("giờ")}</option>
+                  <option value="4">4 {t("giờ")}</option>
+                  <option value="6">6 {t("giờ")}</option>
+                  <option value="8">8 {t("giờ")}</option>
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-gray-400">
+                  <Icon icon="mdi:chevron-down" className="w-5 h-5" />
+                </div>
+              </div>
+            </div>
+
             {(computedUrgency || formik.values.salary) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {computedUrgency && (
@@ -195,8 +213,6 @@ export const PostAJob = () => {
             )}
           </div>
         </div>
-
-        {/* Địa điểm làm việc */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-[#0d5c63] dark:text-teal-400 flex items-center gap-2 mb-6">
             <Icon icon="mdi:map-marker-outline" className="w-5 h-5" />
@@ -225,8 +241,6 @@ export const PostAJob = () => {
               </div>
             </div>
           )}
-
-          {/* Geolocation Autocomplete Button */}
           {isNewAddress && (
             <div className="mb-5">
               <button
@@ -297,7 +311,6 @@ export const PostAJob = () => {
           </div>
         </div>
 
-        {/* Mô tả công việc */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-[#0d5c63] dark:text-teal-400 flex items-center gap-2 mb-6">
             <Icon icon="mdi:file-document-outline" className="w-5 h-5" />
@@ -331,8 +344,6 @@ export const PostAJob = () => {
             )}
           </div>
         )}
-
-        {/* Actions */}
         <div className="flex justify-center md:justify-end gap-4 mt-8">
           <button
             type="button"
@@ -360,7 +371,6 @@ export const PostAJob = () => {
       </form>
     </div>
   );
-
   const renderInformationForm = () => (
     <div className=" w-full sticky top-6">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:shadow-none dark:border dark:border-gray-700 overflow-hidden mb-5">
@@ -398,6 +408,12 @@ export const PostAJob = () => {
             <div className="flex items-center gap-3">
               <Icon icon="mdi:clock-outline" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
               <span className="truncate">{formatWorkingTime(formik.values.workingTime, t) || t("job.working_time")}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Icon icon="mdi:timer-sand" className="w-5 h-5 text-[#0d5c63] dark:text-teal-400 shrink-0" />
+              <span className="truncate">
+                {t("Thời lượng:")} {formik.values.workingDuration} {t("giờ")}
+              </span>
             </div>
             {formik.values.expirationDate && (
               <div className="flex items-center gap-3">

@@ -10,7 +10,7 @@ class NewsSeeder extends Seeder
 {
   public function run(): void
   {
-    $adminId = DB::table('users')->where('email', 'admin@gmail.com')->value('id');
+    $adminId = DB::table('users')->where('email', 'adminvuong@gmail.com')->value('id');
 
     $articles = [
       [

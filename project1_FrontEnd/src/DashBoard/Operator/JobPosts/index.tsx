@@ -56,7 +56,7 @@ export const ApplicationReview = () => {
     const configs: Record<string, { label: string; bg: string; text: string; icon: string }> = {
       pending: { label: "Chờ duyệt", bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-650 dark:text-amber-400", icon: "material-symbols:hourglass-empty-rounded" },
       open: { label: "Hoạt động", bg: "bg-emerald-50 dark:bg-emerald-950/20", text: "text-emerald-600 dark:text-emerald-400", icon: "material-symbols:check-circle-outline-rounded" },
-      closed: { label: "Đã đóng", bg: "bg-slate-100 dark:bg-slate-900/40", text: "text-slate-600 dark:text-slate-400", icon: "material-symbols:cancel-presentation-outline" },
+      closed: { label: "Đã đóng", bg: "bg-rose-50 dark:bg-rose-955/20", text: "text-rose-600 dark:text-rose-400", icon: "material-symbols:cancel-presentation-outline" },
       rejected: { label: "Bị từ chối", bg: "bg-rose-50 dark:bg-rose-955/20", text: "text-rose-600 dark:text-rose-400", icon: "material-symbols:block-outline-rounded" },
     };
 

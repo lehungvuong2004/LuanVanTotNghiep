@@ -31,6 +31,7 @@ export const usePaymentsHook = () => {
 
   const [liveStats, setLiveStats] = useState<{
     total_revenue: number;
+    total_sales: number;
     this_month_revenue: number;
     last_month_revenue: number;
     change_percent: number;

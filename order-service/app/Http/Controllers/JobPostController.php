@@ -372,8 +372,13 @@ class JobPostController extends Controller
       if ($parsedTime !== false) {
         $bookingDate = date('Y-m-d', $parsedTime);
         $startTime = date('H:i:s', $parsedTime);
-        $servicesCount = $post->services()->count();
-        $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+        $durationHours = 2;
+        if (preg_match('/\[Thời lượng:\s*(\d+)/u', $post->description ?? '', $matches)) {
+          $durationHours = (int) $matches[1];
+        } else {
+          $servicesCount = $post->services()->count();
+          $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+        }
 
         if (Booking::hasConflict((int) $helperId, $bookingDate, $startTime, (float) $durationHours)) {
           return $this->errorResponse('Người giúp việc này hiện đang bận hoặc đã có lịch làm việc khác trùng thời gian này.');
@@ -431,8 +436,13 @@ class JobPostController extends Controller
         if ($parsedTime !== false) {
           $bookingDate = date('Y-m-d', $parsedTime);
           $startTime = date('H:i:s', $parsedTime);
-          $servicesCount = $post->services()->count();
-          $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+          $durationHours = 2;
+          if (preg_match('/\[Thời lượng:\s*(\d+)/u', $post->description ?? '', $matches)) {
+            $durationHours = (int) $matches[1];
+          } else {
+            $servicesCount = $post->services()->count();
+            $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+          }
 
           if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
             return $this->errorResponse('Bạn không thể nhận việc này do trùng lịch với một công việc khác.');
@@ -474,6 +484,11 @@ class JobPostController extends Controller
         'refund_status' => 'none',
       ]);
 
+      $duration = 2;
+      if (preg_match('/\[Thời lượng:\s*(\d+)/u', $post->description ?? '', $matches)) {
+        $duration = (int) $matches[1];
+      }
+
       $postServices = JobPostService::where('job_post_id', $post->id)->get();
       if ($postServices->count() > 0) {
         foreach ($postServices as $index => $ps) {
@@ -481,11 +496,20 @@ class JobPostController extends Controller
             'booking_id'     => $booking->id,
             'service_id'     => $ps->service_id,
             'price'          => ($post->salary ?? 0) / $postServices->count(),
-            'duration_hours' => 2,
+            'duration_hours' => $duration,
             'quantity'       => 1,
             'service_order'  => $index + 1,
           ]);
         }
+      } else {
+        BookingService::create([
+          'booking_id'     => $booking->id,
+          'service_id'     => 0,
+          'price'          => $post->salary ?? 0,
+          'duration_hours' => $duration,
+          'quantity'       => 1,
+          'service_order'  => 1,
+        ]);
       }
 
       InternalNotificationService::sendToUser(
@@ -674,8 +698,13 @@ class JobPostController extends Controller
       if ($parsedTime !== false) {
         $bookingDate = date('Y-m-d', $parsedTime);
         $startTime = date('H:i:s', $parsedTime);
-        $servicesCount = $post->services()->count();
-        $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+        $durationHours = 2;
+        if (preg_match('/\[Thời lượng:\s*(\d+)/u', $post->description ?? '', $matches)) {
+          $durationHours = (int) $matches[1];
+        } else {
+          $servicesCount = $post->services()->count();
+          $durationHours = $servicesCount > 0 ? $servicesCount * 2 : 2;
+        }
 
         if (Booking::hasConflict((int) $request->authUser['id'], $bookingDate, $startTime, (float) $durationHours)) {
           return $this->errorResponse('Bạn không thể ứng tuyển do trùng ngày giờ hoặc đang trong lịch làm việc ca khác.');

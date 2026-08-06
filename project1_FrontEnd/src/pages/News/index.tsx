@@ -79,9 +79,9 @@ export const News = () => {
                 <Link
                   key={item.id}
                   to={`/tin-tuc/${item.slug}`}
-                  className="group grid grid-cols-1 md:grid-cols-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 md:col-span-2 lg:col-span-3 lg:h-96"
+                  className="group grid grid-cols-1 md:grid-cols-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 md:col-span-2 lg:col-span-3 md:h-80 lg:h-96"
                 >
-                  <div className="lg:col-span-7 h-60 lg:h-full overflow-hidden bg-slate-100 dark:bg-slate-900">
+                  <div className="md:col-span-7 h-60 md:h-full overflow-hidden bg-slate-100 dark:bg-slate-900">
                     {item.thumbnail ? (
                       <img src={getImageUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
@@ -90,7 +90,7 @@ export const News = () => {
                       </div>
                     )}
                   </div>
-                  <div className="lg:col-span-5 p-6 md:p-8 flex flex-col justify-center lg:h-full">
+                  <div className="md:col-span-5 p-6 md:p-8 flex flex-col justify-center md:h-full">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-extrabold px-3 py-1 rounded-md uppercase tracking-wider">
                         {t("Nổi bật")}

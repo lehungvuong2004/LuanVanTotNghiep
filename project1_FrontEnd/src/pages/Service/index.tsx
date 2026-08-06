@@ -76,9 +76,10 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, r
             e.stopPropagation();
             onReset();
           }}
-          className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline cursor-pointer"
+          className="flex items-center gap-1 text-sm font-bold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors cursor-pointer"
         >
-          {t("Xóa bộ lọc")}
+          <Icon icon="material-symbols:restart-alt-rounded" className="text-lg" />
+          <span>{t("Xóa bộ lọc")}</span>
         </button>
       </div>
 
@@ -233,7 +234,7 @@ const ServiceList = ({ t, services, loading, sortBy, onSortChange, onNavigateSer
       {/* Sort bar */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/50 p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
         <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto shrink-0 z-20">
-          <span className="text-xs text-slate-500 dark:text-slate-400">{t("Hiển thị {{count}} dịch vụ", { count: services.length })}</span>
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("Hiển thị {{count}} dịch vụ", { count: services.length })}</span>
           <div className="w-44">
             <CustomSelect
               value={sortBy}

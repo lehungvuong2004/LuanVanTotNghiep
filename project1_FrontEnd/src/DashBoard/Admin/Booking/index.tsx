@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useBooking } from "./useHook";
 import type { BookingItem } from "./useHook";
 import { Pagination } from "../../../components/Pagination";
+import { Loading } from "../../../components/Commom";
 
 import { formatNumberVI, fmtVND } from "../../../utils";
 import { exportToExcel } from "../../../utils/excelExporter";
@@ -13,6 +14,7 @@ import { useToast } from "../../../contexts/ToastContext";
 export const Booking = () => {
   const { showToast } = useToast();
   const {
+    isLoading,
     helperList,
     searchQuery,
     setSearchQuery,
@@ -251,7 +253,7 @@ export const Booking = () => {
     <div className="overflow-x-auto w-full">
       <div className="min-w-250">
         {/* Grid Header */}
-        <div className="grid grid-cols-13 gap-4 items-center bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider py-4 px-5">
+        <div className="grid grid-cols-14 gap-4 items-center bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider py-4 px-5">
           <div className="col-span-1 text-center">
             <input
               type="checkbox"
@@ -272,7 +274,7 @@ export const Booking = () => {
           <div className="col-span-1">Tổng tiền</div>
           <div className="col-span-1">Thanh toán</div>
           <div className="col-span-1">Trạng thái</div>
-          <div className="col-span-1 text-right">Thao tác</div>
+          <div className="col-span-2 text-right">Thao tác</div>
         </div>
 
         {/* Grid Body */}
@@ -284,7 +286,7 @@ export const Booking = () => {
             return (
               <div
                 key={booking.id}
-                className={`grid grid-cols-13 gap-4 items-center hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors py-4 px-5 text-sm text-slate-750 dark:text-slate-200 ${
+                className={`grid grid-cols-14 gap-4 items-center hover:bg-slate-50/50 dark:hover:bg-slate-750/30 transition-colors py-4 px-5 text-sm text-slate-750 dark:text-slate-200 ${
                   isSelected ? "bg-red-50/20 dark:bg-red-950/10" : ""
                 }`}
               >
@@ -357,7 +359,7 @@ export const Booking = () => {
                       booking.status === "completed"
                         ? "bg-emerald-100/80 dark:bg-emerald-950/40 text-emerald-850 dark:text-emerald-300"
                         : booking.status === "confirmed"
-                          ? "bg-blue-105/90 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
+                          ? "bg-blue-100/80 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
                           : booking.status === "cancelled"
                             ? "bg-red-100/80 dark:bg-red-950/40 text-red-850 dark:text-red-300"
                             : "bg-amber-100/80 dark:bg-amber-950/40 text-amber-850 dark:text-amber-300"
@@ -379,9 +381,8 @@ export const Booking = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="col-span-1 text-right">
+                <div className="col-span-2 text-right">
                   <div className="flex items-center justify-end gap-1">
-                    {/* Quick Approve button if pending */}
                     {booking.status === "pending" && (
                       <button
                         onClick={() => handleQuickStatusChange(booking.id, "confirmed")}
@@ -979,7 +980,13 @@ export const Booking = () => {
               <BulkDeleteBar selectedIds={selectedIds} totalCount={paginatedBookings.length} onToggleAll={toggleSelectAll} onDeleteSelected={handleBulkDelete} onClear={clearSelection} />
             </div>
           )}
-          {renderTable()}
+          {isLoading ? (
+            <div className="py-20 flex justify-center items-center">
+              <Loading />
+            </div>
+          ) : (
+            renderTable()
+          )}
 
           {/* Pagination */}
           <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-750">

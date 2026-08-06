@@ -28,6 +28,7 @@ class PaymentController extends Controller
     $roleId = $request->authUser['role_id'] ?? null;
     $bookingIds = [];
     $jobPostIds = [];
+    $bookingsData = [];
 
     // 1. Fetch customer's or helper's booking IDs
     try {
@@ -87,8 +88,30 @@ class PaymentController extends Controller
 
     $payments = $query->orderByDesc('created_at')->paginate($limit);
 
+    $bookingStatusMap = [];
+    if (is_array($bookingsData)) {
+      foreach ($bookingsData as $b) {
+        if (isset($b['id']) && isset($b['status'])) {
+          $bookingStatusMap[$b['id']] = $b['status'];
+        }
+      }
+    }
+
     foreach ($payments->items() as $payment) {
       $payment->user = $request->authUser;
+
+      // Auto-reconciliation self-healing check
+      if ($payment->status === 'completed' && $payment->booking_id) {
+        $bStatus = $bookingStatusMap[$payment->booking_id] ?? null;
+        if ($bStatus === 'pending') {
+          try {
+            $this->syncPaymentStatusWithOrderService($payment);
+            Log::info("Self-healing: Resynced completed payment ID {$payment->id} for booking ID {$payment->booking_id}");
+          } catch (\Exception $syncEx) {
+            Log::error("Self-healing failed for payment ID {$payment->id}: " . $syncEx->getMessage());
+          }
+        }
+      }
     }
 
     return $this->successResponse($payments);
@@ -123,9 +146,16 @@ class PaymentController extends Controller
       return $this->errorResponse('Thanh toán phải gắn liền với một đơn đặt lịch hoặc một tin tuyển dụng.', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    $jobPostId = $fields['job_post_id'] ?? null;
+    $bookingId = $fields['booking_id'] ?? null;
+
+    if ($bookingId && !$jobPostId) {
+      $jobPostId = $this->getJobPostIdFromBooking($request, $bookingId);
+    }
+
     $payment = Payment::create([
-      'booking_id'       => $fields['booking_id'] ?? null,
-      'job_post_id'      => $fields['job_post_id'] ?? null,
+      'booking_id'       => $bookingId,
+      'job_post_id'      => $jobPostId,
       'payment_method'   => $fields['payment_method'],
       'transaction_code' => 'TXN-' . strtoupper(Str::random(10)),
       'amount'           => $fields['amount'],
@@ -271,19 +301,20 @@ class PaymentController extends Controller
       return $unauthorized;
     }
 
-    $totalRevenue = Payment::where('status', 'completed')->sum('amount');
+    $totalRevenue = Payment::where('status', 'completed')->sum('commission_amount');
+    $totalSales = Payment::where('status', 'completed')->sum('gross_amount');
 
     $thisMonth = now()->startOfMonth();
     $lastMonth = now()->subMonth()->startOfMonth();
 
     $thisMonthRevenue = Payment::where('status', 'completed')
       ->where('paid_at', '>=', $thisMonth)
-      ->sum('amount');
+      ->sum('commission_amount');
 
     $lastMonthRevenue = Payment::where('status', 'completed')
       ->where('paid_at', '>=', $lastMonth)
       ->where('paid_at', '<', $thisMonth)
-      ->sum('amount');
+      ->sum('commission_amount');
 
     $changePercent = 0;
     if ($lastMonthRevenue > 0) {
@@ -294,6 +325,7 @@ class PaymentController extends Controller
 
     return $this->successResponse([
       'total_revenue'      => (float) $totalRevenue,
+      'total_sales'        => (float) $totalSales,
       'this_month_revenue' => (float) $thisMonthRevenue,
       'last_month_revenue' => (float) $lastMonthRevenue,
       'change_percent'     => round($changePercent, 1)
@@ -328,9 +360,16 @@ class PaymentController extends Controller
       return $this->errorResponse('Thanh toán phải gắn liền với một đơn đặt lịch hoặc một tin tuyển dụng.', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    $jobPostId = $fields['job_post_id'] ?? null;
+    $bookingId = $fields['booking_id'] ?? null;
+
+    if ($bookingId && !$jobPostId) {
+      $jobPostId = $this->getJobPostIdFromBooking($request, $bookingId);
+    }
+
     $payment = Payment::create([
-      'booking_id'       => $fields['booking_id']  ?? null,
-      'job_post_id'      => $fields['job_post_id'] ?? null,
+      'booking_id'       => $bookingId,
+      'job_post_id'      => $jobPostId,
       'payment_method'   => 'vnpay',
       'transaction_code' => 'VNP-' . strtoupper(Str::random(8)),
       'amount'           => $fields['amount'],
@@ -477,6 +516,14 @@ class PaymentController extends Controller
     }
 
     if ($payment->status !== 'pending') {
+      if ($payment->status === 'completed') {
+        try {
+          $this->syncPaymentStatusWithOrderService($payment);
+        } catch (\Exception $e) {
+          Log::warning('VNPay IPN: retry sync failed: ' . $e->getMessage());
+          return response()->json(['RspCode' => '99', 'Message' => 'Sync failed, retry later'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+      }
       return response()->json(['RspCode' => '02', 'Message' => 'Order already confirmed'], Response::HTTP_OK);
     }
 
@@ -652,28 +699,26 @@ class PaymentController extends Controller
     $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
 
     if ($payment->booking_id) {
-      try {
-        Http::timeout(3)
-          ->post($orderUrl . '/api/orders/internal/bookings/update-payment-status', [
-            'booking_id'     => $payment->booking_id,
-            'status'         => $payment->status,
-            'payment_method' => $payment->payment_method,
-          ]);
-      } catch (\Exception $e) {
-        Log::error('Không thể đồng bộ trạng thái thanh toán đơn đặt lịch: ' . $e->getMessage());
+      $response = Http::timeout(3)
+        ->post($orderUrl . '/api/orders/internal/bookings/update-payment-status', [
+          'booking_id'     => $payment->booking_id,
+          'status'         => $payment->status,
+          'payment_method' => $payment->payment_method,
+        ]);
+      if (!$response->successful()) {
+        throw new \Exception('Không thể đồng bộ trạng thái thanh toán đơn đặt lịch: HTTP ' . $response->status());
       }
     }
 
     if ($payment->job_post_id) {
-      try {
-        Http::timeout(3)
-          ->post($orderUrl . '/api/orders/internal/job-posts/update-payment-status', [
-            'job_post_id'    => $payment->job_post_id,
-            'status'         => $payment->status,
-            'payment_method' => $payment->payment_method,
-          ]);
-      } catch (\Exception $e) {
-        Log::error('Không thể đồng bộ trạng thái thanh toán tin tuyển dụng: ' . $e->getMessage());
+      $response = Http::timeout(3)
+        ->post($orderUrl . '/api/orders/internal/job-posts/update-payment-status', [
+          'job_post_id'    => $payment->job_post_id,
+          'status'         => $payment->status,
+          'payment_method' => $payment->payment_method,
+        ]);
+      if (!$response->successful()) {
+        throw new \Exception('Không thể đồng bộ trạng thái thanh toán tin tuyển dụng: HTTP ' . $response->status());
       }
     }
   }
@@ -705,20 +750,29 @@ class PaymentController extends Controller
           $q->orWhereIn('job_post_id', $jobPostIds);
         }
       })
-      ->sum('amount');
+      ->sum('earned_amount');
 
     $bookingIncome = 0;
     if (!empty($bookingIds)) {
       $bookingIncome = Payment::where('status', 'completed')
         ->whereIn('booking_id', $bookingIds)
-        ->sum('amount');
+        ->whereNull('job_post_id')
+        ->sum('earned_amount');
     }
 
     $jobPostIncome = 0;
     if (!empty($jobPostIds)) {
       $jobPostIncome = Payment::where('status', 'completed')
-        ->whereIn('job_post_id', $jobPostIds)
-        ->sum('amount');
+        ->where(function ($q) use ($jobPostIds, $bookingIds) {
+          $q->whereIn('job_post_id', $jobPostIds);
+          if (!empty($bookingIds)) {
+            $q->orWhere(function ($sub) use ($bookingIds) {
+              $sub->whereIn('booking_id', $bookingIds)
+                  ->whereNotNull('job_post_id');
+            });
+          }
+        })
+        ->sum('earned_amount');
     }
 
     $monthlyQuery = Payment::where('status', 'completed')
@@ -730,7 +784,7 @@ class PaymentController extends Controller
           $q->orWhereIn('job_post_id', $jobPostIds);
         }
       })
-      ->selectRaw("DATE_FORMAT(COALESCE(paid_at, created_at), '%Y-%m') as month, SUM(amount) as total")
+      ->selectRaw("DATE_FORMAT(COALESCE(paid_at, created_at), '%Y-%m') as month, SUM(earned_amount) as total")
       ->groupBy('month')
       ->orderBy('month', 'asc')
       ->get();
@@ -803,5 +857,32 @@ class PaymentController extends Controller
     $this->syncPaymentStatusWithOrderService($payment);
 
     return $this->successResponse($payment, 'Đã xác nhận nhận tiền mặt và hoàn tất giao dịch.');
+  }
+
+  private function getJobPostIdFromBooking(Request $request, ?int $bookingId): ?int
+  {
+    if (!$bookingId) {
+      return null;
+    }
+
+    $token = $request->header('Authorization');
+    if (!$token) {
+      return null;
+    }
+
+    $orderUrl = env('ORDER_SERVICE_URL', 'http://order-service:8002');
+    try {
+      $response = Http::timeout(3)
+        ->withHeaders(['Authorization' => $token])
+        ->get($orderUrl . '/api/orders/bookings/' . $bookingId);
+
+      if ($response->successful()) {
+        return $response->json('data.job_post_id');
+      }
+    } catch (\Exception $e) {
+      Log::error('getJobPostIdFromBooking - Error fetching booking detail: ' . $e->getMessage());
+    }
+
+    return null;
   }
 }

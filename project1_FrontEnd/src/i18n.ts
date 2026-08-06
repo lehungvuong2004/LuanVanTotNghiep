@@ -59,7 +59,7 @@ i18n.use(initReactI18next).init({
   lng: savedLanguage,
   fallbackLng: "vn",
   interpolation: {
-    escapeValue: false, // React already safeguards from XSS
+    escapeValue: false, 
   },
 });
 

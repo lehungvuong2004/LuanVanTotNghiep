@@ -16,6 +16,12 @@ interface PaymentReceiptProps {
   errorMessage?: string | null;
   onClose?: () => void;
   actions?: React.ReactNode;
+  isHelper?: boolean;
+  grossAmount?: number | string | null;
+  commissionRate?: number | null;
+  commissionAmount?: number | string | null;
+  earnedAmount?: number | string | null;
+  releasedAt?: string | null;
 }
 
 export const PaymentReceipt = ({
@@ -32,6 +38,12 @@ export const PaymentReceipt = ({
   errorMessage = null,
   onClose,
   actions,
+  isHelper = false,
+  grossAmount = null,
+  commissionRate = null,
+  commissionAmount = null,
+  earnedAmount = null,
+  releasedAt = null,
 }: PaymentReceiptProps) => {
   const { t } = useTranslation();
 
@@ -41,7 +53,7 @@ export const PaymentReceipt = ({
     return (
       <div className="flex items-center justify-between py-1.5 px-2.5 rounded-xl hover:bg-slate-205/40 dark:hover:bg-slate-800/40 transition-colors gap-3">
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-6.5 h-6.5 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-[#026E5F] dark:text-teal-400 flex items-center justify-center text-xs font-bold">
+          <div className="w-6.5 h-6.5 rounded-lg bg-teal-550/10 text-[#026E5F] dark:text-teal-400 flex items-center justify-center text-xs font-bold">
             <Icon icon={icon} />
           </div>
           <span className="text-xs font-semibold text-slate-550 dark:text-slate-400">{label}</span>
@@ -56,8 +68,13 @@ export const PaymentReceipt = ({
     if (!isSuccess) return null;
 
     const formattedPaymentDate = paymentDate ? (paymentDate.includes("-") || paymentDate.includes("/") ? paymentDate : formatDateTime(paymentDate)) : null;
-
     const formattedMethod = paymentMethod === "vnpay" ? t("Cổng VNPay") : paymentMethod === "cash" ? t("Tiền mặt") : t("Ví điện tử / Thẻ");
+
+    const formatCurrency = (val: number | string | null) => {
+      if (val === null || val === undefined) return "";
+      const num = typeof val === "string" ? parseFloat(val) : val;
+      return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
+    };
 
     return (
       <div className="bg-slate-50/70 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-2xl divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -68,9 +85,30 @@ export const PaymentReceipt = ({
         {(serviceName || helperName) && (
           <div className="py-1 space-y-0.5">
             {serviceName && renderDetailRow("solar:broom-bold-duotone", t("Dịch vụ"), t(serviceName))}
-            {helperName && renderDetailRow("solar:user-handshake-bold-duotone", t("Nhân viên"), helperName)}
+            {helperName && renderDetailRow("solar:user-handshake-bold-duotone", isHelper ? t("Khách hàng") : t("Nhân viên"), helperName)}
           </div>
         )}
+
+        {isHelper && (grossAmount || earnedAmount) && (
+          <div className="py-1.5 space-y-0.5 bg-teal-50/30 dark:bg-teal-950/10 p-2.5 rounded-xl border border-teal-100/40 dark:border-teal-900/20 my-1">
+            {renderDetailRow("solar:wallet-money-bold-duotone", t("Khách thanh toán (Gross)"), formatCurrency(grossAmount))}
+            {commissionRate && renderDetailRow("solar:ticket-percent-bold-duotone", t("Tỷ lệ vận hành"), `${commissionRate}%`)}
+            {commissionAmount && renderDetailRow("solar:hand-money-bold-duotone", t("Khấu trừ hoa hồng"), formatCurrency(commissionAmount))}
+            {earnedAmount && (
+              <div className="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-teal-500/10 text-[#026E5F] dark:text-teal-400 font-bold transition-colors gap-3 ring-1 ring-teal-550/20 my-1">
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="w-5 h-5 rounded-md bg-[#026E5F] dark:bg-teal-500 text-white flex items-center justify-center text-xs font-bold animate-pulse">
+                    <Icon icon="solar:round-transfer-horizontal-bold-duotone" />
+                  </div>
+                  <span className="text-xs font-bold text-[#026E5F] dark:text-teal-400">{t("Bạn thực nhận (Earned)")}</span>
+                </div>
+                <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 text-right whitespace-nowrap overflow-hidden text-ellipsis">{formatCurrency(earnedAmount)}</span>
+              </div>
+            )}
+            {releasedAt && renderDetailRow("solar:clock-circle-bold-duotone", t("Thời gian giải ngân"), formatDateTime(releasedAt))}
+          </div>
+        )}
+
         <div className="pt-1 space-y-0.5">
           {bookingDate && renderDetailRow("solar:calendar-date-bold-duotone", t("Thời gian dịch vụ"), `${bookingDate} ${bookingTime ? `(${bookingTime})` : ""}`)}
           {transactionId && renderDetailRow("solar:bill-check-bold-duotone", t("Mã giao dịch"), transactionId)}

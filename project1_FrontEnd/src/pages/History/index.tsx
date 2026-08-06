@@ -384,8 +384,8 @@ export const HistoryPage = () => {
       case "confirmed":
         return (
           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-teal-50 text-[#026E5F] dark:bg-teal-950/20 dark:text-teal-450 border border-teal-100 dark:border-teal-900/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-555 mr-1.5" />
-            {t("Đã thanh toán")}
+            <span className="w-1.5 h-1.5 rounded-full bg-[#026E5F] mr-1.5" />
+            {t("Chưa di chuyển")}
           </span>
         );
       case "on_the_way":
@@ -1489,6 +1489,12 @@ export const HistoryPage = () => {
                   paymentDate={paymentBooking.paymentInfo?.created_at ? formatDateTime(paymentBooking.paymentInfo.created_at) : paymentBooking.date}
                   isSuccess={true}
                   onClose={closePaymentModal}
+                  isHelper={isHelper}
+                  grossAmount={paymentBooking.paymentInfo?.gross_amount}
+                  commissionRate={paymentBooking.paymentInfo?.commission_rate}
+                  commissionAmount={paymentBooking.paymentInfo?.commission_amount}
+                  earnedAmount={paymentBooking.paymentInfo?.earned_amount}
+                  releasedAt={paymentBooking.paymentInfo?.released_at}
                   actions={
                     <>
                       <button

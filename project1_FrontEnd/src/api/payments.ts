@@ -7,8 +7,13 @@ export interface Payment {
   payment_method: string | null;
   transaction_code: string | null;
   amount: number | string | null;
+  gross_amount: number | string | null;
+  commission_rate: number | null;
+  commission_amount: number | string | null;
+  earned_amount: number | string | null;
   status: "pending" | "completed" | "failed" | "refunded";
   paid_at: string | null;
+  released_at: string | null;
   created_at: string;
   user?: {
     id: number;
@@ -68,6 +73,7 @@ export interface AdminRefundsResponse {
 export interface PaymentStatsResponse {
   data: {
     total_revenue: number;
+    total_sales: number;
     this_month_revenue: number;
     last_month_revenue: number;
     change_percent: number;

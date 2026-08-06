@@ -19,8 +19,13 @@ return new class extends Migration
             $table->string('payment_method', 30)->nullable();
             $table->string('transaction_code', 100)->nullable();
             $table->decimal('amount', 18, 2)->nullable();
+            $table->decimal('gross_amount', 18, 2)->nullable();
+            $table->integer('commission_rate')->nullable();
+            $table->decimal('commission_amount', 18, 2)->nullable();
+            $table->decimal('earned_amount', 18, 2)->nullable();
             $table->string('status', 30)->default('pending');
             $table->dateTime('paid_at')->nullable();
+            $table->dateTime('released_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
         DB::statement("ALTER TABLE payments ADD CONSTRAINT chk_payments_amount CHECK (amount is null or amount >= 0)");
