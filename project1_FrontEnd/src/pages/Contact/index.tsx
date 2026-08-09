@@ -172,7 +172,7 @@ export const Contact = () => {
             key={index}
             className={`border rounded-xl overflow-hidden transition-all duration-300 bg-white dark:bg-slate-800 ${openFaqIndex === index ? "border-teal-400 dark:border-teal-500 ring-1 ring-teal-400/50 shadow-md" : "border-gray-200 dark:border-gray-700 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm"}`}
           >
-            <button className="w-full text-left px-6 py-4 flex items-center justify-between focus:outline-none group" onClick={() => toggleFaq(index)}>
+            <button className="w-full text-left px-6 py-4 flex items-center justify-between focus:outline-none group cursor-pointer" onClick={() => toggleFaq(index)}>
               <span
                 className={`font-semibold text-lg transition-colors duration-300 ${openFaqIndex === index ? "text-teal-800 dark:text-teal-400" : "text-gray-800 dark:text-gray-200 group-hover:text-teal-700 dark:group-hover:text-teal-300"}`}
               >

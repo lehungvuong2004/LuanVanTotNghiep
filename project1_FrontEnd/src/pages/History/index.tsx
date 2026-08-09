@@ -5,6 +5,7 @@ import { useHistory } from "./useHook";
 import type { Booking, StatusFilter } from "./useHook";
 import { useRecruitment } from "../Recruitment/useHook";
 import { Pagination } from "../../components/Pagination";
+import { Loading } from "../../components/Commom";
 
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { formatDateTime } from "../../utils";
@@ -751,9 +752,8 @@ export const HistoryPage = () => {
   const renderMyJobPostsSection = () => {
     if (myPostsLoading) {
       return (
-        <div className="py-20 flex flex-col items-center justify-center gap-3">
-          <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-[#026E5F]" />
-          <p className="text-sm text-gray-500">{t("Đang tải danh sách bài đăng...")}</p>
+        <div className="py-20">
+          <Loading />
         </div>
       );
     }
@@ -897,9 +897,8 @@ export const HistoryPage = () => {
 
           <div className="flex-1 overflow-y-auto p-6">
             {applicantsLoading ? (
-              <div className="py-20 flex flex-col items-center justify-center gap-3">
-                <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-[#026E5F]" />
-                <p className="text-sm text-gray-500">{t("Đang tải danh sách hồ sơ...")}</p>
+              <div className="py-20">
+                <Loading />
               </div>
             ) : applicants.length === 0 ? (
               <div className="py-16 text-center">
@@ -1030,9 +1029,8 @@ export const HistoryPage = () => {
 
           <div className="flex-1 overflow-y-auto p-6 text-left">
             {helperProfileLoading ? (
-              <div className="py-20 flex flex-col items-center justify-center gap-3">
-                <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-[#026E5F]" />
-                <p className="text-sm text-gray-500">{t("Đang tải hồ sơ...")}</p>
+              <div className="py-20">
+                <Loading />
               </div>
             ) : !helperProfile ? (
               <div className="py-10 text-center">
@@ -1327,9 +1325,8 @@ export const HistoryPage = () => {
   const renderHelperApplicationsSection = () => {
     if (isApplicationsLoading) {
       return (
-        <div className="py-20 flex flex-col items-center justify-center gap-3">
-          <Icon icon="line-md:loading-twotone-loop" className="text-4xl text-[#026E5F]" />
-          <p className="text-sm text-gray-500">{t("Đang tải danh sách đơn ứng tuyển...")}</p>
+        <div className="py-20">
+          <Loading />
         </div>
       );
     }
@@ -1447,9 +1444,8 @@ export const HistoryPage = () => {
         {activeMainTab === "bookings" ? (
           <>
             {isLoading ? (
-              <div className="w-full min-h-[40vh] flex flex-col items-center justify-center">
-                <div className="w-12 h-12 rounded-full border-4 border-teal-500/25 border-t-[#026E5F] animate-spin mb-4" />
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("Đang tải danh sách lịch đặt...")}</p>
+              <div className="w-full min-h-[40vh] flex items-center justify-center">
+                <Loading />
               </div>
             ) : totalItems > 0 ? (
               renderTable()

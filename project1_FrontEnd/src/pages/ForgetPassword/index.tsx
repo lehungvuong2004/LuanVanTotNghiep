@@ -62,7 +62,7 @@ export const ForgetPassword = () => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#005C61] hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer disabled:opacity-50 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base font-semibold"
+        className="w-full bg-[#005C61] hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer disabled:opacity-50 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base"
       >
         {loading ? (
           <Icon icon="line-md:loading-twotone-loop" className="text-xl" />
@@ -128,7 +128,7 @@ export const ForgetPassword = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#B2451C] hover:bg-orange-800 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-medium py-3 rounded-lg transition-colors mb-6 text-base flex justify-center items-center font-semibold disabled:opacity-50 cursor-pointer"
+          className="w-full bg-[#B2451C] hover:bg-orange-800 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-medium py-3 rounded-lg transition-colors mb-6 text-base flex justify-center items-center disabled:opacity-50 cursor-pointer"
         >
           {loading ? <Icon icon="line-md:loading-twotone-loop" className="text-xl" /> : t("Xác thực mã")}
         </button>
@@ -251,7 +251,7 @@ export const ForgetPassword = () => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#005C61] hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base font-semibold disabled:opacity-50 cursor-pointer"
+        className="w-full bg-[#005C61] hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mb-6 text-base disabled:opacity-50 cursor-pointer"
       >
         {loading ? (
           <Icon icon="line-md:loading-twotone-loop" className="text-xl" />

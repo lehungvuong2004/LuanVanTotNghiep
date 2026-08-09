@@ -257,15 +257,15 @@ export const Home = () => {
                       return (
                         <div>
                           {isExternal ? (
-                            <a
-                              href={normalizedLink}
+                            <Link
+                              to={normalizedLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 bg-[#008080] hover:bg-teal-700 active:scale-95 text-white font-semibold px-6 py-2.5 rounded-full transition-all duration-200 text-sm shadow-md cursor-pointer"
                             >
                               <Icon icon="lucide:external-link" className="text-base" />
                               {t("home.banner.exploreDetail")}
-                            </a>
+                            </Link>
                           ) : (
                             <Link
                               to={normalizedLink}

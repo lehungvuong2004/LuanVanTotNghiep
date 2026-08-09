@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import { ReviewCard, RatingDistributionRow, ReviewFilters } from "../../components/Reviews";
 import { useHelperDetail } from "./useHook";
 import { ExpandToggleButton } from "../../components/ExpandToggleButton";
+import { Loading } from "../../components/Commom";
 
 export const HelperDetail = () => {
   const {
@@ -25,16 +26,7 @@ export const HelperDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen dark:bg-slate-900 pt-8">
-        <div className="max-w-384 mx-auto px-4 sm:px-6 lg:px-10 animate-pulse space-y-6">
-          <div className="flex gap-8">
-            <div className="w-32 h-32 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0" />
-            <div className="flex-1 space-y-4">
-              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
-            </div>
-          </div>
-        </div>
+        <Loading />
       </div>
     );
   }
@@ -101,9 +93,7 @@ export const HelperDetail = () => {
               >
                 <Icon
                   icon={favoriteIds.includes(helper.id) ? "material-symbols:favorite" : "material-symbols:favorite-outline"}
-                  className={`text-2xl transition-colors ${
-                    favoriteIds.includes(helper.id) ? "text-rose-500 fill-rose-500" : "text-slate-400 group-hover/heart:text-rose-550"
-                  }`}
+                  className={`text-2xl transition-colors ${favoriteIds.includes(helper.id) ? "text-rose-500 fill-rose-500" : "text-slate-400 group-hover/heart:text-rose-550"}`}
                 />
               </button>
             )}
@@ -260,11 +250,7 @@ export const HelperDetail = () => {
       )}
 
       {/* Review Filters */}
-      <ReviewFilters
-        ratingFilter={ratingFilter}
-        setRatingFilter={setRatingFilter}
-        t={t}
-      />
+      <ReviewFilters ratingFilter={ratingFilter} setRatingFilter={setRatingFilter} t={t} />
 
       <div className="space-y-4 mt-8">
         {(() => {
@@ -273,7 +259,7 @@ export const HelperDetail = () => {
             filtered = filtered.filter((r) => r.rating === ratingFilter);
           }
           const displayedReviews = showAllReviews ? filtered : filtered.slice(0, 3);
-          
+
           return displayedReviews.length > 0 ? (
             displayedReviews.map((review) => <ReviewCard key={review.id} review={review} variant="line" t={t} />)
           ) : (
@@ -286,10 +272,7 @@ export const HelperDetail = () => {
 
         {reviews.length > 3 && (
           <div className="flex justify-center pt-2">
-            <ExpandToggleButton
-              isExpanded={showAllReviews}
-              onClick={() => setShowAllReviews(!showAllReviews)}
-            />
+            <ExpandToggleButton isExpanded={showAllReviews} onClick={() => setShowAllReviews(!showAllReviews)} />
           </div>
         )}
       </div>

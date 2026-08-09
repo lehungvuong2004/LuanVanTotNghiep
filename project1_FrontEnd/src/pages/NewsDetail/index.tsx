@@ -2,17 +2,15 @@ import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useNewsDetail } from "./useHook";
 import { getImageUrl } from "../../utils/images";
+import { Loading } from "../../components/Commom";
 
 export const NewsDetail = () => {
   const { t, i18n, article, relatedNews, loading, error, formatDate } = useNewsDetail();
 
   if (loading) {
     return (
-      <div className="dark:bg-slate-900 min-h-screen pt-24 flex justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-500 dark:text-slate-400 text-sm">{t("Đang tải bài viết...")}</p>
-        </div>
+      <div className="dark:bg-slate-900 min-h-screen pt-24">
+        <Loading />
       </div>
     );
   }
@@ -40,7 +38,7 @@ export const NewsDetail = () => {
         {t("Tin tức")}
       </Link>
       <Icon icon="material-symbols:chevron-right" className="shrink-0" />
-      <span className="text-slate-600 dark:text-slate-400 truncate max-w-30 xs:max-w-[220px] sm:max-w-md md:max-w-lg font-medium">{article.title}</span>
+      <span className="text-slate-600 dark:text-slate-400 truncate max-w-30 xs:max-w-20 sm:max-w-md md:max-w-lg font-medium">{article.title}</span>
     </div>
   );
 
@@ -114,11 +112,11 @@ export const NewsDetail = () => {
                 )}
               </div>
               <div className="flex flex-col">
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug line-clamp-2">
+                <p className="text-base font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug line-clamp-2">
                   {item.title}
                 </p>
-                <span className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
-                  <Icon icon="material-symbols:calendar-today-outline" className="text-xs" />
+                <span className="text-sm text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+                  <Icon icon="uil:schedule" className="text-sm" />
                   {new Date(item.created_at).toLocaleDateString(i18n.language === "en" ? "en-US" : "vi-VN")}
                 </span>
               </div>

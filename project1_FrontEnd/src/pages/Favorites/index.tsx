@@ -3,27 +3,13 @@ import { useHook } from "./useHook";
 import type { FavoriteItem } from "../../api/favorites";
 
 export const Favorites = () => {
-  const {
-    t,
-    navigate,
-    items,
-    loading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    handleRemoveFavorite,
-    filteredItems,
-  } = useHook();
+  const { t, navigate, items, loading, error, searchTerm, setSearchTerm, handleRemoveFavorite, filteredItems } = useHook();
 
   const renderHelperAvatar = (url?: string, name?: string) => {
     if (url) {
       return <img src={url} alt={name} className="w-full h-full object-cover" />;
     }
-    return (
-      <div className="w-full h-full bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-black text-2xl">
-        {name ? name.charAt(0).toUpperCase() : "H"}
-      </div>
-    );
+    return <div className="w-full h-full bg-linear-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-black text-2xl">{name ? name.charAt(0).toUpperCase() : "H"}</div>;
   };
 
   const renderHelperCard = (item: FavoriteItem) => {
@@ -33,13 +19,18 @@ export const Favorites = () => {
     const cleanName = user?.full_name ?? `Helper #${profile.id}`;
     const skills = profile.skills ?? [];
     const rawAreas = (profile as any).working_areas ?? profile.workingAreas ?? [];
-    
-    const areaLabel = rawAreas.length > 0
-      ? rawAreas.map((a: any) => {
-          const distName = a.district?.name ?? a.district;
-          return t(distName);
-        }).filter(Boolean).slice(0, 2).join(", ")
-      : t("TP.HCM");
+
+    const areaLabel =
+      rawAreas.length > 0
+        ? rawAreas
+            .map((a: any) => {
+              const distName = a.district?.name ?? a.district;
+              return t(distName);
+            })
+            .filter(Boolean)
+            .slice(0, 2)
+            .join(", ")
+        : t("TP.HCM");
 
     return (
       <div
@@ -74,19 +65,12 @@ export const Favorites = () => {
           </div>
 
           <div className="text-xs text-slate-505 dark:text-slate-200 mt-2 space-y-2 leading-relaxed flex-1">
-            {profile.bio && (
-              <p className="line-clamp-2 italic text-slate-450 dark:text-slate-305">
-                "{profile.bio}"
-              </p>
-            )}
+            {profile.bio && <p className="line-clamp-2 italic text-slate-450 dark:text-slate-305">"{profile.bio}"</p>}
             {/* Skills tags */}
             {skills.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {skills.slice(0, 3).map((s: any) => (
-                  <span
-                    key={s.id}
-                    className="bg-slate-100 dark:bg-slate-800 text-slate-605 dark:text-slate-200 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider"
-                  >
+                  <span key={s.id} className="bg-slate-100 dark:bg-slate-800 text-slate-605 dark:text-slate-200 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
                     {s.service?.name}
                   </span>
                 ))}
@@ -125,15 +109,13 @@ export const Favorites = () => {
             <Icon icon="material-symbols:favorite text-rose-500 animate-pulse" />
             <span>{t("Người giúp việc yêu thích")}</span>
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-305 mt-2">
-            {t("Danh sách chuyên viên xuất sắc bạn đã lưu để đặt lịch nhanh chóng.")}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-305 mt-2">{t("Danh sách chuyên viên xuất sắc bạn đã lưu để đặt lịch nhanh chóng.")}</p>
         </div>
-        
+
         {/* Quick Stats Cards */}
         <div className="flex items-center gap-4">
           <div className="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/60 rounded-2xl px-5 py-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-955/40 text-rose-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl dark:bg-rose-955/40 text-rose-500 flex items-center justify-center">
               <Icon icon="material-symbols:favorite" className="text-xl" />
             </div>
             <div>
@@ -160,9 +142,7 @@ export const Favorites = () => {
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 text-slate-800 dark:text-slate-100"
           />
         </div>
-        <div className="text-xs font-semibold text-slate-400 dark:text-slate-300 whitespace-nowrap">
-          {t("Hiển thị {{count}} kết quả", { count: filteredItems.length })}
-        </div>
+        <div className="text-xs font-semibold text-slate-400 dark:text-slate-300 whitespace-nowrap">{t("Hiển thị {{count}} kết quả", { count: filteredItems.length })}</div>
       </div>
     );
   };
@@ -171,7 +151,10 @@ export const Favorites = () => {
     return (
       <div className="grid grid-cols-12 gap-6">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="col-span-12 sm:col-span-6 lg:col-span-4 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 rounded-3xl p-6 flex flex-col items-center animate-pulse gap-4">
+          <div
+            key={i}
+            className="col-span-12 sm:col-span-6 lg:col-span-4 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 rounded-3xl p-6 flex flex-col items-center animate-pulse gap-4"
+          >
             <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-705" />
             <div className="h-5 bg-slate-100 dark:bg-slate-705 rounded w-2/3" />
             <div className="h-4 bg-slate-100 dark:bg-slate-705 rounded w-1/2" />
@@ -200,9 +183,7 @@ export const Favorites = () => {
       <div className="text-center py-20 bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/60 rounded-3xl shadow-sm">
         <Icon icon="material-symbols:favorite-outline" className="text-6xl text-slate-350 dark:text-slate-450 mx-auto mb-4 animate-pulse" />
         <h2 className="text-2xl font-black text-slate-800 dark:text-white">{t("Chưa lưu người giúp việc nào")}</h2>
-        <p className="text-slate-450 dark:text-slate-305 mt-2 max-w-sm mx-auto text-sm">
-          {t("Lưu các người giúp việc bạn thích bằng cách nhấn vào biểu tượng Trái tim để quản lý ở đây.")}
-        </p>
+        <p className="text-slate-450 dark:text-slate-305 mt-2 max-w-sm mx-auto text-sm">{t("Lưu các người giúp việc bạn thích bằng cách nhấn vào biểu tượng Trái tim để quản lý ở đây.")}</p>
         <button
           onClick={() => navigate("/dich-vu")}
           className="mt-6 px-7 py-3 bg-teal-600 hover:bg-teal-750 text-white rounded-full font-bold shadow-md hover:shadow-teal-600/10 active:scale-95 transition-all cursor-pointer"
@@ -214,11 +195,7 @@ export const Favorites = () => {
   };
 
   const renderGrid = () => {
-    return (
-      <div className="grid grid-cols-12 gap-6">
-        {filteredItems.map(renderHelperCard)}
-      </div>
-    );
+    return <div className="grid grid-cols-12 gap-6">{filteredItems.map(renderHelperCard)}</div>;
   };
 
   const renderMainContent = () => {

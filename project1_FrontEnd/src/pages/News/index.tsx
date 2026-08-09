@@ -5,6 +5,7 @@ import { useNews } from "./useHook";
 import { formatDate } from "../../utils";
 import { Pagination } from "../../components/Pagination";
 import { getImageUrl } from "../../utils/images";
+import { Loading } from "../../components/Commom";
 
 export const News = () => {
   const { t } = useTranslation();
@@ -40,11 +41,8 @@ export const News = () => {
   );
 
   const renderLoading = () => (
-    <div className="flex justify-center py-20">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-slate-500 dark:text-slate-400 text-sm">{t("Đang tải tin tức...")}</p>
-      </div>
+    <div className="py-20">
+      <Loading />
     </div>
   );
 

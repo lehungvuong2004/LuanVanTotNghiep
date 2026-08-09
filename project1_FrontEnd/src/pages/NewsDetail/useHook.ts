@@ -26,9 +26,9 @@ export const useNewsDetail = () => {
         setError(null);
         window.scrollTo({ top: 0, behavior: "smooth" });
 
-        const [detail, list] = await Promise.all([getNewsDetail(slug), getNewsList({ limit: 4, status: "published" })]);
+        const [detail, list] = await Promise.all([getNewsDetail(slug), getNewsList({ limit: 5, status: "published" })]);
         setArticle(detail.data);
-        setRelatedNews(list.data.data.filter((n) => n.slug !== slug).slice(0, 3));
+        setRelatedNews(list.data.data.filter((n) => n.slug !== slug).slice(0, 4));
       } catch {
         setError(t("Không tìm thấy bài viết này."));
       } finally {

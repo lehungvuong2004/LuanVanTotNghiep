@@ -317,5 +317,14 @@
   "chatbot_input_placeholder": "Type your question...",
   "chatbot_send": "Send Message",
   "online_support": "Online Support (CSKH)",
-  "quick_action_menu": "Quick Action Menu"
+  "quick_action_menu": "Quick Action Menu",
+  "review.title": "Review Helper",
+  "review.description": "Please rate your satisfaction with the provided service.",
+  "review.rating_1": "Very dissatisfied (1/5 ★)",
+  "review.rating_2": "Dissatisfied (2/5 ★)",
+  "review.rating_3": "Neutral (3/5 ★)",
+  "review.rating_4": "Satisfied (4/5 ★)",
+  "review.rating_5": "Extremely satisfied (5/5 ★)",
+  "review.comment_label": "Comments / Feedback (optional)",
+  "review.comment_placeholder": "Enter your experience with this helper..."
 }

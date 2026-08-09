@@ -5,14 +5,13 @@ import { useServiceDetail } from "./useHook";
 import { formatNumberVI } from "../../utils";
 import { RatingDistributionRow, ReviewCard, ReviewFilters } from "../../components/Reviews";
 import { ExpandToggleButton } from "../../components/ExpandToggleButton";
+import { CustomSelect } from "../../components/CustomSelect";
 
 function priceTypeLabel(pt: string, t: any) {
   if (pt === "hourly") return t("giờ");
   if (pt === "daily") return t("ngày");
   return t("lần");
 }
-
-import { CustomSelect } from "../../components/CustomSelect";
 
 export const ServiceDetail = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);

@@ -51,20 +51,12 @@ export interface GetNewsAdminParams {
   limit?: number;
 }
 
-export interface CreateNewsAdminRequest {
+export interface NewsAdminRequest {
   title: string;
   thumbnail?: string | null;
   summary?: string | null;
   content: string;
   status: "draft" | "published";
-}
-
-export interface UpdateNewsAdminRequest {
-  title?: string;
-  thumbnail?: string | null;
-  summary?: string | null;
-  content?: string;
-  status?: "draft" | "published";
 }
 
 export interface NewsAdminMutateResponse {
@@ -101,13 +93,13 @@ export const getNewsAdmin = async (params?: GetNewsAdminParams): Promise<NewsLis
 };
 
 // Quản trị viên (Admin/Operator) tạo mới bài viết tin tức.
-export const createNewsAdmin = async (data: CreateNewsAdminRequest): Promise<NewsAdminMutateResponse> => {
+export const createNewsAdmin = async (data: NewsAdminRequest): Promise<NewsAdminMutateResponse> => {
   const response = await axiosInstance.post<NewsAdminMutateResponse>("/admin/news", data);
   return response.data;
 };
 
 // Quản trị viên (Admin/Operator) cập nhật nội dung bài viết tin tức theo ID.
-export const updateNewsAdmin = async (id: number, data: UpdateNewsAdminRequest): Promise<NewsAdminMutateResponse> => {
+export const updateNewsAdmin = async (id: number, data: NewsAdminRequest): Promise<NewsAdminMutateResponse> => {
   const response = await axiosInstance.put<NewsAdminMutateResponse>(`/admin/news/${id}`, data);
   return response.data;
 };
