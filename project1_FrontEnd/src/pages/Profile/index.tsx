@@ -38,6 +38,7 @@ export const Profile = () => {
     handleAddWorkingArea,
     handleRemoveWorkingArea,
     handleSubmitVerification,
+    handleUpgradeToHelper,
   } = useProfile();
 
   const [workingDistrict, setWorkingDistrict] = useState("");
@@ -243,18 +244,32 @@ export const Profile = () => {
         </button>
 
         {userProfile?.role_id === ROLES.CUSTOMER && (
-          <button
-            onClick={() => setActiveTab("address")}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-              activeTab === "address" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Icon icon="mdi:location" className="text-2xl" />
-              <span>{t("Sổ địa chỉ")}</span>
-            </div>
-            <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "address" ? "translate-x-1" : "opacity-0"}`} />
-          </button>
+          <>
+            <button
+              onClick={() => setActiveTab("address")}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                activeTab === "address" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Icon icon="mdi:location" className="text-2xl" />
+                <span>{t("Sổ địa chỉ")}</span>
+              </div>
+              <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "address" ? "translate-x-1" : "opacity-0"}`} />
+            </button>
+            <button
+              onClick={() => setActiveTab("upgrade_helper" as any)}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                activeTab === "upgrade_helper" ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400" : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/40"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Icon icon="solar:shield-up-bold-duotone" className="text-2xl" />
+                <span>{t("Đăng ký Người giúp việc")}</span>
+              </div>
+              <Icon icon="solar:alt-arrow-right-bold" className={`text-base transition-transform ${activeTab === "upgrade_helper" ? "translate-x-1" : "opacity-0"}`} />
+            </button>
+          </>
         )}
 
         {userProfile?.role_id === ROLES.HELPER && (
@@ -925,6 +940,82 @@ export const Profile = () => {
     </div>
   );
 
+  // 9. RENDER UPGRADE TO HELPER CONSENT TAB
+  const renderUpgradeHelperTab = () => (
+    <div className="transition-all duration-300">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-600 via-teal-700 to-cyan-900 p-6 md:p-8 text-white mb-8">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="p-2 bg-white/20 rounded-xl">
+              <Icon icon="solar:shield-up-bold-duotone" className="text-2xl" />
+            </span>
+            <span className="text-xs font-bold tracking-widest uppercase opacity-90">{t("Cơ hội gia nhập đội ngũ")}</span>
+          </div>
+          <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">
+            {t("Trở thành cộng tác viên giúp việc")}
+          </h3>
+          <p className="text-sm font-medium opacity-90 max-w-xl leading-relaxed">
+            {t("Kiếm thêm thu nhập ổn định lên tới 15.000.000đ/tháng với thời gian làm việc linh hoạt, hoàn toàn do bạn chủ động quyết định.")}
+          </p>
+        </div>
+      </div>
+
+      <h4 className="text-base font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+        <Icon icon="solar:info-circle-bold-duotone" className="text-teal-600 dark:text-teal-400 text-lg" />
+        {t("Quy trình 4 Bước chuẩn hóa hồ sơ")}
+      </h4>
+
+      {/* 4 Steps Visual Timeline */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="h-full bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 p-5 rounded-2xl flex flex-col items-center text-center">
+          <span className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-sm mb-3">1</span>
+          <div className="text-sm font-bold text-slate-800 dark:text-white mb-1.5">{t("Nâng cấp vai trò")}</div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-normal">{t("Xác nhận chuyển đổi tài khoản thành Người làm")}</p>
+        </div>
+        <div className="h-full bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 p-5 rounded-2xl flex flex-col items-center text-center">
+          <span className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-sm mb-3">2</span>
+          <div className="text-sm font-bold text-slate-800 dark:text-white mb-1.5">{t("Hoàn thiện hồ sơ")}</div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-normal">{t("Thêm kỹ năng, địa bàn nhận việc, cập nhật lý lịch")}</p>
+        </div>
+        <div className="h-full bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 p-5 rounded-2xl flex flex-col items-center text-center">
+          <span className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-sm mb-3">3</span>
+          <div className="text-sm font-bold text-slate-800 dark:text-white mb-1.5">{t("Kiểm duyệt")}</div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-normal">{t("Ban quản lý kiểm tra đối chiếu thông tin nộp xác minh")}</p>
+        </div>
+        <div className="h-full bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 p-5 rounded-2xl flex flex-col items-center text-center">
+          <span className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-sm mb-3">4</span>
+          <div className="text-sm font-bold text-slate-800 dark:text-white mb-1.5">{t("Hoạt động")}</div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-normal">{t("Bắt đầu nhận lịch giúp việc và kiếm thu nhập")}</p>
+        </div>
+      </div>
+
+      <div className="bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 p-4 rounded-2xl border border-amber-200/30 dark:border-amber-900/30 text-xs leading-relaxed mb-8 flex gap-3">
+        <Icon icon="solar:danger-triangle-bold-duotone" className="text-xl text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+        <div>
+          <span className="font-bold block mb-1">{t("Lưu ý quan trọng:")}</span>
+          {t("Sau khi nâng cấp, giao diện tài khoản của bạn sẽ chuyển sang chế độ Người làm. Bạn vẫn có thể đặt dịch vụ khác khi cần, nhưng hồ sơ thợ của bạn cần được hoàn thiện và được Admin phê duyệt mới có thể bắt đầu nhận lịch.")}
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700/60">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm(t("Bạn có chắc chắn muốn nâng cấp tài khoản của mình thành Người giúp việc không?"))) {
+              handleUpgradeToHelper();
+            }
+          }}
+          disabled={updating}
+          className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 text-white font-bold py-3.5 px-8 rounded-xl text-sm transition-all duration-300 shadow-md hover:shadow-teal-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {updating ? <Icon icon="line-md:loading-twotone-loop" className="text-lg" /> : <Icon icon="solar:verified-check-bold" className="text-lg" />}
+          {t("Xác nhận Đăng ký ngay")}
+        </button>
+      </div>
+    </div>
+  );
+
   // 8. RENDER ADDRESS DIALOG MODAL
   const renderAddressModal = () => {
     if (!isAddressModalOpen) return null;
@@ -1178,7 +1269,7 @@ export const Profile = () => {
 
   // Render Helper verification status & submission card
   const renderHelperVerificationWidget = () => {
-    const status = helperProfile?.status || "pending";
+    const status = helperProfile ? helperProfile.status : "new";
 
     // Check missing items
     const missingItems = [];
@@ -1201,7 +1292,7 @@ export const Profile = () => {
       missingItems.push(t("Khu vực hoạt động"));
     }
 
-    const isComplete = missingItems.length === 0;
+
 
     // Get latest verification note
     const latestVerification = helperProfile?.verifications && helperProfile.verifications.length > 0 ? [...helperProfile.verifications].sort((a: any, b: any) => b.id - a.id)[0] : null;
@@ -1323,7 +1414,7 @@ export const Profile = () => {
           <button
             type="button"
             onClick={handleSubmitVerification}
-            disabled={updating || !isComplete}
+            disabled={updating}
             className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 dark:bg-teal-50 dark:hover:bg-teal-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-xl text-xs transition-all duration-300 shadow-sm hover:shadow-teal-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
           >
             {updating ? <Icon icon="line-md:loading-twotone-loop" className="text-sm" /> : <Icon icon="solar:shield-check-bold" className="text-sm" />}
@@ -1351,6 +1442,7 @@ export const Profile = () => {
             {userProfile?.role_id === ROLES.HELPER && renderHelperVerificationWidget()}
             {activeTab === "info" && renderProfileInfoTab()}
             {activeTab === "address" && userProfile?.role_id === ROLES.CUSTOMER && renderAddressTab()}
+            {activeTab === ("upgrade_helper" as any) && userProfile?.role_id === ROLES.CUSTOMER && renderUpgradeHelperTab()}
             {activeTab === "working_areas" && userProfile?.role_id === ROLES.HELPER && renderWorkingAreasTab()}
             {activeTab === "password" && renderPasswordTab()}
           </div>

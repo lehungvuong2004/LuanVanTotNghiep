@@ -452,8 +452,8 @@ export const PostAJob = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div className="col-span-1 md:col-span-7">{renderAddressForm()}</div>
-        <div className="col-span-1 md:col-span-5">{renderInformationForm()}</div>
+        <div className="col-span-1 md:col-span-8">{renderAddressForm()}</div>
+        <div className="col-span-1 md:col-span-4">{renderInformationForm()}</div>
       </div>
     </div>
   );

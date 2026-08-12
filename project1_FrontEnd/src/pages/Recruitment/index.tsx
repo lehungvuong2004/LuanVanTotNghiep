@@ -25,8 +25,6 @@ export const Recruitment = () => {
     setSelectedUrgency,
     searchQuery,
     setSearchQuery,
-    sortBy,
-    setSortBy,
     clearFilters,
     categories,
     isLoading,
@@ -243,21 +241,9 @@ export const Recruitment = () => {
             className="pl-10 pr-4 py-2 w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-[#026E5F] focus:ring-1 focus:ring-[#026E5F] transition"
           />
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-305 hidden sm:block whitespace-nowrap">
-            {totalItems} {t("kết quả")}
-          </span>
-          <CustomSelect
-            value={sortBy}
-            onChange={(val) => setSortBy(val)}
-            className="w-40"
-            options={[
-              { value: "Mới nhất", label: t("Mới nhất") },
-              { value: "Lương cao nhất", label: t("Lương cao nhất") },
-              { value: "Cần gấp nhất", label: t("Cần gấp nhất") },
-            ]}
-          />
-        </div>
+        <span className="text-sm font-semibold text-slate-700 dark:text-slate-305 hidden sm:block whitespace-nowrap">
+          {totalItems} {t("kết quả")}
+        </span>
       </div>
       {isLoading ? (
         <div className="py-20 flex flex-col items-center justify-center gap-3">

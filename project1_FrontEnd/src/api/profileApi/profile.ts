@@ -206,3 +206,8 @@ export const getHelperVerificationStatusApi = async (): Promise<{ data: any[] }>
   const response = await axiosInstance.get<{ data: any[] }>("/providers/helper/verification");
   return response.data;
 };
+
+export const upgradeToHelperApi = async (): Promise<any> => {
+  const response = await axiosInstance.post<any>("/profile/upgrade");
+  return response.data;
+};

@@ -73,6 +73,8 @@ Route::middleware('auth:api')->group(function () {
   Route::put('profile',         [AuthController::class, 'updateProfile']);
   // Thay đổi, upload hình ảnh đại diện cá nhân mới
   Route::post('profile/avatar', [AuthController::class, 'uploadAvatar']);
+  // Yêu cầu tự nâng cấp/đăng ký tài khoản từ Khách hàng lên Người làm
+  Route::post('profile/upgrade', [AuthController::class, 'upgradeToHelper']);
 
   // -- Customer Profile & Addresses (role: customer) --
   Route::prefix('customer')->group(function () {

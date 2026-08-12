@@ -1054,13 +1054,19 @@ class BookingController extends Controller
       return $this->errorResponse('Missing helper ID', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    // 1. Get booking_ids
-    $bookingIds = Booking::where('helper_id', $hId)->pluck('id')->toArray();
+    // 1. Get booking_ids (Chỉ thống kê doanh thu đối với những booking Đã hoàn thành)
+    $bookingIds = Booking::where('helper_id', $hId)
+      ->where('status', 'completed')
+      ->pluck('id')
+      ->toArray();
 
-    // 2. Get job_post_ids
-    $jobPostIds = JobPost::where('selected_helper_id', $hId)->pluck('id')->toArray();
+    // 2. Get job_post_ids (Chỉ thống kê doanh thu những bài tuyển dụng Đã hoàn thành)
+    $jobPostIds = JobPost::where('selected_helper_id', $hId)
+      ->where('status', 'completed')
+      ->pluck('id')
+      ->toArray();
     $appJobPostIds = JobApplication::where('helper_id', $hId)
-      ->whereIn('status', ['selected', 'completed', 'accepted', 'approved'])
+      ->where('status', 'completed')
       ->pluck('job_post_id')
       ->toArray();
     $jobPostIds = array_unique(array_merge($jobPostIds, $appJobPostIds));

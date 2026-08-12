@@ -21,6 +21,7 @@ export const useNews = () => {
         const res = await getNewsList({ page, limit: 9, status: "published" });
         setNews(res.data.data);
         setCurrentPage(res.data.current_page);
+        // console.log(res.data.current_page);
         setTotalPages(res.data.last_page);
         setTotal(res.data.total);
       } catch {
@@ -40,7 +41,7 @@ export const useNews = () => {
   }, [fetchNews]);
 
   const filteredNews = news.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()) || (item.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false));
-
+  // console.log(filteredNews);
   return {
     news: filteredNews,
     loading,

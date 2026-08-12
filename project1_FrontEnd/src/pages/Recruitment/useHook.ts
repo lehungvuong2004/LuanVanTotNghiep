@@ -96,7 +96,6 @@ export const useRecruitment = () => {
   const [selectedSalary, setSelectedSalary] = useState<string>("all");
   const [selectedUrgency, setSelectedUrgency] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("Mới nhất");
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -199,7 +198,7 @@ export const useRecruitment = () => {
     Promise.resolve().then(() => {
       setCurrentPage(1);
     });
-  }, [selectedCategories, selectedSalary, selectedUrgency, searchQuery, sortBy]);
+  }, [selectedCategories, selectedSalary, selectedUrgency, searchQuery]);
 
   const getRelativeTime = (createdAtStr: string | null | undefined) => {
     const fallback = t("Đăng 1 phút trước");
@@ -277,22 +276,31 @@ export const useRecruitment = () => {
     let customCategory: string | null = null;
     let customServicesList: string[] = [];
     let displayDescription = job.description || "";
+    let durationPrefix = "";
 
     if (job.description) {
+      const durationMatch = displayDescription.match(/^\[Thời lượng:\s*([^\]]+)\]\s*/);
+      if (durationMatch) {
+        durationPrefix = `[Thời lượng: ${durationMatch[1]}] `;
+        displayDescription = displayDescription.replace(/^\[Thời lượng:\s*[^\]]+\]\s*/, "");
+      }
+
       const catMatch = displayDescription.match(/^\[Danh mục:\s*([^\]]+)\]\s*/);
       if (catMatch) {
-        customCategory = catMatch[1];
-        displayDescription = displayDescription.replace(/^\[Danh mục:\s*[^\]]+\]\s*/, "");
+       customCategory = catMatch[1];
+       displayDescription = displayDescription.replace(/^\[Danh mục:\s*[^\]]+\]\s*/, "");
       }
 
       const serviceMatch = displayDescription.match(/^\[Dịch vụ:\s*([^\]]+)\]\s*/);
       if (serviceMatch) {
-        customServicesList = serviceMatch[1]
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        displayDescription = displayDescription.replace(/^\[Dịch vụ:\s*[^\]]+\]\s*/, "");
+       customServicesList = serviceMatch[1]
+         .split(",")
+         .map((s) => s.trim())
+         .filter(Boolean);
+       displayDescription = displayDescription.replace(/^\[Dịch vụ:\s*[^\]]+\]\s*/, "");
       }
+
+      displayDescription = durationPrefix + displayDescription;
     }
 
     const matchedCat = categories.find((c) => c.id === job.category_id);
@@ -338,17 +346,6 @@ export const useRecruitment = () => {
 
   // Sorting logic
   const sortedJobs = [...mappedJobs].sort((a, b) => {
-    if (sortBy === "Lương cao nhất") {
-      const getSalaryVal = (salaryStr: string) => {
-        const cleaned = salaryStr.replace(/\D/g, "");
-        return cleaned ? Number(cleaned) : 0;
-      };
-      return getSalaryVal(b.salary) - getSalaryVal(a.salary);
-    }
-    if (sortBy === "Cần gấp nhất") {
-      if (a.isUrgent && !b.isUrgent) return -1;
-      if (!a.isUrgent && b.isUrgent) return 1;
-    }
     return b.id - a.id;
   });
 
@@ -537,7 +534,6 @@ export const useRecruitment = () => {
     setSelectedSalary("all");
     setSelectedUrgency("all");
     setSearchQuery("");
-    setSortBy("Mới nhất");
   };
 
   return {
@@ -555,8 +551,6 @@ export const useRecruitment = () => {
     setSelectedUrgency,
     searchQuery,
     setSearchQuery,
-    sortBy,
-    setSortBy,
     clearFilters,
     categories,
     isLoading,

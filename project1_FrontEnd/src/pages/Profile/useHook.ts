@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useLogout } from "../../hooks/useLogout";
-import { updateUser } from "../../redux/authSlice";
+import { updateUser, loginSuccess } from "../../redux/authSlice";
 import { useToast } from "../../contexts/ToastContext";
 import {
   getProfileApi,
@@ -26,6 +26,7 @@ import {
   addHelperWorkingAreaApi,
   removeHelperWorkingAreaApi,
   submitHelperVerificationApi,
+  upgradeToHelperApi,
 } from "../../api/profileApi/profile";
 
 import type { UserProfile, CustomerProfile, CustomerAddress, HelperProfile } from "../../api/profileApi/profile";
@@ -42,7 +43,7 @@ export const useProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [activeTab, setActiveTab] = useState<"info" | "address" | "password" | "skills" | "working_areas">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "address" | "password" | "skills" | "working_areas" | "upgrade_helper">("info");
   const [loading, setLoading] = useState<boolean>(true);
   const [updating, setUpdating] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -74,7 +75,6 @@ export const useProfile = () => {
       }
       showToast("success", t("Thành công"), t("Tải ảnh đại diện lên thành công."));
     } catch (error: any) {
-      // console.error("Avatar upload failed:", error);
       showToast("error", t("Thất bại"), error?.response?.data?.message || t("Tải ảnh lên thất bại. Vui lòng thử lại."));
     } finally {
       setAvatarUploading(false);
@@ -436,6 +436,36 @@ export const useProfile = () => {
   };
 
   const handleSubmitVerification = async () => {
+    // Check validation criteria
+    const missingItems: string[] = [];
+    if (!helperProfile?.bio || helperProfile.bio.trim() === "") {
+      missingItems.push(t("Giới thiệu bản thân"));
+    }
+    if (!helperProfile?.gender) {
+      missingItems.push(t("Giới tính"));
+    }
+    if (!helperProfile?.birthday) {
+      missingItems.push(t("Ngày sinh"));
+    }
+    if (!helperProfile?.address || helperProfile.address.trim() === "") {
+      missingItems.push(t("Địa chỉ cư trú"));
+    }
+    if (helperSkills.length === 0) {
+      missingItems.push(t("Kỹ năng chuyên môn"));
+    }
+    if (helperWorkingAreas.length === 0) {
+      missingItems.push(t("Khu vực hoạt động"));
+    }
+
+    if (missingItems.length > 0) {
+      showToast(
+        "error",
+        t("Hồ sơ chưa hoàn thiện"),
+        t("Vui lòng hoàn tất: {items} trước khi nộp hồ sơ xét duyệt.", { items: missingItems.join(", ") })
+      );
+      return;
+    }
+
     setUpdating(true);
     try {
       const res = await submitHelperVerificationApi();
@@ -445,6 +475,30 @@ export const useProfile = () => {
     } catch (err: any) {
       const msg = err?.response?.data?.message || t("Nộp hồ sơ xét duyệt thất bại.");
       showToast("error", t("Thất bại"), msg);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleUpgradeToHelper = async () => {
+    setUpdating(true);
+    try {
+      const res = await upgradeToHelperApi();
+      showToast("success", t("Thành công"), t("Nâng cấp tài khoản thành Người giúp việc thành công."));
+      if (res.access_token) {
+        localStorage.setItem("access_token", res.access_token);
+        localStorage.setItem("user", JSON.stringify(res.user));
+        dispatch(loginSuccess(res));
+        setUserProfile(res.user);
+      } else if (res.data) {
+        localStorage.setItem("user", JSON.stringify(res.data));
+        dispatch(updateUser(res.data));
+        setUserProfile(res.data);
+      }
+      await fetchAllData();
+      setActiveTab("info");
+    } catch (err: any) {
+      showToast("error", t("Thất bại"), err?.response?.data?.message || t("Đăng ký nâng cấp thất bại. Vui lòng thử lại sau."));
     } finally {
       setUpdating(false);
     }
@@ -480,5 +534,6 @@ export const useProfile = () => {
     handleAddWorkingArea,
     handleRemoveWorkingArea,
     handleSubmitVerification,
+    handleUpgradeToHelper,
   };
 };

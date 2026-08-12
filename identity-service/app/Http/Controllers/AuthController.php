@@ -441,6 +441,33 @@ class AuthController extends Controller
     return $this->errorResponse('Không tìm thấy file tải lên.');
   }
 
+  /**
+   * Tự nâng cấp tài khoản từ vai trò Khách hàng (Role::CUSTOMER) lên Người làm (Role::HELPER).
+   */
+  public function upgradeToHelper()
+  {
+    $user = $this->getAuthUser();
+    if (!$user) {
+      return $this->unauthorizedResponse();
+    }
+
+    if ($user->role_id === Role::HELPER) {
+      return response()->json([
+        'message' => 'Tài khoản của bạn đã là Người giúp việc.'
+      ], Response::HTTP_BAD_REQUEST);
+    }
+
+    // Cập nhật vai trò sang HELPER (mã số 3)
+    $user->update(['role_id' => Role::HELPER]);
+    $user->load('role.permissions');
+
+    ActivityLogService::log($user->id, 'UPGRADE_TO_HELPER', "Đã yêu cầu và tự nâng cấp vai trò tài khoản thành Người giúp việc.");
+
+    $newJwtToken = auth('api')->login($user);
+
+    return $this->responseWithToken($newJwtToken, $user);
+  }
+
   // =====================================================================
   //  ADMIN — Quản lý Users (Chỉ Admin role_id = 1, bảo vệ bởi AdminMiddleware)
   // =====================================================================
