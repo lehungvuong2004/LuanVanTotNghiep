@@ -10,10 +10,6 @@ use App\Services\ImageUploadService;
 
 class NewsController extends Controller
 {
-    // =====================================================================
-    //  PUBLIC — Không cần token
-    // =====================================================================
-
     /**
      * Danh sách tin tức public (chỉ status = published).
      */

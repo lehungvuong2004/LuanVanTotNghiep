@@ -4,7 +4,6 @@ import { useSearchParams } from "react-router-dom";
 import { getHelpersPublic, getRegionsPublic, type HelperProfile, type CityData } from "../../api/helpers";
 import { getServicesEnrichedApi, getCategoriesApi, type Service, type ServiceCategory } from "../../api/servicesApi/services";
 
-// Shape dùng trong UI cho Service Card
 export interface ServiceItem {
   id: number;
   title: string;
@@ -20,7 +19,6 @@ export interface ServiceItem {
   isFavorite?: boolean;
 }
 
-// Shape dùng trong UI cho Helper Card
 export interface HelperItem {
   id: number;
   userId: number;
@@ -35,7 +33,6 @@ export interface HelperItem {
   bio?: string;
 }
 
-// Bộ lọc hợp nhất cho cả Service và Helper
 export interface ServiceFilterParams {
   city?: string;
   district?: string;
@@ -51,7 +48,6 @@ export interface ServiceFilterParams {
   search?: string;
 }
 
-// Map base_price number → định dạng giá tiêu chuẩn
 function priceTypeLabel(priceType: string): string {
   switch (priceType) {
     case "hourly":
@@ -65,7 +61,6 @@ function priceTypeLabel(priceType: string): string {
   }
 }
 
-// Chuyển HelperProfile từ API → HelperItem cho UI
 function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
   const trans = t || ((s: string) => s);
   const skillTags =
@@ -74,7 +69,6 @@ function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
       .filter(Boolean)
       .slice(0, 3) ?? [];
 
-  // API trả về snake_case "working_areas", interface dùng camelCase "workingAreas"
   const rawAreas = (profile as any).working_areas ?? profile.workingAreas ?? [];
 
   const area =
@@ -102,8 +96,6 @@ function mapHelperProfile(profile: HelperProfile, t?: any): HelperItem {
     bio: profile.bio ?? undefined,
   };
 }
-
-// Chuyển Service từ API → ServiceItem cho UI (sử dụng dữ liệu thực từ enriched API)
 function mapService(service: Service, t?: any): ServiceItem {
   const trans = t || ((s: string) => s);
   return {
@@ -207,7 +199,6 @@ export const useService = () => {
     });
   }, [searchParams]);
 
-  // Fetch danh mục từ API
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -243,8 +234,6 @@ export const useService = () => {
     },
     [t],
   );
-
-  // Fetch helpers công khai từ API
   const fetchHelpers = useCallback(
     async (params: ServiceFilterParams) => {
       setHelperLoading(true);
@@ -274,15 +263,26 @@ export const useService = () => {
     [t],
   );
 
-  // Trigger fetch khi bộ lọc thay đổi
+  const apiFetchParams = JSON.stringify({
+    limit: filterParams.limit,
+    page: filterParams.page,
+    city: filterParams.city,
+    district: filterParams.district,
+    category_id: filterParams.category_id,
+    price_type: filterParams.price_type,
+    min_price: filterParams.min_price,
+    max_price: filterParams.max_price,
+    service_id: filterParams.service_id,
+    rating_min: filterParams.rating_min,
+  });
   useEffect(() => {
+    const paramsConfig = JSON.parse(apiFetchParams);
     Promise.resolve().then(() => {
-      fetchServices(filterParams);
-      fetchHelpers(filterParams);
+      fetchServices(paramsConfig);
+      fetchHelpers(paramsConfig);
     });
-  }, [filterParams, fetchServices, fetchHelpers]);
+  }, [apiFetchParams, fetchServices, fetchHelpers]);
 
-  // Cập nhật filter (gộp, không ghi đè)
   const updateHelperFilter = useCallback(
     (patch: Partial<ServiceFilterParams>) => {
       setFilterParams((prev) => ({ ...prev, ...patch, page: 1 }));
@@ -302,12 +302,10 @@ export const useService = () => {
     [setSearchParams],
   );
 
-  // Đổi trang
   const goToHelperPage = useCallback((page: number) => {
     setFilterParams((prev) => ({ ...prev, page }));
   }, []);
 
-  // Lọc và sắp xếp services client-side (chỉ hiển thị dịch vụ có thợ khả dụng cho Khách hàng)
   const filteredAndSortedServices = [...services]
     .filter((s) => {
       if (s.helpersCount <= 0) {
@@ -334,7 +332,6 @@ export const useService = () => {
       if (sortBy === "rating") {
         return b.rating - a.rating;
       }
-      // popular: sắp xếp theo helpersCount desc
       return b.helpersCount - a.helpersCount;
     });
 

@@ -17,6 +17,7 @@ use App\Services\InternalNotificationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -38,7 +39,7 @@ class BookingController extends Controller
 
   /**
    * Create a new booking.
-   * Role: customer (role_id=4)
+   * Role: customer (role_id=4) Kiểm tra lịch trùng khi khách hàng tạo đơn đặt lịch trực tiếp cho Helper
    */
   public function store(Request $request)
   {
@@ -374,7 +375,7 @@ class BookingController extends Controller
   }
 
   /**
-   * Helper accepts a pending booking.
+   * Helper accepts a pending booking. Kiểm tra lịch trùng khi Helper bấm đồng ý nhận đơn đặt trực tiếp
    */
   public function accept(Request $request, $id)
   {
@@ -394,7 +395,7 @@ class BookingController extends Controller
       return $this->errorResponse("Không thể chấp nhận đơn đặt lịch ở trạng thái '{$booking->status}'.", Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    $durationHours = $booking->services()->sum(\Illuminate\Support\Facades\DB::raw('duration_hours * quantity')) ?: 2;
+    $durationHours = $booking->services()->sum(DB::raw('duration_hours * quantity')) ?: 2;
     if (Booking::hasConflict((int) $request->authUser['id'], $booking->booking_date, $booking->start_time, (float) $durationHours, (int) $booking->id)) {
       return $this->errorResponse('Bạn không thể nhận việc này do trùng lịch với một công việc khác.');
     }
@@ -832,12 +833,16 @@ class BookingController extends Controller
     try {
       $svcRes = Http::timeout(3)->get(env('PROVIDER_SERVICE_URL', 'http://provider-service:8000') . '/api/providers/services');
       if ($svcRes->successful()) {
-        $svcs = $svcRes->json('data') ?? $svcRes->json() ?? [];
-        if (is_array($svcs)) {
-          foreach ($svcs as $s) {
-            if (isset($s['id'])) {
-              $serviceMap[$s['id']] = $s['title'] ?? $s['name'] ?? ('Dịch vụ #' . $s['id']);
-            }
+        $responseData = $svcRes->json('data') ?? $svcRes->json() ?? [];
+        $svcs = [];
+        if (isset($responseData['data']) && is_array($responseData['data'])) {
+          $svcs = $responseData['data'];
+        } elseif (is_array($responseData)) {
+          $svcs = $responseData;
+        }
+        foreach ($svcs as $s) {
+          if (isset($s['id'])) {
+            $serviceMap[$s['id']] = $s['title'] ?? $s['name'] ?? ('Dịch vụ #' . $s['id']);
           }
         }
       }

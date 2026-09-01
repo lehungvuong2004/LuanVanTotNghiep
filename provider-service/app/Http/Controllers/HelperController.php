@@ -115,7 +115,7 @@ class HelperController extends Controller
               'user_id' => $users[0]['id'],
               'bio' => 'Chưa cập nhật giới thiệu.',
               'experience_year' => 0,
-              'status' => 'approved',
+              'status' => 'pending',
               'rating_avg' => 5.0,
               'total_reviews' => 0
             ]);

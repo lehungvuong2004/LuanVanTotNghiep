@@ -343,7 +343,7 @@ class JobPostController extends Controller
   }
 
   /**
-   * Customer selects a helper from the applicants.
+   * Customer selects a helper from the applicants. (Kiểm tra lịch trùng khi khách hàng chọn Helper từ danh sách ứng tuyển.)
    */
   public function selectHelper(Request $request, $id, $helperId)
   {
@@ -404,7 +404,7 @@ class JobPostController extends Controller
   }
 
   /**
-   * Helper responds to Customer's invitation (accept / reject).
+   * Helper responds to Customer's invitation (accept / reject Kiểm tra lịch trùng khi Helper phản hồi đồng ý nhận việc từ lời mời của khách hàng).
    */
   public function respondToSelection(Request $request, $id)
   {
@@ -648,7 +648,7 @@ class JobPostController extends Controller
   }
 
   /**
-   * Helper applies to a job post.
+   * Helper applies to a job post.( Kiểm tra lịch trùng khi Helper nộp đơn ứng tuyển cho một job board)
    */
   public function apply(Request $request, $id)
   {

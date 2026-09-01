@@ -1,5 +1,4 @@
 import axiosInstance from "./axios";
-
 export interface ActivityLogUser {
   id: number;
   full_name: string;

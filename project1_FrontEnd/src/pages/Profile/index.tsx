@@ -994,7 +994,7 @@ export const Profile = () => {
         <Icon icon="solar:danger-triangle-bold-duotone" className="text-xl text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
         <div>
           <span className="font-bold block mb-1">{t("Lưu ý quan trọng:")}</span>
-          {t("Sau khi nâng cấp, giao diện tài khoản của bạn sẽ chuyển sang chế độ Người làm. Bạn vẫn có thể đặt dịch vụ khác khi cần, nhưng hồ sơ thợ của bạn cần được hoàn thiện và được Admin phê duyệt mới có thể bắt đầu nhận lịch.")}
+          {t("Sau khi nâng cấp, tài khoản của bạn sẽ chuyển đổi sang chế độ Người giúp việc và không thể tự đặt dịch vụ hoặc đăng bài tuyển dụng dưới tài khoản này nữa. Hồ sơ thợ của bạn cần được hoàn thiện và được nhân viên vận hành phê duyệt mới có thể bắt đầu nhận lịch.")}
         </div>
       </div>
 

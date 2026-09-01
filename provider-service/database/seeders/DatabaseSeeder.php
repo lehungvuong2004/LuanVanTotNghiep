@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
    */
   public function run(): void
   {
-    // 1. Seed Service Categories (3 records: Cleaning, Repair, Care)
+    // 1. Seed Service Categories (5 records: Cleaning, Repair, Care, Gardening, Assembly)
     $cleaning = ServiceCategory::updateOrCreate(
       ['name' => 'Cleaning'],
       [
@@ -47,6 +47,26 @@ class DatabaseSeeder extends Seeder
       [
         'description' => 'Elderly and child care services',
         'icon'        => 'material-symbols:elderly-outline',
+        'type'        => 'both',
+        'status'      => 'active',
+      ]
+    );
+
+    $assembly = ServiceCategory::updateOrCreate(
+      ['name' => 'Assembly'],
+      [
+        'description' => 'Furniture assembly and household handyman tasks',
+        'icon'        => 'material-symbols:build-circle-outline',
+        'type'        => 'both',
+        'status'      => 'active',
+      ]
+    );
+
+    $gardening = ServiceCategory::updateOrCreate(
+      ['name' => 'Gardening'],
+      [
+        'description' => 'Lawn care, plant pruning and landscaping services',
+        'icon'        => 'material-symbols:park-outline',
         'type'        => 'both',
         'status'      => 'active',
       ]
@@ -122,6 +142,127 @@ class DatabaseSeeder extends Seeder
         'price_type'  => 'hourly',
         'status'      => 'active',
         'image'       => 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    // New Services
+    $officeCleaning = Service::updateOrCreate(
+      ['name' => 'Office & Store Cleaning'],
+      [
+        'category_id' => $cleaning->id,
+        'description' => 'Deep cleaning of offices, retail stores, or small workspaces.',
+        'base_price'  => 800000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $postConstCleaning = Service::updateOrCreate(
+      ['name' => 'Post-Construction Cleaning'],
+      [
+        'category_id' => $cleaning->id,
+        'description' => 'Clean up dust, paint stains, and debris after building construction or renovation.',
+        'base_price'  => 1500000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $elecInst = Service::updateOrCreate(
+      ['name' => 'Electrical Device Installation'],
+      [
+        'category_id' => $repair->id,
+        'description' => 'Installing lights, ceiling fans, sockets, or smart home devices.',
+        'base_price'  => 200000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1621905252507-b354bc25edac?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $plumbRepair = Service::updateOrCreate(
+      ['name' => 'Plumbing Repair & Leak Fixing'],
+      [
+        'category_id' => $repair->id,
+        'description' => 'Fixing sink leaks, kitchen faucets, toilet installation, and minor pipe repairs.',
+        'base_price'  => 180000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1542013936693-8848e5744a83?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $babyCare = Service::updateOrCreate(
+      ['name' => 'Baby & Infant Care'],
+      [
+        'category_id' => $care->id,
+        'description' => 'Caring for baby infants, feeding, diapering, bathing, and putting to sleep.',
+        'base_price'  => 150000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $patientCare = Service::updateOrCreate(
+      ['name' => 'Patient Care at Hospital & Home'],
+      [
+        'category_id' => $care->id,
+        'description' => 'Support for patients recovering from surgery, illness, or medical treatment.',
+        'base_price'  => 220000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $furAssembly = Service::updateOrCreate(
+      ['name' => 'Furniture Assembly'],
+      [
+        'category_id' => $assembly->id,
+        'description' => 'Assemble wardrobes, desks, drawers, or bookshelf units.',
+        'base_price'  => 300000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $wallMount = Service::updateOrCreate(
+      ['name' => 'Wall Mounting Services'],
+      [
+        'category_id' => $assembly->id,
+        'description' => 'Hang televisions, picture frames, large paintings, shelves, or mirrors securely.',
+        'base_price'  => 150000,
+        'price_type'  => 'fixed',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $lawnMowing = Service::updateOrCreate(
+      ['name' => 'Lawn Mowing & Weeding'],
+      [
+        'category_id' => $gardening->id,
+        'description' => 'Trimming overgrown grass and clearing weed from gardens or backyards.',
+        'base_price'  => 100000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1200&auto=format&fit=crop',
+      ]
+    );
+
+    $treePruning = Service::updateOrCreate(
+      ['name' => 'Tree Pruning & Shrub Trimming'],
+      [
+        'category_id' => $gardening->id,
+        'description' => 'Pruning overgrown tree branches and trimming hedge bushes to stay neat.',
+        'base_price'  => 120000,
+        'price_type'  => 'hourly',
+        'status'      => 'active',
+        'image'       => 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=1200&auto=format&fit=crop',
       ]
     );
 

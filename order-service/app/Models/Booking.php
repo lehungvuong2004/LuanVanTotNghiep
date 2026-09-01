@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\JobPost;
 
 class Booking extends Model
 {
@@ -29,7 +30,7 @@ class Booking extends Model
   {
     if (preg_match('/\[Bài tuyển dụng:\s*([^\]]+)\]/', $this->note ?? '', $matches)) {
       $jobTitle = trim($matches[1]);
-      $jobPost = \App\Models\JobPost::where('title', $jobTitle)
+      $jobPost = JobPost::where('title', $jobTitle)
         ->where('customer_id', $this->customer_id)
         ->first();
       return $jobPost ? $jobPost->id : null;

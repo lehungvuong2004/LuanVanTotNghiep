@@ -1,6 +1,5 @@
 import axiosInstance from "./axios";
 import type { User } from "./usersApi/users";
-
 export interface HelperSkill {
   id: number;
   helper_id: number;

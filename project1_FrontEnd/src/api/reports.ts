@@ -1,5 +1,4 @@
 import axiosInstance from "./axios";
-
 export interface Report {
   id: number;
   booking_id?: number | null;

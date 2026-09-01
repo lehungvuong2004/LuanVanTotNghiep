@@ -605,7 +605,7 @@ export const HistoryPage = () => {
                 {booking.statusRaw === "confirmed" && (
                   <button
                     onClick={() => handleStartMoving(booking.idRaw)}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer hover:scale-105"
+                    className="px-3 py-1.5 bg-cyan-700 hover:bg-blue-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer hover:scale-105"
                   >
                     <Icon icon="material-symbols:local-shipping" className="text-sm" />
                     <span>{t("Bắt đầu đi")}</span>
@@ -1635,8 +1635,8 @@ export const HistoryPage = () => {
                         <button
                           type="button"
                           onClick={() => setPaymentMethod("cash")}
-                          disabled={isPaymentProcessing}
-                          className={`flex items-center gap-2.5 px-4 py-3.5 rounded-xl border text-sm font-bold transition-all cursor-pointer disabled:opacity-50 ${
+                          disabled={true}
+                          className={`flex items-center gap-2.5 px-4 py-3.5 rounded-xl border text-sm font-bold transition-all cursor-not-allowed disabled:opacity-50 ${
                             paymentMethod === "cash"
                               ? "border-[#026E5F] bg-teal-50 dark:bg-teal-900/20 text-[#026E5F] dark:text-teal-400 shadow-sm ring-1 ring-[#026E5F]/20"
                               : "border-slate-200 dark:border-slate-70 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"

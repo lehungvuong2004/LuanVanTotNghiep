@@ -32,10 +32,10 @@ class Payment extends Model
 
             // Determine commission fee percentage: Direct booking (BookingId) = 20%, Job Board (JobPostId) = 10%
             $rate = 0;
-            if ($payment->booking_id) {
-                $rate = 20;
-            } elseif ($payment->job_post_id) {
+            if ($payment->job_post_id) {
                 $rate = 10;
+            } elseif ($payment->booking_id) {
+                $rate = 20;
             }
 
             $payment->commission_rate = $rate;

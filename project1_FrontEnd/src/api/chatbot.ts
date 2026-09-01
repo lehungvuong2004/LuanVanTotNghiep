@@ -1,5 +1,4 @@
 import axiosInstance from "./axios";
-
 export interface ChatbotKnowledge {
   id: number;
   keyword: string | null;

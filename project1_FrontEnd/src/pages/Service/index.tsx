@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
@@ -35,6 +35,25 @@ const RATINGS = [
 
 const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, regions }: SidebarFilterProps) => {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
+  const [localSearch, setLocalSearch] = useState(filterParams.search ?? "");
+  const [prevSearchProp, setPrevSearchProp] = useState(filterParams.search);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  if (filterParams.search !== prevSearchProp) {
+    setPrevSearchProp(filterParams.search);
+    setLocalSearch(filterParams.search ?? "");
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalSearch(val);
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      onFilterChange({ search: val || undefined });
+    }, 500);
+  };
 
   const citiesList = regions.length > 0 ? regions.map((r) => r.name) : ["TP.HCM"];
   const selectedCityName = filterParams.city ?? "TP.HCM";
@@ -92,12 +111,22 @@ const SidebarFilter = ({ t, filterParams, onFilterChange, onReset, categories, r
             <input
               type="text"
               placeholder={t("Nhập tên dịch vụ...")}
-              value={filterParams.search ?? ""}
-              onChange={(e) => onFilterChange({ search: e.target.value || undefined })}
+              value={localSearch}
+              onChange={handleSearchChange}
               className="flex-1 bg-transparent text-sm outline-none text-slate-700 dark:text-slate-300 placeholder-slate-400 font-semibold"
             />
-            {filterParams.search && (
-              <button type="button" onClick={() => onFilterChange({ search: undefined })} className="text-slate-400 hover:text-slate-600 cursor-pointer transition-colors shrink-0">
+            {localSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setLocalSearch("");
+                  if (searchTimeoutRef.current) {
+                    clearTimeout(searchTimeoutRef.current);
+                  }
+                  onFilterChange({ search: undefined });
+                }}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer transition-colors shrink-0"
+              >
                 <Icon icon="material-symbols:close-rounded" className="text-lg" />
               </button>
             )}

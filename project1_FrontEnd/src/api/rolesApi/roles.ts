@@ -1,5 +1,4 @@
 import axiosInstance from "../axios";
-
 export interface Permission {
   id: number;
   name: string;

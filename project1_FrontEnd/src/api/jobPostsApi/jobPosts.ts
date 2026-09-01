@@ -1,10 +1,6 @@
 import axiosInstance from "../axios";
 import type { Service } from "../servicesApi/services";
 
-// ==========================================
-// TYPES & INTERFACES
-// ==========================================
-
 export interface JobPost {
   id: number;
   customer_id: number;

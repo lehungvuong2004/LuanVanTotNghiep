@@ -29,7 +29,6 @@ export interface RegisterRequest {
   phone: string;
   password: string;
 }
-
 export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
   const response = await axiosInstance.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, data);
   return response.data;
